@@ -21,6 +21,7 @@ import AuthPage from "@/pages/AuthPage";
 // import PictureAssignment from "@/pages/PictureAssignment";
 import NotFound from "@/pages/not-found";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import UpdateNotification from "@/components/UpdateNotification";
 import { useEffect, useState } from "react";
 import React from "react";
 
@@ -63,6 +64,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 function Router() {
   const { user, isLoading } = useAuth();
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
+  const [showUpdateNotification, setShowUpdateNotification] = useState(false);
 
   useEffect(() => {
     // Show PWA prompt after a short delay if not already dismissed
@@ -76,9 +78,26 @@ function Router() {
     }
   }, []);
 
+  useEffect(() => {
+    // Listen for service worker updates
+    const handleSWUpdate = () => {
+      setShowUpdateNotification(true);
+    };
+
+    window.addEventListener('sw-update-available', handleSWUpdate);
+    
+    return () => {
+      window.removeEventListener('sw-update-available', handleSWUpdate);
+    };
+  }, []);
+
   const handlePWAPromptDismiss = () => {
     setShowPWAPrompt(false);
     localStorage.setItem('pwa-prompt-dismissed', 'true');
+  };
+
+  const handleUpdateNotificationDismiss = () => {
+    setShowUpdateNotification(false);
   };
 
   if (isLoading) {
@@ -120,23 +139,17 @@ function Router() {
       {showPWAPrompt && (
         <PWAInstallPrompt onDismiss={handlePWAPromptDismiss} />
       )}
+      
+      {/* Update Notification */}
+      {showUpdateNotification && (
+        <UpdateNotification onDismiss={handleUpdateNotificationDismiss} />
+      )}
     </>
   );
 }
 
 function App() {
   useEffect(() => {
-    // Register service worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(registration => {
-          console.log('Service Worker registered successfully:', registration);
-        })
-        .catch(error => {
-          console.log('Service Worker registration failed:', error);
-        });
-    }
-
     // Add manifest link
     const link = document.createElement('link');
     link.rel = 'manifest';
