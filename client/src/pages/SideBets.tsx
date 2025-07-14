@@ -155,9 +155,9 @@ export default function SideBets() {
   };
 
   const roundTitles = {
-    1: "Round 1 - Best Ball",
-    2: "Round 2 - Scramble",
-    3: "Round 3 - Net Stroke Play",
+    1: "Round 1 - Best Ball (Deerhurst)",
+    2: "Round 2 - Scramble (Deerhurst)", 
+    3: "Round 3 - Net Stroke Play (Muskoka Bay)",
   };
 
   const allPlayers = teams.flatMap((team: any) => [team.player1Name, team.player2Name]);
@@ -211,9 +211,9 @@ export default function SideBets() {
                     <SelectValue placeholder="Select round" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">Round 1 - Best Ball</SelectItem>
-                    <SelectItem value="2">Round 2 - Scramble</SelectItem>
-                    <SelectItem value="3">Round 3 - Net Stroke Play</SelectItem>
+                    <SelectItem value="1">Round 1 - Best Ball (Deerhurst)</SelectItem>
+                    <SelectItem value="2">Round 2 - Scramble (Deerhurst)</SelectItem>
+                    <SelectItem value="3">Round 3 - Net Stroke Play (Muskoka Bay)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -8,6 +8,13 @@ export default function Rules() {
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-golf-green-600 mb-2">Tournament Rules</h2>
         <p className="text-gray-600 dark:text-gray-400">Official format and scoring guidelines</p>
+        <div className="mt-4 bg-golf-green-50 dark:bg-slate-700 p-4 rounded-lg">
+          <h3 className="font-semibold text-golf-green-600 mb-2">Tournament Locations</h3>
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            <p><strong>Days 1-2:</strong> Deerhurst Golf Course, Muskoka</p>
+            <p><strong>Final Day:</strong> Muskoka Bay Golf Club</p>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-8">
@@ -18,7 +25,7 @@ export default function Rules() {
               <div className="w-8 h-8 bg-golf-green-100 dark:bg-golf-green-900 rounded-full flex items-center justify-center mr-3">
                 <span className="text-golf-green-600 font-bold text-sm">1</span>
               </div>
-              Round 1: Best Ball
+              Round 1: Best Ball - Deerhurst Golf Course
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -50,7 +57,7 @@ export default function Rules() {
               <div className="w-8 h-8 bg-golf-green-100 dark:bg-golf-green-900 rounded-full flex items-center justify-center mr-3">
                 <span className="text-golf-green-600 font-bold text-sm">2</span>
               </div>
-              Round 2: Scramble
+              Round 2: Scramble - Deerhurst Golf Course
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -86,7 +93,7 @@ export default function Rules() {
               <div className="w-8 h-8 bg-golf-green-100 dark:bg-golf-green-900 rounded-full flex items-center justify-center mr-3">
                 <span className="text-golf-green-600 font-bold text-sm">3</span>
               </div>
-              Round 3: Net Stroke Play
+              Round 3: Net Stroke Play - Muskoka Bay Golf Club
             </CardTitle>
           </CardHeader>
           <CardContent>

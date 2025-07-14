@@ -100,7 +100,7 @@ export class MemStorage implements IStorage {
     return scoresArray.map(score => ({
       ...score,
       team: this.teams.get(score.teamId)!
-    })).sort((a, b) => a.rank - b.rank);
+    })).sort((a, b) => (a.rank || 0) - (b.rank || 0));
   }
 
   async updateScore(teamId: number, round: number, score: number): Promise<Score> {
@@ -128,7 +128,7 @@ export class MemStorage implements IStorage {
 
   private recalculateRanks() {
     const allScores = Array.from(this.scores.values());
-    allScores.sort((a, b) => a.totalScore - b.totalScore);
+    allScores.sort((a, b) => (a.totalScore || 0) - (b.totalScore || 0));
     
     allScores.forEach((score, index) => {
       score.rank = index + 1;
@@ -145,6 +145,7 @@ export class MemStorage implements IStorage {
     const sideBet: SideBet = {
       id,
       ...insertSideBet,
+      result: insertSideBet.result || null,
       createdAt: new Date()
     };
     this.sideBets.set(id, sideBet);
@@ -175,6 +176,7 @@ export class MemStorage implements IStorage {
     const photo: Photo = {
       id,
       ...insertPhoto,
+      caption: insertPhoto.caption || null,
       uploadedAt: new Date()
     };
     this.photos.set(id, photo);

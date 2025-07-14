@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Gambler Cup 2025 is a golf tournament tracking application built with React and Express. It's designed to manage team information, scores, side bets, and photos for an 8-team golf tournament. The application features real-time updates, offline functionality, and a responsive design optimized for mobile devices.
+The Gambler Cup 2025 is a golf tournament tracking application built with React and Express. It's designed to manage team information, scores, side bets, and photos for an 8-team golf tournament taking place August 29-31, 2025. The tournament will be held at Deerhurst Golf Course in Muskoka (Days 1-2) and Muskoka Bay Golf Club (Final Day). The application features real-time updates, offline functionality, and a responsive design optimized for mobile devices.
 
 ## User Preferences
 
@@ -118,3 +118,13 @@ Preferred communication style: Simple, everyday language.
 - **Problem**: Prevent runtime errors in tournament-critical application
 - **Solution**: TypeScript throughout with Zod validation
 - **Rationale**: Catch errors at compile time and ensure data integrity
+
+### Recent Changes: Latest modifications with dates
+
+**July 14, 2025:**
+- Updated tournament dates from July 15-17 to August 29-31, 2025
+- Added specific golf course locations:
+  - Days 1-2: Deerhurst Golf Course, Muskoka
+  - Final Day: Muskoka Bay Golf Club
+- Fixed TypeScript errors in storage implementation for better type safety
+- Updated countdown timer and all references to reflect new dates and locations

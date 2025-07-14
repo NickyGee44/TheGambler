@@ -12,7 +12,7 @@ export default function Home() {
   });
 
   useEffect(() => {
-    const targetDate = new Date('2025-07-15T08:00:00').getTime();
+    const targetDate = new Date('2025-08-29T08:00:00').getTime();
     
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -61,7 +61,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-golf-green-600 mb-2">Tournament Countdown</h2>
-            <p className="text-gray-600 dark:text-gray-400">July 15-17, 2025</p>
+            <p className="text-gray-600 dark:text-gray-400">August 29-31, 2025</p>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
@@ -102,7 +102,7 @@ export default function Home() {
                 <Volleyball className="text-golf-green-600 text-xl" />
               </div>
               <h3 className="text-xl font-bold mb-2">Format</h3>
-              <p className="text-gray-600 dark:text-gray-400">3 rounds of different formats: Best Ball, Scramble, and Net Stroke Play</p>
+              <p className="text-gray-600 dark:text-gray-400">3 rounds: Days 1-2 at Deerhurst Golf Course, Final day at Muskoka Bay Golf Club</p>
             </CardContent>
           </Card>
           
