@@ -7,10 +7,10 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 // Import all the current images
-import austinHassaniImg from "@/assets/austin-hassani.png";
+import austinHassaniImg from "@/assets/austin-hassani.jpeg";
 import baileyCarlsonImg from "@/assets/bailey-carlson.jpeg";
 import benBraunImg from "@/assets/ben-braun.jpeg";
-import christianHauckImg from "@/assets/christian-hauck.png";
+import christianHauckImg from "@/assets/christian-hauck.jpeg";
 import connorPattersonImg from "@/assets/connor-patterson.jpeg";
 import erikBoudreauImg from "@/assets/erik-boudreau.jpeg";
 import jeffreyReinerImg from "@/assets/jeffrey-reiner.jpeg";

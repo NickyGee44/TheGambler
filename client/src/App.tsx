@@ -18,7 +18,7 @@ import Round3 from "@/pages/Round3";
 import Round3Matchups from "@/pages/Round3Matchups";
 import TournamentRules from "@/pages/TournamentRules";
 import AuthPage from "@/pages/AuthPage";
-import PictureAssignment from "@/pages/PictureAssignment";
+// import PictureAssignment from "@/pages/PictureAssignment";
 import NotFound from "@/pages/not-found";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { useEffect, useState } from "react";
@@ -110,7 +110,7 @@ function Router() {
             <Route path="/tournament-rules" component={TournamentRules} />
             <Route path="/photos" component={Photos} />
             <Route path="/round3-matchups" component={Round3Matchups} />
-            <Route path="/admin/picture-assignment" component={PictureAssignment} />
+            {/* <Route path="/admin/picture-assignment" component={PictureAssignment} /> */}
           </>
         )}
         <Route component={NotFound} />
