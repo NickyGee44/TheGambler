@@ -19,7 +19,7 @@ import willbibbingsImg from "@/assets/will-bibbings.jpeg";
 interface ProfilePictureProps {
   firstName: string;
   lastName: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
   className?: string;
 }
 
@@ -58,7 +58,8 @@ export default function ProfilePicture({
     sm: "w-8 h-8 text-sm",
     md: "w-10 h-10 text-base",
     lg: "w-12 h-12 text-lg",
-    xl: "w-16 h-16 text-xl"
+    xl: "w-16 h-16 text-xl",
+    "2xl": "w-24 h-24 text-2xl"
   };
 
   return (
