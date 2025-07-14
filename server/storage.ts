@@ -5,7 +5,7 @@ import {
   sideBets,
   photos,
   type User,
-  type UpsertUser,
+  type InsertUser,
   type Team,
   type Score,
   type SideBet,
@@ -16,14 +16,14 @@ import {
   type InsertPhoto,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
   // User operations
-  // (IMPORTANT) these user operations are mandatory for Replit Auth.
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  getUser(id: number): Promise<User | undefined>;
+  getUserByName(firstName: string, lastName: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
   
   // Teams
   getTeams(): Promise<Team[]>;
@@ -31,7 +31,7 @@ export interface IStorage {
   
   // Scores
   getScores(): Promise<(Score & { team: Team })[]>;
-  updateScore(teamId: number, round: number, score: number, userId?: string): Promise<Score>;
+  updateScore(teamId: number, round: number, score: number, userId?: number): Promise<Score>;
   
   // Side Bets
   getSideBets(): Promise<SideBet[]>;
@@ -48,24 +48,22 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   // User operations
-  // (IMPORTANT) these user operations are mandatory for Replit Auth.
-
-  async getUser(id: string): Promise<User | undefined> {
+  async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async getUserByName(firstName: string, lastName: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(
+      and(eq(users.firstName, firstName), eq(users.lastName, lastName))
+    );
+    return user;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
       .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
       .returning();
     return user;
   }
@@ -169,7 +167,7 @@ export class DatabaseStorage implements IStorage {
     })).sort((a, b) => (a.rank || 0) - (b.rank || 0));
   }
 
-  async updateScore(teamId: number, round: number, score: number, userId?: string): Promise<Score> {
+  async updateScore(teamId: number, round: number, score: number, userId?: number): Promise<Score> {
     const existingScore = Array.from(this.scores.values()).find(s => s.teamId === teamId);
     if (!existingScore) {
       throw new Error('Score not found');

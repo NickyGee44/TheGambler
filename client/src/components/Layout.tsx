@@ -2,12 +2,14 @@ import Navigation from "./Navigation";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Wifi, WifiOff } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
+  const { user } = useAuth();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
@@ -72,9 +74,9 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       )}
 
-      <Navigation />
+      {user && <Navigation />}
       
-      <main className="lg:ml-64 min-h-screen">
+      <main className={user ? "lg:ml-64 min-h-screen" : "min-h-screen"}>
         {children}
       </main>
     </div>

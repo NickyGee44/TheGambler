@@ -2,13 +2,21 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth } from "./auth";
 import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Middleware to check authentication
+function requireAuth(req: any, res: any, next: any) {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  next();
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  await setupAuth(app);
+  setupAuth(app);
   const httpServer = createServer(app);
 
   // WebSocket server for real-time updates
@@ -40,17 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Auth routes are handled in auth.ts
 
   // Teams endpoints
   app.get('/api/teams', async (req, res) => {
@@ -72,10 +70,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/scores', isAuthenticated, async (req: any, res) => {
+  app.post('/api/scores', requireAuth, async (req: any, res) => {
     try {
       const { teamId, round, score } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!teamId || !round || score === undefined) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -88,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user is authorized to update this team's score
-      const playerMatch = await storage.findPlayerByName(user.firstName || '', user.lastName || '');
+      const playerMatch = await storage.findPlayerByName(user.firstName, user.lastName);
       if (!playerMatch || playerMatch.teamId !== teamId) {
         return res.status(403).json({ error: 'You can only update scores for your own team' });
       }

@@ -128,12 +128,15 @@ Preferred communication style: Simple, everyday language.
   - Final Day: Muskoka Bay Golf Club
 - Fixed TypeScript errors in storage implementation for better type safety
 - Updated countdown timer and all references to reflect new dates and locations
-- **Implemented Replit Authentication System:**
-  - Added PostgreSQL database with user authentication tables
-  - Created authentication middleware and routes
-  - Added player name matching system for score edit permissions
+- **Implemented Custom Authentication System:**
+  - Replaced Replit auth with simple username/password system
+  - Users register with first name, last name, and password
+  - Secure password hashing with crypto.scrypt and salt
+  - PostgreSQL database with user and session tables
+  - Player name matching system for score edit permissions
   - Players can only edit scores for their own team
-  - Integrated logout functionality in navigation
+  - Beautiful authentication page with login/register tabs
+  - Logout functionality integrated in navigation
 - **Applied Full Dark Mode Theme:**
   - Set default theme to dark mode
   - Enhanced CSS variables for better dark mode support

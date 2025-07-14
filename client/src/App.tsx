@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { useAuth } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Layout from "@/components/Layout";
 import Home from "@/pages/Home";
 import Teams from "@/pages/Teams";
@@ -12,17 +12,28 @@ import Scores from "@/pages/Scores";
 import SideBets from "@/pages/SideBets";
 import Rules from "@/pages/Rules";
 import Photos from "@/pages/Photos";
-import Landing from "@/pages/Landing";
+import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
+      {!user ? (
+        <Route path="/" component={AuthPage} />
       ) : (
         <>
           <Route path="/" component={Home} />
@@ -83,10 +94,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <Layout>
-            <Router />
-          </Layout>
-          <Toaster />
+          <AuthProvider>
+            <Layout>
+              <Router />
+            </Layout>
+            <Toaster />
+          </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
