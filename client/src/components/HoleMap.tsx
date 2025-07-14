@@ -66,16 +66,17 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
         const { Map } = await loader.importLibrary("maps");
 
         if (mapRef.current) {
+          // Professional golf app configuration like The Grint/Arccos
           const mapInstance = new Map(mapRef.current, {
             center: { lat: hole.tee.lat, lng: hole.tee.lng },
-            zoom: 17,
+            zoom: 18, // Closer zoom for golf hole detail
             mapTypeId: "satellite",
             tilt: 0,
             heading: 0,
             disableDefaultUI: true,
             zoomControl: true,
             mapTypeControl: false,
-            scaleControl: true,
+            scaleControl: false,
             streetViewControl: false,
             rotateControl: false,
             fullscreenControl: false,
@@ -85,68 +86,101 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
                 featureType: "poi",
                 elementType: "labels",
                 stylers: [{ visibility: "off" }]
+              },
+              {
+                featureType: "transit",
+                elementType: "labels",
+                stylers: [{ visibility: "off" }]
+              },
+              {
+                featureType: "road",
+                elementType: "labels",
+                stylers: [{ visibility: "off" }]
               }
             ]
           });
 
           setMap(mapInstance);
 
-          // Add tee marker - blue circle like The Grint
+          // Add tee marker - distinctive blue square like professional golf apps
           const teeMarkerInstance = new window.google.maps.Marker({
             position: { lat: hole.tee.lat, lng: hole.tee.lng },
             map: mapInstance,
-            title: "Tee",
+            title: `Hole ${hole.number} Tee`,
             icon: {
-              path: window.google.maps.SymbolPath.CIRCLE,
-              fillColor: "#3b82f6",
+              path: "M -6,-6 L 6,-6 L 6,6 L -6,6 Z", // Square shape
+              fillColor: "#0066cc",
               fillOpacity: 1,
-              strokeColor: "#1d4ed8",
+              strokeColor: "#ffffff",
               strokeWeight: 2,
-              scale: 8
-            }
+              scale: 1.5
+            },
+            zIndex: 100
           });
           setTeeMarker(teeMarkerInstance);
 
-          // Add green markers - different shades of green like professional golf apps
+          // Add green area outline (like professional golf apps)
+          const greenArea = new window.google.maps.Polygon({
+            paths: [
+              { lat: hole.green.front.lat - 0.0001, lng: hole.green.front.lng - 0.0001 },
+              { lat: hole.green.front.lat - 0.0001, lng: hole.green.back.lng + 0.0001 },
+              { lat: hole.green.back.lat + 0.0001, lng: hole.green.back.lng + 0.0001 },
+              { lat: hole.green.back.lat + 0.0001, lng: hole.green.front.lng - 0.0001 }
+            ],
+            strokeColor: "#10b981",
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: "#10b981",
+            fillOpacity: 0.15,
+            map: mapInstance
+          });
+
+          // Add precise green markers like The Grint
           const greenMarkerInstances = [
+            // Front of green - small circle
             new window.google.maps.Marker({
               position: { lat: hole.green.front.lat, lng: hole.green.front.lng },
               map: mapInstance,
-              title: "Green Front",
+              title: "Front of Green",
               icon: {
                 path: window.google.maps.SymbolPath.CIRCLE,
-                fillColor: "#10b981",
+                fillColor: "#22c55e",
                 fillOpacity: 1,
-                strokeColor: "#059669",
-                strokeWeight: 2,
-                scale: 5
-              }
+                strokeColor: "#ffffff",
+                strokeWeight: 1,
+                scale: 4
+              },
+              zIndex: 90
             }),
+            // Pin position - flag-like marker
             new window.google.maps.Marker({
               position: { lat: hole.green.middle.lat, lng: hole.green.middle.lng },
               map: mapInstance,
-              title: "Green Middle (Pin)",
+              title: "Pin Position",
               icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                fillColor: "#059669",
+                path: "M 0,-20 L 0,0 M 0,-20 L 12,-16 L 12,-12 L 0,-16 Z", // Flag shape
+                fillColor: "#ef4444",
                 fillOpacity: 1,
-                strokeColor: "#047857",
-                strokeWeight: 2,
-                scale: 7
-              }
+                strokeColor: "#000000",
+                strokeWeight: 1,
+                scale: 1
+              },
+              zIndex: 95
             }),
+            // Back of green - small circle
             new window.google.maps.Marker({
               position: { lat: hole.green.back.lat, lng: hole.green.back.lng },
               map: mapInstance,
-              title: "Green Back",
+              title: "Back of Green",
               icon: {
                 path: window.google.maps.SymbolPath.CIRCLE,
-                fillColor: "#047857",
+                fillColor: "#16a34a",
                 fillOpacity: 1,
-                strokeColor: "#065f46",
-                strokeWeight: 2,
-                scale: 5
-              }
+                strokeColor: "#ffffff",
+                strokeWeight: 1,
+                scale: 4
+              },
+              zIndex: 90
             })
           ];
           setGreenMarkers(greenMarkerInstances);
@@ -178,32 +212,33 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
         playerAccuracyCircle.setMap(null);
       }
 
-      // Add GPS accuracy circle like professional golf apps
+      // Add GPS accuracy circle - subtle like professional golf apps
       const accuracyCircle = new window.google.maps.Circle({
         center: { lat: location.lat, lng: location.lng },
         radius: location.accuracy,
         map: map,
         fillColor: "#3b82f6",
-        fillOpacity: 0.1,
+        fillOpacity: 0.08,
         strokeColor: "#3b82f6",
-        strokeOpacity: 0.3,
+        strokeOpacity: 0.25,
         strokeWeight: 1
       });
       setPlayerAccuracyCircle(accuracyCircle);
 
-      // Add new player marker - red circle with white border like The Grint
+      // Add player location marker - distinctive like The Grint/Arccos
       const newPlayerMarker = new window.google.maps.Marker({
         position: { lat: location.lat, lng: location.lng },
         map: map,
         title: "Your Location",
         icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          fillColor: "#ef4444",
+          path: "M 0,-12 L 8,0 L 0,12 L -8,0 Z", // Diamond shape
+          fillColor: "#ff0000",
           fillOpacity: 1,
           strokeColor: "#ffffff",
-          strokeWeight: 3,
-          scale: 10
-        }
+          strokeWeight: 2,
+          scale: 1.2
+        },
+        zIndex: 200
       });
 
       setPlayerMarker(newPlayerMarker);
@@ -280,26 +315,38 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
         )}
       </div>
 
-      {/* Distance Information */}
+      {/* Professional Golf App Yardage Display */}
       {distances && (
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="bg-muted rounded-lg p-3">
-            <div className="text-2xl font-bold text-green-600">
-              {Math.round(distances.toGreenFront)}
+        <div className="bg-background/95 backdrop-blur-sm rounded-lg p-4 border">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-sm">GPS Yardages</h3>
+            <div className="text-xs text-muted-foreground">
+              {location ? `±${Math.round(location.accuracy)}yd accuracy` : "No GPS"}
             </div>
-            <div className="text-xs text-muted-foreground">Front</div>
           </div>
-          <div className="bg-muted rounded-lg p-3">
-            <div className="text-2xl font-bold text-green-600">
-              {Math.round(distances.toGreenMiddle)}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground mb-1">Front</div>
+              <div className="text-xl font-bold text-green-500">{Math.round(distances.toGreenFront)}</div>
+              <div className="text-xs text-muted-foreground">yd</div>
             </div>
-            <div className="text-xs text-muted-foreground">Middle</div>
+            <div className="text-center border-l border-r px-2">
+              <div className="text-xs text-muted-foreground mb-1">Pin</div>
+              <div className="text-2xl font-bold text-red-500">{Math.round(distances.toGreenMiddle)}</div>
+              <div className="text-xs text-muted-foreground">yd</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground mb-1">Back</div>
+              <div className="text-xl font-bold text-green-700">{Math.round(distances.toGreenBack)}</div>
+              <div className="text-xs text-muted-foreground">yd</div>
+            </div>
           </div>
-          <div className="bg-muted rounded-lg p-3">
-            <div className="text-2xl font-bold text-green-600">
-              {Math.round(distances.toGreenBack)}
+          <div className="mt-3 pt-3 border-t">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">Hole {hole.number}</span>
+              <span className="font-semibold">Par {hole.par}</span>
+              <span className="text-muted-foreground">HCP {hole.handicap}</span>
             </div>
-            <div className="text-xs text-muted-foreground">Back</div>
           </div>
         </div>
       )}
