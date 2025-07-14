@@ -12,6 +12,9 @@ import Scores from "@/pages/Scores";
 import SideBets from "@/pages/SideBets";
 import Rules from "@/pages/Rules";
 import Photos from "@/pages/Photos";
+import Round1 from "@/pages/Round1";
+import Round2 from "@/pages/Round2";
+import Round3 from "@/pages/Round3";
 import Round3Matchups from "@/pages/Round3Matchups";
 import TournamentRules from "@/pages/TournamentRules";
 import AuthPage from "@/pages/AuthPage";
@@ -40,12 +43,15 @@ function Router() {
         <>
           <Route path="/" component={Home} />
           <Route path="/teams" component={Teams} />
+          <Route path="/round1" component={Round1} />
+          <Route path="/round2" component={Round2} />
+          <Route path="/round3" component={Round3} />
           <Route path="/scores" component={Scores} />
           <Route path="/sidebets" component={SideBets} />
           <Route path="/rules" component={Rules} />
           <Route path="/tournament-rules" component={TournamentRules} />
           <Route path="/photos" component={Photos} />
-          <Route path="/round3" component={Round3Matchups} />
+          <Route path="/round3-matchups" component={Round3Matchups} />
         </>
       )}
       <Route component={NotFound} />

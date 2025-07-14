@@ -5,6 +5,7 @@ import {
   sideBets,
   photos,
   matchups,
+  holeScores,
   type User,
   type InsertUser,
   type Team,
@@ -12,14 +13,16 @@ import {
   type SideBet,
   type Photo,
   type Matchup,
+  type HoleScore,
   type InsertTeam,
   type InsertScore,
   type InsertSideBet,
   type InsertPhoto,
   type InsertMatchup,
+  type InsertHoleScore,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, asc } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -36,6 +39,12 @@ export interface IStorage {
   // Scores
   getScores(): Promise<(Score & { team: Team })[]>;
   updateScore(teamId: number, round: number, score: number, userId?: number): Promise<Score>;
+  
+  // Hole Scores
+  getHoleScores(userId: number, round: number): Promise<HoleScore[]>;
+  createHoleScore(holeScore: InsertHoleScore): Promise<HoleScore>;
+  updateHoleScore(userId: number, round: number, hole: number, strokes: number): Promise<HoleScore>;
+  getLeaderboard(round: number): Promise<(HoleScore & { user: User; team: Team })[]>;
   
   // Side Bets
   getSideBets(): Promise<SideBet[]>;
@@ -95,6 +104,125 @@ export class DatabaseStorage implements IStorage {
     }
     
     return null;
+  }
+
+  // Hole Score operations
+  async getHoleScores(userId: number, round: number): Promise<HoleScore[]> {
+    const scores = await db.select().from(holeScores).where(
+      and(eq(holeScores.userId, userId), eq(holeScores.round, round))
+    ).orderBy(asc(holeScores.hole));
+    return scores;
+  }
+
+  async createHoleScore(holeScore: InsertHoleScore): Promise<HoleScore> {
+    const [score] = await db
+      .insert(holeScores)
+      .values(holeScore)
+      .returning();
+    return score;
+  }
+
+  async updateHoleScore(userId: number, round: number, hole: number, strokes: number): Promise<HoleScore> {
+    // First check if hole score exists
+    const [existingScore] = await db.select().from(holeScores).where(
+      and(
+        eq(holeScores.userId, userId),
+        eq(holeScores.round, round),
+        eq(holeScores.hole, hole)
+      )
+    );
+
+    // Calculate net score and points (simplified Stableford scoring)
+    const par = 4; // Default par, can be customized per hole
+    const handicap = 0; // Simplified, can be calculated based on hole difficulty
+    const netScore = strokes - handicap;
+    let points = 0;
+    
+    if (netScore <= par - 2) points = 4;
+    else if (netScore === par - 1) points = 3;
+    else if (netScore === par) points = 2;
+    else if (netScore === par + 1) points = 1;
+    else points = 0;
+
+    if (existingScore) {
+      // Update existing score
+      const [updatedScore] = await db
+        .update(holeScores)
+        .set({
+          strokes,
+          netScore,
+          points,
+          updatedAt: new Date(),
+        })
+        .where(eq(holeScores.id, existingScore.id))
+        .returning();
+      return updatedScore;
+    } else {
+      // Create new score
+      const user = await this.getUser(userId);
+      if (!user) throw new Error('User not found');
+      
+      const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
+      if (!playerInfo) throw new Error('Player not found in any team');
+
+      const [newScore] = await db
+        .insert(holeScores)
+        .values({
+          userId,
+          teamId: playerInfo.teamId,
+          round,
+          hole,
+          strokes,
+          par,
+          handicap,
+          netScore,
+          points,
+        })
+        .returning();
+      return newScore;
+    }
+  }
+
+  async getLeaderboard(round: number): Promise<(HoleScore & { user: User; team: Team })[]> {
+    const scores = await db.select({
+      holeScore: holeScores,
+      user: users,
+      team: teams,
+    }).from(holeScores)
+      .innerJoin(users, eq(holeScores.userId, users.id))
+      .innerJoin(teams, eq(holeScores.teamId, teams.id))
+      .where(eq(holeScores.round, round));
+
+    // Group by user and calculate total points
+    const userTotals = new Map<number, { user: User; team: Team; totalPoints: number; holes: number }>();
+    
+    for (const score of scores) {
+      const userId = score.user.id;
+      if (!userTotals.has(userId)) {
+        userTotals.set(userId, {
+          user: score.user,
+          team: score.team,
+          totalPoints: 0,
+          holes: 0,
+        });
+      }
+      const userTotal = userTotals.get(userId)!;
+      userTotal.totalPoints += score.holeScore.points;
+      userTotal.holes += 1;
+    }
+
+    // Convert to leaderboard format and sort by total points
+    const leaderboard = Array.from(userTotals.values())
+      .sort((a, b) => b.totalPoints - a.totalPoints)
+      .map(entry => ({
+        ...entry.user,
+        user: entry.user,
+        team: entry.team,
+        totalPoints: entry.totalPoints,
+        holes: entry.holes,
+      }));
+
+    return leaderboard as any; // Type casting for compatibility
   }
 
   // Legacy in-memory storage for development

@@ -24,9 +24,11 @@ export default function Navigation() {
   const navLinks = [
     { href: "/", label: "Home", icon: Home },
     { href: "/teams", label: "Teams", icon: Users },
+    { href: "/round1", label: "Round 1", icon: Target },
+    { href: "/round2", label: "Round 2", icon: Target },
+    { href: "/round3", label: "Round 3", icon: Target },
     { href: "/scores", label: "Scores", icon: Trophy },
     { href: "/sidebets", label: "Side Bets", icon: Coins },
-    { href: "/round3", label: "Round 3", icon: Target },
     { href: "/tournament-rules", label: "Tournament Rules", icon: Award },
     { href: "/rules", label: "Course Rules", icon: BookOpen },
     { href: "/photos", label: "Photos", icon: Camera },

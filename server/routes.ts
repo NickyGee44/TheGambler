@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
-import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema, User } from "@shared/schema";
+import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema, insertHoleScoreSchema, User } from "@shared/schema";
 import { z } from "zod";
 
 // Middleware to check authentication
@@ -248,6 +248,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error updating matchup score:', error);
       res.status(500).json({ error: 'Failed to update matchup score' });
+    }
+  });
+
+  // Hole scoring endpoints
+  app.get('/api/hole-scores/:round', requireAuth, async (req: any, res) => {
+    try {
+      const round = parseInt(req.params.round);
+      const userId = req.user.id;
+      
+      const holeScores = await storage.getHoleScores(userId, round);
+      res.json(holeScores);
+    } catch (error) {
+      console.error('Error fetching hole scores:', error);
+      res.status(500).json({ error: 'Failed to fetch hole scores' });
+    }
+  });
+
+  app.post('/api/hole-scores', requireAuth, async (req: any, res) => {
+    try {
+      const { round, hole, strokes } = req.body;
+      const userId = req.user.id;
+      
+      const holeScore = await storage.updateHoleScore(userId, round, hole, strokes);
+      
+      // Broadcast hole score update to all clients
+      broadcast({
+        type: 'HOLE_SCORE_UPDATE',
+        data: { holeScore, userId, round, hole }
+      });
+
+      res.json(holeScore);
+    } catch (error) {
+      console.error('Error updating hole score:', error);
+      res.status(500).json({ error: 'Failed to update hole score' });
+    }
+  });
+
+  app.get('/api/leaderboard/:round', async (req, res) => {
+    try {
+      const round = parseInt(req.params.round);
+      const leaderboard = await storage.getLeaderboard(round);
+      res.json(leaderboard);
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+      res.status(500).json({ error: 'Failed to fetch leaderboard' });
     }
   });
 

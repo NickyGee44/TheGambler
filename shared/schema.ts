@@ -76,6 +76,22 @@ export const matchups = pgTable("matchups", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Hole-by-hole scoring for each player
+export const holeScores = pgTable("hole_scores", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  teamId: integer("team_id").notNull().references(() => teams.id),
+  round: integer("round").notNull(), // 1, 2, or 3
+  hole: integer("hole").notNull(), // 1-18
+  strokes: integer("strokes").notNull(),
+  par: integer("par").notNull().default(4),
+  handicap: integer("handicap").notNull().default(0),
+  netScore: integer("net_score").notNull(), // strokes - handicap
+  points: integer("points").notNull().default(0), // Stableford points
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const insertTeamSchema = createInsertSchema(teams).omit({
   id: true,
   createdAt: true,
@@ -101,6 +117,12 @@ export const insertMatchupSchema = createInsertSchema(matchups).omit({
   createdAt: true,
 });
 
+export const insertHoleScoreSchema = createInsertSchema(holeScores).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -119,3 +141,5 @@ export type Photo = typeof photos.$inferSelect;
 export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
 export type Matchup = typeof matchups.$inferSelect;
 export type InsertMatchup = z.infer<typeof insertMatchupSchema>;
+export type HoleScore = typeof holeScores.$inferSelect;
+export type InsertHoleScore = z.infer<typeof insertHoleScoreSchema>;
