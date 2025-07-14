@@ -142,3 +142,10 @@ Preferred communication style: Simple, everyday language.
   - Enhanced CSS variables for better dark mode support
   - Added forced dark mode styling throughout the application
   - Updated all components to use dark mode variants
+- **Added Professional Profile Picture System:**
+  - Created ProfilePicture component with Radix UI Avatar
+  - Added profilePicture field to database schema
+  - Profile pictures display next to player names across the app
+  - Implemented for Nick Grossi, Christian Hauck, Johnny Magnatta, and Erik Boudreau
+  - Shows actual photos when available, initials as fallback
+  - Appears in scores, leaderboards, side bets, and navigation
