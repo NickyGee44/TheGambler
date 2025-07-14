@@ -287,6 +287,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { round, hole, strokes } = req.body;
       const userId = req.user.id;
       
+      console.log('Updating hole score:', { userId, round, hole, strokes });
+      
+      // Validate input
+      if (!round || !hole || strokes === undefined) {
+        return res.status(400).json({ error: 'Missing required fields: round, hole, strokes' });
+      }
+      
+      if (strokes < 1 || strokes > 15) {
+        return res.status(400).json({ error: 'Invalid strokes value' });
+      }
+      
       const holeScore = await storage.updateHoleScore(userId, round, hole, strokes);
       
       // Broadcast hole score update to all clients
@@ -298,7 +309,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(holeScore);
     } catch (error) {
       console.error('Error updating hole score:', error);
-      res.status(500).json({ error: 'Failed to update hole score' });
+      console.error('Error details:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Failed to update hole score', details: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
