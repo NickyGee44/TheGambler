@@ -56,6 +56,7 @@ export default function Round1() {
   const { data: teamLeaderboard = [] } = useQuery<any[]>({
     queryKey: [`/api/team-better-ball/${round}`],
     refetchInterval: 10000, // Refresh every 10 seconds
+    enabled: !!user, // Only fetch when user is authenticated
   });
 
   const updateScoreMutation = useMutation({
