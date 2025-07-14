@@ -1,0 +1,104 @@
+Here’s your custom Replit prompt to generate a sleek and functional website for Gambler 2025 — focused on tracking teams, handicaps, scores, and managing side bets.
+
+⸻
+
+💻 Replit Prompt: Build the Gambler 2025 Championship Tracker Website
+
+Paste this directly into Replit’s AI prompt window or use it with their Ghostwriter feature:
+
+⸻
+
+Build me a responsive golf tournament website called “The Gambler Cup 2025”. The site should feature the following pages and data:
+
+1. Homepage (Landing Page)
+	•	Title: “The Gambler Cup 2025”
+	•	Subtitle: “Where Bogeys Buy Beers and Birdies Win Cash”
+	•	Display current date and live countdown to July [insert real tournament date]
+	•	Include a navigation bar with links to: Teams, Scores, Side Bets, Rules, Photos
+
+2. Teams Page
+	•	Show all 8 pairings in a grid or card layout.
+	•	Each team should show:
+	•	Player 1: Full name, Handicap
+	•	Player 2: Full name, Handicap
+	•	Total Team Handicap
+	•	Sample pairing data (static for now):
+
+[
+  {"team": 1, "player1": "Nick Grossi", "hcp1": 15, "player2": "Connor Patterson", "hcp2": 3},
+  {"team": 2, "player1": "Christian Hauck", "hcp1": 5, "player2": "Bailey Carlson", "hcp2": 16},
+  {"team": 3, "player1": "Ben Braun", "hcp1": 6, "player2": "Nic Huxley", "hcp2": 15},
+  {"team": 4, "player1": "Erik Boudreau", "hcp1": 10, "player2": "Will Bibi", "hcp2": 5},
+  {"team": 5, "player1": "Nick Cook", "hcp1": 12, "player2": "Kevin Durco", "hcp2": 3},
+  {"team": 6, "player1": "Spencer Reid", "hcp1": 16, "player2": "Jeff Reiner", "hcp2": 9},
+  {"team": 7, "player1": "Sye Ellard", "hcp1": 18, "player2": "Austin Hassani", "hcp2": 17},
+  {"team": 8, "player1": "Jordan Kreller", "hcp1": 6, "player2": "Jonathan Magnatta", "hcp2": 11}
+]
+
+	•	Include sorting by total HCP and optional “Team Power Rankings” mode.
+
+3. Scores Page
+	•	Table layout with the following:
+	•	Team #
+	•	Round 1 Points
+	•	Round 2 Points
+	•	Round 3 Points
+	•	Total Points
+	•	Rank
+	•	Admin button to “Update Score” (basic placeholder form or dummy field)
+
+4. Side Bets Page
+	•	Each round sectioned (Round 1, 2, 3)
+	•	For each round:
+	•	Display list of all side bets
+	•	Columns: Better, Opponent, Amount, Condition (e.g. “better round score”, “closest to pin #8”)
+	•	Add button: “Place Bet” that opens a modal/form:
+	•	Better name (dropdown from player list)
+	•	Opponent name (dropdown)
+	•	Amount
+	•	Condition
+	•	Result (optional field)
+	•	Save to static array for now — no backend required.
+
+5. Rules Page
+	•	Breakdown of formats for each round:
+	•	Round 1: Best Ball — Birdie forces opponents to drink
+	•	Round 2: Scramble — Player not chosen must sip
+	•	Round 3: Net Stroke Play — Each player starts at +18, subtract 1 stroke per drink
+	•	How scores are calculated and how points are earned
+	•	Description of The Gambler Championship Trophy
+
+6. Photos Page
+	•	Grid of 8 placeholder images with option to upload new ones
+	•	Optional: allow captions
+
+General Requirements
+	•	Built in HTML/CSS/JS with simple Bootstrap for responsive layout
+	•	Keep all data in JavaScript arrays for now (no database needed)
+	•	Use clean, modern fonts and subtle golf-themed visual touches (green, gold, black palette)
+	•	Works well on mobile and desktop
+
+Bonus (Optional)
+	•	Add a small leaderboard sidebar on every page
+	•	Dark mode toggle
+	•	Button that randomly selects a team to chug (fun mode)
+
+⸻
+
+✅ What to Do Next
+	•	Go to https://replit.com
+	•	Create a new Replit project using HTML/CSS/JS template
+	•	Paste this into Ghostwriter or the prompt area
+	•	Once generated, tweak visuals, colors, or structure as needed
+
+⸻
+
+Would you like a hosted version with a custom domain (e.g., gamblercup2025.com) and file hosting support? I can help with that setup too.
+
+⸻
+
+Q1: Want me to generate starter HTML/CSS for the main page now?
+Q2: Do you want the team + player data pulled from a Google Sheet?
+Q3: Should we add live updating via Grint or Golf Genius in the future?
+Q4: Do you want to integrate a gallery for meme uploads/photos post-round?
+Q5: Want an export to PDF of pairings, side bets, and results for posterity?
