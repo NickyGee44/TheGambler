@@ -73,6 +73,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Golf Course API endpoints
+  app.get('/api/golf-course/search', async (req, res) => {
+    try {
+      const { query } = req.query;
+      if (!query) {
+        return res.status(400).json({ error: 'Query parameter is required' });
+      }
+
+      const response = await fetch(`https://api.golfcourseapi.com/v1/search?search_query=${encodeURIComponent(query as string)}`, {
+        headers: {
+          Authorization: 'Key ERJJTZFDF7ZIKRUE76RRDOKLXQ',
+        },
+      });
+
+      if (!response.ok) {
+        console.error(`Golf API search failed: ${response.status}`);
+        return res.status(response.status).json({ error: 'Golf API search failed' });
+      }
+
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error('Error searching golf course:', error);
+      res.status(500).json({ error: 'Failed to search golf course' });
+    }
+  });
+
+  app.get('/api/golf-course/details/:courseId', async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      
+      const response = await fetch(`https://api.golfcourseapi.com/v1/courses/${courseId}`, {
+        headers: {
+          Authorization: 'Key ERJJTZFDF7ZIKRUE76RRDOKLXQ',
+        },
+      });
+
+      if (!response.ok) {
+        console.error(`Golf API details failed: ${response.status}`);
+        return res.status(response.status).json({ error: 'Golf API details failed' });
+      }
+
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error('Error fetching course details:', error);
+      res.status(500).json({ error: 'Failed to fetch course details' });
+    }
+  });
+
+  app.get('/api/golf-course/tournament-courses', async (req, res) => {
+    try {
+      // Search for both tournament courses
+      const [deerhurstResponse, muskokaBayResponse] = await Promise.all([
+        fetch(`https://api.golfcourseapi.com/v1/search?search_query=${encodeURIComponent("Deerhurst Highlands Golf Course")}`, {
+          headers: { Authorization: 'Key ERJJTZFDF7ZIKRUE76RRDOKLXQ' },
+        }),
+        fetch(`https://api.golfcourseapi.com/v1/search?search_query=${encodeURIComponent("Muskoka Bay Golf Club")}`, {
+          headers: { Authorization: 'Key ERJJTZFDF7ZIKRUE76RRDOKLXQ' },
+        })
+      ]);
+
+      const [deerhurstData, muskokaBayData] = await Promise.all([
+        deerhurstResponse.ok ? deerhurstResponse.json() : null,
+        muskokaBayResponse.ok ? muskokaBayResponse.json() : null
+      ]);
+
+      // Get course details
+      const deerhurstCourse = deerhurstData?.courses?.[0];
+      const muskokaBayCourse = muskokaBayData?.courses?.[0];
+
+      const [deerhurstDetails, muskokaBayDetails] = await Promise.all([
+        deerhurstCourse ? fetch(`https://api.golfcourseapi.com/v1/courses/${deerhurstCourse.id}`, {
+          headers: { Authorization: 'Key ERJJTZFDF7ZIKRUE76RRDOKLXQ' },
+        }).then(r => r.ok ? r.json() : null) : null,
+        muskokaBayCourse ? fetch(`https://api.golfcourseapi.com/v1/courses/${muskokaBayCourse.id}`, {
+          headers: { Authorization: 'Key ERJJTZFDF7ZIKRUE76RRDOKLXQ' },
+        }).then(r => r.ok ? r.json() : null) : null
+      ]);
+
+      res.json({
+        deerhurst: deerhurstDetails,
+        muskokaBay: muskokaBayDetails
+      });
+    } catch (error) {
+      console.error('Error fetching tournament courses:', error);
+      res.status(500).json({ error: 'Failed to fetch tournament courses' });
+    }
+  });
+
   // Auth routes are handled in auth.ts
 
   // Get all available players for registration (excluding those with existing accounts)
