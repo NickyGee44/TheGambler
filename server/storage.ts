@@ -564,8 +564,9 @@ export class DatabaseStorage implements IStorage {
     const id = this.currentPhotoId++;
     const photo: Photo = {
       id,
-      ...insertPhoto,
+      filename: insertPhoto.filename,
       caption: insertPhoto.caption || null,
+      imageUrl: insertPhoto.imageUrl || null,
       uploadedAt: new Date()
     };
     this.photos.set(id, photo);

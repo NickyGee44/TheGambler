@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
+import multer from "multer";
+import path from "path";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema, insertHoleScoreSchema, User } from "@shared/schema";
@@ -18,6 +20,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   setupAuth(app);
   const httpServer = createServer(app);
+
+  // Configure multer for file uploads
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.'));
+      }
+    },
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+    }
+  });
 
   // WebSocket server for real-time updates
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
@@ -224,6 +242,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ error: 'Failed to upload photo' });
       }
+    }
+  });
+
+  // Photo upload endpoint with file handling
+  app.post('/api/photos/upload', requireAuth, upload.single('photo'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No photo file provided' });
+      }
+
+      const { caption = '' } = req.body;
+      
+      // Create a data URL from the uploaded file
+      const imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      
+      const photo = await storage.createPhoto({
+        filename: req.file.originalname,
+        caption,
+        imageUrl
+      });
+      
+      // Broadcast photo upload to all clients
+      broadcast({
+        type: 'PHOTO_UPLOADED',
+        data: photo
+      });
+
+      res.json(photo);
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      res.status(500).json({ error: 'Failed to upload photo' });
     }
   });
 

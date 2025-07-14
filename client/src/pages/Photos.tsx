@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,13 +8,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { Camera, Upload, Calendar } from "lucide-react";
+import { Camera, Upload, Calendar, ImageIcon, X } from "lucide-react";
 import { Photo } from "@shared/schema";
 
 export default function Photos() {
-  const [filename, setFilename] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const [caption, setCaption] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
   const { data: photos = [], isLoading } = useQuery({
@@ -36,8 +38,15 @@ export default function Photos() {
   });
 
   const uploadPhotoMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return await apiRequest('POST', '/api/photos', data);
+    mutationFn: async (formData: FormData) => {
+      const response = await fetch('/api/photos/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error('Failed to upload photo');
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/photos'] });
@@ -46,7 +55,8 @@ export default function Photos() {
         description: "Your photo has been successfully uploaded",
       });
       setIsDialogOpen(false);
-      setFilename("");
+      setSelectedFile(null);
+      setPreviewUrl("");
       setCaption("");
     },
     onError: (error) => {
@@ -58,38 +68,45 @@ export default function Photos() {
     },
   });
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewUrl(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!filename) {
+    if (!selectedFile) {
       toast({
         title: "Error",
-        description: "Please provide a filename",
+        description: "Please select a photo to upload",
         variant: "destructive",
       });
       return;
     }
 
-    uploadPhotoMutation.mutate({
-      filename,
-      caption: caption || "",
-    });
+    const formData = new FormData();
+    formData.append('photo', selectedFile);
+    formData.append('caption', caption || "");
+
+    uploadPhotoMutation.mutate(formData);
   };
 
-  // Placeholder images for demonstration
-  const placeholderImages = [
-    {
-      url: "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-      caption: "Tournament Winners 2024"
-    },
-    {
-      url: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-      caption: "Course Overview"
-    },
-    {
-      url: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-      caption: "Equipment Setup"
-    },
-  ];
+  const clearSelectedFile = () => {
+    setSelectedFile(null);
+    setPreviewUrl("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+
 
   if (isLoading) {
     return (
@@ -126,14 +143,56 @@ export default function Photos() {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="filename">Filename</Label>
-                <Input
-                  id="filename"
-                  value={filename}
-                  onChange={(e) => setFilename(e.target.value)}
-                  placeholder="tournament-photo-1.jpg"
-                  className="focus:ring-golf-green-500 focus:border-golf-green-500"
-                />
+                <Label htmlFor="photo">Select Photo</Label>
+                <div className="mt-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    id="photo"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full h-32 border-dashed border-2 border-golf-green-300 hover:border-golf-green-500 text-golf-green-600"
+                  >
+                    {selectedFile ? (
+                      <div className="text-center">
+                        <ImageIcon className="w-8 h-8 mx-auto mb-2" />
+                        <p className="text-sm">{selectedFile.name}</p>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <Camera className="w-8 h-8 mx-auto mb-2" />
+                        <p>Tap to select photo</p>
+                        <p className="text-xs text-gray-500 mt-1">From camera roll or take new</p>
+                      </div>
+                    )}
+                  </Button>
+                </div>
+                
+                {previewUrl && (
+                  <div className="mt-4 relative">
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
+                      className="w-full h-40 object-cover rounded-lg"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2 h-8 w-8 p-0"
+                      onClick={clearSelectedFile}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
               
               <div>
@@ -151,7 +210,7 @@ export default function Photos() {
                 <Button 
                   type="submit" 
                   className="flex-1 bg-golf-green-600 hover:bg-golf-green-700 text-white"
-                  disabled={uploadPhotoMutation.isPending}
+                  disabled={uploadPhotoMutation.isPending || !selectedFile}
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   {uploadPhotoMutation.isPending ? 'Uploading...' : 'Upload Photo'}
@@ -159,7 +218,11 @@ export default function Photos() {
                 <Button 
                   type="button" 
                   variant="outline"
-                  onClick={() => setIsDialogOpen(false)}
+                  onClick={() => {
+                    setIsDialogOpen(false);
+                    clearSelectedFile();
+                    setCaption("");
+                  }}
                   className="flex-1"
                 >
                   Cancel
@@ -171,32 +234,21 @@ export default function Photos() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Show placeholder images for demonstration */}
-        {placeholderImages.map((image, index) => (
-          <Card key={index} className="golf-card shadow-lg overflow-hidden">
-            <div className="aspect-w-4 aspect-h-3">
-              <img 
-                src={image.url} 
-                alt={image.caption}
-                className="w-full h-48 object-cover"
-              />
-            </div>
-            <CardContent className="p-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-                <Calendar className="w-4 h-4 mr-1" />
-                {image.caption}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-
         {/* Show uploaded photos */}
         {photos.map((photo: Photo) => (
           <Card key={photo.id} className="golf-card shadow-lg overflow-hidden">
             <div className="aspect-w-4 aspect-h-3">
-              <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                <Camera className="w-12 h-12 text-gray-400" />
-              </div>
+              {photo.imageUrl ? (
+                <img 
+                  src={photo.imageUrl} 
+                  alt={photo.caption || photo.filename}
+                  className="w-full h-48 object-cover"
+                />
+              ) : (
+                <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                  <Camera className="w-12 h-12 text-gray-400" />
+                </div>
+              )}
             </div>
             <CardContent className="p-4">
               <p className="text-sm font-medium mb-1">{photo.filename}</p>
@@ -212,7 +264,7 @@ export default function Photos() {
         ))}
 
         {/* Empty state when no photos */}
-        {photos.length === 0 && placeholderImages.length === 0 && (
+        {photos.length === 0 && (
           <div className="col-span-full text-center py-12">
             <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500 dark:text-gray-400">No photos uploaded yet</p>

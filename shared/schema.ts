@@ -61,6 +61,7 @@ export const photos = pgTable("photos", {
   id: serial("id").primaryKey(),
   filename: text("filename").notNull(),
   caption: text("caption").default(""),
+  imageUrl: text("image_url"),
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
