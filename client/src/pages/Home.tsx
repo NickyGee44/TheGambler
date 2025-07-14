@@ -34,9 +34,9 @@ export default function Home() {
       {/* Hero Section */}
       <div className="relative h-96 bg-gradient-to-br from-golf-green-600 to-golf-green-800 flex items-center justify-center text-white">
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-30"
+          className="absolute inset-0 bg-cover bg-center opacity-40"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1535131749006-b7f58c99034b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=1080')"
+            backgroundImage: "url('/IMG_8552_1752522827055.jpeg')"
           }}
         />
         <div className="relative z-10 text-center px-4">

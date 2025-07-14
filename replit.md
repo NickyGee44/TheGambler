@@ -131,6 +131,10 @@ Preferred communication style: Simple, everyday language.
 - **Updated Erik Boudreau Profile Picture:**
   - Applied new profile picture provided by user
   - Updated ProfilePicture component to use latest photo
+- **Updated Homepage Background:**
+  - Set new background photo for the homepage hero section
+  - Increased opacity to 40% for better image visibility
+  - Added image to public directory for web serving
 - **Fixed Profile Picture Assignments:**
   - Created admin tool at `/admin/picture-assignment` for reassigning mixed up photos
   - Applied corrected profile picture mappings based on user feedback
