@@ -146,6 +146,6 @@ Preferred communication style: Simple, everyday language.
   - Created ProfilePicture component with Radix UI Avatar
   - Added profilePicture field to database schema
   - Profile pictures display next to player names across the app
-  - Implemented for Nick Grossi, Christian Hauck, Johnny Magnatta, and Erik Boudreau
+  - Implemented for 16 golfers: Nick Grossi, Christian Hauck, Johnny Magnatta, Erik Boudreau, Connor Patterson, Austin Hassani, Jeffrey Reiner, Kevin Durco, Sye Ellard, Will Bibbings, Bailey Carlson, Ben Braun, Jordan Kreller, Nic Huxley, Spencer Reid, and Nick Cook
   - Shows actual photos when available, initials as fallback
   - Appears in scores, leaderboards, side bets, and navigation

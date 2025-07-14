@@ -11,6 +11,10 @@ import syeEllardImg from "@/assets/sye-ellard.jpeg";
 import willBibbingsImg from "@/assets/will-bibbings.jpeg";
 import baileyCarlsonImg from "@/assets/bailey-carlson.jpeg";
 import benBraunImg from "@/assets/ben-braun.jpeg";
+import jordanKrellerImg from "@/assets/jordan-kreller.jpeg";
+import nicHuxleyImg from "@/assets/nic-huxley.jpeg";
+import spencerReidImg from "@/assets/spencer-reid.jpeg";
+import nickCookImg from "@/assets/nick-cook.jpeg";
 
 interface ProfilePictureProps {
   firstName: string;
@@ -40,6 +44,10 @@ export default function ProfilePicture({
     "Will Bibbings": willBibbingsImg,
     "Bailey Carlson": baileyCarlsonImg,
     "Ben Braun": benBraunImg,
+    "Jordan Kreller": jordanKrellerImg,
+    "Nic Huxley": nicHuxleyImg,
+    "Spencer Reid": spencerReidImg,
+    "Nick Cook": nickCookImg,
     // Add more players as needed
   };
 
