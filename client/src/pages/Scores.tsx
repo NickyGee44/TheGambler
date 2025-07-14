@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,9 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
+import { isUnauthorizedError } from "@/lib/authUtils";
 import { RefreshCw, Edit, Trophy, Medal, Award, Wifi, WifiOff } from "lucide-react";
 
 export default function Scores() {
@@ -18,10 +20,27 @@ export default function Scores() {
   const [selectedRound, setSelectedRound] = useState<string>("");
   const [scoreValue, setScoreValue] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [userTeamId, setUserTeamId] = useState<number | null>(null);
   const { toast } = useToast();
   const { isOnline } = useOfflineStorage();
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast]);
   
-  const { data: scores = [], isLoading, refetch } = useQuery({
+  const { data: scores = [], isLoading: scoresLoading, refetch } = useQuery({
     queryKey: ['/api/scores'],
     refetchInterval: 30000,
   });
@@ -59,9 +78,20 @@ export default function Scores() {
       setScoreValue("");
     },
     onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
       toast({
         title: "Error",
-        description: "Failed to update score. Please try again.",
+        description: error.message || "Failed to update score. Please try again.",
         variant: "destructive",
       });
     },
@@ -118,7 +148,7 @@ export default function Scores() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || scoresLoading) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="animate-pulse">

@@ -1,13 +1,37 @@
-import { teams, scores, sideBets, photos, type Team, type Score, type SideBet, type Photo, type InsertTeam, type InsertScore, type InsertSideBet, type InsertPhoto } from "@shared/schema";
+import {
+  users,
+  teams,
+  scores,
+  sideBets,
+  photos,
+  type User,
+  type UpsertUser,
+  type Team,
+  type Score,
+  type SideBet,
+  type Photo,
+  type InsertTeam,
+  type InsertScore,
+  type InsertSideBet,
+  type InsertPhoto,
+} from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
+// Interface for storage operations
 export interface IStorage {
+  // User operations
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  
   // Teams
   getTeams(): Promise<Team[]>;
   createTeam(team: InsertTeam): Promise<Team>;
   
   // Scores
   getScores(): Promise<(Score & { team: Team })[]>;
-  updateScore(teamId: number, round: number, score: number): Promise<Score>;
+  updateScore(teamId: number, round: number, score: number, userId?: string): Promise<Score>;
   
   // Side Bets
   getSideBets(): Promise<SideBet[]>;
@@ -17,9 +41,51 @@ export interface IStorage {
   // Photos
   getPhotos(): Promise<Photo[]>;
   createPhoto(photo: InsertPhoto): Promise<Photo>;
+  
+  // Player matching
+  findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 } | null>;
 }
 
-export class MemStorage implements IStorage {
+export class DatabaseStorage implements IStorage {
+  // User operations
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
+
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  async findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 } | null> {
+    const allTeams = await db.select().from(teams);
+    
+    for (const team of allTeams) {
+      if (team.player1Name.toLowerCase() === `${firstName} ${lastName}`.toLowerCase()) {
+        return { teamId: team.id, playerNumber: 1 };
+      }
+      if (team.player2Name.toLowerCase() === `${firstName} ${lastName}`.toLowerCase()) {
+        return { teamId: team.id, playerNumber: 2 };
+      }
+    }
+    
+    return null;
+  }
+
+  // Legacy in-memory storage for development
   private teams: Map<number, Team>;
   private scores: Map<number, Score>;
   private sideBets: Map<number, SideBet>;
@@ -103,7 +169,7 @@ export class MemStorage implements IStorage {
     })).sort((a, b) => (a.rank || 0) - (b.rank || 0));
   }
 
-  async updateScore(teamId: number, round: number, score: number): Promise<Score> {
+  async updateScore(teamId: number, round: number, score: number, userId?: string): Promise<Score> {
     const existingScore = Array.from(this.scores.values()).find(s => s.teamId === teamId);
     if (!existingScore) {
       throw new Error('Score not found');
@@ -184,4 +250,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
