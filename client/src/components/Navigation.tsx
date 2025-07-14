@@ -52,8 +52,17 @@ export default function Navigation() {
       {/* Navigation Sidebar */}
       <nav className={`fixed left-0 top-0 h-full w-64 bg-white dark:bg-slate-800 shadow-xl z-40 transform transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 border-b border-gray-200 dark:border-slate-700">
-          <h1 className="text-xl font-bold text-golf-green-600">The Gambler Cup</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">2025 Championship</p>
+          <div className="flex items-center gap-3 mb-2">
+            <img 
+              src="/gambler-logo.png" 
+              alt="The Gambler Cup Logo" 
+              className="w-10 h-10 rounded-full"
+            />
+            <div>
+              <h1 className="text-xl font-bold text-golf-green-600">The Gambler Cup</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">2025 Championship</p>
+            </div>
+          </div>
         </div>
         
         <div className="p-4">

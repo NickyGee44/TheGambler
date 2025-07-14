@@ -40,6 +40,13 @@ export default function Home() {
           }}
         />
         <div className="relative z-10 text-center px-4">
+          <div className="flex justify-center mb-6">
+            <img 
+              src="/gambler-logo.png" 
+              alt="The Gambler Cup Logo" 
+              className="w-24 h-24 md:w-32 md:h-32 rounded-full shadow-2xl"
+            />
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-4">The Gambler Cup 2025</h1>
           <p className="text-xl md:text-2xl mb-8 font-light">Where Bogeys Buy Beers and Birdies Win Cash</p>
           <div className="flex flex-wrap justify-center gap-4">

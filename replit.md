@@ -122,6 +122,13 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 14, 2025:**
+- **Added The Gambler Cup Logo Integration:**
+  - Integrated official tournament logo throughout the application
+  - Added logo to PWA manifest for app icons and branding
+  - Updated HTML head with proper favicon and PWA meta tags
+  - Added logo to navigation sidebar, landing page, home page, and auth page
+  - Updated service worker to cache logo files for offline use
+  - Logo displays prominently in all key user interface areas
 - **Fixed Name Inconsistencies in Player Profiles:**
   - Updated "Will Bibi" to "Will Bibbings" consistently across all components
   - Updated "Jonathan Magnatta" to "Johnny Magnatta" consistently

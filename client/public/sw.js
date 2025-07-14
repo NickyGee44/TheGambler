@@ -4,8 +4,9 @@ const urlsToCache = [
   '/src/main.tsx',
   '/src/index.css',
   '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/gambler-logo.png',
+  '/gambler-logo-192.png',
+  '/gambler-logo-512.png'
 ];
 
 // Install event

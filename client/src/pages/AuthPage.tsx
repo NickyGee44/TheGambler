@@ -100,6 +100,13 @@ export default function AuthPage() {
         <div className="grid lg:grid-cols-2 gap-8 items-center min-h-screen">
           {/* Left Side - Hero */}
           <div className="text-center lg:text-left">
+            <div className="flex justify-center lg:justify-start mb-6">
+              <img 
+                src="/gambler-logo.png" 
+                alt="The Gambler Cup Logo" 
+                className="w-24 h-24 md:w-32 md:h-32 rounded-full shadow-2xl"
+              />
+            </div>
             <h1 className="text-5xl font-bold text-white mb-4">
               The Gambler Cup 2025
             </h1>
@@ -138,6 +145,13 @@ export default function AuthPage() {
           <div className="flex justify-center lg:justify-end">
             <Card className="w-full max-w-md bg-white dark:bg-slate-800 shadow-xl">
               <CardHeader className="text-center">
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src="/gambler-logo.png" 
+                    alt="The Gambler Cup Logo" 
+                    className="w-16 h-16 rounded-full"
+                  />
+                </div>
                 <CardTitle className="text-2xl font-bold text-golf-green-600">
                   Player Access
                 </CardTitle>

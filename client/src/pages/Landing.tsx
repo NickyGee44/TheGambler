@@ -7,6 +7,13 @@ export default function Landing() {
     <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700 dark:from-green-950 dark:via-green-900 dark:to-green-800">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
+            <img 
+              src="/gambler-logo.png" 
+              alt="The Gambler Cup Logo" 
+              className="w-32 h-32 rounded-full shadow-2xl"
+            />
+          </div>
           <h1 className="text-5xl font-bold text-white mb-4">
             The Gambler Cup 2025
           </h1>
