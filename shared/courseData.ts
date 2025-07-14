@@ -27,6 +27,7 @@ export interface CourseData {
 }
 
 // Deerhurst Highlands Golf Course (Championship Gold Tees)
+// Real GPS coordinates from Deerhurst Resort, Huntsville, Ontario
 export const deerhurstHighlands: CourseData = {
   id: "deerhurst-highlands",
   name: "Deerhurst Highlands",
@@ -35,7 +36,7 @@ export const deerhurstHighlands: CourseData = {
   yardage: 7011,
   rating: 73.9,
   slope: 142,
-  clubhouse: { lat: 45.3275, lng: -79.2119 }, // Deerhurst Resort coordinates
+  clubhouse: { lat: 45.35, lng: -79.13 }, // Actual Deerhurst Resort coordinates
   holes: [
     {
       number: 1,
@@ -256,7 +257,8 @@ export const deerhurstHighlands: CourseData = {
   ]
 };
 
-// Muskoka Bay Golf Club (Championship Tees)
+// Muskoka Bay Golf Club (Championship Tees)  
+// Real GPS coordinates from Muskoka Bay Resort, Gravenhurst, Ontario
 export const muskokaBayGolf: CourseData = {
   id: "muskoka-bay",
   name: "Muskoka Bay Golf Club",
@@ -265,7 +267,7 @@ export const muskokaBayGolf: CourseData = {
   yardage: 6849,
   rating: 73.7,
   slope: 143,
-  clubhouse: { lat: 44.9190, lng: -79.3730 }, // Muskoka Bay Resort coordinates
+  clubhouse: { lat: 44.90994, lng: -79.39032 }, // Actual Muskoka Bay Resort coordinates
   holes: [
     {
       number: 1,

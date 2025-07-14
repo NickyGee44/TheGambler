@@ -21,7 +21,8 @@ import {
   Crosshair,
   Map 
 } from "lucide-react";
-import HoleMap from "./HoleMap";
+import ProfessionalGolfGPS from "./ProfessionalGolfGPS";
+import { getCourseForRound } from "@shared/courseData";
 
 interface HoleViewProps {
   hole: HoleData;
@@ -46,16 +47,11 @@ export default function HoleView({
   isLastHole,
   isUpdating
 }: HoleViewProps) {
-  const { location, isLoading: gpsLoading, error: gpsError, requestLocation } = useGPS();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'score' | 'map'>('score');
   
-  // Calculate yardages to green if GPS is available
-  const yardages = location ? {
-    front: calculateDistance(location.lat, location.lng, hole.green.front.lat, hole.green.front.lng),
-    middle: calculateDistance(location.lat, location.lng, hole.green.middle.lat, hole.green.middle.lng),
-    back: calculateDistance(location.lat, location.lng, hole.green.back.lat, hole.green.back.lng)
-  } : null;
+  // Get course data for GPS
+  const courseData = getCourseForRound(round);
 
   const updateScore = (strokes: number) => {
     if (strokes < 1) return;
@@ -179,94 +175,15 @@ export default function HoleView({
         {/* GPS Map Tab */}
         {activeTab === 'map' && (
           <div className="mb-6">
-            <HoleMap 
+            <ProfessionalGolfGPS 
               hole={hole} 
-              courseName={round === 3 ? "Muskoka Bay Golf Club" : "Deerhurst Highlands"} 
+              courseName={courseData.name}
+              courseCenter={courseData.clubhouse}
             />
           </div>
         )}
 
-        {/* GPS Yardages Card (always visible) */}
-        <Card className="mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2">
-              <Navigation className="w-5 h-5 text-golf-green-600" />
-              GPS Yardages
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {gpsLoading && (
-              <div className="text-center py-4">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-golf-green-600 mx-auto mb-2"></div>
-                <p className="text-sm text-muted-foreground">Getting your location...</p>
-              </div>
-            )}
-            
-            {gpsError && (
-              <div className="text-center py-4">
-                <p className="text-sm text-red-600 mb-2">{gpsError}</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={requestLocation}
-                  className="flex items-center gap-2"
-                >
-                  <Crosshair className="w-4 h-4" />
-                  Enable GPS
-                </Button>
-              </div>
-            )}
-            
-            {location && yardages && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">GPS Status</span>
-                  <Badge variant="outline" className="text-green-600">
-                    <MapPin className="w-3 h-3 mr-1" />
-                    Active
-                  </Badge>
-                </div>
-                
-                <Separator />
-                
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-golf-green-600">{yardages.front}</div>
-                    <div className="text-xs text-muted-foreground">Front</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-golf-green-600">{yardages.middle}</div>
-                    <div className="text-xs text-muted-foreground">Middle</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-golf-green-600">{yardages.back}</div>
-                    <div className="text-xs text-muted-foreground">Back</div>
-                  </div>
-                </div>
-                
-                <div className="text-center">
-                  <Badge variant="secondary" className="text-xs">
-                    <Flag className="w-3 h-3 mr-1" />
-                    To Green
-                  </Badge>
-                </div>
-              </div>
-            )}
-            
-            {!location && !gpsLoading && !gpsError && (
-              <div className="text-center py-4">
-                <Button 
-                  variant="outline" 
-                  onClick={requestLocation}
-                  className="flex items-center gap-2"
-                >
-                  <Crosshair className="w-4 h-4" />
-                  Get GPS Yardages
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* GPS integrated into map tab now */}
 
         {/* Hole Info Card */}
         <Card className="mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
