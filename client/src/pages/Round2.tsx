@@ -147,34 +147,62 @@ export default function Round2() {
               <div className="space-y-2">
                 {leaderboard.map((entry, index) => (
                   <div
-                    key={`${entry.user.firstName}-${entry.user.lastName}`}
+                    key={entry.isTeamLeaderboard ? `team-${entry.team.id}` : `${entry.user.firstName}-${entry.user.lastName}`}
                     className="flex items-center justify-between p-4 bg-muted rounded-lg"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-golf-green-600 text-white flex items-center justify-center font-bold">
                         {index + 1}
                       </div>
-                      <ProfilePicture 
-                        firstName={entry.user.firstName} 
-                        lastName={entry.user.lastName} 
-                        size="lg"
-                      />
-                      <div>
-                        <div className="font-semibold">
-                          {entry.user.firstName} {entry.user.lastName}
+                      {entry.isTeamLeaderboard ? (
+                        // Team leaderboard for scramble
+                        <div className="flex items-center gap-2">
+                          <div className="flex -space-x-2">
+                            {entry.players.map((player, i) => (
+                              <ProfilePicture 
+                                key={player.id}
+                                firstName={player.firstName} 
+                                lastName={player.lastName} 
+                                size="md"
+                                className="border-2 border-white"
+                              />
+                            ))}
+                          </div>
+                          <div>
+                            <div className="font-semibold">
+                              Team {entry.team.teamNumber}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {entry.team.player1Name} & {entry.team.player2Name}
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Users className="w-3 h-3" />
-                          Team {entry.team.teamNumber}
-                        </div>
-                      </div>
+                      ) : (
+                        // Individual leaderboard
+                        <>
+                          <ProfilePicture 
+                            firstName={entry.user.firstName} 
+                            lastName={entry.user.lastName} 
+                            size="lg"
+                          />
+                          <div>
+                            <div className="font-semibold">
+                              {entry.user.firstName} {entry.user.lastName}
+                            </div>
+                            <div className="text-sm text-muted-foreground flex items-center gap-1">
+                              <Users className="w-3 h-3" />
+                              Team {entry.team.teamNumber}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-golf-green-600 text-lg">
                         {entry.totalPoints} pts
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {entry.holes} holes played
+                        {entry.totalStrokes} strokes • {entry.holes} holes
                       </div>
                     </div>
                   </div>

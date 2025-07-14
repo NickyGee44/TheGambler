@@ -174,7 +174,7 @@ export default function Round1() {
                         {entry.totalPoints} pts
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {entry.holes} holes played
+                        {entry.totalStrokes} strokes • {entry.holes} holes
                       </div>
                     </div>
                   </div>

@@ -194,36 +194,82 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(teams, eq(holeScores.teamId, teams.id))
       .where(eq(holeScores.round, round));
 
-    // Group by user and calculate total points
-    const userTotals = new Map<number, { user: User; team: Team; totalPoints: number; holes: number }>();
-    
-    for (const score of scores) {
-      const userId = score.user.id;
-      if (!userTotals.has(userId)) {
-        userTotals.set(userId, {
-          user: score.user,
-          team: score.team,
-          totalPoints: 0,
-          holes: 0,
-        });
+    if (round === 2) {
+      // For scramble (Round 2), group by team instead of individual players
+      const teamTotals = new Map<number, { team: Team; totalPoints: number; totalStrokes: number; holes: number; players: User[] }>();
+      
+      for (const score of scores) {
+        const teamId = score.team.id;
+        if (!teamTotals.has(teamId)) {
+          teamTotals.set(teamId, {
+            team: score.team,
+            totalPoints: 0,
+            totalStrokes: 0,
+            holes: 0,
+            players: [],
+          });
+        }
+        const teamTotal = teamTotals.get(teamId)!;
+        teamTotal.totalPoints += score.holeScore.points;
+        teamTotal.totalStrokes += score.holeScore.strokes;
+        teamTotal.holes += 1;
+        
+        // Add unique players to the team
+        if (!teamTotal.players.find(p => p.id === score.user.id)) {
+          teamTotal.players.push(score.user);
+        }
       }
-      const userTotal = userTotals.get(userId)!;
-      userTotal.totalPoints += score.holeScore.points;
-      userTotal.holes += 1;
+
+      // Convert to leaderboard format and sort by total points
+      const leaderboard = Array.from(teamTotals.values())
+        .sort((a, b) => b.totalPoints - a.totalPoints)
+        .map(entry => ({
+          id: entry.team.id,
+          team: entry.team,
+          players: entry.players,
+          totalPoints: entry.totalPoints,
+          totalStrokes: entry.totalStrokes,
+          holes: entry.holes,
+          isTeamLeaderboard: true,
+        }));
+
+      return leaderboard as any;
+    } else {
+      // For individual rounds (Round 1 and 3), group by user
+      const userTotals = new Map<number, { user: User; team: Team; totalPoints: number; totalStrokes: number; holes: number }>();
+      
+      for (const score of scores) {
+        const userId = score.user.id;
+        if (!userTotals.has(userId)) {
+          userTotals.set(userId, {
+            user: score.user,
+            team: score.team,
+            totalPoints: 0,
+            totalStrokes: 0,
+            holes: 0,
+          });
+        }
+        const userTotal = userTotals.get(userId)!;
+        userTotal.totalPoints += score.holeScore.points;
+        userTotal.totalStrokes += score.holeScore.strokes;
+        userTotal.holes += 1;
+      }
+
+      // Convert to leaderboard format and sort by total points
+      const leaderboard = Array.from(userTotals.values())
+        .sort((a, b) => b.totalPoints - a.totalPoints)
+        .map(entry => ({
+          ...entry.user,
+          user: entry.user,
+          team: entry.team,
+          totalPoints: entry.totalPoints,
+          totalStrokes: entry.totalStrokes,
+          holes: entry.holes,
+          isTeamLeaderboard: false,
+        }));
+
+      return leaderboard as any;
     }
-
-    // Convert to leaderboard format and sort by total points
-    const leaderboard = Array.from(userTotals.values())
-      .sort((a, b) => b.totalPoints - a.totalPoints)
-      .map(entry => ({
-        ...entry.user,
-        user: entry.user,
-        team: entry.team,
-        totalPoints: entry.totalPoints,
-        holes: entry.holes,
-      }));
-
-    return leaderboard as any; // Type casting for compatibility
   }
 
   // Legacy in-memory storage for development
