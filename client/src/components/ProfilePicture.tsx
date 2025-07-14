@@ -1,14 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import jeffreyreinerImg from "@/assets/austin-hassani.png";
+import austinhassaniImg from "@/assets/austin-hassani.png";
 import baileycarlsonImg from "@/assets/bailey-carlson.jpeg";
 import benbraunImg from "@/assets/ben-braun.jpeg";
 import christianhauckImg from "@/assets/christian-hauck.png";
-import austinhassaniImg from "@/assets/connor-patterson.jpeg";
-import connorpattersonImg from "@/assets/erik-boudreau.jpeg";
-import kevindurcoImg from "@/assets/jeffrey-reiner.jpeg";
-import erikboudreauImg from "@/assets/johnny-magnatta.jpeg";
+import connorpattersonImg from "@/assets/connor-patterson.jpeg";
+import erikboudreauImg from "@/assets/erik-boudreau.jpeg";
+import jeffreyreinerImg from "@/assets/jeffrey-reiner.jpeg";
+import johnnymagnattaImg from "@/assets/johnny-magnatta.jpeg";
 import jordankrellerImg from "@/assets/jordan-kreller.jpeg";
-import johnnymagnattaImg from "@/assets/kevin-durco.jpeg";
+import kevindurcoImg from "@/assets/kevin-durco.jpeg";
 import nichuxleyImg from "@/assets/nic-huxley.jpeg";
 import nickcookImg from "@/assets/nick-cook.jpeg";
 import nickgrossiImg from "@/assets/nick-grossi.jpeg";
@@ -31,16 +31,16 @@ export default function ProfilePicture({
 }: ProfilePictureProps) {
   // Define profile picture mappings with consistent names
   const profilePictures: Record<string, string> = {
-    "Jeffrey Reiner": jeffreyreinerImg,
+    "Austin Hassani": austinhassaniImg,
     "Bailey Carlson": baileycarlsonImg,
     "Ben Braun": benbraunImg,
     "Christian Hauck": christianhauckImg,
-    "Austin Hassani": austinhassaniImg,
     "Connor Patterson": connorpattersonImg,
-    "Kevin Durco": kevindurcoImg,
     "Erik Boudreau": erikboudreauImg,
-    "Jordan Kreller": jordankrellerImg,
+    "Jeffrey Reiner": jeffreyreinerImg,
     "Johnny Magnatta": johnnymagnattaImg,
+    "Jordan Kreller": jordankrellerImg,
+    "Kevin Durco": kevindurcoImg,
     "Nic Huxley": nichuxleyImg,
     "Nick Cook": nickcookImg,
     "Nick Grossi": nickgrossiImg,
