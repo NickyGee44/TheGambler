@@ -56,12 +56,13 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy(
       {
-        usernameField: 'firstName',
+        usernameField: 'playerName',
         passwordField: 'password',
         passReqToCallback: true,
       },
-      async (req, firstName, password, done) => {
-        const lastName = req.body.lastName;
+      async (req, playerName, password, done) => {
+        // Parse first and last name from selected player name
+        const [firstName, lastName] = playerName.split(' ');
         const user = await storage.getUserByName(firstName, lastName);
         if (!user || !(await comparePasswords(password, user.password))) {
           return done(null, false);
@@ -79,10 +80,17 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/register", async (req, res, next) => {
-    const { firstName, lastName, password } = req.body;
+    const { playerName, password } = req.body;
     
-    if (!firstName || !lastName || !password) {
+    if (!playerName || !password) {
       return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Parse first and last name from selected player name
+    const [firstName, lastName] = playerName.split(' ');
+    
+    if (!firstName || !lastName) {
+      return res.status(400).json({ error: "Invalid player name format" });
     }
 
     const existingUser = await storage.getUserByName(firstName, lastName);

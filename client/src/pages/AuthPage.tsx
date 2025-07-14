@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -8,14 +8,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trophy, MapPin, Calendar, Users } from "lucide-react";
 
 export default function AuthPage() {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // Get available players
+  const { data: players, isLoading: playersLoading } = useQuery({
+    queryKey: ["/api/players"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/players");
+      return await res.json();
+    },
+  });
+
   const loginMutation = useMutation({
-    mutationFn: async (credentials: { firstName: string; lastName: string; password: string }) => {
+    mutationFn: async (credentials: { playerName: string; password: string }) => {
       const res = await apiRequest("POST", "/api/login", credentials);
       return await res.json();
     },
@@ -32,7 +42,7 @@ export default function AuthPage() {
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (credentials: { firstName: string; lastName: string; password: string }) => {
+    mutationFn: async (credentials: { playerName: string; password: string }) => {
       const res = await apiRequest("POST", "/api/register", credentials);
       return await res.json();
     },
@@ -47,10 +57,10 @@ export default function AuthPage() {
       });
     },
   });
+  
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    playerName: "",
     password: "",
   });
 
@@ -72,6 +82,13 @@ export default function AuthPage() {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
+    });
+  };
+
+  const handlePlayerSelect = (value: string) => {
+    setFormData({
+      ...formData,
+      playerName: value,
     });
   };
 
@@ -135,29 +152,24 @@ export default function AuthPage() {
                   
                   <TabsContent value="login" className="space-y-4">
                     <form onSubmit={handleSubmit} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="firstName">First Name</Label>
-                          <Input
-                            id="firstName"
-                            name="firstName"
-                            value={formData.firstName}
-                            onChange={handleInputChange}
-                            placeholder="John"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="lastName">Last Name</Label>
-                          <Input
-                            id="lastName"
-                            name="lastName"
-                            value={formData.lastName}
-                            onChange={handleInputChange}
-                            placeholder="Doe"
-                            required
-                          />
-                        </div>
+                      <div>
+                        <Label htmlFor="playerName">Select Your Name</Label>
+                        <Select value={formData.playerName} onValueChange={handlePlayerSelect}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose your name..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {playersLoading ? (
+                              <SelectItem value="loading">Loading players...</SelectItem>
+                            ) : (
+                              players?.map((player: any) => (
+                                <SelectItem key={player.name} value={player.name}>
+                                  {player.name}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
                         <Label htmlFor="password">Password</Label>
@@ -174,7 +186,7 @@ export default function AuthPage() {
                       <Button 
                         type="submit" 
                         className="w-full bg-golf-green-600 hover:bg-golf-green-700"
-                        disabled={loginMutation.isPending}
+                        disabled={loginMutation.isPending || !formData.playerName}
                       >
                         {loginMutation.isPending ? "Logging in..." : "Log In"}
                       </Button>
@@ -183,32 +195,27 @@ export default function AuthPage() {
                   
                   <TabsContent value="register" className="space-y-4">
                     <form onSubmit={handleSubmit} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="firstName">First Name</Label>
-                          <Input
-                            id="firstName"
-                            name="firstName"
-                            value={formData.firstName}
-                            onChange={handleInputChange}
-                            placeholder="John"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="lastName">Last Name</Label>
-                          <Input
-                            id="lastName"
-                            name="lastName"
-                            value={formData.lastName}
-                            onChange={handleInputChange}
-                            placeholder="Doe"
-                            required
-                          />
-                        </div>
+                      <div>
+                        <Label htmlFor="playerName">Select Your Name</Label>
+                        <Select value={formData.playerName} onValueChange={handlePlayerSelect}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose your name..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {playersLoading ? (
+                              <SelectItem value="loading">Loading players...</SelectItem>
+                            ) : (
+                              players?.map((player: any) => (
+                                <SelectItem key={player.name} value={player.name}>
+                                  {player.name}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">Create Password</Label>
                         <Input
                           id="password"
                           name="password"
@@ -222,7 +229,7 @@ export default function AuthPage() {
                       <Button 
                         type="submit" 
                         className="w-full bg-golf-green-600 hover:bg-golf-green-700"
-                        disabled={registerMutation.isPending}
+                        disabled={registerMutation.isPending || !formData.playerName}
                       >
                         {registerMutation.isPending ? "Creating account..." : "Create Account"}
                       </Button>

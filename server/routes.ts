@@ -50,6 +50,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth routes are handled in auth.ts
 
+  // Get all available players for dropdown selection
+  app.get('/api/players', async (req, res) => {
+    try {
+      const teams = await storage.getTeams();
+      const players = teams.flatMap(team => [
+        { name: team.player1Name, teamId: team.id, playerNumber: 1 },
+        { name: team.player2Name, teamId: team.id, playerNumber: 2 }
+      ]).sort((a, b) => a.name.localeCompare(b.name));
+      res.json(players);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch players' });
+    }
+  });
+
   // Teams endpoints
   app.get('/api/teams', async (req, res) => {
     try {
