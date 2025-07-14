@@ -186,5 +186,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Matchups routes
+  app.get('/api/matchups', async (req, res) => {
+    try {
+      const matchups = await storage.getMatchups();
+      res.json(matchups);
+    } catch (error) {
+      console.error('Error fetching matchups:', error);
+      res.status(500).json({ error: 'Failed to fetch matchups' });
+    }
+  });
+
+  app.post('/api/matchups', async (req, res) => {
+    try {
+      const matchup = await storage.createMatchup(req.body);
+      res.status(201).json(matchup);
+    } catch (error) {
+      console.error('Error creating matchup:', error);
+      res.status(500).json({ error: 'Failed to create matchup' });
+    }
+  });
+
+  app.put('/api/matchups/:id/score', requireAuth, async (req: any, res) => {
+    try {
+      const matchupId = parseInt(req.params.id);
+      const { player1Score, player2Score } = req.body;
+      
+      const matchup = await storage.updateMatchupScore(matchupId, player1Score, player2Score);
+      
+      // Broadcast matchup update to all clients
+      broadcast({
+        type: 'MATCHUP_SCORE_UPDATE',
+        data: matchup
+      });
+
+      res.json(matchup);
+    } catch (error) {
+      console.error('Error updating matchup score:', error);
+      res.status(500).json({ error: 'Failed to update matchup score' });
+    }
+  });
+
   return httpServer;
 }

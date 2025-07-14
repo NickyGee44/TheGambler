@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import Layout from "@/components/Layout";
 import Home from "@/pages/Home";
 import Teams from "@/pages/Teams";
@@ -12,6 +12,7 @@ import Scores from "@/pages/Scores";
 import SideBets from "@/pages/SideBets";
 import Rules from "@/pages/Rules";
 import Photos from "@/pages/Photos";
+import Round3Matchups from "@/pages/Round3Matchups";
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
@@ -42,6 +43,7 @@ function Router() {
           <Route path="/sidebets" component={SideBets} />
           <Route path="/rules" component={Rules} />
           <Route path="/photos" component={Photos} />
+          <Route path="/round3" component={Round3Matchups} />
         </>
       )}
       <Route component={NotFound} />
@@ -94,12 +96,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <AuthProvider>
-            <Layout>
-              <Router />
-            </Layout>
-            <Toaster />
-          </AuthProvider>
+          <Layout>
+            <Router />
+          </Layout>
+          <Toaster />
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

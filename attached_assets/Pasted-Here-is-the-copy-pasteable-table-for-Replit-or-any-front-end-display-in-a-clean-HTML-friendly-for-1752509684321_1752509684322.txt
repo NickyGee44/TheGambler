@@ -1,0 +1,68 @@
+Here is the copy-pasteable table for Replit (or any front-end display) in a clean, HTML-friendly format for Round 3 - 6-Hole Net Stroke Matches:
+
+⸻
+
+🏌️‍♂️ Round 3 – Muskoka Bay Stroke Matchups (6 Holes Each)
+
+Foursome	Matchup	Holes	Strokes Given
+Foursome 1	Jordan Kreller vs Christian Hauck	1–6	Christian gives Jordan 0 strokes
+Foursome 1	Jordan Kreller vs Connor Patterson	7–12	Connor gives Jordan 1 stroke
+Foursome 1	Jordan Kreller vs Ben Braun	13–18	No strokes given
+Foursome 1	Christian Hauck vs Connor Patterson	1–6	No strokes given
+Foursome 1	Christian Hauck vs Ben Braun	7–12	No strokes given
+Foursome 1	Connor Patterson vs Ben Braun	13–18	Ben gives Connor 1 stroke
+Foursome 2	Spencer Reid vs Jeffrey Reiner	1–6	Spencer gets 2 strokes from Jeff
+Foursome 2	Spencer Reid vs Kevin Durco	7–12	Kevin gives Spencer 4 strokes
+Foursome 2	Spencer Reid vs Erik Boudreau	13–18	Erik gives Spencer 2 strokes
+Foursome 2	Jeffrey Reiner vs Kevin Durco	1–6	No strokes given
+Foursome 2	Jeffrey Reiner vs Erik Boudreau	7–12	Erik gets 1 stroke from Jeff
+Foursome 2	Kevin Durco vs Erik Boudreau	13–18	Erik gives Kevin 2 strokes
+Foursome 3	Sye Ellard vs Will Bibbings	1–6	Will gives Sye 4 strokes
+Foursome 3	Sye Ellard vs Nic Huxley	7–12	Nic gives Sye 1 stroke
+Foursome 3	Sye Ellard vs Bailey Carlson	13–18	No strokes given
+Foursome 3	Will Bibbings vs Nic Huxley	1–6	Nic gets 3 strokes from Will
+Foursome 3	Will Bibbings vs Bailey Carlson	7–12	Bailey gets 4 strokes from Will
+Foursome 3	Nic Huxley vs Bailey Carlson	13–18	Bailey gets 2 strokes from Nic
+Foursome 4	Nick Grossi vs Nick Cook	1–6	Nick Cook gives Nick Grossi 1 stroke
+Foursome 4	Nick Grossi vs Jonathan Magnatta	7–12	Jonathan gives Nick 2 strokes
+Foursome 4	Nick Grossi vs Austin Hassani	13–18	Austin gives Nick 1 stroke
+Foursome 4	Nick Cook vs Jonathan Magnatta	1–6	No strokes given
+Foursome 4	Nick Cook vs Austin Hassani	7–12	Austin gets 2 strokes from Cook
+Foursome 4	Jonathan Magnatta vs Austin Hassani	13–18	Austin gets 2 strokes from Jonathan
+
+
+⸻
+
+⚙️ Integration Tips for Replit
+
+If you’re using React, structure this data as an array of objects:
+
+const matchups = [
+  {
+    foursome: "Foursome 1",
+    matchup: "Jordan Kreller vs Christian Hauck",
+    holes: "1–6",
+    strokes: "Christian gives Jordan 0 strokes"
+  },
+  {
+    foursome: "Foursome 1",
+    matchup: "Jordan Kreller vs Connor Patterson",
+    holes: "7–12",
+    strokes: "Connor gives Jordan 1 stroke"
+  },
+  // ...continue through all matchups
+];
+
+Let me know if you want:
+	•	Auto-score logic based on strokes
+	•	A modal UI to enter hole-by-hole results
+	•	Drinking multiplier per hole
+	•	Side bets scoreboard tied to matchups
+
+⸻
+
+Q1: Should I now build out the React or HTML prototype for your Replit?
+Q2: Want each team’s overall record tracked on this page?
+Q3: Should the strokes be auto-applied to entered scores for net results?
+Q4: Want me to generate a print-friendly scorecard version?
+Q5: Should I help you host this publicly via Replit’s live deployment?

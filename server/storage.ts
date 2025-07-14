@@ -4,16 +4,19 @@ import {
   scores,
   sideBets,
   photos,
+  matchups,
   type User,
   type InsertUser,
   type Team,
   type Score,
   type SideBet,
   type Photo,
+  type Matchup,
   type InsertTeam,
   type InsertScore,
   type InsertSideBet,
   type InsertPhoto,
+  type InsertMatchup,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
@@ -41,6 +44,11 @@ export interface IStorage {
   // Photos
   getPhotos(): Promise<Photo[]>;
   createPhoto(photo: InsertPhoto): Promise<Photo>;
+  
+  // Matchups
+  getMatchups(): Promise<Matchup[]>;
+  createMatchup(matchup: InsertMatchup): Promise<Matchup>;
+  updateMatchupScore(matchupId: number, player1Score: number, player2Score: number): Promise<Matchup>;
   
   // Player matching
   findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 } | null>;
@@ -88,20 +96,24 @@ export class DatabaseStorage implements IStorage {
   private scores: Map<number, Score>;
   private sideBets: Map<number, SideBet>;
   private photos: Map<number, Photo>;
+  private matchups: Map<number, Matchup>;
   private currentTeamId: number;
   private currentScoreId: number;
   private currentSideBetId: number;
   private currentPhotoId: number;
+  private currentMatchupId: number;
 
   constructor() {
     this.teams = new Map();
     this.scores = new Map();
     this.sideBets = new Map();
     this.photos = new Map();
+    this.matchups = new Map();
     this.currentTeamId = 1;
     this.currentScoreId = 1;
     this.currentSideBetId = 1;
     this.currentPhotoId = 1;
+    this.currentMatchupId = 1;
     
     // Initialize with tournament data
     this.initializeData();
@@ -245,6 +257,44 @@ export class DatabaseStorage implements IStorage {
     };
     this.photos.set(id, photo);
     return photo;
+  }
+
+  async getMatchups(): Promise<Matchup[]> {
+    return Array.from(this.matchups.values());
+  }
+
+  async createMatchup(insertMatchup: InsertMatchup): Promise<Matchup> {
+    const matchup: Matchup = {
+      id: this.currentMatchupId++,
+      ...insertMatchup,
+      player1Score: insertMatchup.player1Score || null,
+      player2Score: insertMatchup.player2Score || null,
+      winner: insertMatchup.winner || null,
+      createdAt: new Date(),
+    };
+    this.matchups.set(matchup.id, matchup);
+    return matchup;
+  }
+
+  async updateMatchupScore(matchupId: number, player1Score: number, player2Score: number): Promise<Matchup> {
+    const existingMatchup = this.matchups.get(matchupId);
+    if (!existingMatchup) {
+      throw new Error(`Matchup with id ${matchupId} not found`);
+    }
+
+    const winner = player1Score < player2Score ? existingMatchup.player1 :
+                   player2Score < player1Score ? existingMatchup.player2 : 
+                   'Tie';
+
+    const updatedMatchup: Matchup = {
+      ...existingMatchup,
+      player1Score,
+      player2Score,
+      winner,
+    };
+
+    this.matchups.set(matchupId, updatedMatchup);
+    return updatedMatchup;
   }
 }
 

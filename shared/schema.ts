@@ -63,6 +63,19 @@ export const photos = pgTable("photos", {
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
+export const matchups = pgTable("matchups", {
+  id: serial("id").primaryKey(),
+  foursome: text("foursome").notNull(),
+  player1: text("player1").notNull(),
+  player2: text("player2").notNull(),
+  holes: text("holes").notNull(),
+  strokesDescription: text("strokes_description").notNull(),
+  player1Score: integer("player1_score"),
+  player2Score: integer("player2_score"),
+  winner: text("winner"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertTeamSchema = createInsertSchema(teams).omit({
   id: true,
   createdAt: true,
@@ -83,6 +96,11 @@ export const insertPhotoSchema = createInsertSchema(photos).omit({
   uploadedAt: true,
 });
 
+export const insertMatchupSchema = createInsertSchema(matchups).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -99,3 +117,5 @@ export type SideBet = typeof sideBets.$inferSelect;
 export type InsertSideBet = z.infer<typeof insertSideBetSchema>;
 export type Photo = typeof photos.$inferSelect;
 export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
+export type Matchup = typeof matchups.$inferSelect;
+export type InsertMatchup = z.infer<typeof insertMatchupSchema>;
