@@ -4,8 +4,9 @@
   "description": "Golf tournament tracking application for The Gambler Cup 2025",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#2563eb",
   "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/gambler-logo-192.png",
@@ -18,6 +19,14 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
+    }
+  ],
+  "categories": ["sports", "productivity"],
+  "screenshots": [
+    {
+      "src": "/gambler-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }

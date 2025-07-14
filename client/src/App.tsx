@@ -19,10 +19,29 @@ import Round3Matchups from "@/pages/Round3Matchups";
 import TournamentRules from "@/pages/TournamentRules";
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/not-found";
-import { useEffect } from "react";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import { useEffect, useState } from "react";
 
 function Router() {
   const { user, isLoading } = useAuth();
+  const [showPWAPrompt, setShowPWAPrompt] = useState(false);
+
+  useEffect(() => {
+    // Show PWA prompt after a short delay if not already dismissed
+    const hasSeenPrompt = localStorage.getItem('pwa-prompt-dismissed');
+    if (!hasSeenPrompt) {
+      const timer = setTimeout(() => {
+        setShowPWAPrompt(true);
+      }, 3000); // Show after 3 seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handlePWAPromptDismiss = () => {
+    setShowPWAPrompt(false);
+    localStorage.setItem('pwa-prompt-dismissed', 'true');
+  };
 
   if (isLoading) {
     return (
@@ -36,26 +55,33 @@ function Router() {
   }
 
   return (
-    <Switch>
-      {!user ? (
-        <Route path="/" component={AuthPage} />
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/teams" component={Teams} />
-          <Route path="/round1" component={Round1} />
-          <Route path="/round2" component={Round2} />
-          <Route path="/round3" component={Round3} />
-          <Route path="/scores" component={Scores} />
-          <Route path="/sidebets" component={SideBets} />
-          <Route path="/rules" component={Rules} />
-          <Route path="/tournament-rules" component={TournamentRules} />
-          <Route path="/photos" component={Photos} />
-          <Route path="/round3-matchups" component={Round3Matchups} />
-        </>
+    <>
+      <Switch>
+        {!user ? (
+          <Route path="/" component={AuthPage} />
+        ) : (
+          <>
+            <Route path="/" component={Home} />
+            <Route path="/teams" component={Teams} />
+            <Route path="/round1" component={Round1} />
+            <Route path="/round2" component={Round2} />
+            <Route path="/round3" component={Round3} />
+            <Route path="/scores" component={Scores} />
+            <Route path="/sidebets" component={SideBets} />
+            <Route path="/rules" component={Rules} />
+            <Route path="/tournament-rules" component={TournamentRules} />
+            <Route path="/photos" component={Photos} />
+            <Route path="/round3-matchups" component={Round3Matchups} />
+          </>
+        )}
+        <Route component={NotFound} />
+      </Switch>
+      
+      {/* PWA Install Prompt */}
+      {showPWAPrompt && (
+        <PWAInstallPrompt onDismiss={handlePWAPromptDismiss} />
       )}
-      <Route component={NotFound} />
-    </Switch>
+    </>
   );
 }
 

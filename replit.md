@@ -129,6 +129,13 @@ Preferred communication style: Simple, everyday language.
   - Added logo to navigation sidebar, landing page, home page, and auth page
   - Updated service worker to cache logo files for offline use
   - Logo displays prominently in all key user interface areas
+- **Implemented PWA Installation Prompt:**
+  - Created interactive PWA install prompt that appears after 3 seconds
+  - Device-specific installation instructions for iOS, Android, and desktop
+  - Auto-detects user's device type and shows appropriate steps
+  - Dismissible prompt with localStorage to prevent repeated showing
+  - Integrated with native browser install prompt when available
+  - Guides users through complete installation process
 - **Fixed Name Inconsistencies in Player Profiles:**
   - Updated "Will Bibi" to "Will Bibbings" consistently across all components
   - Updated "Jonathan Magnatta" to "Johnny Magnatta" consistently
