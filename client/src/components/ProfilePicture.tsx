@@ -6,7 +6,7 @@ import christianhauckImg from "@/assets/christian-hauck.png";
 import austinhassaniImg from "@/assets/connor-patterson.jpeg";
 import connorpattersonImg from "@/assets/erik-boudreau.jpeg";
 import kevindurcoImg from "@/assets/jeffrey-reiner.jpeg";
-import erikboudreauImg from "@assets/IMG_5247_1752522124050.jpeg";
+import erikboudreauImg from "@/assets/IMG_5247_1752522124050.jpeg";
 import jordankrellerImg from "@/assets/jordan-kreller.jpeg";
 import johnnymagnattaImg from "@/assets/kevin-durco.jpeg";
 import nichuxleyImg from "@/assets/nic-huxley.jpeg";
