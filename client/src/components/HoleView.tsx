@@ -18,8 +18,10 @@ import {
   Flag, 
   ArrowLeft, 
   ArrowRight,
-  Crosshair 
+  Crosshair,
+  Map 
 } from "lucide-react";
+import HoleMap from "./HoleMap";
 
 interface HoleViewProps {
   hole: HoleData;
@@ -46,6 +48,7 @@ export default function HoleView({
 }: HoleViewProps) {
   const { location, isLoading: gpsLoading, error: gpsError, requestLocation } = useGPS();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<'score' | 'map'>('score');
   
   // Calculate yardages to green if GPS is available
   const yardages = location ? {
@@ -97,8 +100,35 @@ export default function HoleView({
           </div>
         </div>
 
-        {/* Score Entry Card */}
-        <Card className="mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-2 border-golf-green-200 dark:border-slate-700">
+        {/* Tab Navigation */}
+        <div className="flex mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg p-1">
+          <button
+            onClick={() => setActiveTab('score')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors ${
+              activeTab === 'score' 
+                ? 'bg-golf-green-600 text-white' 
+                : 'text-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-slate-700'
+            }`}
+          >
+            <Target className="w-4 h-4" />
+            Score
+          </button>
+          <button
+            onClick={() => setActiveTab('map')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors ${
+              activeTab === 'map' 
+                ? 'bg-golf-green-600 text-white' 
+                : 'text-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-slate-700'
+            }`}
+          >
+            <Map className="w-4 h-4" />
+            GPS Map
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'score' && (
+          <Card className="mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-2 border-golf-green-200 dark:border-slate-700">
           <CardHeader className="pb-4">
             <CardTitle className="text-center">Your Score</CardTitle>
           </CardHeader>
@@ -144,8 +174,19 @@ export default function HoleView({
             )}
           </CardContent>
         </Card>
+        )}
 
-        {/* GPS Yardages Card */}
+        {/* GPS Map Tab */}
+        {activeTab === 'map' && (
+          <div className="mb-6">
+            <HoleMap 
+              hole={hole} 
+              courseName={round === 3 ? "Muskoka Bay Golf Club" : "Deerhurst Highlands"} 
+            />
+          </div>
+        )}
+
+        {/* GPS Yardages Card (always visible) */}
         <Card className="mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2">
