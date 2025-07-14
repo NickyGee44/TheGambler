@@ -63,7 +63,7 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
         });
 
         const { Map } = await loader.importLibrary("maps");
-        const { Marker } = await loader.importLibrary("marker");
+        const { AdvancedMarkerElement } = await loader.importLibrary("marker");
 
         if (mapRef.current) {
           const mapInstance = new Map(mapRef.current, {
@@ -86,61 +86,29 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
           setMap(mapInstance);
 
           // Add tee marker
-          const teeMarkerInstance = new Marker({
+          const teeMarkerInstance = new AdvancedMarkerElement({
             position: { lat: hole.tee.lat, lng: hole.tee.lng },
             map: mapInstance,
-            title: "Tee",
-            icon: {
-              path: window.google.maps.SymbolPath.CIRCLE,
-              fillColor: "#3b82f6",
-              fillOpacity: 1,
-              strokeColor: "#1d4ed8",
-              strokeWeight: 2,
-              scale: 8
-            }
+            title: "Tee"
           });
           setTeeMarker(teeMarkerInstance);
 
           // Add green markers
           const greenMarkerInstances = [
-            new Marker({
+            new AdvancedMarkerElement({
               position: { lat: hole.green.front.lat, lng: hole.green.front.lng },
               map: mapInstance,
-              title: "Green Front",
-              icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                fillColor: "#10b981",
-                fillOpacity: 1,
-                strokeColor: "#059669",
-                strokeWeight: 2,
-                scale: 4
-              }
+              title: "Green Front"
             }),
-            new Marker({
+            new AdvancedMarkerElement({
               position: { lat: hole.green.middle.lat, lng: hole.green.middle.lng },
               map: mapInstance,
-              title: "Green Middle",
-              icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                fillColor: "#059669",
-                fillOpacity: 1,
-                strokeColor: "#047857",
-                strokeWeight: 2,
-                scale: 6
-              }
+              title: "Green Middle"
             }),
-            new Marker({
+            new AdvancedMarkerElement({
               position: { lat: hole.green.back.lat, lng: hole.green.back.lng },
               map: mapInstance,
-              title: "Green Back",
-              icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                fillColor: "#047857",
-                fillOpacity: 1,
-                strokeColor: "#065f46",
-                strokeWeight: 2,
-                scale: 4
-              }
+              title: "Green Back"
             })
           ];
           setGreenMarkers(greenMarkerInstances);
@@ -150,6 +118,11 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
       } catch (error) {
         console.error("Error loading Google Maps:", error);
         setMapLoaded(false);
+        
+        // Check if it's a domain restriction error
+        if (error instanceof Error && error.message.includes('RefererNotAllowedMapError')) {
+          console.warn("Google Maps API domain not authorized. Please add *.replit.dev/*, *.replit.com/*, and *.replit.app/* to your API key restrictions.");
+        }
       }
     };
 
@@ -165,18 +138,10 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
       }
 
       // Add new player marker
-      const newPlayerMarker = new window.google.maps.Marker({
+      const newPlayerMarker = new window.google.maps.marker.AdvancedMarkerElement({
         position: { lat: location.lat, lng: location.lng },
         map: map,
-        title: "Your Location",
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          fillColor: "#ef4444",
-          fillOpacity: 1,
-          strokeColor: "#dc2626",
-          strokeWeight: 3,
-          scale: 10
-        }
+        title: "Your Location"
       });
 
       setPlayerMarker(newPlayerMarker);
@@ -244,8 +209,22 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
         {!mapLoaded && (
           <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-lg">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-sm text-muted-foreground">Loading satellite map...</p>
+              {apiKey ? (
+                <>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-sm text-muted-foreground">Loading satellite map...</p>
+                </>
+              ) : (
+                <>
+                  <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Satellite map unavailable
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Google Maps API key needed
+                  </p>
+                </>
+              )}
             </div>
           </div>
         )}
