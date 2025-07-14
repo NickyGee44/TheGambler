@@ -214,6 +214,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/sidebets/:id/status', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      const updatedSideBet = await storage.updateSideBetStatus(parseInt(id), status);
+      
+      // Broadcast side bet status update to all clients
+      broadcast({
+        type: 'SIDE_BET_STATUS_UPDATE',
+        data: updatedSideBet
+      });
+
+      res.json(updatedSideBet);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update side bet status' });
+    }
+  });
+
   // Photos endpoints
   app.get('/api/photos', async (req, res) => {
     try {

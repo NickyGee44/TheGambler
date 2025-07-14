@@ -51,6 +51,7 @@ export interface IStorage {
   getSideBets(): Promise<SideBet[]>;
   createSideBet(bet: InsertSideBet): Promise<SideBet>;
   updateSideBetResult(betId: number, result: string): Promise<SideBet>;
+  updateSideBetStatus(betId: number, status: string): Promise<SideBet>;
   
   // Photos
   getPhotos(): Promise<Photo[]>;
@@ -534,7 +535,8 @@ export class DatabaseStorage implements IStorage {
     const sideBet: SideBet = {
       id,
       ...insertSideBet,
-      result: insertSideBet.result || null,
+      status: insertSideBet.status || "Pending",
+      result: insertSideBet.result || "Pending",
       createdAt: new Date()
     };
     this.sideBets.set(id, sideBet);
@@ -550,6 +552,21 @@ export class DatabaseStorage implements IStorage {
     const updatedSideBet: SideBet = {
       ...existingSideBet,
       result
+    };
+
+    this.sideBets.set(betId, updatedSideBet);
+    return updatedSideBet;
+  }
+
+  async updateSideBetStatus(betId: number, status: string): Promise<SideBet> {
+    const existingSideBet = this.sideBets.get(betId);
+    if (!existingSideBet) {
+      throw new Error('Side bet not found');
+    }
+
+    const updatedSideBet: SideBet = {
+      ...existingSideBet,
+      status
     };
 
     this.sideBets.set(betId, updatedSideBet);

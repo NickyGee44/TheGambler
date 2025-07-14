@@ -53,7 +53,8 @@ export const sideBets = pgTable("side_bets", {
   opponentName: text("opponent_name").notNull(),
   amount: integer("amount").notNull(),
   condition: text("condition").notNull(),
-  result: text("result").default("Pending"),
+  status: text("status").default("Pending"), // Pending, Accepted, Declined
+  result: text("result").default("Pending"), // Pending, Won, Lost, Push
   createdAt: timestamp("created_at").defaultNow(),
 });
 

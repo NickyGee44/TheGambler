@@ -135,6 +135,13 @@ Preferred communication style: Simple, everyday language.
   - Set new background photo for the homepage hero section
   - Increased opacity to 40% for better image visibility
   - Added image to public directory for web serving
+- **Implemented "Pussy Boys" Challenge System:**
+  - Added status field to side bets schema (Pending, Accepted, Declined)
+  - Created Accept/Decline buttons for challenges
+  - Added "Pussy Boys Hall of Shame" section for declined challenges
+  - Players who decline challenges appear with challenger's photo as corner tag
+  - Real-time updates for challenge responses via WebSocket
+  - Public display of all declined challenges with shame messaging
 - **Fixed Profile Picture Assignments:**
   - Created admin tool at `/admin/picture-assignment` for reassigning mixed up photos
   - Applied corrected profile picture mappings based on user feedback
