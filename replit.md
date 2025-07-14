@@ -122,6 +122,15 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 14, 2025:**
+- **Updated Photo Upload System:**
+  - Removed placeholder images from Photos page
+  - Added real file upload functionality for users to upload from camera roll
+  - Implemented photo preview, file validation, and mobile optimization
+  - Added multer backend support for handling photo uploads
+  - Photos now stored as base64 data URLs in database
+- **Updated Erik Boudreau Profile Picture:**
+  - Applied new profile picture provided by user
+  - Updated ProfilePicture component to use latest photo
 - **Fixed Profile Picture Assignments:**
   - Created admin tool at `/admin/picture-assignment` for reassigning mixed up photos
   - Applied corrected profile picture mappings based on user feedback
