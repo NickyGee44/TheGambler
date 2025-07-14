@@ -1,0 +1,164 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
+import { storage } from "./storage";
+import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema } from "@shared/schema";
+import { z } from "zod";
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  const httpServer = createServer(app);
+
+  // WebSocket server for real-time updates
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+
+  // Broadcast function
+  const broadcast = (message: any) => {
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(message));
+      }
+    });
+  };
+
+  wss.on('connection', (ws) => {
+    console.log('Client connected');
+    
+    ws.on('message', (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        console.log('Received:', data);
+      } catch (error) {
+        console.error('Invalid JSON:', error);
+      }
+    });
+
+    ws.on('close', () => {
+      console.log('Client disconnected');
+    });
+  });
+
+  // Teams endpoints
+  app.get('/api/teams', async (req, res) => {
+    try {
+      const teams = await storage.getTeams();
+      res.json(teams);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch teams' });
+    }
+  });
+
+  // Scores endpoints
+  app.get('/api/scores', async (req, res) => {
+    try {
+      const scores = await storage.getScores();
+      res.json(scores);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch scores' });
+    }
+  });
+
+  app.post('/api/scores', async (req, res) => {
+    try {
+      const { teamId, round, score } = req.body;
+      
+      if (!teamId || !round || score === undefined) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      const updatedScore = await storage.updateScore(teamId, round, score);
+      
+      // Broadcast score update to all clients
+      broadcast({
+        type: 'SCORE_UPDATE',
+        data: updatedScore
+      });
+
+      res.json(updatedScore);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update score' });
+    }
+  });
+
+  // Side bets endpoints
+  app.get('/api/sidebets', async (req, res) => {
+    try {
+      const sideBets = await storage.getSideBets();
+      res.json(sideBets);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch side bets' });
+    }
+  });
+
+  app.post('/api/sidebets', async (req, res) => {
+    try {
+      const validated = insertSideBetSchema.parse(req.body);
+      const sideBet = await storage.createSideBet(validated);
+      
+      // Broadcast new side bet to all clients
+      broadcast({
+        type: 'SIDE_BET_CREATED',
+        data: sideBet
+      });
+
+      res.json(sideBet);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: error.errors });
+      } else {
+        res.status(500).json({ error: 'Failed to create side bet' });
+      }
+    }
+  });
+
+  app.patch('/api/sidebets/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { result } = req.body;
+      
+      const updatedSideBet = await storage.updateSideBetResult(parseInt(id), result);
+      
+      // Broadcast side bet update to all clients
+      broadcast({
+        type: 'SIDE_BET_UPDATE',
+        data: updatedSideBet
+      });
+
+      res.json(updatedSideBet);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update side bet' });
+    }
+  });
+
+  // Photos endpoints
+  app.get('/api/photos', async (req, res) => {
+    try {
+      const photos = await storage.getPhotos();
+      res.json(photos);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch photos' });
+    }
+  });
+
+  app.post('/api/photos', async (req, res) => {
+    try {
+      const validated = insertPhotoSchema.parse(req.body);
+      const photo = await storage.createPhoto(validated);
+      
+      // Broadcast new photo to all clients
+      broadcast({
+        type: 'PHOTO_UPLOADED',
+        data: photo
+      });
+
+      res.json(photo);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: error.errors });
+      } else {
+        res.status(500).json({ error: 'Failed to upload photo' });
+      }
+    }
+  });
+
+  return httpServer;
+}
