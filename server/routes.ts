@@ -325,5 +325,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/team-better-ball/:round', async (req, res) => {
+    try {
+      const round = parseInt(req.params.round);
+      const leaderboard = await storage.getTeamBetterBallLeaderboard(round);
+      res.json(leaderboard);
+    } catch (error) {
+      console.error('Error fetching team better ball leaderboard:', error);
+      res.status(500).json({ error: 'Failed to fetch team better ball leaderboard' });
+    }
+  });
+
   return httpServer;
 }

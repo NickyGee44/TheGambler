@@ -272,6 +272,86 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getTeamBetterBallLeaderboard(round: number): Promise<any[]> {
+    const scores = await db.select({
+      holeScore: holeScores,
+      user: users,
+      team: teams,
+    }).from(holeScores)
+      .innerJoin(users, eq(holeScores.userId, users.id))
+      .innerJoin(teams, eq(holeScores.teamId, teams.id))
+      .where(eq(holeScores.round, round));
+
+    // Group by team and hole to calculate better ball scores
+    const teamHoleScores = new Map<string, { team: Team; hole: number; bestNetScore: number; bestPoints: number; players: User[] }>();
+    
+    for (const score of scores) {
+      const key = `${score.team.id}-${score.holeScore.hole}`;
+      if (!teamHoleScores.has(key)) {
+        teamHoleScores.set(key, {
+          team: score.team,
+          hole: score.holeScore.hole,
+          bestNetScore: score.holeScore.netScore,
+          bestPoints: score.holeScore.points,
+          players: [score.user],
+        });
+      } else {
+        const teamHole = teamHoleScores.get(key)!;
+        // Better ball uses best net score (lowest net score gets more points)
+        if (score.holeScore.points > teamHole.bestPoints) {
+          teamHole.bestNetScore = score.holeScore.netScore;
+          teamHole.bestPoints = score.holeScore.points;
+        }
+        if (!teamHole.players.find(p => p.id === score.user.id)) {
+          teamHole.players.push(score.user);
+        }
+      }
+    }
+
+    // Calculate team totals
+    const teamTotals = new Map<number, { team: Team; totalPoints: number; totalNetStrokes: number; holes: number; players: User[] }>();
+    
+    for (const teamHole of Array.from(teamHoleScores.values())) {
+      const teamId = teamHole.team.id;
+      if (!teamTotals.has(teamId)) {
+        teamTotals.set(teamId, {
+          team: teamHole.team,
+          totalPoints: 0,
+          totalNetStrokes: 0,
+          holes: 0,
+          players: [],
+        });
+      }
+      const teamTotal = teamTotals.get(teamId)!;
+      teamTotal.totalPoints += teamHole.bestPoints;
+      teamTotal.totalNetStrokes += teamHole.bestNetScore;
+      teamTotal.holes += 1;
+      
+      // Add unique players to the team
+      for (const player of teamHole.players) {
+        if (!teamTotal.players.find(p => p.id === player.id)) {
+          teamTotal.players.push(player);
+        }
+      }
+    }
+
+    // Convert to leaderboard format and sort by total points
+    const leaderboard = Array.from(teamTotals.values())
+      .sort((a, b) => b.totalPoints - a.totalPoints)
+      .map(entry => ({
+        id: entry.team.id,
+        team: entry.team,
+        players: entry.players,
+        totalPoints: entry.totalPoints,
+        totalNetStrokes: entry.totalNetStrokes,
+        holes: entry.holes,
+        isTeamLeaderboard: true,
+        isBetterBall: true,
+      }));
+
+    return leaderboard;
+  }
+
   // Legacy in-memory storage for development
   private teams: Map<number, Team>;
   private scores: Map<number, Score>;

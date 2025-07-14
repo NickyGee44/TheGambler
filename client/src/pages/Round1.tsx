@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HoleView from "@/components/HoleView";
 import { getCourseForRound } from "@shared/courseData";
 import { Play, Flag, Trophy, Users, MapPin } from "lucide-react";
@@ -37,6 +38,7 @@ export default function Round1() {
   const [currentHole, setCurrentHole] = useState(1);
   const [isRoundStarted, setIsRoundStarted] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leaderboardTab, setLeaderboardTab] = useState("team");
 
   // Fetch user's hole scores for round 1
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({
@@ -44,9 +46,15 @@ export default function Round1() {
     enabled: !!user,
   });
 
-  // Fetch leaderboard for round 1
-  const { data: leaderboard = [] } = useQuery<LeaderboardEntry[]>({
+  // Fetch individual leaderboard for round 1
+  const { data: individualLeaderboard = [] } = useQuery<LeaderboardEntry[]>({
     queryKey: [`/api/leaderboard/${round}`],
+    refetchInterval: 10000, // Refresh every 10 seconds
+  });
+
+  // Fetch team better ball leaderboard for round 1
+  const { data: teamLeaderboard = [] } = useQuery<any[]>({
+    queryKey: [`/api/team-better-ball/${round}`],
     refetchInterval: 10000, // Refresh every 10 seconds
   });
 
@@ -62,6 +70,7 @@ export default function Round1() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/team-better-ball/${round}`] });
       toast({
         title: "Score saved",
         description: "Your score has been updated.",
@@ -144,47 +153,103 @@ export default function Round1() {
               <CardDescription>Updated in real-time as players submit scores</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {leaderboard.map((entry, index) => (
-                  <div
-                    key={`${entry.user.firstName}-${entry.user.lastName}`}
-                    className="flex items-center justify-between p-4 bg-muted rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-golf-green-600 text-white flex items-center justify-center font-bold">
-                        {index + 1}
-                      </div>
-                      <ProfilePicture 
-                        firstName={entry.user.firstName} 
-                        lastName={entry.user.lastName} 
-                        size="lg"
-                      />
-                      <div>
-                        <div className="font-semibold">
-                          {entry.user.firstName} {entry.user.lastName}
+              <Tabs value={leaderboardTab} onValueChange={setLeaderboardTab}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="team">Team Better Ball</TabsTrigger>
+                  <TabsTrigger value="individual">Individual</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="team" className="space-y-2 mt-4">
+                  {teamLeaderboard.map((entry, index) => (
+                    <div
+                      key={`team-${entry.team.id}`}
+                      className="flex items-center justify-between p-4 bg-muted rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-golf-green-600 text-white flex items-center justify-center font-bold">
+                          {index + 1}
                         </div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Users className="w-3 h-3" />
-                          Team {entry.team.teamNumber}
+                        <div className="flex items-center gap-2">
+                          <div className="flex -space-x-2">
+                            {entry.players.map((player) => (
+                              <ProfilePicture 
+                                key={player.id}
+                                firstName={player.firstName} 
+                                lastName={player.lastName} 
+                                size="md"
+                                className="border-2 border-white"
+                              />
+                            ))}
+                          </div>
+                          <div>
+                            <div className="font-semibold">
+                              Team {entry.team.teamNumber}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {entry.team.player1Name} & {entry.team.player2Name}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-golf-green-600 text-lg">
+                          {entry.totalPoints} pts
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {entry.totalNetStrokes} net • {entry.holes} holes
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-bold text-golf-green-600 text-lg">
-                        {entry.totalPoints} pts
+                  ))}
+                  {teamLeaderboard.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No team scores submitted yet. Be the first to start scoring!
+                    </div>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="individual" className="space-y-2 mt-4">
+                  {individualLeaderboard.map((entry, index) => (
+                    <div
+                      key={`${entry.user.firstName}-${entry.user.lastName}`}
+                      className="flex items-center justify-between p-4 bg-muted rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-golf-green-600 text-white flex items-center justify-center font-bold">
+                          {index + 1}
+                        </div>
+                        <ProfilePicture 
+                          firstName={entry.user.firstName} 
+                          lastName={entry.user.lastName} 
+                          size="lg"
+                        />
+                        <div>
+                          <div className="font-semibold">
+                            {entry.user.firstName} {entry.user.lastName}
+                          </div>
+                          <div className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Users className="w-3 h-3" />
+                            Team {entry.team.teamNumber}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {entry.totalStrokes} strokes • {entry.holes} holes
+                      <div className="text-right">
+                        <div className="font-bold text-golf-green-600 text-lg">
+                          {entry.totalPoints} pts
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {entry.totalStrokes} strokes • {entry.holes} holes
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                {leaderboard.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No scores submitted yet. Be the first to start scoring!
-                  </div>
-                )}
-              </div>
+                  ))}
+                  {individualLeaderboard.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No individual scores submitted yet. Be the first to start scoring!
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </div>
