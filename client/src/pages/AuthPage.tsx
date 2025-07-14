@@ -48,6 +48,8 @@ export default function AuthPage() {
     },
     onSuccess: (user) => {
       queryClient.setQueryData(["/api/user"], user);
+      // Invalidate players cache to remove the newly registered player from dropdown
+      queryClient.invalidateQueries({ queryKey: ["/api/players"] });
     },
     onError: (error: Error) => {
       toast({

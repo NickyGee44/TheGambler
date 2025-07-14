@@ -26,6 +26,7 @@ export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByName(firstName: string, lastName: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
   
   // Teams
@@ -66,6 +67,11 @@ export class DatabaseStorage implements IStorage {
       and(eq(users.firstName, firstName), eq(users.lastName, lastName))
     );
     return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    const allUsers = await db.select().from(users);
+    return allUsers;
   }
 
   async createUser(userData: InsertUser): Promise<User> {

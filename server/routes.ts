@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
-import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema } from "@shared/schema";
+import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema, User } from "@shared/schema";
 import { z } from "zod";
 
 // Middleware to check authentication
@@ -50,15 +50,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth routes are handled in auth.ts
 
-  // Get all available players for dropdown selection
+  // Get all available players for dropdown selection (excluding those with existing accounts)
   app.get('/api/players', async (req, res) => {
     try {
       const teams = await storage.getTeams();
-      const players = teams.flatMap(team => [
+      const allPlayers = teams.flatMap(team => [
         { name: team.player1Name, teamId: team.id, playerNumber: 1 },
         { name: team.player2Name, teamId: team.id, playerNumber: 2 }
-      ]).sort((a, b) => a.name.localeCompare(b.name));
-      res.json(players);
+      ]);
+      
+      // Get existing users to filter out registered players
+      const existingUsers = await storage.getAllUsers();
+      const registeredPlayerNames = existingUsers.map((user: User) => `${user.firstName} ${user.lastName}`);
+      
+      // Filter out players who already have accounts
+      const availablePlayers = allPlayers.filter(player => 
+        !registeredPlayerNames.includes(player.name)
+      ).sort((a, b) => a.name.localeCompare(b.name));
+      
+      res.json(availablePlayers);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch players' });
     }
