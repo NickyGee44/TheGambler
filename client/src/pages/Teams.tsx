@@ -117,7 +117,7 @@ export default function Teams() {
                   <ProfilePicture 
                     firstName={team.player1Name.split(' ')[0]} 
                     lastName={team.player1Name.split(' ').slice(1).join(' ')} 
-                    size="lg"
+                    size="xl"
                     className="border-2 border-golf-green-200 dark:border-golf-green-600"
                   />
                   <div className="flex-1">
@@ -137,7 +137,7 @@ export default function Teams() {
                   <ProfilePicture 
                     firstName={team.player2Name.split(' ')[0]} 
                     lastName={team.player2Name.split(' ').slice(1).join(' ')} 
-                    size="lg"
+                    size="xl"
                     className="border-2 border-golf-green-200 dark:border-golf-green-600"
                   />
                   <div className="flex-1">
