@@ -66,6 +66,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Config route
+  app.get('/api/config', (req, res) => {
+    res.json({
+      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || ""
+    });
+  });
+
   // Auth routes are handled in auth.ts
 
   // Get all available players for registration (excluding those with existing accounts)
