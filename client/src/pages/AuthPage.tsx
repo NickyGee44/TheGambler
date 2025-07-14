@@ -15,11 +15,20 @@ export default function AuthPage() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Get available players
-  const { data: players, isLoading: playersLoading } = useQuery({
+  // Get available players for registration
+  const { data: unregisteredPlayers, isLoading: unregisteredPlayersLoading } = useQuery({
     queryKey: ["/api/players"],
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/players");
+      return await res.json();
+    },
+  });
+
+  // Get registered players for login
+  const { data: registeredPlayers, isLoading: registeredPlayersLoading } = useQuery({
+    queryKey: ["/api/registered-players"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/registered-players");
       return await res.json();
     },
   });
@@ -48,8 +57,9 @@ export default function AuthPage() {
     },
     onSuccess: (user) => {
       queryClient.setQueryData(["/api/user"], user);
-      // Invalidate players cache to remove the newly registered player from dropdown
+      // Invalidate both player lists to update dropdowns
       queryClient.invalidateQueries({ queryKey: ["/api/players"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/registered-players"] });
     },
     onError: (error: Error) => {
       toast({
@@ -175,10 +185,10 @@ export default function AuthPage() {
                             <SelectValue placeholder="Choose your name..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {playersLoading ? (
+                            {registeredPlayersLoading ? (
                               <SelectItem value="loading">Loading players...</SelectItem>
                             ) : (
-                              players?.map((player: any) => (
+                              registeredPlayers?.map((player: any) => (
                                 <SelectItem key={player.name} value={player.name}>
                                   {player.name}
                                 </SelectItem>
@@ -218,10 +228,10 @@ export default function AuthPage() {
                             <SelectValue placeholder="Choose your name..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {playersLoading ? (
+                            {unregisteredPlayersLoading ? (
                               <SelectItem value="loading">Loading players...</SelectItem>
                             ) : (
-                              players?.map((player: any) => (
+                              unregisteredPlayers?.map((player: any) => (
                                 <SelectItem key={player.name} value={player.name}>
                                   {player.name}
                                 </SelectItem>

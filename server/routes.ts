@@ -50,7 +50,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth routes are handled in auth.ts
 
-  // Get all available players for dropdown selection (excluding those with existing accounts)
+  // Get all available players for registration (excluding those with existing accounts)
   app.get('/api/players', async (req, res) => {
     try {
       const teams = await storage.getTeams();
@@ -71,6 +71,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(availablePlayers);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch players' });
+    }
+  });
+
+  // Get registered players for login dropdown
+  app.get('/api/registered-players', async (req, res) => {
+    try {
+      const existingUsers = await storage.getAllUsers();
+      const registeredPlayers = existingUsers.map((user: User) => ({
+        name: `${user.firstName} ${user.lastName}`,
+        userId: user.id
+      })).sort((a, b) => a.name.localeCompare(b.name));
+      
+      res.json(registeredPlayers);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch registered players' });
     }
   });
 
