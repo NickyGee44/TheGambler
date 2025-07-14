@@ -24,6 +24,7 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
   const [map, setMap] = useState<any>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [playerMarker, setPlayerMarker] = useState<any>(null);
+  const [playerAccuracyCircle, setPlayerAccuracyCircle] = useState<any>(null);
   const [teeMarker, setTeeMarker] = useState<any>(null);
   const [greenMarkers, setGreenMarkers] = useState<any[]>([]);
   const [apiKey, setApiKey] = useState<string>("");
@@ -63,17 +64,22 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
         });
 
         const { Map } = await loader.importLibrary("maps");
-        const { AdvancedMarkerElement } = await loader.importLibrary("marker");
 
         if (mapRef.current) {
           const mapInstance = new Map(mapRef.current, {
             center: { lat: hole.tee.lat, lng: hole.tee.lng },
             zoom: 17,
             mapTypeId: "satellite",
+            tilt: 0,
+            heading: 0,
+            disableDefaultUI: true,
+            zoomControl: true,
             mapTypeControl: false,
+            scaleControl: true,
             streetViewControl: false,
+            rotateControl: false,
             fullscreenControl: false,
-            gestureHandling: "cooperative",
+            gestureHandling: "greedy",
             styles: [
               {
                 featureType: "poi",
@@ -85,30 +91,62 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
 
           setMap(mapInstance);
 
-          // Add tee marker
-          const teeMarkerInstance = new AdvancedMarkerElement({
+          // Add tee marker - blue circle like The Grint
+          const teeMarkerInstance = new window.google.maps.Marker({
             position: { lat: hole.tee.lat, lng: hole.tee.lng },
             map: mapInstance,
-            title: "Tee"
+            title: "Tee",
+            icon: {
+              path: window.google.maps.SymbolPath.CIRCLE,
+              fillColor: "#3b82f6",
+              fillOpacity: 1,
+              strokeColor: "#1d4ed8",
+              strokeWeight: 2,
+              scale: 8
+            }
           });
           setTeeMarker(teeMarkerInstance);
 
-          // Add green markers
+          // Add green markers - different shades of green like professional golf apps
           const greenMarkerInstances = [
-            new AdvancedMarkerElement({
+            new window.google.maps.Marker({
               position: { lat: hole.green.front.lat, lng: hole.green.front.lng },
               map: mapInstance,
-              title: "Green Front"
+              title: "Green Front",
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                fillColor: "#10b981",
+                fillOpacity: 1,
+                strokeColor: "#059669",
+                strokeWeight: 2,
+                scale: 5
+              }
             }),
-            new AdvancedMarkerElement({
+            new window.google.maps.Marker({
               position: { lat: hole.green.middle.lat, lng: hole.green.middle.lng },
               map: mapInstance,
-              title: "Green Middle"
+              title: "Green Middle (Pin)",
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                fillColor: "#059669",
+                fillOpacity: 1,
+                strokeColor: "#047857",
+                strokeWeight: 2,
+                scale: 7
+              }
             }),
-            new AdvancedMarkerElement({
+            new window.google.maps.Marker({
               position: { lat: hole.green.back.lat, lng: hole.green.back.lng },
               map: mapInstance,
-              title: "Green Back"
+              title: "Green Back",
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                fillColor: "#047857",
+                fillOpacity: 1,
+                strokeColor: "#065f46",
+                strokeWeight: 2,
+                scale: 5
+              }
             })
           ];
           setGreenMarkers(greenMarkerInstances);
@@ -132,31 +170,43 @@ export default function HoleMap({ hole, courseName }: HoleMapProps) {
   // Update player location marker
   useEffect(() => {
     if (map && location && window.google) {
-      // Remove existing player marker
+      // Remove existing player marker and accuracy circle
       if (playerMarker) {
         playerMarker.setMap(null);
       }
+      if (playerAccuracyCircle) {
+        playerAccuracyCircle.setMap(null);
+      }
 
-      // Add new player marker
-      const newPlayerMarker = new window.google.maps.marker.AdvancedMarkerElement({
-        position: { lat: location.lat, lng: location.lng },
-        map: map,
-        title: "Your Location"
-      });
-
-      setPlayerMarker(newPlayerMarker);
-
-      // Add accuracy circle
+      // Add GPS accuracy circle like professional golf apps
       const accuracyCircle = new window.google.maps.Circle({
         center: { lat: location.lat, lng: location.lng },
         radius: location.accuracy,
         map: map,
-        fillColor: "#ef4444",
+        fillColor: "#3b82f6",
         fillOpacity: 0.1,
-        strokeColor: "#ef4444",
+        strokeColor: "#3b82f6",
         strokeOpacity: 0.3,
         strokeWeight: 1
       });
+      setPlayerAccuracyCircle(accuracyCircle);
+
+      // Add new player marker - red circle with white border like The Grint
+      const newPlayerMarker = new window.google.maps.Marker({
+        position: { lat: location.lat, lng: location.lng },
+        map: map,
+        title: "Your Location",
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          fillColor: "#ef4444",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 3,
+          scale: 10
+        }
+      });
+
+      setPlayerMarker(newPlayerMarker);
     }
   }, [map, location]);
 
