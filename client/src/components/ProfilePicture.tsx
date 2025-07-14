@@ -6,6 +6,9 @@ import erikBoudreauImg from "@/assets/erik-boudreau.jpeg";
 import connorPattersonImg from "@/assets/connor-patterson.jpeg";
 import austinHassaniImg from "@/assets/austin-hassani.jpeg";
 import jeffreyReinerImg from "@/assets/jeffrey-reiner.png";
+import kevinDurcoImg from "@/assets/kevin-durco.jpeg";
+import syeEllardImg from "@/assets/sye-ellard.jpeg";
+import willBibbingsImg from "@/assets/will-bibbings.jpeg";
 
 interface ProfilePictureProps {
   firstName: string;
@@ -30,6 +33,9 @@ export default function ProfilePicture({
     "Connor Patterson": connorPattersonImg,
     "Austin Hassani": austinHassaniImg,
     "Jeffrey Reiner": jeffreyReinerImg,
+    "Kevin Durco": kevinDurcoImg,
+    "Sye Ellard": syeEllardImg,
+    "Will Bibbings": willBibbingsImg,
     // Add more players as needed
   };
 
