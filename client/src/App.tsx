@@ -13,6 +13,7 @@ import SideBets from "@/pages/SideBets";
 import Rules from "@/pages/Rules";
 import Photos from "@/pages/Photos";
 import Round3Matchups from "@/pages/Round3Matchups";
+import TournamentRules from "@/pages/TournamentRules";
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
@@ -42,6 +43,7 @@ function Router() {
           <Route path="/scores" component={Scores} />
           <Route path="/sidebets" component={SideBets} />
           <Route path="/rules" component={Rules} />
+          <Route path="/tournament-rules" component={TournamentRules} />
           <Route path="/photos" component={Photos} />
           <Route path="/round3" component={Round3Matchups} />
         </>

@@ -37,10 +37,10 @@ export const teams = pgTable("teams", {
 export const scores = pgTable("scores", {
   id: serial("id").primaryKey(),
   teamId: integer("team_id").notNull().references(() => teams.id),
-  round1: integer("round1").default(0),
-  round2: integer("round2").default(0),
-  round3: integer("round3").default(0),
-  totalScore: integer("total_score").default(0),
+  round1Points: integer("round1_points").default(0),
+  round2Points: integer("round2_points").default(0),
+  round3Points: integer("round3_points").default(0),
+  totalPoints: integer("total_points").default(0),
   rank: integer("rank").default(8),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

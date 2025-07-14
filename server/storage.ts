@@ -120,7 +120,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   private initializeData() {
-    // Initialize teams
+    // Initialize teams with official roster
     const teamData = [
       { teamNumber: 1, player1Name: "Nick Grossi", player1Handicap: 15, player2Name: "Connor Patterson", player2Handicap: 3 },
       { teamNumber: 2, player1Name: "Christian Hauck", player1Handicap: 5, player2Name: "Bailey Carlson", player2Handicap: 16 },
@@ -145,10 +145,10 @@ export class DatabaseStorage implements IStorage {
       const newScore: Score = {
         id: this.currentScoreId++,
         teamId: newTeam.id,
-        round1: 0,
-        round2: 0,
-        round3: 0,
-        totalScore: 0,
+        round1Points: 0,
+        round2Points: 0,
+        round3Points: 0,
+        totalPoints: 0,
         rank: 8,
         updatedAt: new Date()
       };
@@ -187,12 +187,12 @@ export class DatabaseStorage implements IStorage {
 
     const updatedScore: Score = {
       ...existingScore,
-      [`round${round}`]: score,
+      [`round${round}Points`]: score,
       updatedAt: new Date()
     };
 
     // Recalculate total score
-    updatedScore.totalScore = (updatedScore.round1 || 0) + (updatedScore.round2 || 0) + (updatedScore.round3 || 0);
+    updatedScore.totalPoints = (updatedScore.round1Points || 0) + (updatedScore.round2Points || 0) + (updatedScore.round3Points || 0);
 
     this.scores.set(existingScore.id, updatedScore);
     
@@ -204,7 +204,7 @@ export class DatabaseStorage implements IStorage {
 
   private recalculateRanks() {
     const allScores = Array.from(this.scores.values());
-    allScores.sort((a, b) => (a.totalScore || 0) - (b.totalScore || 0));
+    allScores.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
     
     allScores.forEach((score, index) => {
       score.rank = index + 1;
