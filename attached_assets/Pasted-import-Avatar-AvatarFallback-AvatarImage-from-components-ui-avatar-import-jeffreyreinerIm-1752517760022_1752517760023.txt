@@ -19,14 +19,14 @@ import willbibbingsImg from "@/assets/will-bibbings.jpeg";
 interface ProfilePictureProps {
   firstName: string;
   lastName: string;
-  size?: "sm" | "md" | "lg" | "xl" | "2xl";
+  size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }
 
 export default function ProfilePicture({ 
   firstName, 
   lastName, 
-  size = "lg", 
+  size = "md", 
   className = "" 
 }: ProfilePictureProps) {
   // Define profile picture mappings with consistent names
@@ -47,10 +47,6 @@ export default function ProfilePicture({
     "Spencer Reid": spencerreidImg,
     "Sye Ellard": syeellardImg,
     "Will Bibbings": willbibbingsImg,
-    // Add aliases for name variations
-    "Jeff Reiner": jeffreyreinerImg,
-    "Will Bibi": willbibbingsImg,
-    "Jonathan Magnatta": johnnymagnattaImg,
   };
 
   const fullName = `${firstName} ${lastName}`;
@@ -59,11 +55,10 @@ export default function ProfilePicture({
   const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`;
   
   const sizeClasses = {
-    sm: "w-8 h-8 text-sm",
-    md: "w-10 h-10 text-base",
-    lg: "w-12 h-12 text-lg",
-    xl: "w-16 h-16 text-xl",
-    "2xl": "w-24 h-24 text-2xl"
+    sm: "w-6 h-6 text-xs",
+    md: "w-8 h-8 text-sm",
+    lg: "w-10 h-10 text-base",
+    xl: "w-12 h-12 text-lg"
   };
 
   return (
