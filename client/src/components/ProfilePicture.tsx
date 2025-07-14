@@ -29,26 +29,27 @@ export default function ProfilePicture({
   size = "md", 
   className = "" 
 }: ProfilePictureProps) {
-  // Define profile picture mappings
+  // Define profile picture mappings with consistent names
   const profilePictures: Record<string, string> = {
     "Nick Grossi": nickGrossiImg,
     "Christian Hauck": christianHauckImg,
     "Johnny Magnatta": johnnyMagnattaImg,
-    "Johnathan Magnatta": johnnyMagnattaImg,
+    "Johnathan Magnatta": johnnyMagnattaImg, // Alias for Johnny
     "Erik Boudreau": erikBoudreauImg,
     "Connor Patterson": connorPattersonImg,
     "Austin Hassani": austinHassaniImg,
     "Jeffrey Reiner": jeffreyReinerImg,
+    "Jeff Reiner": jeffreyReinerImg, // Alias for Jeffrey
     "Kevin Durco": kevinDurcoImg,
     "Sye Ellard": syeEllardImg,
     "Will Bibbings": willBibbingsImg,
+    "Will Bibi": willBibbingsImg, // Alias for Will Bibbings
     "Bailey Carlson": baileyCarlsonImg,
     "Ben Braun": benBraunImg,
     "Jordan Kreller": jordanKrellerImg,
     "Nic Huxley": nicHuxleyImg,
     "Spencer Reid": spencerReidImg,
     "Nick Cook": nickCookImg,
-    // Add more players as needed
   };
 
   const fullName = `${firstName} ${lastName}`;

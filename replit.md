@@ -122,6 +122,17 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 14, 2025:**
+- **Fixed Name Inconsistencies in Player Profiles:**
+  - Updated "Will Bibi" to "Will Bibbings" consistently across all components
+  - Updated "Jonathan Magnatta" to "Johnny Magnatta" consistently
+  - Updated "Jeff Reiner" to "Jeffrey Reiner" consistently
+  - Added name aliases in ProfilePicture component for backwards compatibility
+  - Profile pictures now display correctly for all players with consistent naming
+- **Updated Scoring System:**
+  - Scores now calculate automatically from hole-by-hole rounds
+  - Restricted manual score editing to only Nick Grossi and Connor Patterson
+  - Added informational note about automatic score calculation
+  - Scores pull from actual hole score data in the database
 - Updated tournament dates from July 15-17 to August 29-31, 2025
 - Added specific golf course locations:
   - Days 1-2: Deerhurst Golf Course, Muskoka
@@ -146,6 +157,6 @@ Preferred communication style: Simple, everyday language.
   - Created ProfilePicture component with Radix UI Avatar
   - Added profilePicture field to database schema
   - Profile pictures display next to player names across the app
-  - Implemented for 16 golfers: Nick Grossi, Christian Hauck, Johnny Magnatta, Erik Boudreau, Connor Patterson, Austin Hassani, Jeffrey Reiner, Kevin Durco, Sye Ellard, Will Bibbings, Bailey Carlson, Ben Braun, Jordan Kreller, Nic Huxley, Spencer Reid, and Nick Cook
+  - Implemented for 16 golfers with consistent names: Nick Grossi, Christian Hauck, Johnny Magnatta, Erik Boudreau, Connor Patterson, Austin Hassani, Jeffrey Reiner, Kevin Durco, Sye Ellard, Will Bibbings, Bailey Carlson, Ben Braun, Jordan Kreller, Nic Huxley, Spencer Reid, and Nick Cook
   - Shows actual photos when available, initials as fallback
   - Appears in scores, leaderboards, side bets, and navigation
