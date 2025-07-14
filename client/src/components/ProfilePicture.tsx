@@ -9,6 +9,8 @@ import jeffreyReinerImg from "@/assets/jeffrey-reiner.png";
 import kevinDurcoImg from "@/assets/kevin-durco.jpeg";
 import syeEllardImg from "@/assets/sye-ellard.jpeg";
 import willBibbingsImg from "@/assets/will-bibbings.jpeg";
+import baileyCarlsonImg from "@/assets/bailey-carlson.jpeg";
+import benBraunImg from "@/assets/ben-braun.jpeg";
 
 interface ProfilePictureProps {
   firstName: string;
@@ -36,6 +38,8 @@ export default function ProfilePicture({
     "Kevin Durco": kevinDurcoImg,
     "Sye Ellard": syeEllardImg,
     "Will Bibbings": willBibbingsImg,
+    "Bailey Carlson": baileyCarlsonImg,
+    "Ben Braun": benBraunImg,
     // Add more players as needed
   };
 
