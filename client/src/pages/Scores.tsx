@@ -195,13 +195,15 @@ export default function Scores() {
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-golf-gold-500 hover:bg-golf-gold-600 text-white">
-                <Edit className="w-4 h-4 mr-2" />
-                Update Scores
-              </Button>
-            </DialogTrigger>
+          {/* Only show edit button for Nick Grossi and Connor Patterson */}
+          {user && ((user.firstName === 'Nick' && user.lastName === 'Grossi') || (user.firstName === 'Connor' && user.lastName === 'Patterson')) && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-golf-gold-500 hover:bg-golf-gold-600 text-white">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Update Scores
+                </Button>
+              </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle className="text-golf-green-600">Update Score</DialogTitle>
@@ -269,7 +271,15 @@ export default function Scores() {
               </form>
             </DialogContent>
           </Dialog>
+          )}
         </div>
+      </div>
+      
+      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <p className="text-sm text-blue-800 dark:text-blue-200">
+          <strong>Note:</strong> Scores are automatically calculated from hole-by-hole rounds played by each team. 
+          Only Nick Grossi and Connor Patterson can manually adjust scores if needed.
+        </p>
       </div>
 
       <Card className="shadow-lg">

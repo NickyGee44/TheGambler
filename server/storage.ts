@@ -38,6 +38,7 @@ export interface IStorage {
   
   // Scores
   getScores(): Promise<(Score & { team: Team })[]>;
+  getCalculatedScores(): Promise<(Score & { team: Team })[]>;
   updateScore(teamId: number, round: number, score: number, userId?: number): Promise<Score>;
   
   // Hole Scores
@@ -311,6 +312,58 @@ export class DatabaseStorage implements IStorage {
       ...score,
       team: this.teams.get(score.teamId)!
     })).sort((a, b) => (a.rank || 0) - (b.rank || 0));
+  }
+
+  async getCalculatedScores(): Promise<(Score & { team: Team })[]> {
+    // Get all teams
+    const teams = await this.getTeams();
+    const calculatedScores: (Score & { team: Team })[] = [];
+
+    for (const team of teams) {
+      // Calculate scores for each round from hole scores
+      const round1Points = await this.calculateTeamRoundPoints(team.id, 1);
+      const round2Points = await this.calculateTeamRoundPoints(team.id, 2);
+      const round3Points = await this.calculateTeamRoundPoints(team.id, 3);
+      
+      const totalPoints = round1Points + round2Points + round3Points;
+      
+      const scoreWithTeam = {
+        id: team.id,
+        teamId: team.id,
+        round1Points,
+        round2Points,
+        round3Points,
+        totalPoints,
+        rank: 1, // Will be calculated after sorting
+        updatedAt: new Date(),
+        team: team
+      };
+      
+      calculatedScores.push(scoreWithTeam);
+    }
+
+    // Sort by total points (descending) and assign ranks
+    calculatedScores.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+    calculatedScores.forEach((score, index) => {
+      score.rank = index + 1;
+    });
+
+    return calculatedScores;
+  }
+
+  private async calculateTeamRoundPoints(teamId: number, round: number): Promise<number> {
+    // Get all hole scores for this team and round
+    const teamHoleScores = await db.select()
+      .from(holeScores)
+      .where(
+        and(
+          eq(holeScores.teamId, teamId),
+          eq(holeScores.round, round)
+        )
+      );
+
+    // Sum all points for this team and round
+    return teamHoleScores.reduce((total, holeScore) => total + holeScore.points, 0);
   }
 
   async updateScore(teamId: number, round: number, score: number, userId?: number): Promise<Score> {

@@ -84,10 +84,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Scores endpoints
+  // Scores endpoints - now calculated from hole scores
   app.get('/api/scores', async (req, res) => {
     try {
-      const scores = await storage.getScores();
+      const scores = await storage.getCalculatedScores();
       res.json(scores);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch scores' });
@@ -103,16 +103,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
-      // Get user to verify they can update this team's score
+      // Get user to verify they can update scores
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(401).json({ error: 'User not found' });
       }
 
-      // Check if user is authorized to update this team's score
-      const playerMatch = await storage.findPlayerByName(user.firstName, user.lastName);
-      if (!playerMatch || playerMatch.teamId !== teamId) {
-        return res.status(403).json({ error: 'You can only update scores for your own team' });
+      // Only allow Nick Grossi and Connor Patterson to edit scores
+      const allowedUsers = ['Nick Grossi', 'Connor Patterson'];
+      const userName = `${user.firstName} ${user.lastName}`;
+      
+      if (!allowedUsers.includes(userName)) {
+        return res.status(403).json({ error: 'Only Nick Grossi and Connor Patterson can edit scores' });
       }
 
       const updatedScore = await storage.updateScore(teamId, round, score, userId);
