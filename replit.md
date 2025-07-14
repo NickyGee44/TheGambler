@@ -122,6 +122,11 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 14, 2025:**
+- **Fixed Profile Picture Assignments:**
+  - Created admin tool at `/admin/picture-assignment` for reassigning mixed up photos
+  - Applied corrected profile picture mappings based on user feedback
+  - Updated ProfilePicture component with accurate photo-to-player assignments
+  - All 16 golfers now have correctly assigned profile pictures throughout the app
 - **Added The Gambler Cup Logo Integration:**
   - Integrated official tournament logo throughout the application
   - Added logo to PWA manifest for app icons and branding

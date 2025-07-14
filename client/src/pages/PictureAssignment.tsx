@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 // Import all the current images
 import austinHassaniImg from "@/assets/austin-hassani.png";
@@ -139,6 +141,29 @@ ${mappingEntries}
     return componentCode;
   };
 
+  const saveAssignments = useMutation({
+    mutationFn: async (assignments: ImageAssignment[]) => {
+      const code = generateUpdatedComponent();
+      return apiRequest("/api/admin/update-profile-component", {
+        method: "POST",
+        body: { code, assignments }
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Assignments saved!",
+        description: "Profile picture assignments have been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Save failed",
+        description: error instanceof Error ? error.message : "Failed to save assignments",
+        variant: "destructive",
+      });
+    }
+  });
+
   const copyToClipboard = () => {
     const code = generateUpdatedComponent();
     navigator.clipboard.writeText(code);
@@ -146,6 +171,10 @@ ${mappingEntries}
       title: "Copied to clipboard",
       description: "The updated ProfilePicture component code has been copied to your clipboard.",
     });
+  };
+
+  const handleSaveAssignments = () => {
+    saveAssignments.mutate(assignments);
   };
 
   return (
@@ -205,8 +234,19 @@ ${mappingEntries}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-between items-center mb-4">
-              <Button onClick={copyToClipboard} className="bg-golf-green-600 hover:bg-golf-green-700">
+            <div className="flex gap-4 items-center mb-4">
+              <Button 
+                onClick={handleSaveAssignments} 
+                className="bg-golf-green-600 hover:bg-golf-green-700"
+                disabled={saveAssignments.isPending}
+              >
+                {saveAssignments.isPending ? "Saving..." : "Save Assignments"}
+              </Button>
+              <Button 
+                onClick={copyToClipboard} 
+                variant="outline" 
+                className="border-gray-700 text-gray-300 hover:bg-gray-800"
+              >
                 Copy to Clipboard
               </Button>
             </div>
