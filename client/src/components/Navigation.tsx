@@ -108,7 +108,7 @@ export default function Navigation() {
                 <ProfilePicture 
                   firstName={user.firstName} 
                   lastName={user.lastName} 
-                  size="md"
+                  size="lg"
                 />
                 <div>
                   <div className="font-medium text-sm">{user.firstName} {user.lastName}</div>

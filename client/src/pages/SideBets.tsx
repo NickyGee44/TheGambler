@@ -319,7 +319,7 @@ export default function SideBets() {
                               <ProfilePicture 
                                 firstName={bet.betterName.split(' ')[0]} 
                                 lastName={bet.betterName.split(' ')[1] || ''} 
-                                size="sm"
+                                size="md"
                               />
                               <span>{bet.betterName}</span>
                             </div>
@@ -328,7 +328,7 @@ export default function SideBets() {
                               <ProfilePicture 
                                 firstName={bet.opponentName.split(' ')[0]} 
                                 lastName={bet.opponentName.split(' ')[1] || ''} 
-                                size="sm"
+                                size="md"
                               />
                               <span>{bet.opponentName}</span>
                             </div>

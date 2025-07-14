@@ -307,7 +307,7 @@ export default function Scores() {
                           <ProfilePicture 
                             firstName={score.team.player1Name.split(' ')[0]} 
                             lastName={score.team.player1Name.split(' ')[1] || ''} 
-                            size="sm"
+                            size="md"
                           />
                           <span>{score.team.player1Name}</span>
                         </div>
@@ -316,7 +316,7 @@ export default function Scores() {
                           <ProfilePicture 
                             firstName={score.team.player2Name.split(' ')[0]} 
                             lastName={score.team.player2Name.split(' ')[1] || ''} 
-                            size="sm"
+                            size="md"
                           />
                           <span>{score.team.player2Name}</span>
                         </div>

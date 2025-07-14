@@ -157,7 +157,7 @@ export default function Round2() {
                       <ProfilePicture 
                         firstName={entry.user.firstName} 
                         lastName={entry.user.lastName} 
-                        size="md"
+                        size="lg"
                       />
                       <div>
                         <div className="font-semibold">

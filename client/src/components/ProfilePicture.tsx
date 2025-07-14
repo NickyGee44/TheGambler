@@ -26,7 +26,7 @@ interface ProfilePictureProps {
 export default function ProfilePicture({ 
   firstName, 
   lastName, 
-  size = "md", 
+  size = "lg", 
   className = "" 
 }: ProfilePictureProps) {
   // Define profile picture mappings with consistent names
@@ -55,10 +55,10 @@ export default function ProfilePicture({
   const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`;
   
   const sizeClasses = {
-    sm: "w-6 h-6 text-xs",
-    md: "w-8 h-8 text-sm",
-    lg: "w-10 h-10 text-base",
-    xl: "w-12 h-12 text-lg"
+    sm: "w-8 h-8 text-sm",
+    md: "w-10 h-10 text-base",
+    lg: "w-12 h-12 text-lg",
+    xl: "w-16 h-16 text-xl"
   };
 
   return (

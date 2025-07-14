@@ -165,7 +165,7 @@ export default function Round3() {
                       <ProfilePicture 
                         firstName={entry.user.firstName} 
                         lastName={entry.user.lastName} 
-                        size="md"
+                        size="lg"
                       />
                       <div>
                         <div className="font-semibold">
