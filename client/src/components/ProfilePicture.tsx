@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import nickGrossiImg from "@/assets/nick-grossi.jpeg";
+import christianHauckImg from "@/assets/christian-hauck.png";
 
 interface ProfilePictureProps {
   firstName: string;
@@ -17,6 +18,7 @@ export default function ProfilePicture({
   // Define profile picture mappings
   const profilePictures: Record<string, string> = {
     "Nick Grossi": nickGrossiImg,
+    "Christian Hauck": christianHauckImg,
     // Add more players as needed
   };
 
