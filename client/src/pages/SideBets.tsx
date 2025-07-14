@@ -12,6 +12,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { Plus, DollarSign, CheckCircle, XCircle, Clock } from "lucide-react";
 import { SideBet } from "@shared/schema";
+import ProfilePicture from "@/components/ProfilePicture";
 
 export default function SideBets() {
   const [selectedRound, setSelectedRound] = useState<string>("");
@@ -313,8 +314,24 @@ export default function SideBets() {
                     <div key={bet.id} className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg border border-gray-200 dark:border-slate-600">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex-1">
-                          <div className="font-medium text-golf-green-600">
-                            {bet.betterName} vs {bet.opponentName}
+                          <div className="font-medium text-golf-green-600 flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                              <ProfilePicture 
+                                firstName={bet.betterName.split(' ')[0]} 
+                                lastName={bet.betterName.split(' ')[1] || ''} 
+                                size="sm"
+                              />
+                              <span>{bet.betterName}</span>
+                            </div>
+                            <span>vs</span>
+                            <div className="flex items-center gap-2">
+                              <ProfilePicture 
+                                firstName={bet.opponentName.split(' ')[0]} 
+                                lastName={bet.opponentName.split(' ')[1] || ''} 
+                                size="sm"
+                              />
+                              <span>{bet.opponentName}</span>
+                            </div>
                           </div>
                           <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                             {bet.condition}

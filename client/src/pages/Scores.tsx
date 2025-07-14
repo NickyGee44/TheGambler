@@ -14,6 +14,7 @@ import { useWebSocket } from "@/hooks/useWebSocket";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { RefreshCw, Edit, Trophy, Medal, Award, Wifi, WifiOff } from "lucide-react";
+import ProfilePicture from "@/components/ProfilePicture";
 
 export default function Scores() {
   const [selectedTeam, setSelectedTeam] = useState<string>("");
@@ -291,8 +292,24 @@ export default function Scores() {
                     <td className="px-6 py-4">{getRankBadge(score.rank)}</td>
                     <td className="px-6 py-4">
                       <div className="font-medium">Team {score.team.teamNumber}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {score.team.player1Name} & {score.team.player2Name}
+                      <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <ProfilePicture 
+                            firstName={score.team.player1Name.split(' ')[0]} 
+                            lastName={score.team.player1Name.split(' ')[1] || ''} 
+                            size="sm"
+                          />
+                          <span>{score.team.player1Name}</span>
+                        </div>
+                        <span>&</span>
+                        <div className="flex items-center gap-2">
+                          <ProfilePicture 
+                            firstName={score.team.player2Name.split(' ')[0]} 
+                            lastName={score.team.player2Name.split(' ')[1] || ''} 
+                            size="sm"
+                          />
+                          <span>{score.team.player2Name}</span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center font-medium">{score.round1 || '-'}</td>

@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import HoleView from "@/components/HoleView";
 import { getCourseForRound } from "@shared/courseData";
 import { Play, Flag, Trophy, Users, MapPin } from "lucide-react";
+import ProfilePicture from "@/components/ProfilePicture";
 
 interface HoleScore {
   id: number;
@@ -153,6 +154,11 @@ export default function Round2() {
                       <div className="w-10 h-10 rounded-full bg-golf-green-600 text-white flex items-center justify-center font-bold">
                         {index + 1}
                       </div>
+                      <ProfilePicture 
+                        firstName={entry.user.firstName} 
+                        lastName={entry.user.lastName} 
+                        size="md"
+                      />
                       <div>
                         <div className="font-semibold">
                           {entry.user.firstName} {entry.user.lastName}

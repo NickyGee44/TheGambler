@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Menu, X, Home, Users, Trophy, Coins, BookOpen, Camera, Target, Award, Moon, Sun, LogOut } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import ProfilePicture from "@/components/ProfilePicture";
 
 export default function Navigation() {
   const [location] = useLocation();
@@ -91,9 +92,21 @@ export default function Navigation() {
             })}
           </ul>
           
-          {/* Logout Button for authenticated users */}
-          {isAuthenticated && (
+          {/* User Profile Section */}
+          {isAuthenticated && user && (
             <div className="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700">
+              <div className="flex items-center gap-3 mb-4 p-3 bg-golf-green-50 dark:bg-slate-700 rounded-lg">
+                <ProfilePicture 
+                  firstName={user.firstName} 
+                  lastName={user.lastName} 
+                  size="md"
+                />
+                <div>
+                  <div className="font-medium text-sm">{user.firstName} {user.lastName}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Tournament Player</div>
+                </div>
+              </div>
+              
               <Button
                 onClick={() => logoutMutation.mutate()}
                 variant="outline"
