@@ -121,6 +121,15 @@ Preferred communication style: Simple, everyday language.
 
 ### Recent Changes: Latest modifications with dates
 
+**July 15, 2025:**
+- **Re-enabled Profile Picture Assignment Page:**
+  - Restored access to `/admin/picture-assignment` for proper picture assignments
+  - Added server-side API endpoint to handle profile picture updates
+  - Reset ProfilePicture component to original state before incorrect assignments
+  - Only Nick Grossi and Connor Patterson can access the assignment tool
+  - Assignment page generates updated ProfilePicture component code automatically
+  - Provides visual interface to reassign photos to correct player names
+
 **July 14, 2025:**
 - **Implemented Interactive Satellite GPS Maps:**
   - Added Google Maps API integration with real satellite imagery

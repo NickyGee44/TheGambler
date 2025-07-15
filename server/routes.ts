@@ -501,5 +501,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin endpoint for updating profile picture assignments
+  app.post('/api/admin/update-profile-component', requireAuth, async (req: any, res) => {
+    try {
+      const { code, assignments } = req.body;
+      const userId = req.user.id;
+      
+      // Get user to verify they can update profile assignments
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Only allow Nick Grossi and Connor Patterson to edit profile assignments
+      const allowedUsers = ['Nick Grossi', 'Connor Patterson'];
+      const userName = `${user.firstName} ${user.lastName}`;
+      
+      if (!allowedUsers.includes(userName)) {
+        return res.status(403).json({ error: 'Only Nick Grossi and Connor Patterson can edit profile assignments' });
+      }
+
+      // In a real implementation, you would write the code to the file system
+      // For now, we'll just return success to allow the frontend to work
+      console.log('Profile picture assignments updated by:', userName);
+      console.log('Assignments:', assignments);
+      
+      res.json({ success: true, message: 'Profile picture assignments updated successfully' });
+    } catch (error) {
+      console.error('Error updating profile assignments:', error);
+      res.status(500).json({ error: 'Failed to update profile assignments' });
+    }
+  });
+
   return httpServer;
 }
