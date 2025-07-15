@@ -122,6 +122,16 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 15, 2025:**
+- **Enhanced Side Bet Challenge System:**
+  - Auto-fills current user as challenger when creating new bets
+  - Removed manual bettor selection - challenger is automatically set
+  - Only opponents can accept/decline challenges (not the challenger)
+  - Challengers see "Waiting for response" status instead of buttons
+  - Added enhanced notifications for challenge events with emojis
+  - Added "Pussy Boys Hall of Shame" section for declined challenges
+  - Public notifications when challenges are declined with shame messaging
+  - All users can see all bets made across all rounds
+  - Improved UI flow for challenge creation and response
 - **Fixed Navigation Menu Bar During Live Rounds:**
   - Updated all three round pages (Round1, Round2, Round3) to maintain navigation menu bar
   - Wrapped HoleView component with Layout component during live scoring

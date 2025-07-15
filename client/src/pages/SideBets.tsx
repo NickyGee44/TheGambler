@@ -10,18 +10,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { Plus, DollarSign, CheckCircle, XCircle, Clock } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Plus, DollarSign, CheckCircle, XCircle, Clock, Bell, AlertTriangle } from "lucide-react";
 import { SideBet } from "@shared/schema";
 import ProfilePicture from "@/components/ProfilePicture";
 
 export default function SideBets() {
   const [selectedRound, setSelectedRound] = useState<string>("");
-  const [betterName, setBetterName] = useState<string>("");
   const [opponentName, setOpponentName] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const [condition, setCondition] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const { data: sideBets = [], isLoading } = useQuery({
     queryKey: ['/api/sidebets'],
@@ -37,15 +38,50 @@ export default function SideBets() {
     onMessage: (data) => {
       if (data.type === 'SIDE_BET_CREATED' || data.type === 'SIDE_BET_UPDATE' || data.type === 'SIDE_BET_STATUS_UPDATE') {
         queryClient.invalidateQueries({ queryKey: ['/api/sidebets'] });
-        if (data.type === 'SIDE_BET_STATUS_UPDATE') {
-          toast({
-            title: "Challenge Response",
-            description: `Challenge ${data.data.status?.toLowerCase()}`,
-          });
+        
+        if (data.type === 'SIDE_BET_CREATED') {
+          const bet = data.data;
+          const currentUserName = user ? `${user.firstName} ${user.lastName}` : '';
+          
+          if (bet.opponentName === currentUserName) {
+            toast({
+              title: "🎯 New Challenge!",
+              description: `${bet.betterName} has challenged you to a $${bet.amount} bet!`,
+              variant: "default",
+            });
+          } else {
+            toast({
+              title: "New Side Bet Created",
+              description: `${bet.betterName} challenged ${bet.opponentName} for $${bet.amount}`,
+            });
+          }
+        } else if (data.type === 'SIDE_BET_STATUS_UPDATE') {
+          const bet = data.data;
+          const currentUserName = user ? `${user.firstName} ${user.lastName}` : '';
+          
+          if (bet.status === 'Declined') {
+            toast({
+              title: "🐱 PUSSY ALERT!",
+              description: `${bet.opponentName} has declined ${bet.betterName}'s challenge and is a PUSSY!`,
+              variant: "destructive",
+            });
+          } else if (bet.status === 'Accepted') {
+            if (bet.betterName === currentUserName) {
+              toast({
+                title: "Challenge Accepted!",
+                description: `${bet.opponentName} has accepted your $${bet.amount} challenge!`,
+              });
+            } else {
+              toast({
+                title: "Challenge Accepted",
+                description: `${bet.opponentName} accepted ${bet.betterName}'s $${bet.amount} challenge!`,
+              });
+            }
+          }
         } else {
           toast({
             title: "Side Bet Updated",
-            description: data.type === 'SIDE_BET_CREATED' ? "New side bet created" : "Side bet result updated",
+            description: "Side bet result updated",
           });
         }
       }
@@ -112,7 +148,6 @@ export default function SideBets() {
 
   const resetForm = () => {
     setSelectedRound("");
-    setBetterName("");
     setOpponentName("");
     setAmount("");
     setCondition("");
@@ -120,7 +155,10 @@ export default function SideBets() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRound || !betterName || !opponentName || !amount || !condition) {
+    
+    const currentUserName = user ? `${user.firstName} ${user.lastName}` : '';
+    
+    if (!selectedRound || !opponentName || !amount || !condition) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -129,10 +167,10 @@ export default function SideBets() {
       return;
     }
 
-    if (betterName === opponentName) {
+    if (currentUserName === opponentName) {
       toast({
         title: "Error",
-        description: "Better and opponent cannot be the same person",
+        description: "You cannot challenge yourself",
         variant: "destructive",
       });
       return;
@@ -140,7 +178,7 @@ export default function SideBets() {
 
     createSideBetMutation.mutate({
       round: parseInt(selectedRound),
-      betterName,
+      betterName: currentUserName,
       opponentName,
       amount: parseInt(amount),
       condition,
@@ -243,17 +281,14 @@ export default function SideBets() {
               </div>
               
               <div>
-                <Label htmlFor="better">Better</Label>
-                <Select value={betterName} onValueChange={setBetterName}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select better" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allPlayers.map((player, index) => (
-                      <SelectItem key={index} value={player}>{player}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="better">Challenger</Label>
+                <Input
+                  id="better"
+                  value={user ? `${user.firstName} ${user.lastName}` : ''}
+                  disabled
+                  className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                />
+                <p className="text-xs text-gray-500 mt-1">You are automatically set as the challenger</p>
               </div>
               
               <div>
@@ -366,24 +401,40 @@ export default function SideBets() {
                           </span>
                           <div className="flex items-center space-x-2">
                             {(bet.status === 'Pending' || !bet.status) && (
-                              <div className="flex space-x-1">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => updateSideBetStatusMutation.mutate({ id: bet.id, status: 'Accepted' })}
-                                  className="text-green-600 hover:text-green-700 border-green-600"
-                                >
-                                  Accept
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => updateSideBetStatusMutation.mutate({ id: bet.id, status: 'Declined' })}
-                                  className="text-red-600 hover:text-red-700 border-red-600"
-                                >
-                                  Decline
-                                </Button>
-                              </div>
+                              <>
+                                {bet.opponentName === (user ? `${user.firstName} ${user.lastName}` : '') ? (
+                                  <div className="flex space-x-1">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => updateSideBetStatusMutation.mutate({ id: bet.id, status: 'Accepted' })}
+                                      className="text-green-600 hover:text-green-700 border-green-600"
+                                    >
+                                      Accept
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => updateSideBetStatusMutation.mutate({ id: bet.id, status: 'Declined' })}
+                                      className="text-red-600 hover:text-red-700 border-red-600"
+                                    >
+                                      Decline
+                                    </Button>
+                                  </div>
+                                ) : bet.betterName === (user ? `${user.firstName} ${user.lastName}` : '') ? (
+                                  <div className="flex items-center space-x-1">
+                                    <Bell className="w-4 h-4 text-yellow-500" />
+                                    <Badge className="bg-yellow-100 text-yellow-800">
+                                      Waiting for response
+                                    </Badge>
+                                  </div>
+                                ) : (
+                                  <Badge className="bg-gray-100 text-gray-800">
+                                    <Clock className="w-3 h-3 mr-1" />
+                                    Pending
+                                  </Badge>
+                                )}
+                              </>
                             )}
                             {bet.status === 'Accepted' && (
                               <div className="flex space-x-1">
@@ -432,59 +483,64 @@ export default function SideBets() {
         ))}
       </div>
 
-      {/* Pussy Boys Section */}
-      <Card className="shadow-lg border-red-200 bg-red-50 dark:bg-red-950/20 mt-8">
-        <CardHeader>
-          <CardTitle className="text-2xl text-red-600 font-bold text-center">
-            Pussy Boys Hall of Shame
-          </CardTitle>
-          <p className="text-center text-red-500 text-sm">
-            These players declined challenges and are marked as cowards
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {sideBets
-              .filter((bet: SideBet) => bet.status === 'Declined')
-              .map((bet: SideBet) => (
-                <div key={bet.id} className="flex flex-col items-center p-4 bg-red-100 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800">
-                  <div className="relative">
-                    <ProfilePicture 
-                      firstName={bet.opponentName.split(' ')[0]} 
-                      lastName={bet.opponentName.split(' ')[1] || ''} 
-                      size="xl"
-                      className="ring-4 ring-red-400"
-                    />
-                    {/* Small challenger tag in corner */}
-                    <div className="absolute -top-1 -right-1 bg-white dark:bg-slate-800 rounded-full p-1 border-2 border-red-400">
-                      <ProfilePicture 
-                        firstName={bet.betterName.split(' ')[0]} 
-                        lastName={bet.betterName.split(' ')[1] || ''} 
-                        size="sm"
-                      />
+      {/* Declined Challenges Section */}
+      {sideBets.filter((bet: SideBet) => bet.status === 'Declined').length > 0 && (
+        <Card className="shadow-lg border-red-200 bg-red-50 dark:bg-red-950/20 mt-8">
+          <CardHeader>
+            <CardTitle className="text-2xl text-red-600 font-bold text-center flex items-center justify-center gap-2">
+              <AlertTriangle className="w-6 h-6" />
+              Pussy Boys Hall of Shame
+              <AlertTriangle className="w-6 h-6" />
+            </CardTitle>
+            <p className="text-center text-red-600 font-medium">
+              These cowards declined challenges and deserve public shame!
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {sideBets
+                .filter((bet: SideBet) => bet.status === 'Declined')
+                .map((bet: SideBet) => (
+                  <div key={bet.id} className="bg-red-100 dark:bg-red-900/30 p-4 rounded-lg border border-red-300 dark:border-red-600">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <ProfilePicture 
+                            firstName={bet.opponentName.split(' ')[0]} 
+                            lastName={bet.opponentName.split(' ')[1] || ''} 
+                            size="lg"
+                          />
+                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">🐱</span>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="font-bold text-red-800 dark:text-red-300 text-lg">
+                            {bet.opponentName} is a PUSSY!
+                          </p>
+                          <p className="text-red-600 dark:text-red-400 text-sm">
+                            Declined {bet.betterName}'s ${bet.amount} challenge
+                          </p>
+                          <p className="text-red-500 dark:text-red-500 text-xs italic">
+                            "{bet.condition}"
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge className="bg-red-600 text-white">
+                          Round {bet.round}
+                        </Badge>
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                          Declined ${bet.amount}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-2 text-center">
-                    <div className="font-medium text-red-700 dark:text-red-400">
-                      {bet.opponentName}
-                    </div>
-                    <div className="text-xs text-red-500 mt-1">
-                      Declined ${bet.amount} bet
-                    </div>
-                    <div className="text-xs text-red-400 mt-1">
-                      from {bet.betterName}
-                    </div>
-                  </div>
-                </div>
-              ))}
-          </div>
-          {sideBets.filter((bet: SideBet) => bet.status === 'Declined').length === 0 && (
-            <div className="text-center py-8 text-red-500">
-              No pussy boys yet... everyone's been brave enough to accept challenges!
+                ))}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
