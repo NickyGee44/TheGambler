@@ -27,8 +27,10 @@ export const useGPS = (): GPSHook => {
     setIsLoading(true);
     setError(null);
 
+    // Enhanced GPS request with better error handling and fallback
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        console.log(`GPS Success: Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}`);
         setLocation({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
@@ -37,25 +39,33 @@ export const useGPS = (): GPSHook => {
         setIsLoading(false);
       },
       (error) => {
-        let errorMessage = 'Failed to get location';
+        console.error("Geolocation error:", error);
+        let errorMessage = 'GPS access denied or unavailable';
+        
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = 'Location access denied by user';
+            errorMessage = 'GPS access denied. Please allow location permissions in your browser settings.';
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Location information is unavailable';
+            errorMessage = 'GPS location information is unavailable. Try again in a few moments.';
             break;
           case error.TIMEOUT:
-            errorMessage = 'Location request timed out';
+            errorMessage = 'GPS request timed out. Check your connection and try again.';
             break;
         }
+        
+        // Show user-friendly alert for immediate feedback
+        if (error.code === error.PERMISSION_DENIED) {
+          alert("GPS access denied or unavailable. Please allow location permissions in your browser settings.\n\nTip: Click 'Open in new tab' (top-right arrow) to test GPS properly outside Replit preview.");
+        }
+        
         setError(errorMessage);
         setIsLoading(false);
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000
+        timeout: 10000, // 10 second timeout
+        maximumAge: 0 // Don't use cached positions
       }
     );
   };

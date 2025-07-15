@@ -24,8 +24,12 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
   const [accuracyCircle, setAccuracyCircle] = useState<any>(null);
   const [courseDetails, setCourseDetails] = useState<GolfCourseDetails | null>(null);
   const [isLoadingCourse, setIsLoadingCourse] = useState(false);
+  const [manualLocation, setManualLocation] = useState<any>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const { location, isLoading, error, requestLocation } = useGPS();
+  
+  // Use manual location if GPS fails, otherwise use GPS location
+  const currentLocation = manualLocation || location;
 
   // Calculate yardage based on GPS (using clubhouse as reference for now)
   const calculateYardage = (lat1: number, lng1: number, lat2: number, lng2: number) => {
@@ -242,7 +246,7 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
 
   // Update player location on map
   useEffect(() => {
-    if (!map || !location) return;
+    if (!map || !currentLocation) return;
 
     // Remove existing markers
     if (playerMarker) {
@@ -254,8 +258,8 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
 
     // Add GPS accuracy circle
     const newAccuracyCircle = new window.google.maps.Circle({
-      center: { lat: location.lat, lng: location.lng },
-      radius: location.accuracy,
+      center: { lat: currentLocation.lat, lng: currentLocation.lng },
+      radius: currentLocation.accuracy,
       map: map,
       fillColor: "#3b82f6",
       fillOpacity: 0.08,
@@ -267,7 +271,7 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
 
     // Add player marker like professional golf apps (circle with crosshairs)
     const newPlayerMarker = new window.google.maps.Marker({
-      position: { lat: location.lat, lng: location.lng },
+      position: { lat: currentLocation.lat, lng: currentLocation.lng },
       map: map,
       title: "Your Location",
       icon: {
@@ -283,9 +287,9 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
     setPlayerMarker(newPlayerMarker);
 
     // Show player location yardages like The Grint
-    const frontYardage = calculateYardage(location.lat, location.lng, hole.green.front.lat, hole.green.front.lng);
-    const middleYardage = calculateYardage(location.lat, location.lng, hole.green.middle.lat, hole.green.middle.lng);
-    const backYardage = calculateYardage(location.lat, location.lng, hole.green.back.lat, hole.green.back.lng);
+    const frontYardage = calculateYardage(currentLocation.lat, currentLocation.lng, hole.green.front.lat, hole.green.front.lng);
+    const middleYardage = calculateYardage(currentLocation.lat, currentLocation.lng, hole.green.middle.lat, hole.green.middle.lng);
+    const backYardage = calculateYardage(currentLocation.lat, currentLocation.lng, hole.green.back.lat, hole.green.back.lng);
 
     // Add yardage overlays for player position
     const playerYardageOverlay = new window.google.maps.InfoWindow({
@@ -307,7 +311,7 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
           </div>
         </div>
       `,
-      position: { lat: location.lat, lng: location.lng },
+      position: { lat: currentLocation.lat, lng: currentLocation.lng },
       disableAutoPan: true,
       pixelOffset: new window.google.maps.Size(0, -30)
     });
@@ -315,8 +319,8 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
     playerYardageOverlay.open(map);
 
     // Don't auto-center on player, keep hole view like The Grint
-    // map.setCenter({ lat: location.lat, lng: location.lng });
-  }, [map, location]);
+    // map.setCenter({ lat: currentLocation.lat, lng: currentLocation.lng });
+  }, [map, currentLocation]);
 
   // Calculate distances
   const yardageToGreen = location ? calculateYardage(location.lat, location.lng, courseCenter.lat, courseCenter.lng) : null;
@@ -365,7 +369,7 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
           <span className="text-sm">
             {isLoading ? "Getting GPS..." : 
              error ? "GPS unavailable" : 
-             location ? `±${Math.round(location.accuracy)}m` : "No GPS"}
+             currentLocation ? `±${Math.round(currentLocation.accuracy)}m` : "No GPS"}
           </span>
         </div>
       </div>
@@ -390,25 +394,25 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
         </div>
 
         {/* Bottom overlay - Distance info like The Grint */}
-        {location && (
+        {currentLocation && (
           <div className="absolute bottom-4 left-4 right-4 z-10">
             <div className="bg-black/90 text-white p-4 rounded-lg">
               <div className="flex justify-between items-center mb-2">
                 <div className="text-xs text-gray-300">TO GREEN</div>
-                <div className="text-xs text-gray-300">±{Math.round(location.accuracy)}y</div>
+                <div className="text-xs text-gray-300">±{Math.round(currentLocation.accuracy)}y</div>
               </div>
               <div className="flex justify-between items-center text-lg font-bold">
                 <div>
                   <div className="text-xs text-gray-300">FRONT</div>
-                  <div>{calculateYardage(location.lat, location.lng, hole.green.front.lat, hole.green.front.lng)}</div>
+                  <div>{calculateYardage(currentLocation.lat, currentLocation.lng, hole.green.front.lat, hole.green.front.lng)}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-xs text-gray-300">MIDDLE</div>
-                  <div className="text-2xl">{calculateYardage(location.lat, location.lng, hole.green.middle.lat, hole.green.middle.lng)}</div>
+                  <div className="text-2xl">{calculateYardage(currentLocation.lat, currentLocation.lng, hole.green.middle.lat, hole.green.middle.lng)}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-gray-300">BACK</div>
-                  <div>{calculateYardage(location.lat, location.lng, hole.green.back.lat, hole.green.back.lng)}</div>
+                  <div>{calculateYardage(currentLocation.lat, currentLocation.lng, hole.green.back.lat, hole.green.back.lng)}</div>
                 </div>
               </div>
             </div>
@@ -436,15 +440,55 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
       </div>
 
       {/* GPS Controls */}
-      <div className="flex items-center justify-center">
-        <button
-          onClick={requestLocation}
-          disabled={isLoading}
-          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 font-semibold"
-        >
-          <Navigation className="h-4 w-4" />
-          {isLoading ? "Getting GPS..." : "Update Location"}
-        </button>
+      <div className="space-y-4">
+        <div className="flex items-center justify-center gap-4">
+          <button
+            onClick={requestLocation}
+            disabled={isLoading}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 font-semibold"
+          >
+            <Navigation className="h-4 w-4" />
+            {isLoading ? "Getting GPS..." : "Update Location"}
+          </button>
+          
+          {error && (
+            <button
+              onClick={() => {
+                // Add click-to-set-location functionality
+                if (map) {
+                  const clickListener = map.addListener("click", (event: any) => {
+                    const clickedLocation = {
+                      lat: event.latLng.lat(),
+                      lng: event.latLng.lng(),
+                      accuracy: 50 // Approximate accuracy for manual placement
+                    };
+                    
+                    // Update location state manually
+                    setManualLocation(clickedLocation);
+                    
+                    // Remove click listener after setting location
+                    window.google.maps.event.removeListener(clickListener);
+                  });
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 font-semibold"
+            >
+              <Target className="h-4 w-4" />
+              Tap Map to Set Location
+            </button>
+          )}
+        </div>
+        
+        {error && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+            <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
+              {error}
+            </p>
+            <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-1">
+              💡 Tip: Click "Open in new tab" (top-right arrow) to test GPS outside Replit preview
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
