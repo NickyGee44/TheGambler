@@ -50,8 +50,9 @@ export default function Navigation() {
       </Button>
 
       {/* Navigation Sidebar */}
-      <nav className={`fixed left-0 top-0 h-full w-64 bg-white dark:bg-slate-800 shadow-xl z-40 transform transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-6 border-b border-gray-200 dark:border-slate-700">
+      <nav className={`fixed left-0 top-0 h-full w-64 bg-white dark:bg-slate-800 shadow-xl z-40 transform transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>
+        {/* Header - Fixed */}
+        <div className="p-6 border-b border-gray-200 dark:border-slate-700 flex-shrink-0">
           <div className="flex items-center gap-3 mb-2">
             <img 
               src="/gambler-logo.png" 
@@ -65,72 +66,75 @@ export default function Navigation() {
           </div>
         </div>
         
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Theme</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="p-2"
-            >
-              {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-            </Button>
-          </div>
-          
-          <ul className="space-y-2">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = location === link.href;
-              return (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-                      isActive
-                        ? 'text-golf-green-600 bg-golf-green-50 dark:bg-slate-700'
-                        : 'hover:bg-golf-green-50 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5 mr-3" />
-                    {link.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-          
-          {/* User Profile Section */}
-          {isAuthenticated && user && (
-            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700">
-              <div className="flex items-center gap-3 mb-4 p-3 bg-golf-green-50 dark:bg-slate-700 rounded-lg">
-                <ProfilePicture 
-                  firstName={user.firstName} 
-                  lastName={user.lastName} 
-                  size="lg"
-                />
-                <div>
-                  <div className="font-medium text-sm">{user.firstName} {user.lastName}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Tournament Player</div>
-                </div>
-              </div>
-              
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-6">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Theme</span>
               <Button
-                onClick={() => logoutMutation.mutate()}
                 variant="outline"
-                className="w-full flex items-center justify-center px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-300 dark:border-red-600"
-                disabled={logoutMutation.isPending}
+                size="sm"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                className="p-2"
               >
-                <LogOut className="w-5 h-5 mr-3" />
-                {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
               </Button>
             </div>
-          )}
+            
+            <ul className="space-y-2">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = location === link.href;
+                return (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                        isActive
+                          ? 'text-golf-green-600 bg-golf-green-50 dark:bg-slate-700'
+                          : 'hover:bg-golf-green-50 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5 mr-3" />
+                      {link.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+            
+            {/* User Profile Section */}
+            {isAuthenticated && user && (
+              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700">
+                <div className="flex items-center gap-3 mb-4 p-3 bg-golf-green-50 dark:bg-slate-700 rounded-lg">
+                  <ProfilePicture 
+                    firstName={user.firstName} 
+                    lastName={user.lastName} 
+                    size="lg"
+                  />
+                  <div>
+                    <div className="font-medium text-sm">{user.firstName} {user.lastName}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Tournament Player</div>
+                  </div>
+                </div>
+                
+                <Button
+                  onClick={() => logoutMutation.mutate()}
+                  variant="outline"
+                  className="w-full flex items-center justify-center px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-300 dark:border-red-600"
+                  disabled={logoutMutation.isPending}
+                >
+                  <LogOut className="w-5 h-5 mr-3" />
+                  {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
         
-        {/* Mini Leaderboard */}
-        <div className="p-4 mt-auto">
+        {/* Mini Leaderboard - Fixed at bottom */}
+        <div className="p-4 flex-shrink-0 border-t border-gray-200 dark:border-slate-700">
           <div className="bg-golf-green-50 dark:bg-slate-700 p-4 rounded-lg">
             <h3 className="font-semibold text-sm mb-3 text-golf-green-600">Live Leaderboard</h3>
             <div className="space-y-2 text-sm">
