@@ -89,15 +89,15 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
         const { Map } = await loader.importLibrary("maps");
 
         if (mapRef.current) {
-          // Professional golf app configuration - show actual course area
+          // Professional golf app configuration - show actual course area like The Grint
           const mapInstance = new Map(mapRef.current, {
-            center: courseCenter,
-            zoom: 15, // Show full golf course area like The Grint
+            center: hole.tee, // Center on the tee box
+            zoom: 17, // Close zoom to show hole detail like The Grint
             mapTypeId: "satellite",
             tilt: 0,
             heading: 0,
             disableDefaultUI: true,
-            zoomControl: true,
+            zoomControl: false,
             mapTypeControl: false,
             scaleControl: false,
             streetViewControl: false,
@@ -119,40 +119,117 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
                 featureType: "road",
                 elementType: "labels",
                 stylers: [{ visibility: "off" }]
+              },
+              {
+                featureType: "administrative",
+                elementType: "labels",
+                stylers: [{ visibility: "off" }]
               }
             ]
           });
 
           setMap(mapInstance);
 
-          // Add course center marker
-          const courseMarker = new window.google.maps.Marker({
-            position: courseCenter,
+          // Add tee box marker (red tee marker like The Grint)
+          const teeMarker = new window.google.maps.Marker({
+            position: hole.tee,
             map: mapInstance,
-            title: `${courseName} - Hole ${hole.number}`,
+            title: `Hole ${hole.number} Tee`,
             icon: {
-              path: "M -8,-8 L 8,-8 L 8,8 L -8,8 Z", // Square clubhouse
-              fillColor: "#1f2937",
+              path: "M 0,-8 L 8,8 L -8,8 Z", // Triangle pointing up
+              fillColor: "#dc2626",
+              fillOpacity: 1,
+              strokeColor: "#ffffff",
+              strokeWeight: 2,
+              scale: 1.5
+            },
+            zIndex: 100
+          });
+
+          // Add green markers (front, middle, back)
+          const greenFrontMarker = new window.google.maps.Marker({
+            position: hole.green.front,
+            map: mapInstance,
+            title: `Green Front`,
+            icon: {
+              path: "M -6,-6 L 6,-6 L 6,6 L -6,6 Z",
+              fillColor: "#22c55e",
               fillOpacity: 1,
               strokeColor: "#ffffff",
               strokeWeight: 2,
               scale: 1
             },
-            zIndex: 100
+            zIndex: 90
           });
 
-          // Add hole information
-          const holeInfoWindow = new window.google.maps.InfoWindow({
+          const greenMiddleMarker = new window.google.maps.Marker({
+            position: hole.green.middle,
+            map: mapInstance,
+            title: `Green Middle`,
+            icon: {
+              path: "M -6,-6 L 6,-6 L 6,6 L -6,6 Z",
+              fillColor: "#16a34a",
+              fillOpacity: 1,
+              strokeColor: "#ffffff",
+              strokeWeight: 2,
+              scale: 1.2
+            },
+            zIndex: 95
+          });
+
+          const greenBackMarker = new window.google.maps.Marker({
+            position: hole.green.back,
+            map: mapInstance,
+            title: `Green Back`,
+            icon: {
+              path: "M -6,-6 L 6,-6 L 6,6 L -6,6 Z",
+              fillColor: "#15803d",
+              fillOpacity: 1,
+              strokeColor: "#ffffff",
+              strokeWeight: 2,
+              scale: 1
+            },
+            zIndex: 90
+          });
+
+          // Add line from tee to green middle (like The Grint)
+          const holePath = new window.google.maps.Polyline({
+            path: [hole.tee, hole.green.middle],
+            geodesic: true,
+            strokeColor: "#ffffff",
+            strokeOpacity: 0.8,
+            strokeWeight: 3,
+            map: mapInstance,
+            zIndex: 50
+          });
+
+          // Add yardage labels like The Grint
+          const middlePoint = {
+            lat: (hole.tee.lat + hole.green.middle.lat) / 2,
+            lng: (hole.tee.lng + hole.green.middle.lng) / 2
+          };
+
+          const yardageOverlay = new window.google.maps.InfoWindow({
             content: `
-              <div style="padding: 12px; text-align: center; font-family: system-ui;">
-                <h3 style="margin: 0 0 8px 0; color: #1f2937; font-size: 16px;">Hole ${hole.number}</h3>
-                <div style="margin: 0; color: #6b7280; font-size: 14px;">Par ${hole.par} • ${hole.yardage} yards</div>
-                <div style="margin: 4px 0 0 0; color: #6b7280; font-size: 12px;">Handicap ${hole.handicap}</div>
+              <div style="
+                background: rgba(0, 0, 0, 0.8); 
+                color: white; 
+                padding: 8px 12px; 
+                border-radius: 20px; 
+                font-family: system-ui; 
+                font-size: 18px; 
+                font-weight: bold;
+                text-align: center;
+                border: 2px solid white;
+              ">
+                ${hole.yardage}
               </div>
-            `
+            `,
+            position: middlePoint,
+            disableAutoPan: true
           });
           
-          holeInfoWindow.open(mapInstance, courseMarker);
+          yardageOverlay.open(mapInstance);
           setMapLoaded(true);
         }
       } catch (error) {
@@ -188,26 +265,57 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
     });
     setAccuracyCircle(newAccuracyCircle);
 
-    // Add player marker like professional golf apps
+    // Add player marker like professional golf apps (circle with crosshairs)
     const newPlayerMarker = new window.google.maps.Marker({
       position: { lat: location.lat, lng: location.lng },
       map: map,
       title: "Your Location",
       icon: {
-        path: "M 0,-12 L 8,0 L 0,12 L -8,0 Z", // Diamond shape
-        fillColor: "#ff0000",
+        path: "M 0,0 m -8,0 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0 M 0,-12 L 0,12 M -12,0 L 12,0", // Circle with crosshairs
+        fillColor: "#3b82f6",
         fillOpacity: 1,
         strokeColor: "#ffffff",
         strokeWeight: 2,
-        scale: 1.2
+        scale: 1
       },
       zIndex: 200
     });
     setPlayerMarker(newPlayerMarker);
 
-    // Center map on player location
-    map.setCenter({ lat: location.lat, lng: location.lng });
-    map.setZoom(17);
+    // Show player location yardages like The Grint
+    const frontYardage = calculateYardage(location.lat, location.lng, hole.green.front.lat, hole.green.front.lng);
+    const middleYardage = calculateYardage(location.lat, location.lng, hole.green.middle.lat, hole.green.middle.lng);
+    const backYardage = calculateYardage(location.lat, location.lng, hole.green.back.lat, hole.green.back.lng);
+
+    // Add yardage overlays for player position
+    const playerYardageOverlay = new window.google.maps.InfoWindow({
+      content: `
+        <div style="
+          background: rgba(0, 0, 0, 0.9); 
+          color: white; 
+          padding: 12px; 
+          border-radius: 12px; 
+          font-family: system-ui; 
+          text-align: center;
+          border: 2px solid white;
+          min-width: 80px;
+        ">
+          <div style="font-size: 24px; font-weight: bold; margin-bottom: 4px;">${middleYardage}</div>
+          <div style="font-size: 12px; margin-bottom: 8px;">to middle</div>
+          <div style="font-size: 10px; color: #ccc;">
+            ${frontYardage} • ${middleYardage} • ${backYardage}
+          </div>
+        </div>
+      `,
+      position: { lat: location.lat, lng: location.lng },
+      disableAutoPan: true,
+      pixelOffset: new window.google.maps.Size(0, -30)
+    });
+    
+    playerYardageOverlay.open(map);
+
+    // Don't auto-center on player, keep hole view like The Grint
+    // map.setCenter({ lat: location.lat, lng: location.lng });
   }, [map, location]);
 
   // Calculate distances
@@ -262,13 +370,50 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
         </div>
       </div>
 
-      {/* Satellite Map */}
+      {/* Satellite Map - Full Screen like The Grint */}
       <div className="relative">
         <div 
           ref={mapRef} 
-          className="w-full h-80 rounded-lg overflow-hidden border"
-          style={{ minHeight: '320px' }}
+          className="w-full h-96 rounded-lg overflow-hidden border"
+          style={{ minHeight: '400px' }}
         />
+        
+        {/* Top overlay - Hole info like The Grint */}
+        <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
+          <div className="bg-black/80 text-white px-4 py-2 rounded-lg">
+            <div className="text-lg font-bold">HOLE {hole.number}</div>
+            <div className="text-sm">Par {hole.par} • {hole.yardage} yds</div>
+          </div>
+          <div className="bg-black/80 text-white px-3 py-2 rounded-lg">
+            <div className="text-sm">HCP {hole.handicap}</div>
+          </div>
+        </div>
+
+        {/* Bottom overlay - Distance info like The Grint */}
+        {location && (
+          <div className="absolute bottom-4 left-4 right-4 z-10">
+            <div className="bg-black/90 text-white p-4 rounded-lg">
+              <div className="flex justify-between items-center mb-2">
+                <div className="text-xs text-gray-300">TO GREEN</div>
+                <div className="text-xs text-gray-300">±{Math.round(location.accuracy)}y</div>
+              </div>
+              <div className="flex justify-between items-center text-lg font-bold">
+                <div>
+                  <div className="text-xs text-gray-300">FRONT</div>
+                  <div>{calculateYardage(location.lat, location.lng, hole.green.front.lat, hole.green.front.lng)}</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-gray-300">MIDDLE</div>
+                  <div className="text-2xl">{calculateYardage(location.lat, location.lng, hole.green.middle.lat, hole.green.middle.lng)}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-gray-300">BACK</div>
+                  <div>{calculateYardage(location.lat, location.lng, hole.green.back.lat, hole.green.back.lng)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Loading overlay */}
         {!mapLoaded && (
@@ -290,52 +435,16 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, ro
         )}
       </div>
 
-      {/* Professional Golf App Yardage Display */}
-      {location && yardageToGreen && (
-        <div className="bg-background/95 backdrop-blur-sm rounded-lg p-4 border">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm">GPS Distance</h3>
-            <div className="text-xs text-muted-foreground">
-              ±{Math.round(location.accuracy)}yd accuracy
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-xs text-muted-foreground mb-1">Distance to Course</div>
-            <div className="text-3xl font-bold text-blue-500">{yardageToGreen}</div>
-            <div className="text-xs text-muted-foreground">yards</div>
-          </div>
-          <div className="mt-3 pt-3 border-t">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Hole {hole.number}</span>
-              <span className="font-semibold">Par {hole.par}</span>
-              <span className="text-muted-foreground">HCP {hole.handicap}</span>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* GPS Controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={requestLocation}
-            disabled={isLoading}
-            className="flex items-center gap-2 px-3 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 disabled:opacity-50"
-          >
-            <Navigation className="h-4 w-4" />
-            {isLoading ? "Getting GPS..." : "Update Location"}
-          </button>
-        </div>
-        <div className="text-xs text-muted-foreground">
-          Professional GPS like The Grint
-        </div>
-      </div>
-
-      {/* Note */}
-      <div className="bg-muted/50 rounded-lg p-3 text-center">
-        <p className="text-sm text-muted-foreground">
-          This shows the actual {courseName} golf course location. Enable GPS for precise yardage calculations.
-        </p>
+      <div className="flex items-center justify-center">
+        <button
+          onClick={requestLocation}
+          disabled={isLoading}
+          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 font-semibold"
+        >
+          <Navigation className="h-4 w-4" />
+          {isLoading ? "Getting GPS..." : "Update Location"}
+        </button>
       </div>
     </div>
   );
