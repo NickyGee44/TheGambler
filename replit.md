@@ -127,6 +127,8 @@ Preferred communication style: Simple, everyday language.
   - Wrapped HoleView component with Layout component during live scoring
   - Navigation sidebar now remains accessible during hole-by-hole scoring
   - Progress bar still displays at top while preserving menu access
+  - Fixed z-index layering so navigation menu appears above progress bar
+  - Mobile menu toggle and overlay properly positioned to avoid conflicts
 - **Updated Erik Boudreau Profile Picture:**
   - Applied new profile picture provided by user (IMG_5247_1752574677541.jpeg)
   - Updated ProfilePicture component to use latest photo
