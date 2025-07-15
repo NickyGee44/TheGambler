@@ -122,6 +122,16 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 15, 2025:**
+- **Fixed Profile Picture Assignments Permanently:**
+  - Renamed actual photo files to match correct player assignments
+  - Jeffrey Reiner now uses the photo originally assigned to Austin Hassani
+  - Austin Hassani now uses the photo originally assigned to Connor Patterson
+  - Connor Patterson now uses the photo originally assigned to Erik Boudreau
+  - Kevin Durco now uses the photo originally assigned to Jeffrey Reiner
+  - Erik Boudreau now uses the photo originally assigned to Johnny Magnatta
+  - Johnny Magnatta now uses the photo originally assigned to Kevin Durco
+  - Updated ProfilePicture component to use standard naming convention
+  - All file names now correctly correspond to their assigned golfers
 - **Re-enabled Profile Picture Assignment Page:**
   - Restored access to `/admin/picture-assignment` for proper picture assignments
   - Added server-side API endpoint to handle profile picture updates
