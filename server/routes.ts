@@ -330,6 +330,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Witness voting for side bets
+  app.post('/api/sidebets/:id/witness-vote', requireAuth, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { winnerName } = req.body;
+      const user = await storage.getUser(req.user.id);
+      
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+      
+      const witnessName = `${user.firstName} ${user.lastName}`;
+      const updatedSideBet = await storage.addWitnessVote(parseInt(id), witnessName, winnerName);
+      
+      // Broadcast witness vote to all clients
+      broadcast({
+        type: 'WITNESS_VOTE',
+        data: updatedSideBet
+      });
+
+      res.json(updatedSideBet);
+    } catch (error) {
+      console.error('Error recording witness vote:', error);
+      res.status(500).json({ error: 'Failed to record witness vote' });
+    }
+  });
+
+  // Mark bet for resolution (after round complete)
+  app.patch('/api/sidebets/:id/ready-for-resolution', requireAuth, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const user = await storage.getUser(req.user.id);
+      
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+      
+      // Only allow Nick Grossi and Connor Patterson to mark bets for resolution
+      const allowedUsers = ['Nick Grossi', 'Connor Patterson'];
+      const userName = `${user.firstName} ${user.lastName}`;
+      
+      if (!allowedUsers.includes(userName)) {
+        return res.status(403).json({ error: 'Only Nick Grossi and Connor Patterson can mark bets for resolution' });
+      }
+      
+      const updatedSideBet = await storage.markBetForResolution(parseInt(id));
+      
+      // Broadcast resolution readiness to all clients
+      broadcast({
+        type: 'BET_READY_FOR_RESOLUTION',
+        data: updatedSideBet
+      });
+
+      res.json(updatedSideBet);
+    } catch (error) {
+      console.error('Error marking bet for resolution:', error);
+      res.status(500).json({ error: 'Failed to mark bet for resolution' });
+    }
+  });
+
   // Photos endpoints
   app.get('/api/photos', async (req, res) => {
     try {

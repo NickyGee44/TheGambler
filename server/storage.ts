@@ -52,6 +52,8 @@ export interface IStorage {
   createSideBet(bet: InsertSideBet): Promise<SideBet>;
   updateSideBetResult(betId: number, result: string): Promise<SideBet>;
   updateSideBetStatus(betId: number, status: string): Promise<SideBet>;
+  addWitnessVote(betId: number, witnessName: string, winnerName: string): Promise<SideBet>;
+  markBetForResolution(betId: number): Promise<SideBet>;
   
   // Photos
   getPhotos(): Promise<Photo[]>;
@@ -527,50 +529,108 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSideBets(): Promise<SideBet[]> {
-    return Array.from(this.sideBets.values()).sort((a, b) => a.round - b.round);
+    const bets = await db.select().from(sideBets).orderBy(asc(sideBets.round), asc(sideBets.createdAt));
+    return bets;
   }
 
   async createSideBet(insertSideBet: InsertSideBet): Promise<SideBet> {
-    const id = this.currentSideBetId++;
-    const sideBet: SideBet = {
-      id,
-      ...insertSideBet,
-      status: insertSideBet.status || "Pending",
-      result: insertSideBet.result || "Pending",
-      createdAt: new Date()
-    };
-    this.sideBets.set(id, sideBet);
+    const [sideBet] = await db
+      .insert(sideBets)
+      .values({
+        ...insertSideBet,
+        status: insertSideBet.status || "Pending",
+        result: insertSideBet.result || "Pending",
+      })
+      .returning();
     return sideBet;
   }
 
   async updateSideBetResult(betId: number, result: string): Promise<SideBet> {
-    const existingSideBet = this.sideBets.get(betId);
-    if (!existingSideBet) {
+    const [updatedBet] = await db
+      .update(sideBets)
+      .set({ result, updatedAt: new Date() })
+      .where(eq(sideBets.id, betId))
+      .returning();
+    
+    if (!updatedBet) {
       throw new Error('Side bet not found');
     }
-
-    const updatedSideBet: SideBet = {
-      ...existingSideBet,
-      result
-    };
-
-    this.sideBets.set(betId, updatedSideBet);
-    return updatedSideBet;
+    
+    return updatedBet;
   }
 
   async updateSideBetStatus(betId: number, status: string): Promise<SideBet> {
-    const existingSideBet = this.sideBets.get(betId);
-    if (!existingSideBet) {
+    const [updatedBet] = await db
+      .update(sideBets)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(sideBets.id, betId))
+      .returning();
+    
+    if (!updatedBet) {
+      throw new Error('Side bet not found');
+    }
+    
+    return updatedBet;
+  }
+
+  async addWitnessVote(betId: number, witnessName: string, winnerName: string): Promise<SideBet> {
+    // First get the current bet to read existing votes
+    const [currentBet] = await db.select().from(sideBets).where(eq(sideBets.id, betId));
+    if (!currentBet) {
       throw new Error('Side bet not found');
     }
 
-    const updatedSideBet: SideBet = {
-      ...existingSideBet,
-      status
-    };
+    // Parse existing votes or create new object
+    const currentVotes = (currentBet.witnessVotes as any) || {};
+    currentVotes[witnessName] = winnerName;
 
-    this.sideBets.set(betId, updatedSideBet);
-    return updatedSideBet;
+    // Count votes for each candidate
+    const voteCounts: { [key: string]: number } = {};
+    for (const vote of Object.values(currentVotes)) {
+      voteCounts[vote as string] = (voteCounts[vote as string] || 0) + 1;
+    }
+
+    // Determine winner if majority reached (more than half of witnesses)
+    const totalVotes = Object.keys(currentVotes).length;
+    const majority = Math.floor(totalVotes / 2) + 1;
+    let finalWinner = currentBet.winnerName;
+    let finalResult = currentBet.result;
+
+    for (const [candidate, count] of Object.entries(voteCounts)) {
+      if (count >= majority) {
+        finalWinner = candidate;
+        finalResult = candidate === currentBet.betterName ? 'Won' : 'Lost';
+        break;
+      }
+    }
+
+    // Update the bet with new votes and potential resolution
+    const [updatedBet] = await db
+      .update(sideBets)
+      .set({ 
+        witnessVotes: currentVotes,
+        winnerName: finalWinner,
+        result: finalResult,
+        updatedAt: new Date()
+      })
+      .where(eq(sideBets.id, betId))
+      .returning();
+
+    return updatedBet;
+  }
+
+  async markBetForResolution(betId: number): Promise<SideBet> {
+    const [updatedBet] = await db
+      .update(sideBets)
+      .set({ readyForResolution: true, updatedAt: new Date() })
+      .where(eq(sideBets.id, betId))
+      .returning();
+    
+    if (!updatedBet) {
+      throw new Error('Side bet not found');
+    }
+    
+    return updatedBet;
   }
 
   async getPhotos(): Promise<Photo[]> {

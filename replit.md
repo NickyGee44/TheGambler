@@ -122,7 +122,7 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 15, 2025:**
-- **Enhanced Side Bet Challenge System:**
+- **Enhanced Side Bet Challenge System with Database Persistence:**
   - Auto-fills current user as challenger when creating new bets
   - Removed manual bettor selection - challenger is automatically set
   - Only opponents can accept/decline challenges (not the challenger)
@@ -132,6 +132,12 @@ Preferred communication style: Simple, everyday language.
   - Public notifications when challenges are declined with shame messaging
   - All users can see all bets made across all rounds
   - Improved UI flow for challenge creation and response
+  - **Database Storage:** Side bets now persist in PostgreSQL database with proper schema
+  - **Witness-Based Resolution:** Added witness voting system for challenge resolution
+  - **Tournament Persistence:** Bets remain in database until tournament completion
+  - **Voting Mechanism:** Other players can vote on challenge winners after rounds complete
+  - **Automatic Resolution:** Winner determined when majority witness votes reached
+  - **Enhanced Schema:** Added witness votes tracking, winner determination, and resolution status
 - **Fixed Navigation Menu Bar During Live Rounds:**
   - Updated all three round pages (Round1, Round2, Round3) to maintain navigation menu bar
   - Wrapped HoleView component with Layout component during live scoring
@@ -139,6 +145,10 @@ Preferred communication style: Simple, everyday language.
   - Progress bar still displays at top while preserving menu access
   - Fixed z-index layering so navigation menu appears above progress bar
   - Mobile menu toggle and overlay properly positioned to avoid conflicts
+- **Restored Homepage Background Image:**
+  - Restored missing golf course background image (IMG_8552_1752522827055.jpeg)
+  - Fixed homepage hero section visual display with proper background opacity
+  - Background image now displays correctly with tournament logo overlay
 - **Updated Erik Boudreau Profile Picture:**
   - Applied new profile picture provided by user (IMG_5247_1752574677541.jpeg)
   - Updated ProfilePicture component to use latest photo

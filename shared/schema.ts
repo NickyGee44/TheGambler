@@ -55,7 +55,11 @@ export const sideBets = pgTable("side_bets", {
   condition: text("condition").notNull(),
   status: text("status").default("Pending"), // Pending, Accepted, Declined
   result: text("result").default("Pending"), // Pending, Won, Lost, Push
+  winnerName: text("winner_name"), // Winner decided by witnesses
+  witnessVotes: jsonb("witness_votes").default('{}'), // JSON object tracking witness votes
+  readyForResolution: boolean("ready_for_resolution").default(false), // True after round is complete
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const photos = pgTable("photos", {

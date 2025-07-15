@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, DollarSign, CheckCircle, XCircle, Clock, Bell, AlertTriangle } from "lucide-react";
+import { Plus, DollarSign, CheckCircle, XCircle, Clock, Bell, AlertTriangle, Users, Vote } from "lucide-react";
 import { SideBet } from "@shared/schema";
 import ProfilePicture from "@/components/ProfilePicture";
 
@@ -141,6 +141,26 @@ export default function SideBets() {
       toast({
         title: "Error",
         description: "Failed to update side bet. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const witnessVoteMutation = useMutation({
+    mutationFn: async ({ id, winnerName }: { id: number; winnerName: string }) => {
+      return await apiRequest('POST', `/api/sidebets/${id}/witness-vote`, { winnerName });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/sidebets'] });
+      toast({
+        title: "Vote Recorded",
+        description: "Your witness vote has been recorded",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to record witness vote",
         variant: "destructive",
       });
     },
@@ -437,32 +457,64 @@ export default function SideBets() {
                               </>
                             )}
                             {bet.status === 'Accepted' && (
-                              <div className="flex space-x-1">
-                                <Badge className="bg-green-100 text-green-800">
-                                  <CheckCircle className="w-3 h-3 mr-1" />
-                                  Accepted
-                                </Badge>
-                                {bet.result === 'Pending' && (
-                                  <>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => updateSideBetMutation.mutate({ id: bet.id, result: 'Won' })}
-                                      className="text-green-600 hover:text-green-700"
-                                    >
-                                      Won
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => updateSideBetMutation.mutate({ id: bet.id, result: 'Lost' })}
-                                      className="text-red-600 hover:text-red-700"
-                                    >
-                                      Lost
-                                    </Button>
-                                  </>
+                              <div className="flex flex-col space-y-2">
+                                <div className="flex items-center space-x-1">
+                                  <Badge className="bg-green-100 text-green-800">
+                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                    Accepted
+                                  </Badge>
+                                  {bet.result !== 'Pending' && getResultBadge(bet.result)}
+                                </div>
+                                
+                                {bet.result === 'Pending' && (bet.readyForResolution || bet.witnessVotes) && (
+                                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Users className="w-4 h-4 text-blue-600" />
+                                      <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
+                                        Witness Voting
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="flex flex-wrap gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => witnessVoteMutation.mutate({ id: bet.id, winnerName: bet.betterName })}
+                                        className="text-green-600 hover:text-green-700 border-green-300"
+                                        disabled={witnessVoteMutation.isPending}
+                                      >
+                                        <Vote className="w-3 h-3 mr-1" />
+                                        {bet.betterName} Won
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => witnessVoteMutation.mutate({ id: bet.id, winnerName: bet.opponentName })}
+                                        className="text-green-600 hover:text-green-700 border-green-300"
+                                        disabled={witnessVoteMutation.isPending}
+                                      >
+                                        <Vote className="w-3 h-3 mr-1" />
+                                        {bet.opponentName} Won
+                                      </Button>
+                                    </div>
+                                    
+                                    {bet.witnessVotes && Object.keys(bet.witnessVotes).length > 0 && (
+                                      <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                                        <div className="flex items-center gap-1">
+                                          <Users className="w-3 h-3" />
+                                          <span>Votes: {Object.keys(bet.witnessVotes).length}</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-1 mt-1">
+                                          {Object.entries(bet.witnessVotes).map(([witness, winner]) => (
+                                            <span key={witness} className="text-xs">
+                                              {witness}: {winner}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
                                 )}
-                                {bet.result !== 'Pending' && getResultBadge(bet.result)}
                               </div>
                             )}
                             {bet.status === 'Declined' && (
