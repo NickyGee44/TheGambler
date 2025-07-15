@@ -29,8 +29,6 @@ export default function EnhancedGolfGPS({ hole, round, courseName, courseCenter 
   const { toast } = useToast();
   const [courseDetails, setCourseDetails] = useState<GolfCourseDetails | null>(null);
   const [isLoadingCourse, setIsLoadingCourse] = useState(false);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
 
   // Load course details from Golf Course API
   useEffect(() => {
@@ -53,318 +51,178 @@ export default function EnhancedGolfGPS({ hole, round, courseName, courseCenter 
         setIsLoadingCourse(false);
       }
     }
-    
+
     loadCourseDetails();
   }, [round, toast]);
 
-  // Initialize Google Maps
-  useEffect(() => {
-    async function initializeMap() {
-      // Check if Google Maps is already loaded
-      if (window.google && window.google.maps) {
-        const mapDiv = document.getElementById('enhanced-golf-map');
-        if (mapDiv && !mapLoaded) {
-          try {
-            const newMap = new window.google.maps.Map(mapDiv, {
-              zoom: 16,
-              center: courseCenter,
-              mapTypeId: 'satellite',
-              mapTypeControl: true,
-              streetViewControl: false,
-              fullscreenControl: true,
-              zoomControl: true,
-            });
-
-            // Add course marker
-            new window.google.maps.Marker({
-              position: courseCenter,
-              map: newMap,
-              title: courseName,
-              icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                scale: 8,
-                fillColor: '#22c55e',
-                fillOpacity: 1,
-                strokeColor: '#16a34a',
-                strokeWeight: 2,
-              },
-            });
-
-            // Add hole markers
-            new window.google.maps.Marker({
-              position: hole.tee,
-              map: newMap,
-              title: `Hole ${hole.number} Tee`,
-              icon: {
-                path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                scale: 6,
-                fillColor: '#3b82f6',
-                fillOpacity: 1,
-                strokeColor: '#1d4ed8',
-                strokeWeight: 2,
-              },
-            });
-
-            new window.google.maps.Marker({
-              position: hole.green.middle,
-              map: newMap,
-              title: `Hole ${hole.number} Green`,
-              icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: '#22c55e',
-                fillOpacity: 0.8,
-                strokeColor: '#16a34a',
-                strokeWeight: 2,
-              },
-            });
-
-            setMap(newMap);
-            setMapLoaded(true);
-          } catch (error) {
-            console.error('Error initializing Google Maps:', error);
-          }
-        }
-      } else {
-        // Google Maps not loaded yet, try to load it
-        try {
-          const response = await fetch('/api/config');
-          const config = await response.json();
-          
-          if (config.googleMapsApiKey) {
-            // Load Google Maps script
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMapsApiKey}&libraries=geometry`;
-            script.async = true;
-            script.defer = true;
-            
-            script.onload = () => {
-              // Maps loaded, try initializing again
-              setTimeout(() => initializeMap(), 100);
-            };
-            
-            document.head.appendChild(script);
-          }
-        } catch (error) {
-          console.error('Error loading Google Maps:', error);
-        }
-      }
-    }
-
-    initializeMap();
-  }, [courseCenter, courseName, hole, mapLoaded]);
-
-  // Add user location marker when GPS is available
-  useEffect(() => {
-    if (map && location) {
-      const userMarker = new window.google.maps.Marker({
-        position: { lat: location.lat, lng: location.lng },
-        map: map,
-        title: 'Your Location',
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          fillColor: '#ef4444',
-          fillOpacity: 1,
-          strokeColor: '#dc2626',
-          strokeWeight: 2,
-        },
-      });
-
-      // Add accuracy circle
-      const accuracyCircle = new window.google.maps.Circle({
-        center: { lat: location.lat, lng: location.lng },
-        radius: location.accuracy || 10,
-        map: map,
-        fillColor: '#3b82f6',
-        fillOpacity: 0.1,
-        strokeColor: '#3b82f6',
-        strokeOpacity: 0.3,
-        strokeWeight: 1,
-      });
-
-      return () => {
-        userMarker.setMap(null);
-        accuracyCircle.setMap(null);
-      };
-    }
-  }, [map, location]);
-
-  // Calculate yardages to green if GPS is available
-  const yardages = location ? {
-    front: Math.round(calculateDistance(location.lat, location.lng, hole.green.front.lat, hole.green.front.lng)),
-    middle: Math.round(calculateDistance(location.lat, location.lng, hole.green.middle.lat, hole.green.middle.lng)),
-    back: Math.round(calculateDistance(location.lat, location.lng, hole.green.back.lat, hole.green.back.lng)),
-    tee: Math.round(calculateDistance(location.lat, location.lng, hole.tee.lat, hole.tee.lng))
-  } : null;
+  // Calculate yardage to different green positions
+  const calculateYardage = (targetLat: number, targetLng: number) => {
+    if (!location) return 0;
+    return Math.round(calculateDistance(location.lat, location.lng, targetLat, targetLng) * 1093.61); // Convert km to yards
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Hole Information Header */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Flag className="h-5 w-5" />
+                Hole {hole.number}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {courseName} • Par {hole.par} • {hole.yardage} yards
+              </p>
+            </div>
+            <div className="text-right">
+              <Badge variant="outline">HCP {hole.handicap}</Badge>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
       {/* Course Information */}
       {courseDetails && (
-        <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Info className="w-5 h-5 text-golf-green-600" />
-              {courseDetails.club_name}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Info className="h-5 w-5" />
+              Course Details
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">Course:</span>
-                <div className="font-medium">{courseDetails.course_name}</div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Course:</span>
+                <span className="text-sm font-medium">{courseDetails.club_name}</span>
               </div>
-              <div>
-                <span className="text-muted-foreground">Location:</span>
-                <div className="font-medium">{courseDetails.location.city}, {courseDetails.location.state}</div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Location:</span>
+                <span className="text-sm font-medium">
+                  {courseDetails.location.city}, {courseDetails.location.state}
+                </span>
               </div>
-              <div>
-                <span className="text-muted-foreground">Rating:</span>
-                <div className="font-medium">{courseDetails.rating}</div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Rating:</span>
+                <span className="text-sm font-medium">{courseDetails.rating}</span>
               </div>
-              <div>
-                <span className="text-muted-foreground">Slope:</span>
-                <div className="font-medium">{courseDetails.slope}</div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Slope:</span>
+                <span className="text-sm font-medium">{courseDetails.slope}</span>
               </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* GPS Map */}
-      <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm">
-        <CardHeader className="pb-3">
+      {/* GPS Location Status */}
+      <Card>
+        <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Navigation className="w-5 h-5 text-golf-green-600" />
-            Hole {hole.number} GPS Map
+            <Target className="h-5 w-5" />
+            GPS Location
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div 
-            id="enhanced-golf-map" 
-            className="h-64 rounded-lg border border-border"
-            style={{ minHeight: '256px' }}
-          />
-          {isLoadingCourse && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-lg">
-              <Loader2 className="w-6 h-6 animate-spin text-golf-green-600" />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Status:</span>
+              <div className="flex items-center gap-2">
+                {gpsLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                <Badge variant={location ? "default" : "secondary"}>
+                  {gpsLoading ? "Getting GPS..." : location ? "GPS Active" : "GPS Inactive"}
+                </Badge>
+              </div>
             </div>
-          )}
+            
+            {location && (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Coordinates:</span>
+                  <span className="text-sm font-mono">
+                    {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Accuracy:</span>
+                  <span className="text-sm">±{Math.round(location.accuracy)} meters</span>
+                </div>
+              </>
+            )}
+            
+            {gpsError && (
+              <div className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
+                {gpsError}
+              </div>
+            )}
+            
+            <Button 
+              onClick={requestLocation}
+              disabled={gpsLoading}
+              className="w-full"
+            >
+              <Navigation className="h-4 w-4 mr-2" />
+              {gpsLoading ? "Getting Location..." : "Update GPS Location"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
-      {/* GPS Yardages */}
-      <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-golf-green-600" />
-            GPS Yardages
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {gpsLoading && (
-            <div className="text-center py-4">
-              <Loader2 className="w-6 h-6 animate-spin text-golf-green-600 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Getting your location...</p>
-            </div>
-          )}
-          
-          {gpsError && (
-            <div className="text-center py-4">
-              <p className="text-sm text-red-600 mb-2">{gpsError}</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={requestLocation}
-                className="flex items-center gap-2"
-              >
-                <Crosshair className="w-4 h-4" />
-                Enable GPS
-              </Button>
-            </div>
-          )}
-          
-          {location && yardages && (
+      {/* Distance Information */}
+      {location && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Crosshair className="h-5 w-5" />
+              Distance to Green
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">GPS Status</span>
-                <Badge variant="outline" className="text-green-600">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  Active (±{location.accuracy?.toFixed(0)}m)
-                </Badge>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                  {calculateYardage(hole.green.middle.lat, hole.green.middle.lng)}
+                </div>
+                <div className="text-sm text-muted-foreground">yards to middle</div>
               </div>
               
               <Separator />
               
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-golf-green-600">{yardages.front}</div>
-                  <div className="text-xs text-muted-foreground">Front</div>
+                  <div className="text-lg font-semibold">
+                    {calculateYardage(hole.green.front.lat, hole.green.front.lng)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">FRONT</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-golf-green-600">{yardages.middle}</div>
-                  <div className="text-xs text-muted-foreground">Middle</div>
+                  <div className="text-lg font-semibold text-green-600 dark:text-green-400">
+                    {calculateYardage(hole.green.middle.lat, hole.green.middle.lng)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">MIDDLE</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-golf-green-600">{yardages.back}</div>
-                  <div className="text-xs text-muted-foreground">Back</div>
+                  <div className="text-lg font-semibold">
+                    {calculateYardage(hole.green.back.lat, hole.green.back.lng)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">BACK</div>
                 </div>
               </div>
               
               <Separator />
               
               <div className="text-center">
-                <div className="text-lg font-semibold text-blue-600 mb-1">{yardages.tee} yards</div>
-                <div className="text-xs text-muted-foreground">Distance to Tee</div>
-              </div>
-              
-              <div className="text-center">
-                <Badge variant="secondary" className="text-xs">
-                  <Flag className="w-3 h-3 mr-1" />
-                  Professional GPS System
-                </Badge>
+                <div className="text-sm text-muted-foreground">Distance from tee</div>
+                <div className="text-lg font-medium">
+                  {calculateYardage(hole.tee.lat, hole.tee.lng)} yards
+                </div>
               </div>
             </div>
-          )}
-          
-          {!location && !gpsLoading && !gpsError && (
-            <div className="text-center py-4">
-              <Button 
-                variant="outline" 
-                onClick={requestLocation}
-                className="flex items-center gap-2"
-              >
-                <Crosshair className="w-4 h-4" />
-                Get GPS Yardages
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Hole Details */}
-      <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm">
-        <CardHeader className="pb-3">
-          <CardTitle>Hole {hole.number} Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-golf-green-600">{hole.par}</div>
-              <div className="text-xs text-muted-foreground">Par</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-golf-green-600">{hole.yardage}</div>
-              <div className="text-xs text-muted-foreground">Yards</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-golf-green-600">{hole.handicap}</div>
-              <div className="text-xs text-muted-foreground">Handicap</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
