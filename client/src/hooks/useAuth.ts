@@ -18,7 +18,19 @@ export function useAuth() {
       return await res.json();
     },
     onSuccess: () => {
+      // Clear user data from cache
       queryClient.setQueryData(["/api/user"], null);
+      // Invalidate all queries to force re-fetch after logout
+      queryClient.invalidateQueries();
+      // Force a page reload to ensure clean state
+      window.location.href = "/";
+    },
+    onError: (error) => {
+      console.error("Logout error:", error);
+      // Even if logout fails, clear local cache and reload
+      queryClient.setQueryData(["/api/user"], null);
+      queryClient.invalidateQueries();
+      window.location.href = "/";
     },
   });
 
