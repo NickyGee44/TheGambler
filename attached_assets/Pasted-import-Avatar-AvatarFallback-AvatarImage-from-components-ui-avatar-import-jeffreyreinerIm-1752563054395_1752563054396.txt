@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import jeffreyreinerImg from "@/assets/austin-hassani.jpeg";
+import jeffreyreinerImg from "@/assets/austin-hassani.png";
 import baileycarlsonImg from "@/assets/bailey-carlson.jpeg";
 import benbraunImg from "@/assets/ben-braun.jpeg";
-import christianhauckImg from "@/assets/christian-hauck.jpeg";
+import christianhauckImg from "@/assets/christian-hauck.png";
 import austinhassaniImg from "@/assets/connor-patterson.jpeg";
 import connorpattersonImg from "@/assets/erik-boudreau.jpeg";
 import kevindurcoImg from "@/assets/jeffrey-reiner.jpeg";
