@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
-import { MapPin, Navigation, Target } from "lucide-react";
+import { MapPin, Navigation, Target, Info } from "lucide-react";
 import { HoleData } from "@shared/courseData";
 import { useGPS } from "@/hooks/useGPS";
+import { getTournamentCourses, GolfCourseDetails } from "@shared/golfCourseAPI";
 
 interface ProfessionalGolfGPSProps {
   hole: HoleData;
@@ -10,12 +11,19 @@ interface ProfessionalGolfGPSProps {
   courseCenter: { lat: number; lng: number };
 }
 
-export default function ProfessionalGolfGPS({ hole, courseName, courseCenter }: ProfessionalGolfGPSProps) {
+// Add round prop to determine which course to fetch
+interface EnhancedProfessionalGolfGPSProps extends ProfessionalGolfGPSProps {
+  round?: number;
+}
+
+export default function ProfessionalGolfGPS({ hole, courseName, courseCenter, round }: EnhancedProfessionalGolfGPSProps) {
   const [map, setMap] = useState<any>(null);
   const [apiKey, setApiKey] = useState<string>("");
   const [mapLoaded, setMapLoaded] = useState(false);
   const [playerMarker, setPlayerMarker] = useState<any>(null);
   const [accuracyCircle, setAccuracyCircle] = useState<any>(null);
+  const [courseDetails, setCourseDetails] = useState<GolfCourseDetails | null>(null);
+  const [isLoadingCourse, setIsLoadingCourse] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const { location, isLoading, error, requestLocation } = useGPS();
 
@@ -45,6 +53,26 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter }: 
     };
     fetchConfig();
   }, []);
+
+  // Load course details from Golf Course API
+  useEffect(() => {
+    if (round) {
+      const loadCourseDetails = async () => {
+        setIsLoadingCourse(true);
+        try {
+          const courses = await getTournamentCourses();
+          const courseData = round === 3 ? courses.muskokaBay : courses.deerhurst;
+          setCourseDetails(courseData);
+        } catch (error) {
+          console.error('Failed to load course details:', error);
+        } finally {
+          setIsLoadingCourse(false);
+        }
+      };
+      
+      loadCourseDetails();
+    }
+  }, [round]);
 
   // Initialize Google Maps
   useEffect(() => {
@@ -187,6 +215,35 @@ export default function ProfessionalGolfGPS({ hole, courseName, courseCenter }: 
 
   return (
     <div className="w-full space-y-4">
+      {/* Course Information from Golf Course API */}
+      {courseDetails && (
+        <div className="bg-background/95 backdrop-blur-sm rounded-lg p-4 border">
+          <div className="flex items-center gap-2 mb-3">
+            <Info className="h-4 w-4 text-blue-500" />
+            <h3 className="font-semibold text-sm">Course Information</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <div className="text-muted-foreground">Course:</div>
+              <div className="font-medium">{courseDetails.club_name}</div>
+              <div className="text-xs text-muted-foreground">{courseDetails.course_name}</div>
+            </div>
+            <div>
+              <div className="text-muted-foreground">Location:</div>
+              <div className="font-medium">{courseDetails.location.city}, {courseDetails.location.state}</div>
+            </div>
+            <div>
+              <div className="text-muted-foreground">Rating:</div>
+              <div className="font-medium">{courseDetails.rating}</div>
+            </div>
+            <div>
+              <div className="text-muted-foreground">Slope:</div>
+              <div className="font-medium">{courseDetails.slope}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

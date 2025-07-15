@@ -59,67 +59,99 @@ export default function EnhancedGolfGPS({ hole, round, courseName, courseCenter 
 
   // Initialize Google Maps
   useEffect(() => {
-    if (window.google && !mapLoaded) {
-      const mapDiv = document.getElementById('enhanced-golf-map');
-      if (mapDiv) {
-        const newMap = new window.google.maps.Map(mapDiv, {
-          zoom: 16,
-          center: courseCenter,
-          mapTypeId: 'satellite',
-          mapTypeControl: true,
-          streetViewControl: false,
-          fullscreenControl: true,
-          zoomControl: true,
-        });
+    async function initializeMap() {
+      // Check if Google Maps is already loaded
+      if (window.google && window.google.maps) {
+        const mapDiv = document.getElementById('enhanced-golf-map');
+        if (mapDiv && !mapLoaded) {
+          try {
+            const newMap = new window.google.maps.Map(mapDiv, {
+              zoom: 16,
+              center: courseCenter,
+              mapTypeId: 'satellite',
+              mapTypeControl: true,
+              streetViewControl: false,
+              fullscreenControl: true,
+              zoomControl: true,
+            });
 
-        // Add course marker
-        new window.google.maps.Marker({
-          position: courseCenter,
-          map: newMap,
-          title: courseName,
-          icon: {
-            path: window.google.maps.SymbolPath.CIRCLE,
-            scale: 8,
-            fillColor: '#22c55e',
-            fillOpacity: 1,
-            strokeColor: '#16a34a',
-            strokeWeight: 2,
-          },
-        });
+            // Add course marker
+            new window.google.maps.Marker({
+              position: courseCenter,
+              map: newMap,
+              title: courseName,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: '#22c55e',
+                fillOpacity: 1,
+                strokeColor: '#16a34a',
+                strokeWeight: 2,
+              },
+            });
 
-        // Add hole markers
-        const teeMarker = new window.google.maps.Marker({
-          position: hole.tee,
-          map: newMap,
-          title: `Hole ${hole.number} Tee`,
-          icon: {
-            path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-            scale: 6,
-            fillColor: '#3b82f6',
-            fillOpacity: 1,
-            strokeColor: '#1d4ed8',
-            strokeWeight: 2,
-          },
-        });
+            // Add hole markers
+            new window.google.maps.Marker({
+              position: hole.tee,
+              map: newMap,
+              title: `Hole ${hole.number} Tee`,
+              icon: {
+                path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                scale: 6,
+                fillColor: '#3b82f6',
+                fillOpacity: 1,
+                strokeColor: '#1d4ed8',
+                strokeWeight: 2,
+              },
+            });
 
-        const greenMarker = new window.google.maps.Marker({
-          position: hole.green.middle,
-          map: newMap,
-          title: `Hole ${hole.number} Green`,
-          icon: {
-            path: window.google.maps.SymbolPath.CIRCLE,
-            scale: 10,
-            fillColor: '#22c55e',
-            fillOpacity: 0.8,
-            strokeColor: '#16a34a',
-            strokeWeight: 2,
-          },
-        });
+            new window.google.maps.Marker({
+              position: hole.green.middle,
+              map: newMap,
+              title: `Hole ${hole.number} Green`,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: '#22c55e',
+                fillOpacity: 0.8,
+                strokeColor: '#16a34a',
+                strokeWeight: 2,
+              },
+            });
 
-        setMap(newMap);
-        setMapLoaded(true);
+            setMap(newMap);
+            setMapLoaded(true);
+          } catch (error) {
+            console.error('Error initializing Google Maps:', error);
+          }
+        }
+      } else {
+        // Google Maps not loaded yet, try to load it
+        try {
+          const response = await fetch('/api/config');
+          const config = await response.json();
+          
+          if (config.googleMapsApiKey) {
+            // Load Google Maps script
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMapsApiKey}&libraries=geometry`;
+            script.async = true;
+            script.defer = true;
+            
+            script.onload = () => {
+              // Maps loaded, try initializing again
+              setTimeout(() => initializeMap(), 100);
+            };
+            
+            document.head.appendChild(script);
+          }
+        } catch (error) {
+          console.error('Error loading Google Maps:', error);
+        }
       }
     }
+
+    initializeMap();
   }, [courseCenter, courseName, hole, mapLoaded]);
 
   // Add user location marker when GPS is available

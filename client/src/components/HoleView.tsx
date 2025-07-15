@@ -21,7 +21,7 @@ import {
   Crosshair,
   Map 
 } from "lucide-react";
-import EnhancedGolfGPS from "./EnhancedGolfGPS";
+import ProfessionalGolfGPS from "./ProfessionalGolfGPS";
 import { getCourseForRound } from "@shared/courseData";
 
 interface HoleViewProps {
@@ -175,11 +175,11 @@ export default function HoleView({
         {/* GPS Map Tab */}
         {activeTab === 'map' && (
           <div className="mb-6">
-            <EnhancedGolfGPS 
+            <ProfessionalGolfGPS 
               hole={hole} 
-              round={round}
               courseName={courseData.name}
               courseCenter={courseData.clubhouse}
+              round={round}
             />
           </div>
         )}
