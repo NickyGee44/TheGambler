@@ -29,18 +29,18 @@ export default function ProfilePicture({
   size = "lg", 
   className = "" 
 }: ProfilePictureProps) {
-  // Define profile picture mappings with consistent names
+  // Define profile picture mappings with corrected assignments
   const profilePictures: Record<string, string> = {
-    "Jeffrey Reiner": jeffreyreinerImg,
+    "Jeffrey Reiner": kevindurcoImg,        // Jeffrey gets Kevin's photo
     "Bailey Carlson": baileycarlsonImg,
     "Ben Braun": benbraunImg,
     "Christian Hauck": christianhauckImg,
-    "Austin Hassani": austinhassaniImg,
-    "Connor Patterson": connorpattersonImg,
-    "Kevin Durco": kevindurcoImg,
-    "Erik Boudreau": erikboudreauImg,
+    "Austin Hassani": jeffreyreinerImg,     // Austin gets Jeffrey's photo
+    "Connor Patterson": austinhassaniImg,   // Connor gets Austin's photo
+    "Kevin Durco": johnnymagnattaImg,       // Kevin gets Johnny's photo
+    "Erik Boudreau": connorpattersonImg,    // Erik gets Connor's photo
     "Jordan Kreller": jordankrellerImg,
-    "Johnny Magnatta": johnnymagnattaImg,
+    "Johnny Magnatta": erikboudreauImg,     // Johnny gets Erik's photo
     "Nic Huxley": nichuxleyImg,
     "Nick Cook": nickcookImg,
     "Nick Grossi": nickgrossiImg,
@@ -48,9 +48,9 @@ export default function ProfilePicture({
     "Sye Ellard": syeellardImg,
     "Will Bibbings": willbibbingsImg,
     // Add aliases for name variations
-    "Jeff Reiner": jeffreyreinerImg,
+    "Jeff Reiner": kevindurcoImg,           // Jeffrey gets Kevin's photo
     "Will Bibi": willbibbingsImg,
-    "Jonathan Magnatta": johnnymagnattaImg,
+    "Jonathan Magnatta": erikboudreauImg,   // Johnny gets Erik's photo
   };
 
   const fullName = `${firstName} ${lastName}`;
