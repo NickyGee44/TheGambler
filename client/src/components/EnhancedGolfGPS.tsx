@@ -170,59 +170,46 @@ export default function EnhancedGolfGPS({ hole, round, courseName, courseCenter 
         </CardContent>
       </Card>
 
-      {/* Distance Information */}
-      {location && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Crosshair className="h-5 w-5" />
-              Distance to Green
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                  {calculateYardage(hole.green.middle.lat, hole.green.middle.lng)}
-                </div>
-                <div className="text-sm text-muted-foreground">yards to middle</div>
+      {/* Course Yardage Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Flag className="h-5 w-5" />
+            Course Yardages
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                {hole.yardage}
               </div>
-              
-              <Separator />
-              
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-lg font-semibold">
-                    {calculateYardage(hole.green.front.lat, hole.green.front.lng)}
-                  </div>
-                  <div className="text-xs text-muted-foreground">FRONT</div>
+              <div className="text-sm text-muted-foreground">total hole distance</div>
+            </div>
+            
+            <Separator />
+            
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <div className="text-center space-y-2">
+                <div className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                  ⚠️ GPS Distance Calculations Unavailable
                 </div>
-                <div>
-                  <div className="text-lg font-semibold text-green-600 dark:text-green-400">
-                    {calculateYardage(hole.green.middle.lat, hole.green.middle.lng)}
-                  </div>
-                  <div className="text-xs text-muted-foreground">MIDDLE</div>
-                </div>
-                <div>
-                  <div className="text-lg font-semibold">
-                    {calculateYardage(hole.green.back.lat, hole.green.back.lng)}
-                  </div>
-                  <div className="text-xs text-muted-foreground">BACK</div>
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div className="text-center">
-                <div className="text-sm text-muted-foreground">Distance from tee</div>
-                <div className="text-lg font-medium">
-                  {calculateYardage(hole.tee.lat, hole.tee.lng)} yards
+                <div className="text-xs text-yellow-700 dark:text-yellow-300">
+                  Precise hole coordinates are needed for accurate yardage calculations. 
+                  Use course markers and your best judgment for shot distances.
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+            
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground">Use course markers for:</div>
+              <div className="text-sm font-medium mt-1">
+                • 150-yard markers • Sprinkler heads • Tee markers
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
