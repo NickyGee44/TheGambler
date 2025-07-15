@@ -36,7 +36,7 @@ export default function Home() {
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-40"
           style={{
-            backgroundImage: "url('/IMG_8552_1752522827055.jpeg')"
+            backgroundImage: "url('/IMG_8550_1752593365391.jpeg')"
           }}
         />
         <div className="relative z-10 text-center px-4">

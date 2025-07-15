@@ -145,9 +145,9 @@ Preferred communication style: Simple, everyday language.
   - Progress bar still displays at top while preserving menu access
   - Fixed z-index layering so navigation menu appears above progress bar
   - Mobile menu toggle and overlay properly positioned to avoid conflicts
-- **Restored Homepage Background Image:**
-  - Restored missing golf course background image (IMG_8552_1752522827055.jpeg)
-  - Fixed homepage hero section visual display with proper background opacity
+- **Updated Homepage Background Image:**
+  - Applied new golf course background image (IMG_8550_1752593365391.jpeg)
+  - Enhanced homepage hero section visual display with proper background opacity
   - Background image now displays correctly with tournament logo overlay
 - **Updated Erik Boudreau Profile Picture:**
   - Applied new profile picture provided by user (IMG_5247_1752574677541.jpeg)
