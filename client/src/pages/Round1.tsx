@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HoleView from "@/components/HoleView";
+import Layout from "@/components/Layout";
 import { getCourseForRound } from "@shared/courseData";
 import { Play, Flag, Trophy, Users, MapPin } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -264,46 +265,48 @@ export default function Round1() {
     const currentScore = getScoreForHole(currentHole);
     
     return (
-      <div className="relative">
-        {/* Progress bar at top */}
-        <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b p-4">
-          <div className="max-w-md mx-auto">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Round 1 Progress</span>
-              <span className="text-sm text-muted-foreground">{holesPlayed}/18</span>
+      <Layout>
+        <div className="relative">
+          {/* Progress bar at top */}
+          <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b p-4">
+            <div className="max-w-md mx-auto">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Round 1 Progress</span>
+                <span className="text-sm text-muted-foreground">{holesPlayed}/18</span>
+              </div>
+              <Progress value={progressPercentage} className="h-2" />
             </div>
-            <Progress value={progressPercentage} className="h-2" />
+          </div>
+
+          {/* Hole view with top padding for progress bar */}
+          <div className="pt-20">
+            <HoleView
+              hole={currentHoleData}
+              round={round}
+              currentScore={currentScore}
+              onScoreUpdate={updateScore}
+              onPreviousHole={handlePreviousHole}
+              onNextHole={handleNextHole}
+              isFirstHole={currentHole === 1}
+              isLastHole={currentHole === 18}
+              isUpdating={updateScoreMutation.isPending}
+            />
+          </div>
+
+          {/* Floating action buttons */}
+          <div className="fixed bottom-4 right-4 flex flex-col gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowLeaderboard(true)}
+              className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm"
+            >
+              <Trophy className="w-4 h-4 mr-1" />
+              Leaderboard
+            </Button>
           </div>
         </div>
-
-        {/* Hole view with top padding for progress bar */}
-        <div className="pt-20">
-          <HoleView
-            hole={currentHoleData}
-            round={round}
-            currentScore={currentScore}
-            onScoreUpdate={updateScore}
-            onPreviousHole={handlePreviousHole}
-            onNextHole={handleNextHole}
-            isFirstHole={currentHole === 1}
-            isLastHole={currentHole === 18}
-            isUpdating={updateScoreMutation.isPending}
-          />
-        </div>
-
-        {/* Floating action buttons */}
-        <div className="fixed bottom-4 right-4 flex flex-col gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setShowLeaderboard(true)}
-            className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm"
-          >
-            <Trophy className="w-4 h-4 mr-1" />
-            Leaderboard
-          </Button>
-        </div>
-      </div>
+      </Layout>
     );
   }
 

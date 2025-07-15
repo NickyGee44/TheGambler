@@ -122,6 +122,11 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 15, 2025:**
+- **Fixed Navigation Menu Bar During Live Rounds:**
+  - Updated all three round pages (Round1, Round2, Round3) to maintain navigation menu bar
+  - Wrapped HoleView component with Layout component during live scoring
+  - Navigation sidebar now remains accessible during hole-by-hole scoring
+  - Progress bar still displays at top while preserving menu access
 - **Updated Erik Boudreau Profile Picture:**
   - Applied new profile picture provided by user (IMG_5247_1752574677541.jpeg)
   - Updated ProfilePicture component to use latest photo
