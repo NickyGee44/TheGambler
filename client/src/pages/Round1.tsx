@@ -268,7 +268,7 @@ export default function Round1() {
       <Layout>
         <div className="relative">
           {/* Progress bar at top */}
-          <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b p-4">
+          <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-golf-green-50 to-golf-sand-50 dark:from-golf-green-900 dark:to-golf-sand-900 backdrop-blur-sm border-b border-golf-green-200 dark:border-golf-green-700 p-4 shadow-lg">
             <div className="max-w-md mx-auto">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Round 1 Progress</span>
@@ -302,9 +302,9 @@ export default function Round1() {
 
   // Show start screen
   return (
-    <div className="min-h-screen bg-gradient-to-br from-golf-green-50 to-golf-green-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-golf-green-50 via-golf-sand-50 to-golf-gold-50 dark:from-golf-green-900 dark:via-golf-sand-900 dark:to-golf-gold-900 flex items-center justify-center p-4">
       <div className="max-w-md mx-auto">
-        <Card className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border-2 border-golf-green-200 dark:border-slate-700">
+        <Card className="bg-white/90 dark:bg-golf-green-800/90 backdrop-blur-sm border-2 border-golf-green-200 dark:border-golf-green-600 shadow-xl">
           <CardHeader className="text-center">
             <div className="w-16 h-16 bg-golf-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Flag className="w-8 h-8 text-white" />

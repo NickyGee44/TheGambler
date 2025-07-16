@@ -82,7 +82,7 @@ export default function HoleView({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-golf-green-50 to-golf-green-100 dark:from-slate-900 dark:to-slate-800 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-golf-green-50 via-golf-sand-50 to-golf-gold-50 dark:from-golf-green-900 dark:via-golf-sand-900 dark:to-golf-gold-900 p-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="mb-6 text-center">
@@ -115,13 +115,13 @@ export default function HoleView({
         )}
 
         {/* Tab Navigation */}
-        <div className="flex mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg p-1">
+        <div className="flex mb-6 bg-white/90 dark:bg-golf-green-800/90 backdrop-blur-sm rounded-lg p-1 border border-golf-green-200 dark:border-golf-green-700 shadow-lg">
           <button
             onClick={() => setActiveTab('score')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors ${
               activeTab === 'score' 
-                ? 'bg-golf-green-600 text-white' 
-                : 'text-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-slate-700'
+                ? 'bg-golf-green-600 text-white shadow-md' 
+                : 'text-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-golf-green-700/50'
             }`}
           >
             <Target className="w-4 h-4" />
@@ -131,8 +131,8 @@ export default function HoleView({
             onClick={() => setActiveTab('map')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors ${
               activeTab === 'map' 
-                ? 'bg-golf-green-600 text-white' 
-                : 'text-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-slate-700'
+                ? 'bg-golf-green-600 text-white shadow-md' 
+                : 'text-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-golf-green-700/50'
             }`}
           >
             <Map className="w-4 h-4" />
@@ -142,7 +142,7 @@ export default function HoleView({
 
         {/* Tab Content */}
         {activeTab === 'score' && (
-          <Card className="mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-2 border-golf-green-200 dark:border-slate-700">
+          <Card className="mb-6 bg-white/90 dark:bg-golf-green-800/90 backdrop-blur-sm border-2 border-golf-green-200 dark:border-golf-green-600 shadow-xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-center">Your Score</CardTitle>
           </CardHeader>
@@ -205,7 +205,7 @@ export default function HoleView({
         {/* GPS integrated into map tab now */}
 
         {/* Hole Info Card */}
-        <Card className="mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+        <Card className="mb-6 bg-white/90 dark:bg-golf-green-800/90 backdrop-blur-sm border border-golf-green-200 dark:border-golf-green-600 shadow-lg">
           <CardHeader className="pb-4">
             <CardTitle>Hole Information</CardTitle>
           </CardHeader>
@@ -238,7 +238,7 @@ export default function HoleView({
             size="lg"
             onClick={onPreviousHole}
             disabled={isFirstHole}
-            className="flex-1"
+            className="flex-1 bg-white/90 dark:bg-golf-green-800/90 border-golf-green-200 dark:border-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-golf-green-700/70 text-golf-green-700 dark:text-golf-green-200 shadow-lg"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Previous
@@ -249,7 +249,7 @@ export default function HoleView({
             size="lg"
             onClick={onNextHole}
             disabled={isLastHole}
-            className="flex-1"
+            className="flex-1 bg-white/90 dark:bg-golf-green-800/90 border-golf-green-200 dark:border-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-golf-green-700/70 text-golf-green-700 dark:text-golf-green-200 shadow-lg"
           >
             Next
             <ArrowRight className="w-4 h-4 ml-2" />
