@@ -167,47 +167,52 @@ export default function Scores() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-        <div>
-          <h2 className="text-3xl font-bold text-golf-green-600 mb-2">Live Scores</h2>
-          <p className="text-gray-600 dark:text-gray-400">Real-time tournament standings</p>
-        </div>
-        <div className="mt-4 sm:mt-0 flex items-center space-x-3">
-          <div className="flex items-center text-sm">
-            {isOnline ? (
-              <>
-                <Wifi className="w-4 h-4 mr-1 text-green-500" />
-                <span className="text-green-500">Online</span>
-              </>
-            ) : (
-              <>
-                <WifiOff className="w-4 h-4 mr-1 text-orange-500" />
-                <span className="text-orange-500">Offline</span>
-              </>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-golf-green-50 to-golf-gold-50 dark:from-slate-900 dark:to-slate-800">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Trophy className="w-10 h-10 text-golf-gold-500" />
+            <h2 className="text-4xl font-bold text-golf-green-600">Live Scores</h2>
+            <Medal className="w-10 h-10 text-golf-green-600" />
           </div>
-          <Button
-            onClick={() => refetch()}
-            variant="outline"
-            className="bg-golf-green-600 hover:bg-golf-green-700 text-white"
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-          {/* Only show edit button for Nick Grossi and Connor Patterson */}
-          {user && ((user.firstName === 'Nick' && user.lastName === 'Grossi') || (user.firstName === 'Connor' && user.lastName === 'Patterson')) && (
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-golf-gold-500 hover:bg-golf-gold-600 text-white">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Update Scores
-                </Button>
-              </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle className="text-golf-green-600">Update Score</DialogTitle>
-              </DialogHeader>
+          <p className="text-lg text-golf-green-700 dark:text-golf-green-400 mb-6">
+            Real-time Tournament Standings • Updated Live
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-4">
+            <div className="flex items-center text-sm">
+              {isOnline ? (
+                <>
+                  <Wifi className="w-4 h-4 mr-1 text-green-500" />
+                  <span className="text-green-500 font-medium">Online</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="w-4 h-4 mr-1 text-orange-500" />
+                  <span className="text-orange-500 font-medium">Offline</span>
+                </>
+              )}
+            </div>
+            <Button
+              onClick={() => refetch()}
+              variant="outline"
+              className="bg-golf-green-600 hover:bg-golf-green-700 text-white border-golf-green-500"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+            {/* Only show edit button for Nick Grossi and Connor Patterson */}
+            {user && ((user.firstName === 'Nick' && user.lastName === 'Grossi') || (user.firstName === 'Connor' && user.lastName === 'Patterson')) && (
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-golf-gold-500 hover:bg-golf-gold-600 text-white border-golf-gold-400">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Update Scores
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-golf-green-600">Update Score</DialogTitle>
+                  </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="team">Team</Label>
@@ -268,12 +273,12 @@ export default function Scores() {
                     Cancel
                   </Button>
                 </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-          )}
+                  </form>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
         </div>
-      </div>
       
       <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <p className="text-sm text-blue-800 dark:text-blue-200">
@@ -333,6 +338,7 @@ export default function Scores() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

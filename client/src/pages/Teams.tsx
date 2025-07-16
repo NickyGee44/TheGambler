@@ -61,31 +61,43 @@ export default function Teams() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-        <div>
-          <h2 className="text-3xl font-bold text-golf-green-600 mb-2">Tournament Teams</h2>
-          <p className="text-gray-600 dark:text-gray-400">8 teams competing for the championship</p>
+    <div className="min-h-screen bg-gradient-to-br from-golf-green-50 to-golf-sand-50 dark:from-slate-900 dark:to-slate-800">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Trophy className="w-10 h-10 text-golf-gold-500" />
+            <h2 className="text-4xl font-bold text-golf-green-600">Tournament Teams</h2>
+            <Users className="w-10 h-10 text-golf-green-600" />
+          </div>
+          <p className="text-lg text-golf-green-700 dark:text-golf-green-400 mb-6">
+            8 Teams • 16 Players • Championship Glory
+          </p>
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <Button
+              onClick={() => setSortBy('team')}
+              variant={sortBy === 'team' ? 'default' : 'outline'}
+              className={`${sortBy === 'team' ? 'bg-golf-green-600 hover:bg-golf-green-700 text-white' : 'border-golf-green-300 text-golf-green-600 hover:bg-golf-green-50'}`}
+            >
+              Team Order
+            </Button>
+            <Button
+              onClick={() => setSortBy('handicap')}
+              variant={sortBy === 'handicap' ? 'default' : 'outline'}
+              className={`${sortBy === 'handicap' ? 'bg-golf-green-600 hover:bg-golf-green-700 text-white' : 'border-golf-green-300 text-golf-green-600 hover:bg-golf-green-50'}`}
+            >
+              <ArrowUpDown className="w-4 h-4 mr-2" />
+              Sort by Handicap
+            </Button>
+            <Button
+              onClick={() => setSortBy('power')}
+              variant={sortBy === 'power' ? 'default' : 'outline'}
+              className={`${sortBy === 'power' ? 'bg-golf-gold-500 hover:bg-golf-gold-600 text-white' : 'border-golf-gold-300 text-golf-gold-600 hover:bg-golf-gold-50'}`}
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Power Rankings
+            </Button>
+          </div>
         </div>
-        <div className="mt-4 sm:mt-0 flex space-x-3">
-          <Button
-            onClick={() => setSortBy('handicap')}
-            variant={sortBy === 'handicap' ? 'default' : 'outline'}
-            className="bg-golf-green-600 hover:bg-golf-green-700 text-white"
-          >
-            <ArrowUpDown className="w-4 h-4 mr-2" />
-            Sort by Handicap
-          </Button>
-          <Button
-            onClick={() => setSortBy('power')}
-            variant={sortBy === 'power' ? 'default' : 'outline'}
-            className="bg-golf-gold-500 hover:bg-golf-gold-600 text-white"
-          >
-            <Crown className="w-4 h-4 mr-2" />
-            Power Rankings
-          </Button>
-        </div>
-      </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
         {sortedTeams.map((team: Team, index: number) => (
@@ -147,6 +159,7 @@ export default function Teams() {
             </CardContent>
           </Card>
         ))}
+      </div>
       </div>
     </div>
   );

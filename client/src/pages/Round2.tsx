@@ -252,6 +252,7 @@ export default function Round2() {
               isFirstHole={currentHole === 1}
               isLastHole={currentHole === 18}
               isUpdating={updateScoreMutation.isPending}
+              onShowLeaderboard={() => setShowLeaderboard(true)}
             />
           </div>
 

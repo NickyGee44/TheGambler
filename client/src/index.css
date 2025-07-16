@@ -27,17 +27,44 @@
   /* Golf theme colors */
   --golf-green-50: hsl(152, 81%, 96%);
   --golf-green-100: hsl(149, 80%, 90%);
+  --golf-green-200: hsl(146, 72%, 82%);
+  --golf-green-300: hsl(144, 66%, 75%);
+  --golf-green-400: hsl(142, 60%, 60%);
   --golf-green-500: hsl(158, 64%, 52%);
   --golf-green-600: hsl(142, 76%, 36%);
   --golf-green-700: hsl(142, 72%, 29%);
   --golf-green-800: hsl(142, 83%, 19%);
   --golf-green-900: hsl(142, 89%, 12%);
   
+  --golf-gold-50: hsl(48, 96%, 95%);
   --golf-gold-100: hsl(48, 96%, 89%);
+  --golf-gold-200: hsl(47, 94%, 82%);
+  --golf-gold-300: hsl(46, 93%, 75%);
   --golf-gold-400: hsl(45, 93%, 58%);
   --golf-gold-500: hsl(37, 92%, 50%);
   --golf-gold-600: hsl(32, 95%, 44%);
+  --golf-gold-700: hsl(28, 94%, 38%);
+  --golf-gold-800: hsl(24, 92%, 32%);
   --golf-gold-900: hsl(15, 86%, 30%);
+  
+  --golf-sand-50: hsl(43, 47%, 95%);
+  --golf-sand-100: hsl(42, 46%, 89%);
+  --golf-sand-200: hsl(41, 45%, 78%);
+  --golf-sand-300: hsl(40, 44%, 67%);
+  --golf-sand-400: hsl(39, 43%, 56%);
+  --golf-sand-500: hsl(38, 42%, 45%);
+  --golf-sand-600: hsl(37, 41%, 34%);
+  
+  --golf-water-50: hsl(200, 100%, 96%);
+  --golf-water-100: hsl(199, 100%, 90%);
+  --golf-water-200: hsl(198, 100%, 82%);
+  --golf-water-300: hsl(197, 100%, 75%);
+  --golf-water-400: hsl(196, 100%, 60%);
+  --golf-water-500: hsl(195, 100%, 45%);
+  --golf-water-600: hsl(194, 100%, 35%);
+  --golf-water-700: hsl(193, 100%, 25%);
+  --golf-water-800: hsl(192, 100%, 15%);
+  --golf-water-900: hsl(191, 100%, 10%);
 }
 
 .dark {

@@ -19,7 +19,8 @@ import {
   ArrowLeft, 
   ArrowRight,
   Crosshair,
-  Map 
+  Map,
+  Trophy 
 } from "lucide-react";
 import ProfessionalGolfGPS from "./ProfessionalGolfGPS";
 import { getCourseForRound } from "@shared/courseData";
@@ -34,6 +35,7 @@ interface HoleViewProps {
   isFirstHole: boolean;
   isLastHole: boolean;
   isUpdating: boolean;
+  onShowLeaderboard?: () => void;
 }
 
 export default function HoleView({
@@ -45,7 +47,8 @@ export default function HoleView({
   onNextHole,
   isFirstHole,
   isLastHole,
-  isUpdating
+  isUpdating,
+  onShowLeaderboard
 }: HoleViewProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'score' | 'map'>('score');
@@ -95,6 +98,21 @@ export default function HoleView({
             <span>HCP {hole.handicap}</span>
           </div>
         </div>
+
+        {/* Leaderboard Button */}
+        {onShowLeaderboard && (
+          <div className="mb-6">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white border-yellow-400 shadow-lg"
+              onClick={onShowLeaderboard}
+            >
+              <Trophy className="w-5 h-5 mr-2" />
+              View Leaderboard
+            </Button>
+          </div>
+        )}
 
         {/* Tab Navigation */}
         <div className="flex mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg p-1">
