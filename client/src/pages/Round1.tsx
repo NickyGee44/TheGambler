@@ -302,49 +302,49 @@ export default function Round1() {
 
   // Show start screen
   return (
-    <div className="min-h-screen bg-gradient-to-br from-golf-green-50 via-golf-sand-50 to-golf-gold-50 dark:from-golf-green-900 dark:via-golf-sand-900 dark:to-golf-gold-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
       <div className="max-w-md mx-auto">
-        <Card className="bg-white/90 dark:bg-golf-green-800/90 backdrop-blur-sm border-2 border-golf-green-200 dark:border-golf-green-600 shadow-xl">
+        <Card className="bg-gray-800 border-2 border-gray-700 shadow-xl">
           <CardHeader className="text-center">
             <div className="w-16 h-16 bg-golf-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <Flag className="w-8 h-8 text-white" />
             </div>
-            <CardTitle className="text-2xl text-golf-green-600">Round 1</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl text-white">Round 1</CardTitle>
+            <CardDescription className="text-gray-300">
               {course.name} • {course.location}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="text-center">
-              <h3 className="text-lg font-semibold mb-2">Course Info</h3>
+              <h3 className="text-lg font-semibold mb-2 text-white">Course Info</h3>
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
-                  <div className="font-medium">Par</div>
-                  <div className="text-golf-green-600">{course.par}</div>
+                  <div className="font-medium text-gray-300">Par</div>
+                  <div className="text-golf-green-400">{course.par}</div>
                 </div>
                 <div>
-                  <div className="font-medium">Yardage</div>
-                  <div className="text-golf-green-600">{course.yardage}</div>
+                  <div className="font-medium text-gray-300">Yardage</div>
+                  <div className="text-golf-green-400">{course.yardage}</div>
                 </div>
                 <div>
-                  <div className="font-medium">Rating</div>
-                  <div className="text-golf-green-600">{course.rating}</div>
+                  <div className="font-medium text-gray-300">Rating</div>
+                  <div className="text-golf-green-400">{course.rating}</div>
                 </div>
               </div>
             </div>
 
             {holesPlayed > 0 && (
               <div className="text-center">
-                <h3 className="text-lg font-semibold mb-2">Your Progress</h3>
+                <h3 className="text-lg font-semibold mb-2 text-white">Your Progress</h3>
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm text-gray-300">
                     <span>Holes Played</span>
                     <span>{holesPlayed}/18</span>
                   </div>
                   <Progress value={progressPercentage} className="h-2" />
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm text-gray-300">
                     <span>Current Points</span>
-                    <span className="font-semibold text-golf-green-600">{totalPoints}</span>
+                    <span className="font-semibold text-golf-green-400">{totalPoints}</span>
                   </div>
                 </div>
               </div>
@@ -363,7 +363,7 @@ export default function Round1() {
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full"
+                className="w-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
                 onClick={() => setShowLeaderboard(true)}
               >
                 <Trophy className="w-5 h-5 mr-2" />
@@ -372,7 +372,7 @@ export default function Round1() {
             </div>
 
             <div className="text-center">
-              <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+              <p className="text-sm text-gray-300 flex items-center justify-center gap-1">
                 <MapPin className="w-4 h-4" />
                 GPS yardages available during play
               </p>
