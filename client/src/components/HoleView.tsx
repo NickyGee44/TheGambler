@@ -57,7 +57,7 @@ export default function HoleView({
   
   // Golf statistics state
   const [fairwayHit, setFairwayHit] = useState<boolean | null>(null);
-  const [greenHit, setGreenHit] = useState<boolean>(false);
+  const [greenInRegulation, setGreenInRegulation] = useState<boolean | null>(null);
   const [driveDirection, setDriveDirection] = useState<string>('');
   const [putts, setPutts] = useState<number>(0);
   const [penalties, setPenalties] = useState<number>(0);
@@ -93,7 +93,7 @@ export default function HoleView({
   const saveStatistics = () => {
     const stats = {
       fairwayInRegulation: fairwayHit,
-      greenInRegulation: greenHit,
+      greenInRegulation: greenInRegulation,
       driveDirection: driveDirection || null,
       putts,
       penalties,
@@ -141,7 +141,7 @@ export default function HoleView({
             <Target className="w-8 h-8 text-golf-green-600" />
             <h1 className="text-3xl font-bold text-golf-green-600">Hole {hole.number}</h1>
           </div>
-          <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center gap-4 text-sm text-golf-green-700 dark:text-golf-green-200">
             <span>Par {hole.par}</span>
             <span>•</span>
             <span>{hole.yardage} yards</span>
@@ -225,7 +225,7 @@ export default function HoleView({
                   {currentScore || "-"}
                 </div>
                 {currentScore > 0 && (
-                  <div className="text-sm font-medium text-muted-foreground">
+                  <div className="text-sm font-medium text-golf-green-700 dark:text-golf-green-200">
                     {getScoreName(currentScore, hole.par)}
                   </div>
                 )}
@@ -245,7 +245,7 @@ export default function HoleView({
             {isUpdating && (
               <div className="text-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-golf-green-600 mx-auto mb-2"></div>
-                <p className="text-sm text-muted-foreground">Saving score...</p>
+                <p className="text-sm text-golf-green-700 dark:text-golf-green-200">Saving score...</p>
               </div>
             )}
           </CardContent>
@@ -500,19 +500,19 @@ export default function HoleView({
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-sm text-muted-foreground">Par</div>
+                <div className="text-sm text-golf-green-700 dark:text-golf-green-200">Par</div>
                 <div className="text-lg font-semibold">{hole.par}</div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Yardage</div>
+                <div className="text-sm text-golf-green-700 dark:text-golf-green-200">Yardage</div>
                 <div className="text-lg font-semibold">{hole.yardage}</div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Handicap</div>
+                <div className="text-sm text-golf-green-700 dark:text-golf-green-200">Handicap</div>
                 <div className="text-lg font-semibold">{hole.handicap}</div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Hole</div>
+                <div className="text-sm text-golf-green-700 dark:text-golf-green-200">Hole</div>
                 <div className="text-lg font-semibold">{hole.number}</div>
               </div>
             </div>
