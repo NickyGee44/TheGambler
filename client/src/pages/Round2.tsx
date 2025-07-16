@@ -256,18 +256,7 @@ export default function Round2() {
             />
           </div>
 
-          {/* Floating action buttons */}
-          <div className="fixed bottom-4 right-4 flex flex-col gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setShowLeaderboard(true)}
-              className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm"
-            >
-              <Trophy className="w-4 h-4 mr-1" />
-              Leaderboard
-            </Button>
-          </div>
+
         </div>
       </Layout>
     );
