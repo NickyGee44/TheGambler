@@ -535,7 +535,7 @@ export default function SideBets() {
         ))}
       </div>
 
-      {/* Declined Challenges Section */}
+      {/* Declined Challenges Section - Pussy Boys Hall of Shame */}
       {sideBets.filter((bet: SideBet) => bet.status === 'Declined').length > 0 && (
         <Card className="shadow-lg border-red-200 bg-red-50 dark:bg-red-950/20 mt-8">
           <CardHeader>
