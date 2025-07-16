@@ -138,6 +138,8 @@ Preferred communication style: Simple, everyday language.
   - **Voting Mechanism:** Other players can vote on challenge winners after rounds complete
   - **Automatic Resolution:** Winner determined when majority witness votes reached
   - **Enhanced Schema:** Added witness votes tracking, winner determination, and resolution status
+  - **Proper Challenge Flow:** Only recipients can accept/decline, challengers see waiting status
+  - **Public Visibility:** All challenges remain publicly visible to all players for transparency
 - **Fixed Navigation Menu Bar During Live Rounds:**
   - Updated all three round pages (Round1, Round2, Round3) to maintain navigation menu bar
   - Wrapped HoleView component with Layout component during live scoring
