@@ -266,13 +266,13 @@ export default function HoleView({
               {/* Fairway Hit (only for Par 4 and Par 5) */}
               {hole.par >= 4 && (
                 <div>
-                  <h3 className="font-semibold mb-3">Fairway in Regulation</h3>
+                  <h3 className="font-semibold mb-3 text-golf-green-800 dark:text-golf-green-100">Fairway in Regulation</h3>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       variant={fairwayHit === true ? "default" : "outline"}
                       size="sm"
                       onClick={() => setFairwayHit(true)}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 bg-golf-green-600 hover:bg-golf-green-700 text-white border-golf-green-600"
                     >
                       <Target className="w-4 h-4" />
                       Hit
@@ -281,7 +281,7 @@ export default function HoleView({
                       variant={fairwayHit === false ? "destructive" : "outline"}
                       size="sm"
                       onClick={() => setFairwayHit(false)}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white border-red-600"
                     >
                       <XCircle className="w-4 h-4" />
                       Missed
@@ -292,7 +292,7 @@ export default function HoleView({
 
               {/* Drive Direction */}
               <div>
-                <h3 className="font-semibold mb-3">Drive Direction</h3>
+                <h3 className="font-semibold mb-3 text-golf-green-800 dark:text-golf-green-100">Drive Direction</h3>
                 <div className="grid grid-cols-3 gap-2">
                   {['left', 'hit', 'right'].map((direction) => (
                     <Button
@@ -300,7 +300,7 @@ export default function HoleView({
                       variant={driveDirection === direction ? "default" : "outline"}
                       size="sm"
                       onClick={() => setDriveDirection(direction)}
-                      className="capitalize"
+                      className={`capitalize ${driveDirection === direction ? 'bg-golf-green-600 hover:bg-golf-green-700 text-white border-golf-green-600' : 'bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300'}`}
                     >
                       {direction}
                     </Button>
@@ -313,7 +313,7 @@ export default function HoleView({
                       variant={driveDirection === direction ? "default" : "outline"}
                       size="sm"
                       onClick={() => setDriveDirection(direction)}
-                      className="capitalize"
+                      className={`capitalize ${driveDirection === direction ? 'bg-golf-green-600 hover:bg-golf-green-700 text-white border-golf-green-600' : 'bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300'}`}
                     >
                       {direction}
                     </Button>
@@ -323,22 +323,22 @@ export default function HoleView({
 
               {/* Green in Regulation */}
               <div>
-                <h3 className="font-semibold mb-3">Green in Regulation</h3>
+                <h3 className="font-semibold mb-3 text-golf-green-800 dark:text-golf-green-100">Green in Regulation</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
-                    variant={greenHit ? "default" : "outline"}
+                    variant={greenInRegulation === true ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setGreenHit(true)}
-                    className="flex items-center gap-2"
+                    onClick={() => setGreenInRegulation(true)}
+                    className={`flex items-center gap-2 ${greenInRegulation === true ? 'bg-golf-green-600 hover:bg-golf-green-700 text-white border-golf-green-600' : 'bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300'}`}
                   >
                     <CheckCircle className="w-4 h-4" />
                     Hit
                   </Button>
                   <Button
-                    variant={!greenHit ? "destructive" : "outline"}
+                    variant={greenInRegulation === false ? "destructive" : "outline"}
                     size="sm"
-                    onClick={() => setGreenHit(false)}
-                    className="flex items-center gap-2"
+                    onClick={() => setGreenInRegulation(false)}
+                    className={`flex items-center gap-2 ${greenInRegulation === false ? 'bg-red-600 hover:bg-red-700 text-white border-red-600' : 'bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300'}`}
                   >
                     <XCircle className="w-4 h-4" />
                     Missed
@@ -348,25 +348,25 @@ export default function HoleView({
 
               {/* Putts */}
               <div>
-                <h3 className="font-semibold mb-3">Number of Putts</h3>
+                <h3 className="font-semibold mb-3 text-golf-green-800 dark:text-golf-green-100">Number of Putts</h3>
                 <div className="flex items-center justify-center gap-4">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPutts(Math.max(0, putts - 1))}
                     disabled={putts <= 0}
-                    className="w-10 h-10 rounded-full"
+                    className="w-10 h-10 rounded-full bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300"
                   >
                     <Minus className="w-4 h-4" />
                   </Button>
-                  <div className="text-3xl font-bold w-16 text-center">
+                  <div className="text-3xl font-bold w-16 text-center text-golf-green-800 dark:text-golf-green-100">
                     {putts}
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPutts(putts + 1)}
-                    className="w-10 h-10 rounded-full"
+                    className="w-10 h-10 rounded-full bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300"
                   >
                     <Plus className="w-4 h-4" />
                   </Button>
@@ -375,25 +375,25 @@ export default function HoleView({
 
               {/* Penalties */}
               <div>
-                <h3 className="font-semibold mb-3">Penalty Strokes</h3>
+                <h3 className="font-semibold mb-3 text-golf-green-800 dark:text-golf-green-100">Penalty Strokes</h3>
                 <div className="flex items-center justify-center gap-4">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPenalties(Math.max(0, penalties - 1))}
                     disabled={penalties <= 0}
-                    className="w-10 h-10 rounded-full"
+                    className="w-10 h-10 rounded-full bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300"
                   >
                     <Minus className="w-4 h-4" />
                   </Button>
-                  <div className="text-3xl font-bold w-16 text-center">
+                  <div className="text-3xl font-bold w-16 text-center text-golf-green-800 dark:text-golf-green-100">
                     {penalties}
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPenalties(penalties + 1)}
-                    className="w-10 h-10 rounded-full"
+                    className="w-10 h-10 rounded-full bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300"
                   >
                     <Plus className="w-4 h-4" />
                   </Button>
@@ -403,50 +403,50 @@ export default function HoleView({
               {/* Sand Saves & Up and Downs */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold mb-2 text-sm">Sand Saves</h3>
+                  <h3 className="font-semibold mb-2 text-sm text-golf-green-800 dark:text-golf-green-100">Sand Saves</h3>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setSandSaves(Math.max(0, sandSaves - 1))}
                       disabled={sandSaves <= 0}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300"
                     >
                       <Minus className="w-3 h-3" />
                     </Button>
-                    <div className="text-xl font-bold w-8 text-center">
+                    <div className="text-xl font-bold w-8 text-center text-golf-green-800 dark:text-golf-green-100">
                       {sandSaves}
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setSandSaves(sandSaves + 1)}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300"
                     >
                       <Plus className="w-3 h-3" />
                     </Button>
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2 text-sm">Up & Downs</h3>
+                  <h3 className="font-semibold mb-2 text-sm text-golf-green-800 dark:text-golf-green-100">Up & Downs</h3>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setUpAndDowns(Math.max(0, upAndDowns - 1))}
                       disabled={upAndDowns <= 0}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300"
                     >
                       <Minus className="w-3 h-3" />
                     </Button>
-                    <div className="text-xl font-bold w-8 text-center">
+                    <div className="text-xl font-bold w-8 text-center text-golf-green-800 dark:text-golf-green-100">
                       {upAndDowns}
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setUpAndDowns(upAndDowns + 1)}
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full bg-white hover:bg-gray-50 text-golf-green-800 border-golf-green-300"
                     >
                       <Plus className="w-3 h-3" />
                     </Button>
@@ -459,7 +459,7 @@ export default function HoleView({
                 <Button
                   onClick={saveStatistics}
                   disabled={updateStatsMutation.isPending}
-                  className="w-full"
+                  className="w-full bg-golf-green-600 hover:bg-golf-green-700 text-white font-semibold py-3"
                 >
                   {updateStatsMutation.isPending ? (
                     <>
