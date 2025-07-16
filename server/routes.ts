@@ -539,6 +539,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update hole score statistics
+  app.patch('/api/hole-scores/:round/:hole/stats', requireAuth, async (req: any, res) => {
+    try {
+      const round = parseInt(req.params.round);
+      const hole = parseInt(req.params.hole);
+      const userId = req.user.id;
+      const statsData = req.body;
+      
+      console.log('Updating hole statistics:', { userId, round, hole, statsData });
+      
+      // Validate input
+      if (!round || !hole) {
+        return res.status(400).json({ error: 'Missing required fields: round, hole' });
+      }
+      
+      const holeScore = await storage.updateHoleScoreStats(userId, round, hole, statsData);
+      
+      // Broadcast hole score statistics update to all clients
+      broadcast({
+        type: 'HOLE_STATS_UPDATE',
+        data: { holeScore, userId, round, hole }
+      });
+
+      res.json(holeScore);
+    } catch (error) {
+      console.error('Error updating hole statistics:', error);
+      console.error('Error details:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Failed to update hole statistics', details: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
   app.get('/api/leaderboard/:round', async (req, res) => {
     try {
       const round = parseInt(req.params.round);

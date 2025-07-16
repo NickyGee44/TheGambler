@@ -20,7 +20,9 @@ import {
   ArrowRight,
   Crosshair,
   Map,
-  Trophy 
+  Trophy,
+  CheckCircle,
+  XCircle
 } from "lucide-react";
 import ProfessionalGolfGPS from "./ProfessionalGolfGPS";
 import { getCourseForRound } from "@shared/courseData";
@@ -51,7 +53,56 @@ export default function HoleView({
   onShowLeaderboard
 }: HoleViewProps) {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'score' | 'map'>('score');
+  const [activeTab, setActiveTab] = useState<'score' | 'stats' | 'map'>('score');
+  
+  // Golf statistics state
+  const [fairwayHit, setFairwayHit] = useState<boolean | null>(null);
+  const [greenHit, setGreenHit] = useState<boolean>(false);
+  const [driveDirection, setDriveDirection] = useState<string>('');
+  const [putts, setPutts] = useState<number>(0);
+  const [penalties, setPenalties] = useState<number>(0);
+  const [sandSaves, setSandSaves] = useState<number>(0);
+  const [upAndDowns, setUpAndDowns] = useState<number>(0);
+
+  // Statistics update mutation
+  const updateStatsMutation = useMutation({
+    mutationFn: async (statsData: any) => {
+      return await apiRequest(`/api/hole-scores/${round}/${hole.number}/stats`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(statsData),
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Statistics Updated",
+        description: "Golf statistics have been saved successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/hole-scores", round] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to save statistics: " + error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Auto-save statistics when they change
+  const saveStatistics = () => {
+    const stats = {
+      fairwayInRegulation: fairwayHit,
+      greenInRegulation: greenHit,
+      driveDirection: driveDirection || null,
+      putts,
+      penalties,
+      sandSaves,
+      upAndDowns,
+    };
+    
+    updateStatsMutation.mutate(stats);
+  };
   
   // Get course data for GPS
   const courseData = getCourseForRound(round);
@@ -118,7 +169,7 @@ export default function HoleView({
         <div className="flex mb-6 bg-white/90 dark:bg-golf-green-800/90 backdrop-blur-sm rounded-lg p-1 border border-golf-green-200 dark:border-golf-green-700 shadow-lg">
           <button
             onClick={() => setActiveTab('score')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md transition-colors ${
               activeTab === 'score' 
                 ? 'bg-golf-green-600 text-white shadow-md' 
                 : 'text-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-golf-green-700/50'
@@ -128,15 +179,26 @@ export default function HoleView({
             Score
           </button>
           <button
+            onClick={() => setActiveTab('stats')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md transition-colors ${
+              activeTab === 'stats' 
+                ? 'bg-golf-green-600 text-white shadow-md' 
+                : 'text-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-golf-green-700/50'
+            }`}
+          >
+            <Flag className="w-4 h-4" />
+            Stats
+          </button>
+          <button
             onClick={() => setActiveTab('map')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md transition-colors ${
               activeTab === 'map' 
                 ? 'bg-golf-green-600 text-white shadow-md' 
                 : 'text-golf-green-600 hover:bg-golf-green-50 dark:hover:bg-golf-green-700/50'
             }`}
           >
             <Map className="w-4 h-4" />
-            GPS Map
+            GPS
           </button>
         </div>
 
@@ -188,6 +250,232 @@ export default function HoleView({
             )}
           </CardContent>
         </Card>
+        )}
+
+        {/* Statistics Tab */}
+        {activeTab === 'stats' && (
+          <Card className="mb-6 bg-white/90 dark:bg-golf-green-800/90 backdrop-blur-sm border-2 border-golf-green-200 dark:border-golf-green-600 shadow-xl">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-center flex items-center justify-center gap-2">
+                <Flag className="w-5 h-5" />
+                Golf Statistics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              
+              {/* Fairway Hit (only for Par 4 and Par 5) */}
+              {hole.par >= 4 && (
+                <div>
+                  <h3 className="font-semibold mb-3">Fairway in Regulation</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant={fairwayHit === true ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setFairwayHit(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Target className="w-4 h-4" />
+                      Hit
+                    </Button>
+                    <Button
+                      variant={fairwayHit === false ? "destructive" : "outline"}
+                      size="sm"
+                      onClick={() => setFairwayHit(false)}
+                      className="flex items-center gap-2"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Missed
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Drive Direction */}
+              <div>
+                <h3 className="font-semibold mb-3">Drive Direction</h3>
+                <div className="grid grid-cols-3 gap-2">
+                  {['left', 'hit', 'right'].map((direction) => (
+                    <Button
+                      key={direction}
+                      variant={driveDirection === direction ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setDriveDirection(direction)}
+                      className="capitalize"
+                    >
+                      {direction}
+                    </Button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  {['short', 'long', 'duff'].map((direction) => (
+                    <Button
+                      key={direction}
+                      variant={driveDirection === direction ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setDriveDirection(direction)}
+                      className="capitalize"
+                    >
+                      {direction}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Green in Regulation */}
+              <div>
+                <h3 className="font-semibold mb-3">Green in Regulation</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant={greenHit ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setGreenHit(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Hit
+                  </Button>
+                  <Button
+                    variant={!greenHit ? "destructive" : "outline"}
+                    size="sm"
+                    onClick={() => setGreenHit(false)}
+                    className="flex items-center gap-2"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Missed
+                  </Button>
+                </div>
+              </div>
+
+              {/* Putts */}
+              <div>
+                <h3 className="font-semibold mb-3">Number of Putts</h3>
+                <div className="flex items-center justify-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPutts(Math.max(0, putts - 1))}
+                    disabled={putts <= 0}
+                    className="w-10 h-10 rounded-full"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <div className="text-3xl font-bold w-16 text-center">
+                    {putts}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPutts(putts + 1)}
+                    className="w-10 h-10 rounded-full"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Penalties */}
+              <div>
+                <h3 className="font-semibold mb-3">Penalty Strokes</h3>
+                <div className="flex items-center justify-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPenalties(Math.max(0, penalties - 1))}
+                    disabled={penalties <= 0}
+                    className="w-10 h-10 rounded-full"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <div className="text-3xl font-bold w-16 text-center">
+                    {penalties}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPenalties(penalties + 1)}
+                    className="w-10 h-10 rounded-full"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Sand Saves & Up and Downs */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-semibold mb-2 text-sm">Sand Saves</h3>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSandSaves(Math.max(0, sandSaves - 1))}
+                      disabled={sandSaves <= 0}
+                      className="w-8 h-8 rounded-full"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </Button>
+                    <div className="text-xl font-bold w-8 text-center">
+                      {sandSaves}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSandSaves(sandSaves + 1)}
+                      className="w-8 h-8 rounded-full"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2 text-sm">Up & Downs</h3>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setUpAndDowns(Math.max(0, upAndDowns - 1))}
+                      disabled={upAndDowns <= 0}
+                      className="w-8 h-8 rounded-full"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </Button>
+                    <div className="text-xl font-bold w-8 text-center">
+                      {upAndDowns}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setUpAndDowns(upAndDowns + 1)}
+                      className="w-8 h-8 rounded-full"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Save Statistics Button */}
+              <div className="pt-4">
+                <Button
+                  onClick={saveStatistics}
+                  disabled={updateStatsMutation.isPending}
+                  className="w-full"
+                >
+                  {updateStatsMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Flag className="w-4 h-4 mr-2" />
+                      Save Statistics
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* GPS Map Tab */}

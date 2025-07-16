@@ -95,6 +95,14 @@ export const holeScores = pgTable("hole_scores", {
   handicap: integer("handicap").notNull().default(0),
   netScore: integer("net_score").notNull(), // strokes - handicap
   points: integer("points").notNull().default(0), // Stableford points
+  // Golf statistics
+  fairwayInRegulation: boolean("fairway_in_regulation"), // null for par 3s
+  greenInRegulation: boolean("green_in_regulation").notNull().default(false),
+  driveDirection: varchar("drive_direction", { length: 10 }), // 'left', 'right', 'long', 'short', 'duff', 'hit'
+  putts: integer("putts").notNull().default(0),
+  penalties: integer("penalties").notNull().default(0),
+  sandSaves: integer("sand_saves").notNull().default(0),
+  upAndDowns: integer("up_and_downs").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

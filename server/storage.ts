@@ -45,6 +45,7 @@ export interface IStorage {
   getHoleScores(userId: number, round: number): Promise<HoleScore[]>;
   createHoleScore(holeScore: InsertHoleScore): Promise<HoleScore>;
   updateHoleScore(userId: number, round: number, hole: number, strokes: number): Promise<HoleScore>;
+  updateHoleScoreStats(userId: number, round: number, hole: number, statsData: any): Promise<HoleScore>;
   getLeaderboard(round: number): Promise<(HoleScore & { user: User; team: Team })[]>;
   
   // Side Bets
@@ -181,6 +182,72 @@ export class DatabaseStorage implements IStorage {
           handicap,
           netScore,
           points,
+        })
+        .returning();
+      return newScore;
+    }
+  }
+
+  async updateHoleScoreStats(userId: number, round: number, hole: number, statsData: any): Promise<HoleScore> {
+    // First check if hole score exists
+    const [existingScore] = await db.select().from(holeScores).where(
+      and(
+        eq(holeScores.userId, userId),
+        eq(holeScores.round, round),
+        eq(holeScores.hole, hole)
+      )
+    );
+
+    if (existingScore) {
+      // Update existing score with statistics
+      const [updatedScore] = await db
+        .update(holeScores)
+        .set({
+          fairwayInRegulation: statsData.fairwayInRegulation,
+          greenInRegulation: statsData.greenInRegulation,
+          driveDirection: statsData.driveDirection,
+          putts: statsData.putts,
+          penalties: statsData.penalties,
+          sandSaves: statsData.sandSaves,
+          upAndDowns: statsData.upAndDowns,
+          updatedAt: new Date(),
+        })
+        .where(eq(holeScores.id, existingScore.id))
+        .returning();
+      return updatedScore;
+    } else {
+      // Create new score with statistics
+      const user = await this.getUser(userId);
+      if (!user) throw new Error('User not found');
+      
+      const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
+      if (!playerInfo) throw new Error('Player not found in any team');
+
+      const par = 4; // Default par
+      const handicap = 0; // Simplified
+      const strokes = 0; // Default strokes if not set
+      const netScore = strokes - handicap;
+      const points = 0; // Default points
+
+      const [newScore] = await db
+        .insert(holeScores)
+        .values({
+          userId,
+          teamId: playerInfo.teamId,
+          round,
+          hole,
+          strokes,
+          par,
+          handicap,
+          netScore,
+          points,
+          fairwayInRegulation: statsData.fairwayInRegulation,
+          greenInRegulation: statsData.greenInRegulation,
+          driveDirection: statsData.driveDirection,
+          putts: statsData.putts,
+          penalties: statsData.penalties,
+          sandSaves: statsData.sandSaves,
+          upAndDowns: statsData.upAndDowns,
         })
         .returning();
       return newScore;
