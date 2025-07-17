@@ -92,7 +92,7 @@ export default function HoleView({
     },
   });
 
-  // Auto-save statistics with 1-second delay
+  // Auto-save statistics with 1-second delay after user stops making changes
   const scheduleStatsSave = () => {
     if (statsTimeoutRef.current) {
       clearTimeout(statsTimeoutRef.current);
@@ -115,7 +115,7 @@ export default function HoleView({
     }, 1000);
   };
 
-  // Auto-save score with 2-second delay
+  // Auto-save score with 2-second delay after user stops clicking
   const scheduleScoreSave = (strokes: number) => {
     if (scoreTimeoutRef.current) {
       clearTimeout(scoreTimeoutRef.current);
@@ -159,9 +159,20 @@ export default function HoleView({
     const currentHoleScore = holeScores.find(score => score.hole === hole.number);
     
     console.log('Loading hole', hole.number, 'found score:', currentHoleScore);
+    console.log('All hole scores:', holeScores);
     
     if (currentHoleScore) {
       // Load existing statistics for this hole
+      console.log('Loading stats for hole', hole.number, ':', {
+        fairway: currentHoleScore.fairwayInRegulation,
+        green: currentHoleScore.greenInRegulation,
+        drive: currentHoleScore.driveDirection,
+        putts: currentHoleScore.putts,
+        penalties: currentHoleScore.penalties,
+        sandSaves: currentHoleScore.sandSaves,
+        upAndDowns: currentHoleScore.upAndDowns
+      });
+      
       setFairwayInRegulation(currentHoleScore.fairwayInRegulation);
       setGreenInRegulation(currentHoleScore.greenInRegulation);
       setDriveDirection(currentHoleScore.driveDirection || '');
@@ -171,6 +182,7 @@ export default function HoleView({
       setUpAndDowns(currentHoleScore.upAndDowns || 0);
     } else {
       // No existing data, reset to defaults
+      console.log('No existing stats for hole', hole.number, '- resetting to defaults');
       setFairwayInRegulation(null);
       setGreenInRegulation(null);
       setDriveDirection('');
@@ -181,7 +193,7 @@ export default function HoleView({
     }
     
     // Set initial load to false after a brief delay to allow state to settle
-    setTimeout(() => setIsInitialLoad(false), 100);
+    setTimeout(() => setIsInitialLoad(false), 200);
   }, [hole.number, holeScores]);
   
   // Get course data for GPS
@@ -189,6 +201,8 @@ export default function HoleView({
 
   const updateScore = (strokes: number) => {
     if (strokes < 1) return;
+    // Set the score immediately in the UI but delay saving
+    // The parent component will handle the currentScore state
     scheduleScoreSave(strokes);
   };
 
@@ -213,7 +227,7 @@ export default function HoleView({
   };
 
   return (
-    <div key={`hole-${hole.number}-${round}`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
+    <div key={`hole-${hole.number}-${round}-v3`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="mb-6 text-center">
