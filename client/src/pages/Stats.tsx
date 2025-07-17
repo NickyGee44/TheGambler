@@ -151,26 +151,26 @@ export default function Stats() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-golf-green-600 mb-2 flex items-center gap-2">
-          <BarChart3 className="w-8 h-8" />
+    <div className="max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-golf-green-600 mb-2 flex items-center gap-2">
+          <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8" />
           Tournament Statistics
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
           Comprehensive golf statistics and leaderboards for all players
         </p>
       </div>
 
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4 sm:space-y-6">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="leaderboards">Leaderboards</TabsTrigger>
-          <TabsTrigger value="individual">Individual</TabsTrigger>
+          <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+          <TabsTrigger value="leaderboards" className="text-xs sm:text-sm">Leaderboards</TabsTrigger>
+          <TabsTrigger value="individual" className="text-xs sm:text-sm">Individual</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <Card className="golf-card">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -308,8 +308,8 @@ export default function Stats() {
           </div>
         </TabsContent>
 
-        <TabsContent value="leaderboards" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <TabsContent value="leaderboards" className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {leaderboards.map((leaderboard, index) => (
               <Card key={index} className="golf-card">
                 <CardHeader>
@@ -352,8 +352,8 @@ export default function Stats() {
           </div>
         </TabsContent>
 
-        <TabsContent value="individual" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="individual" className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {playerStats?.map((player) => (
               <Card key={player.userId} className="golf-card">
                 <CardHeader>
@@ -372,7 +372,7 @@ export default function Stats() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm">Avg Score</span>

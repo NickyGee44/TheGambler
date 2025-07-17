@@ -130,10 +130,10 @@ export default function PlayerProfile() {
   const currentTournament = tournamentHistory.find(t => t.tournamentYear === selectedYear);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-2 sm:p-4">
+      <div className="max-w-7xl mx-auto overflow-x-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
           <Link href="/stats">
             <Button variant="outline" className="text-white border-golf-green-400 hover:bg-golf-green-400/10">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -141,35 +141,35 @@ export default function PlayerProfile() {
             </Button>
           </Link>
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-white mb-2">Player Profile</h1>
-            <p className="text-gray-300">Comprehensive performance analysis</p>
+            <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2">Player Profile</h1>
+            <p className="text-gray-300 text-sm sm:text-base">Comprehensive performance analysis</p>
           </div>
-          <div className="w-32"></div>
+          <div className="hidden sm:block w-32"></div>
         </div>
 
         {/* Player Header Card */}
-        <Card className="bg-gray-800/50 border-gray-700 mb-8">
-          <CardContent className="p-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-6">
+        <Card className="bg-gray-800/50 border-gray-700 mb-6 sm:mb-8">
+          <CardContent className="p-4 sm:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+              <div className="flex items-center space-x-4 sm:space-x-6">
                 <ProfilePicture 
                   firstName={playerStats.firstName} 
                   lastName={playerStats.lastName} 
                   size="xl" 
                 />
-                <div>
-                  <h2 className="text-3xl font-bold text-white">
+                <div className="flex-1">
+                  <h2 className="text-xl sm:text-3xl font-bold text-white">
                     {playerStats.firstName} {playerStats.lastName}
                   </h2>
-                  <p className="text-gray-300 text-lg">Handicap: {playerStats.handicap}</p>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <Badge variant="outline" className="text-golf-green-400 border-golf-green-400">
-                      <Trophy className="w-4 h-4 mr-1" />
+                  <p className="text-gray-300 text-sm sm:text-lg">Handicap: {playerStats.handicap}</p>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2">
+                    <Badge variant="outline" className="text-golf-green-400 border-golf-green-400 text-xs sm:text-sm">
+                      <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       {playerStats.totalTournaments} Tournaments
                     </Badge>
                     {playerStats.bestFinish && (
-                      <Badge variant="outline" className="text-yellow-400 border-yellow-400">
-                        <Medal className="w-4 h-4 mr-1" />
+                      <Badge variant="outline" className="text-yellow-400 border-yellow-400 text-xs sm:text-sm">
+                        <Medal className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                         Best Finish: #{playerStats.bestFinish}
                       </Badge>
                     )}
@@ -177,27 +177,28 @@ export default function PlayerProfile() {
                 </div>
               </div>
               
-              <div className="text-right">
-                <div className="text-2xl font-bold text-golf-green-400">
+              <div className="text-center sm:text-right">
+                <div className="text-xl sm:text-2xl font-bold text-golf-green-400">
                   {playerStats.totalPoints}
                 </div>
-                <p className="text-gray-300">Total Points</p>
+                <p className="text-gray-300 text-sm">Total Points</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Year Selection */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center space-x-4">
-            <span className="text-white font-medium">Select Year:</span>
-            <div className="flex space-x-2">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+            <span className="text-white font-medium text-center sm:text-left">Select Year:</span>
+            <div className="flex flex-wrap justify-center gap-2">
               {availableYears.map(year => (
                 <Button
                   key={year}
                   variant={selectedYear === year ? "default" : "outline"}
                   onClick={() => setSelectedYear(year)}
                   className={selectedYear === year ? "bg-golf-green-400 text-black" : "text-white border-golf-green-400 hover:bg-golf-green-400/10"}
+                  size="sm"
                 >
                   {year}
                 </Button>
@@ -208,24 +209,24 @@ export default function PlayerProfile() {
 
         {/* Main Statistics Tabs */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-800/50 border-gray-700">
-            <TabsTrigger value="overview" className="text-white data-[state=active]:bg-golf-green-400 data-[state=active]:text-black">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gray-800/50 border-gray-700">
+            <TabsTrigger value="overview" className="text-white data-[state=active]:bg-golf-green-400 data-[state=active]:text-black text-xs sm:text-sm">
               Overview
             </TabsTrigger>
-            <TabsTrigger value="yearly" className="text-white data-[state=active]:bg-golf-green-400 data-[state=active]:text-black">
+            <TabsTrigger value="yearly" className="text-white data-[state=active]:bg-golf-green-400 data-[state=active]:text-black text-xs sm:text-sm">
               {selectedYear} Season
             </TabsTrigger>
-            <TabsTrigger value="history" className="text-white data-[state=active]:bg-golf-green-400 data-[state=active]:text-black">
+            <TabsTrigger value="history" className="text-white data-[state=active]:bg-golf-green-400 data-[state=active]:text-black text-xs sm:text-sm">
               Tournament History
             </TabsTrigger>
-            <TabsTrigger value="trends" className="text-white data-[state=active]:bg-golf-green-400 data-[state=active]:text-black">
+            <TabsTrigger value="trends" className="text-white data-[state=active]:bg-golf-green-400 data-[state=active]:text-black text-xs sm:text-sm">
               Performance Trends
             </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <Card className="bg-gray-800/50 border-gray-700">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm text-gray-300 flex items-center">

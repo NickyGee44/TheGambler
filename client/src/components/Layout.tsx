@@ -41,7 +41,9 @@ export default function Layout({ children }: LayoutProps) {
       {user && <Navigation />}
       
       <main className={user ? "lg:ml-64 min-h-screen" : "min-h-screen"}>
-        {children}
+        <div className="max-w-full overflow-x-hidden">
+          {children}
+        </div>
       </main>
     </div>
   );
