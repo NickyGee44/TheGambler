@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,8 +13,7 @@ import { Trophy, MapPin, Calendar, Users } from "lucide-react";
 
 export default function AuthPage() {
   const { user } = useAuth();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Get available players for registration
   const { data: unregisteredPlayers, isLoading: unregisteredPlayersLoading } = useQuery({
@@ -42,8 +42,11 @@ export default function AuthPage() {
       queryClient.setQueryData(["/api/user"], user);
     },
     onError: (error: Error) => {
-      setErrorMessage("Login failed: " + error.message);
-      setSuccessMessage(null);
+      toast({
+        title: "Login failed",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -59,8 +62,11 @@ export default function AuthPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/registered-players"] });
     },
     onError: (error: Error) => {
-      setErrorMessage("Registration failed: " + error.message);
-      setSuccessMessage(null);
+      toast({
+        title: "Registration failed",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
   
@@ -171,16 +177,6 @@ export default function AuthPage() {
                   </TabsList>
                   
                   <TabsContent value="login" className="space-y-4">
-                    {errorMessage && (
-                      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                        {errorMessage}
-                      </div>
-                    )}
-                    {successMessage && (
-                      <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                        {successMessage}
-                      </div>
-                    )}
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div>
                         <Label htmlFor="playerName">Select Your Name</Label>
@@ -224,16 +220,6 @@ export default function AuthPage() {
                   </TabsContent>
                   
                   <TabsContent value="register" className="space-y-4">
-                    {errorMessage && (
-                      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                        {errorMessage}
-                      </div>
-                    )}
-                    {successMessage && (
-                      <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                        {successMessage}
-                      </div>
-                    )}
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div>
                         <Label htmlFor="playerName">Select Your Name</Label>
