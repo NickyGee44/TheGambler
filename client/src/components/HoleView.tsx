@@ -301,37 +301,51 @@ export default function HoleView({
                 <CardTitle className="text-center text-white">Your Score</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="space-y-4 mb-4">
+                  {/* Score Selection Buttons */}
+                  <div className="grid grid-cols-4 gap-2">
+                    {Array.from({ length: hole.par + 4 }, (_, i) => i + 1).map((score) => (
+                      <Button
+                        key={score}
+                        variant={localScore === score ? "default" : "outline"}
+                        size="lg"
+                        onClick={() => updateScore(score)}
+                        className={`w-12 h-12 rounded-full ${
+                          localScore === score 
+                            ? `${getScoreColor(score, hole.par).replace('text-', 'bg-').replace('-600', '-600')} text-white` 
+                            : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600'
+                        }`}
+                      >
+                        {score}
+                      </Button>
+                    ))}
+                  </div>
+                  
+                  {/* You Suck Button */}
                   <Button
-                    variant="outline"
+                    variant={localScore === hole.par + 5 ? "default" : "outline"}
                     size="lg"
-                    onClick={() => updateScore(localScore - 1)}
-                    disabled={localScore <= 0}
-                    className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+                    onClick={() => updateScore(hole.par + 5)}
+                    className={`w-full ${
+                      localScore === hole.par + 5 
+                        ? 'bg-red-600 hover:bg-red-700 text-white' 
+                        : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600'
+                    }`}
                   >
-                    <Minus className="w-6 h-6" />
+                    You Suck ({hole.par + 5})
                   </Button>
                   
-                  <div className="text-center">
-                    <div className={`text-6xl font-bold ${getScoreColor(localScore, hole.par)}`}>
-                      {localScore || "-"}
-                    </div>
-                    {localScore > 0 && (
+                  {/* Current Score Display */}
+                  {localScore > 0 && (
+                    <div className="text-center">
+                      <div className={`text-4xl font-bold ${getScoreColor(localScore, hole.par)}`}>
+                        {localScore}
+                      </div>
                       <div className="text-sm font-medium text-gray-300">
                         {getScoreName(localScore, hole.par)}
                       </div>
-                    )}
-                  </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={() => updateScore(localScore + 1)}
-                    disabled={false}
-                    className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                  >
-                    <Plus className="w-6 h-6" />
-                  </Button>
+                    </div>
+                  )}
                 </div>
                 
                 {(isSavingScore || isUpdating) && (
@@ -463,27 +477,23 @@ export default function HoleView({
               <Card className="bg-gray-800 border border-gray-700">
                 <CardContent className="p-4">
                   <div className="text-center">
-                    <div className="text-sm text-gray-300 mb-2">Sand Saves</div>
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="text-sm text-gray-300 mb-2">Sand Save</div>
+                    <div className="flex gap-1">
                       <Button
-                        variant="outline"
+                        variant={sandSaves === 1 ? "default" : "outline"}
                         size="sm"
-                        onClick={() => setSandSaves(Math.max(0, sandSaves - 1))}
-                        disabled={sandSaves <= 0}
-                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                        onClick={() => setSandSaves(1)}
+                        className={sandSaves === 1 ? "bg-green-600 hover:bg-green-700 text-xs px-3 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-3 py-1"}
                       >
-                        <Minus className="w-3 h-3" />
+                        Yes
                       </Button>
-                      <div className="text-xl font-bold w-8 text-center text-white">
-                        {sandSaves}
-                      </div>
                       <Button
-                        variant="outline"
+                        variant={sandSaves === 0 ? "default" : "outline"}
                         size="sm"
-                        onClick={() => setSandSaves(sandSaves + 1)}
-                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                        onClick={() => setSandSaves(0)}
+                        className={sandSaves === 0 ? "bg-red-600 hover:bg-red-700 text-xs px-3 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-3 py-1"}
                       >
-                        <Plus className="w-3 h-3" />
+                        No
                       </Button>
                     </div>
                   </div>
@@ -493,27 +503,23 @@ export default function HoleView({
               <Card className="bg-gray-800 border border-gray-700">
                 <CardContent className="p-4">
                   <div className="text-center">
-                    <div className="text-sm text-gray-300 mb-2">Up & Downs</div>
-                    <div className="flex items-center justify-center gap-2">
+                    <div className="text-sm text-gray-300 mb-2">Up & Down</div>
+                    <div className="flex gap-1">
                       <Button
-                        variant="outline"
+                        variant={upAndDowns === 1 ? "default" : "outline"}
                         size="sm"
-                        onClick={() => setUpAndDowns(Math.max(0, upAndDowns - 1))}
-                        disabled={upAndDowns <= 0}
-                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                        onClick={() => setUpAndDowns(1)}
+                        className={upAndDowns === 1 ? "bg-green-600 hover:bg-green-700 text-xs px-3 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-3 py-1"}
                       >
-                        <Minus className="w-3 h-3" />
+                        Yes
                       </Button>
-                      <div className="text-xl font-bold w-8 text-center text-white">
-                        {upAndDowns}
-                      </div>
                       <Button
-                        variant="outline"
+                        variant={upAndDowns === 0 ? "default" : "outline"}
                         size="sm"
-                        onClick={() => setUpAndDowns(upAndDowns + 1)}
-                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                        onClick={() => setUpAndDowns(0)}
+                        className={upAndDowns === 0 ? "bg-red-600 hover:bg-red-700 text-xs px-3 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-3 py-1"}
                       >
-                        <Plus className="w-3 h-3" />
+                        No
                       </Button>
                     </div>
                   </div>

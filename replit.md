@@ -154,6 +154,9 @@ Preferred communication style: Simple, everyday language.
   - Fixed FIR and GIR button default states to show as unselected (neutral) instead of appearing as "Miss"
   - Changed button logic to use strict equality checks (=== true/false) so null values show neutral state
   - Enhanced user experience by making button states more intuitive and visually clear
+  - Implemented circular number buttons for score selection (1 to 4+ over par) with "You Suck" button for 5+ over
+  - Changed sand save and up-and-down from numeric counters to intuitive Yes/No toggle buttons
+  - Improved scoring UX by eliminating need for +/- clicking with direct score selection
 - **Implemented Comprehensive Historical Performance Tracking System:**
   - Created player_tournament_history table for multi-year tournament data storage
   - Built comprehensive PlayerProfile component with detailed historical statistics and performance analysis
