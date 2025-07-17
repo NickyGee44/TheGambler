@@ -233,15 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Player statistics endpoint
-  app.get('/api/player-stats', async (req, res) => {
-    try {
-      const playerStats = await storage.getPlayerStatistics();
-      res.json(playerStats);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch player statistics' });
-    }
-  });
+  // Player statistics endpoint (removed duplicate)
 
   // Scores endpoints - now calculated from hole scores
   app.get('/api/scores', async (req, res) => {
