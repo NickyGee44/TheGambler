@@ -234,22 +234,49 @@ export default function HoleView({
   };
 
   return (
-    <div key={`hole-${hole.number}-${round}-v4-no-save-button`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
-      <div className="max-w-md mx-auto">
-        {/* Header */}
-        <div className="mb-6 text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Target className="w-8 h-8 text-golf-green-400" />
-            <h1 className="text-3xl font-bold text-white">Hole {hole.number}</h1>
+    <div key={`hole-${hole.number}-${round}-v4-no-save-button`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {/* Sticky Navigation Header */}
+      <div className="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-700 px-4 py-3">
+        <div className="max-w-md mx-auto flex items-center justify-between">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onPreviousHole}
+            disabled={isFirstHole}
+            className="w-10 h-10 rounded-full bg-gray-800 border-gray-700 hover:bg-gray-700 text-white p-0"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          
+          <div className="flex-1 mx-4">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Target className="w-5 h-5 text-golf-green-400" />
+                <h1 className="text-xl font-bold text-white">Hole {hole.number}</h1>
+              </div>
+              <div className="flex items-center justify-center gap-2 text-xs text-gray-300">
+                <span>Par {hole.par}</span>
+                <span>•</span>
+                <span>{hole.yardage}y</span>
+                <span>•</span>
+                <span>HCP {hole.handicap}</span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-center gap-4 text-sm text-gray-300">
-            <span>Par {hole.par}</span>
-            <span>•</span>
-            <span>{hole.yardage} yards</span>
-            <span>•</span>
-            <span>HCP {hole.handicap}</span>
-          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onNextHole}
+            disabled={isLastHole}
+            className="w-10 h-10 rounded-full bg-gray-800 border-gray-700 hover:bg-gray-700 text-white p-0"
+          >
+            <ArrowRight className="w-4 h-4" />
+          </Button>
         </div>
+      </div>
+
+      <div className="max-w-md mx-auto p-4">
 
         {/* Leaderboard Button */}
         {onShowLeaderboard && (
@@ -367,7 +394,7 @@ export default function HoleView({
                   <div className="text-center space-y-3">
                     <div>
                       <div className="text-sm text-gray-300 mb-1">Fairway</div>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 justify-center">
                         <Button
                           variant={fairwayInRegulation === true ? "default" : "outline"}
                           size="sm"
@@ -388,7 +415,7 @@ export default function HoleView({
                     </div>
                     <div>
                       <div className="text-sm text-gray-300 mb-1">Green</div>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 justify-center">
                         <Button
                           variant={greenInRegulation === true ? "default" : "outline"}
                           size="sm"
@@ -478,7 +505,7 @@ export default function HoleView({
                 <CardContent className="p-4">
                   <div className="text-center">
                     <div className="text-sm text-gray-300 mb-2">Sand Save</div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 justify-center">
                       <Button
                         variant={sandSaves === 1 ? "default" : "outline"}
                         size="sm"
@@ -504,7 +531,7 @@ export default function HoleView({
                 <CardContent className="p-4">
                   <div className="text-center">
                     <div className="text-sm text-gray-300 mb-2">Up & Down</div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 justify-center">
                       <Button
                         variant={upAndDowns === 1 ? "default" : "outline"}
                         size="sm"
@@ -580,30 +607,6 @@ export default function HoleView({
           </CardContent>
         </Card>
 
-        {/* Navigation */}
-        <div className="flex gap-4">
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={onPreviousHole}
-            disabled={isFirstHole}
-            className="flex-1 bg-gray-800 border-gray-700 hover:bg-gray-700 text-white shadow-lg"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Previous
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={onNextHole}
-            disabled={isLastHole}
-            className="flex-1 bg-gray-800 border-gray-700 hover:bg-gray-700 text-white shadow-lg"
-          >
-            Next
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
       </div>
     </div>
   );
