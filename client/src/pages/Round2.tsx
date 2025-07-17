@@ -10,9 +10,11 @@ import { Progress } from "@/components/ui/progress";
 import HoleView from "@/components/HoleView";
 import Layout from "@/components/Layout";
 import { getCourseForRound } from "@shared/courseData";
-import { Play, Flag, Trophy, Users, MapPin } from "lucide-react";
+import { Play, Flag, Trophy, Users, MapPin, CheckCircle, Star } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import ProfilePicture from "@/components/ProfilePicture";
 import { useWebSocket } from "@/hooks/useWebSocket";
+import { useLocation } from "wouter";
 
 interface HoleScore {
   id: number;
@@ -33,12 +35,14 @@ interface LeaderboardEntry {
 export default function Round2() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [location, navigate] = useLocation();
   const round = 2;
   const course = getCourseForRound(round);
   
   const [currentHole, setCurrentHole] = useState(1);
   const [isRoundStarted, setIsRoundStarted] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showRoundComplete, setShowRoundComplete] = useState(false);
 
   // WebSocket connection for real-time updates
   useWebSocket("/ws", {
@@ -91,6 +95,32 @@ export default function Round2() {
     },
   });
 
+  // Round submission mutation
+  const submitRoundMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/submit-round", {
+        round,
+        totalPoints,
+        holesPlayed
+      });
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Round Submitted!",
+        description: `Round ${round} has been submitted successfully. Total points: ${totalPoints}`,
+      });
+      navigate("/scores");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Submission Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const getScoreForHole = (hole: number) => {
     const score = holeScores.find(s => s.hole === hole);
     return score?.strokes || 0;
@@ -118,6 +148,11 @@ export default function Round2() {
   const handleNextHole = () => {
     if (currentHole < 18) {
       setCurrentHole(currentHole + 1);
+    } else {
+      // Check if round is complete (all 18 holes have scores)
+      if (holesPlayed === 18) {
+        setShowRoundComplete(true);
+      }
     }
   };
 
@@ -274,6 +309,81 @@ export default function Round2() {
 
         </div>
       </Layout>
+    );
+  }
+
+  // Show round completion dialog
+  if (showRoundComplete) {
+    const totalStrokes = holeScores.reduce((sum, score) => sum + score.strokes, 0);
+    const birdies = holeScores.filter(score => score.netScore < 0).length;
+    const pars = holeScores.filter(score => score.netScore === 0).length;
+    const bogeys = holeScores.filter(score => score.netScore === 1).length;
+    const others = holeScores.filter(score => score.netScore > 1).length;
+
+    return (
+      <Dialog open={showRoundComplete} onOpenChange={setShowRoundComplete}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-golf-green-600" />
+              Round {round} Complete!
+            </DialogTitle>
+            <DialogDescription>
+              Congratulations! You've completed all 18 holes. Here's your round summary:
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-4 bg-golf-green-50 dark:bg-golf-green-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-golf-green-600">{totalPoints}</div>
+                <div className="text-sm text-muted-foreground">Total Points</div>
+              </div>
+              <div className="text-center p-4 bg-golf-sand-50 dark:bg-golf-sand-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-golf-sand-600">{totalStrokes}</div>
+                <div className="text-sm text-muted-foreground">Total Strokes</div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Birdies or Better</span>
+                <Badge variant="default" className="bg-golf-green-600">{birdies}</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Pars</span>
+                <Badge variant="outline">{pars}</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Bogeys</span>
+                <Badge variant="secondary">{bogeys}</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Double Bogey+</span>
+                <Badge variant="destructive">{others}</Badge>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowRoundComplete(false)}
+              disabled={submitRoundMutation.isPending}
+            >
+              Continue Playing
+            </Button>
+            <Button
+              onClick={() => submitRoundMutation.mutate()}
+              disabled={submitRoundMutation.isPending}
+              className="bg-golf-green-600 hover:bg-golf-green-700"
+            >
+              {submitRoundMutation.isPending ? "Submitting..." : "Submit Round"}
+              <Trophy className="w-4 h-4 ml-2" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     );
   }
 

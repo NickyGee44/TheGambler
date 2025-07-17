@@ -814,5 +814,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Round submission endpoint
+  app.post('/api/submit-round', requireAuth, async (req: any, res) => {
+    try {
+      const { round, totalPoints, holesPlayed } = req.body;
+      const userId = req.user.id;
+      
+      if (!round || totalPoints === undefined || holesPlayed === undefined) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      // Verify user has completed all 18 holes
+      const userHoleScores = await storage.getHoleScores(userId, round);
+      
+      if (userHoleScores.length !== 18) {
+        return res.status(400).json({ error: 'Round is not complete. All 18 holes must be played.' });
+      }
+
+      // Calculate actual totals from hole scores to verify data integrity
+      const actualTotalPoints = userHoleScores.reduce((sum, score) => sum + score.points, 0);
+      const actualTotalStrokes = userHoleScores.reduce((sum, score) => sum + score.strokes, 0);
+
+      // Update the user's round score in the scores table
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Get user's team to update the team score
+      const teams = await storage.getTeams();
+      const userTeam = teams.find(team => 
+        team.player1Name === `${user.firstName} ${user.lastName}` || 
+        team.player2Name === `${user.firstName} ${user.lastName}`
+      );
+
+      if (!userTeam) {
+        return res.status(400).json({ error: 'User team not found' });
+      }
+
+      // Update the round score for the user's team
+      const roundField = `round${round}Points` as keyof typeof storage.getCalculatedScores;
+      await storage.updateScore(userTeam.id, round, actualTotalPoints, userId);
+
+      // Broadcast round completion to all clients
+      broadcast({
+        type: 'ROUND_COMPLETED',
+        data: {
+          userId,
+          userName: `${user.firstName} ${user.lastName}`,
+          round,
+          totalPoints: actualTotalPoints,
+          totalStrokes: actualTotalStrokes,
+          holesPlayed: 18
+        }
+      });
+
+      res.json({ 
+        success: true, 
+        message: `Round ${round} submitted successfully!`,
+        totalPoints: actualTotalPoints,
+        totalStrokes: actualTotalStrokes,
+        holesPlayed: 18
+      });
+
+    } catch (error) {
+      console.error('Error submitting round:', error);
+      res.status(500).json({ error: 'Failed to submit round' });
+    }
+  });
+
   return httpServer;
 }
