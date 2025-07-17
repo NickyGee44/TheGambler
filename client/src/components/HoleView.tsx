@@ -236,7 +236,7 @@ export default function HoleView({
   };
 
   return (
-    <div key={`hole-${hole.number}-${round}-v3`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
+    <div key={`hole-${hole.number}-${round}-v4-no-save-button`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="mb-6 text-center">
@@ -523,7 +523,7 @@ export default function HoleView({
               </Card>
             </div>
 
-            {/* Auto-Save Status */}
+            {/* Auto-Save Status - NO SAVE BUTTON */}
             {(isSavingStats || updateStatsMutation.isPending) && (
               <div className="text-center py-3">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-golf-green-400 mx-auto mb-2"></div>
