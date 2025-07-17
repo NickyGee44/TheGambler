@@ -557,6 +557,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (scoreDiff === -2) scoreName = 'Eagle';
         
         // Broadcast birdie notification to all clients
+        console.log(`🎯 BIRDIE ALERT: ${playerName} scored ${scoreName} on hole ${hole}!`);
         broadcast({
           type: 'BIRDIE_NOTIFICATION',
           data: { 

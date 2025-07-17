@@ -122,6 +122,16 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 17, 2025:**
+- **Enhanced Score Button Visual Feedback and Birdie Notification System:**
+  - Enhanced score button styling with bold text, scale effects, and white borders when selected
+  - Implemented comprehensive birdie notification system with real-time pop-up alerts
+  - Added server-side birdie detection logic that triggers on birdie, eagle, or albatross scores
+  - Created animated BirdieNotification component with auto-dismiss functionality (8 seconds)
+  - Integrated WebSocket broadcasting to notify all Gambler 2025 golfers of great shots
+  - Added golf-themed icons and colors (green for birdie, yellow for eagle, purple for albatross)
+  - Notifications appear as slide-in cards in top-right corner with player name and hole number
+  - Score buttons now provide clear visual feedback with font-weight and transform effects
+  - Confirmed PWA install buttons are properly removed from the application interface
 - **Implemented Multi-Year Tournament Management System:**
   - Created comprehensive tournaments table with full CRUD operations
   - Built TournamentManagement.tsx admin interface for managing tournaments across multiple years
