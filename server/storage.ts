@@ -6,6 +6,7 @@ import {
   photos,
   matchups,
   holeScores,
+  playerTournamentHistory,
   type User,
   type InsertUser,
   type Team,
@@ -14,12 +15,14 @@ import {
   type Photo,
   type Matchup,
   type HoleScore,
+  type PlayerTournamentHistory,
   type InsertTeam,
   type InsertScore,
   type InsertSideBet,
   type InsertPhoto,
   type InsertMatchup,
   type InsertHoleScore,
+  type InsertPlayerTournamentHistory,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, asc } from "drizzle-orm";
@@ -70,6 +73,16 @@ export interface IStorage {
   
   // Player matching
   findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 } | null>;
+  
+  // Player Tournament History
+  getPlayerTournamentHistory(userId: number): Promise<PlayerTournamentHistory[]>;
+  createPlayerTournamentHistory(history: InsertPlayerTournamentHistory): Promise<PlayerTournamentHistory>;
+  updatePlayerTournamentHistory(userId: number, year: number, data: Partial<PlayerTournamentHistory>): Promise<PlayerTournamentHistory>;
+  
+  // Enhanced Player Statistics with historical data
+  getPlayerLifetimeStats(userId: number): Promise<any>;
+  getPlayerYearlyStats(userId: number, year: number): Promise<any>;
+  getAllPlayersHistoricalStats(): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -112,6 +125,107 @@ export class DatabaseStorage implements IStorage {
     }
     
     return null;
+  }
+
+  // Player Tournament History
+  async getPlayerTournamentHistory(userId: number): Promise<PlayerTournamentHistory[]> {
+    return await db.select().from(playerTournamentHistory).where(eq(playerTournamentHistory.userId, userId));
+  }
+
+  async createPlayerTournamentHistory(history: InsertPlayerTournamentHistory): Promise<PlayerTournamentHistory> {
+    const [newHistory] = await db.insert(playerTournamentHistory).values(history).returning();
+    return newHistory;
+  }
+
+  async updatePlayerTournamentHistory(userId: number, year: number, data: Partial<PlayerTournamentHistory>): Promise<PlayerTournamentHistory> {
+    const [updatedHistory] = await db
+      .update(playerTournamentHistory)
+      .set({ ...data, updatedAt: new Date() })
+      .where(and(eq(playerTournamentHistory.userId, userId), eq(playerTournamentHistory.tournamentYear, year)))
+      .returning();
+    return updatedHistory;
+  }
+
+  // Enhanced Player Statistics with historical data
+  async getPlayerLifetimeStats(userId: number): Promise<any> {
+    const allHoleScores = await db
+      .select()
+      .from(holeScores)
+      .where(eq(holeScores.userId, userId));
+
+    const tournamentHistory = await this.getPlayerTournamentHistory(userId);
+    
+    // Calculate lifetime statistics
+    const totalHoles = allHoleScores.length;
+    const totalStrokes = allHoleScores.reduce((sum, score) => sum + score.strokes, 0);
+    const totalPutts = allHoleScores.reduce((sum, score) => sum + score.putts, 0);
+    const totalPenalties = allHoleScores.reduce((sum, score) => sum + score.penalties, 0);
+    const fairwaysHit = allHoleScores.filter(score => score.fairwayInRegulation === true).length;
+    const greensHit = allHoleScores.filter(score => score.greenInRegulation === true).length;
+    const sandSaves = allHoleScores.reduce((sum, score) => sum + score.sandSaves, 0);
+    const upAndDowns = allHoleScores.reduce((sum, score) => sum + score.upAndDowns, 0);
+
+    return {
+      totalHoles,
+      totalStrokes,
+      averageScore: totalHoles > 0 ? (totalStrokes / totalHoles).toFixed(2) : 0,
+      totalPutts,
+      averagePutts: totalHoles > 0 ? (totalPutts / totalHoles).toFixed(2) : 0,
+      totalPenalties,
+      fairwayPercentage: totalHoles > 0 ? ((fairwaysHit / totalHoles) * 100).toFixed(1) : 0,
+      greenPercentage: totalHoles > 0 ? ((greensHit / totalHoles) * 100).toFixed(1) : 0,
+      sandSaves,
+      upAndDowns,
+      tournamentHistory,
+      totalTournaments: tournamentHistory.length,
+      bestFinish: tournamentHistory.length > 0 ? Math.min(...tournamentHistory.map(t => t.finalRanking || 8)) : null,
+      totalPoints: tournamentHistory.reduce((sum, t) => sum + (t.totalPoints || 0), 0)
+    };
+  }
+
+  async getPlayerYearlyStats(userId: number, year: number): Promise<any> {
+    const yearlyHoleScores = await db
+      .select()
+      .from(holeScores)
+      .where(and(eq(holeScores.userId, userId), eq(holeScores.tournamentYear, year)));
+
+    const yearlyHistory = await db
+      .select()
+      .from(playerTournamentHistory)
+      .where(and(eq(playerTournamentHistory.userId, userId), eq(playerTournamentHistory.tournamentYear, year)));
+
+    const totalHoles = yearlyHoleScores.length;
+    const totalStrokes = yearlyHoleScores.reduce((sum, score) => sum + score.strokes, 0);
+    const totalPutts = yearlyHoleScores.reduce((sum, score) => sum + score.putts, 0);
+    const fairwaysHit = yearlyHoleScores.filter(score => score.fairwayInRegulation === true).length;
+    const greensHit = yearlyHoleScores.filter(score => score.greenInRegulation === true).length;
+
+    return {
+      year,
+      totalHoles,
+      totalStrokes,
+      averageScore: totalHoles > 0 ? (totalStrokes / totalHoles).toFixed(2) : 0,
+      totalPutts,
+      averagePutts: totalHoles > 0 ? (totalPutts / totalHoles).toFixed(2) : 0,
+      fairwayPercentage: totalHoles > 0 ? ((fairwaysHit / totalHoles) * 100).toFixed(1) : 0,
+      greenPercentage: totalHoles > 0 ? ((greensHit / totalHoles) * 100).toFixed(1) : 0,
+      tournamentData: yearlyHistory[0] || null
+    };
+  }
+
+  async getAllPlayersHistoricalStats(): Promise<any[]> {
+    const allUsers = await this.getAllUsers();
+    const playersStats = [];
+
+    for (const user of allUsers) {
+      const lifetimeStats = await this.getPlayerLifetimeStats(user.id);
+      playersStats.push({
+        ...user,
+        ...lifetimeStats
+      });
+    }
+
+    return playersStats;
   }
 
   // Hole Score operations

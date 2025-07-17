@@ -15,9 +15,13 @@ import {
   TrendingDown,
   Award,
   BarChart3,
-  PieChart
+  PieChart,
+  User,
+  ExternalLink
 } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 
 // Mock statistics data structure
 interface PlayerStats {
@@ -417,6 +421,15 @@ export default function Stats() {
                         <Badge variant="destructive">{player.totalPenalties}</Badge>
                       </div>
                     </div>
+                  </div>
+                  <div className="mt-4">
+                    <Link href={`/player/${player.userId}`}>
+                      <Button className="w-full" variant="outline">
+                        <User className="w-4 h-4 mr-2" />
+                        View Profile
+                        <ExternalLink className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

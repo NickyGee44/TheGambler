@@ -634,5 +634,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Player statistics endpoint
+  app.get('/api/player-stats', async (req, res) => {
+    try {
+      const playerStats = await storage.getPlayerStatistics();
+      res.json(playerStats);
+    } catch (error) {
+      console.error('Error fetching player statistics:', error);
+      res.status(500).json({ error: 'Failed to fetch player statistics' });
+    }
+  });
+
+  // Historical player statistics
+  app.get('/api/player-history/:userId', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const history = await storage.getPlayerTournamentHistory(userId);
+      res.json(history);
+    } catch (error) {
+      console.error('Error fetching player history:', error);
+      res.status(500).json({ error: 'Failed to fetch player history' });
+    }
+  });
+
+  app.get('/api/player-lifetime-stats/:userId', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const stats = await storage.getPlayerLifetimeStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching lifetime stats:', error);
+      res.status(500).json({ error: 'Failed to fetch lifetime stats' });
+    }
+  });
+
+  app.get('/api/player-yearly-stats/:userId/:year', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const year = parseInt(req.params.year);
+      const stats = await storage.getPlayerYearlyStats(userId, year);
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching yearly stats:', error);
+      res.status(500).json({ error: 'Failed to fetch yearly stats' });
+    }
+  });
+
+  app.get('/api/all-players-historical-stats', async (req, res) => {
+    try {
+      const stats = await storage.getAllPlayersHistoricalStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching all players historical stats:', error);
+      res.status(500).json({ error: 'Failed to fetch all players historical stats' });
+    }
+  });
+
+  app.post('/api/player-history', async (req, res) => {
+    try {
+      const historyData = req.body;
+      const newHistory = await storage.createPlayerTournamentHistory(historyData);
+      res.json(newHistory);
+    } catch (error) {
+      console.error('Error creating player history:', error);
+      res.status(500).json({ error: 'Failed to create player history' });
+    }
+  });
+
+  app.put('/api/player-history/:userId/:year', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const year = parseInt(req.params.year);
+      const updateData = req.body;
+      const updatedHistory = await storage.updatePlayerTournamentHistory(userId, year, updateData);
+      res.json(updatedHistory);
+    } catch (error) {
+      console.error('Error updating player history:', error);
+      res.status(500).json({ error: 'Failed to update player history' });
+    }
+  });
+
   return httpServer;
 }

@@ -20,6 +20,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name").notNull(),
   password: varchar("password").notNull(),
   profilePicture: text("profile_picture"),
+  handicap: integer("handicap").default(20),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -103,6 +104,22 @@ export const holeScores = pgTable("hole_scores", {
   penalties: integer("penalties").notNull().default(0),
   sandSaves: integer("sand_saves").notNull().default(0),
   upAndDowns: integer("up_and_downs").notNull().default(0),
+  tournamentYear: integer("tournament_year").default(2025),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Player tournament history table for multi-year tracking
+export const playerTournamentHistory = pgTable("player_tournament_history", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  tournamentYear: integer("tournament_year").notNull(),
+  teamPartner: text("team_partner").notNull(),
+  finalRanking: integer("final_ranking"),
+  totalPoints: integer("total_points").default(0),
+  round1Points: integer("round1_points").default(0),
+  round2Points: integer("round2_points").default(0),
+  round3Points: integer("round3_points").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -142,6 +159,12 @@ export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+})
+
+export const insertPlayerTournamentHistorySchema = createInsertSchema(playerTournamentHistory).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -158,3 +181,5 @@ export type Matchup = typeof matchups.$inferSelect;
 export type InsertMatchup = z.infer<typeof insertMatchupSchema>;
 export type HoleScore = typeof holeScores.$inferSelect;
 export type InsertHoleScore = z.infer<typeof insertHoleScoreSchema>;
+export type PlayerTournamentHistory = typeof playerTournamentHistory.$inferSelect;
+export type InsertPlayerTournamentHistory = z.infer<typeof insertPlayerTournamentHistorySchema>;

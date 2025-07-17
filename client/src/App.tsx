@@ -10,6 +10,7 @@ import Home from "@/pages/Home";
 import Teams from "@/pages/Teams";
 import Scores from "@/pages/Scores";
 import Stats from "@/pages/Stats";
+import PlayerProfile from "@/pages/PlayerProfile";
 import SideBets from "@/pages/SideBets";
 import Rules from "@/pages/Rules";
 import Photos from "@/pages/Photos";
@@ -126,6 +127,7 @@ function Router() {
             <Route path="/round3" component={Round3} />
             <Route path="/scores" component={Scores} />
             <Route path="/stats" component={Stats} />
+            <Route path="/player/:userId" component={PlayerProfile} />
             <Route path="/sidebets" component={SideBets} />
             <Route path="/rules" component={Rules} />
             <Route path="/tournament-rules" component={TournamentRules} />
