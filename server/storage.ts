@@ -202,6 +202,11 @@ export class DatabaseStorage implements IStorage {
 
   // Enhanced Player Statistics with historical data
   async getPlayerLifetimeStats(userId: number): Promise<any> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
     const allHoleScores = await db
       .select()
       .from(holeScores)
@@ -220,6 +225,10 @@ export class DatabaseStorage implements IStorage {
     const upAndDowns = allHoleScores.reduce((sum, score) => sum + score.upAndDowns, 0);
 
     return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      handicap: user.handicap || 0,
       totalHoles,
       totalStrokes,
       averageScore: totalHoles > 0 ? (totalStrokes / totalHoles).toFixed(2) : 0,

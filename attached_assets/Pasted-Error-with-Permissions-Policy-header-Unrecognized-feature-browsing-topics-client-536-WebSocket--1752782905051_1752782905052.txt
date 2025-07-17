@@ -1,0 +1,249 @@
+Error with Permissions-Policy header: Unrecognized feature: 'browsing-topics'.
+client:536 WebSocket connection to 'wss://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/?token=XfO3Kc9UYZle' failed: 
+setupWebSocket @ client:536
+(anonymous) @ client:531
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=XfO3Kc9UYZle' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+setupWebSocket @ client:536
+fallback @ client:509
+(anonymous) @ client:555
+chunk-WERSD76P.js?v=d3e929c1:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+main.tsx:10 SW: Service Worker registered
+round2:1 <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">
+useWebSocket.ts:40 WebSocket connected
+useWebSocket.ts:55 WebSocket disconnected
+useWebSocket.ts:40 WebSocket connected
+useWebSocket.ts:55 WebSocket disconnected
+ProfilePicture.tsx:55 Uncaught TypeError: Cannot read properties of undefined (reading 'charAt')
+    at ProfilePicture (ProfilePicture.tsx:55:33)
+    at renderWithHooks (chunk-WERSD76P.js?v=d3e929c1:11548:26)
+    at mountIndeterminateComponent (chunk-WERSD76P.js?v=d3e929c1:14926:21)
+    at beginWork (chunk-WERSD76P.js?v=d3e929c1:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-WERSD76P.js?v=d3e929c1:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-WERSD76P.js?v=d3e929c1:3699:24)
+    at invokeGuardedCallback (chunk-WERSD76P.js?v=d3e929c1:3733:39)
+    at beginWork$1 (chunk-WERSD76P.js?v=d3e929c1:19765:15)
+    at performUnitOfWork (chunk-WERSD76P.js?v=d3e929c1:19198:20)
+    at workLoopSync (chunk-WERSD76P.js?v=d3e929c1:19137:13)
+ProfilePicture @ ProfilePicture.tsx:55
+renderWithHooks @ chunk-WERSD76P.js?v=d3e929c1:11548
+mountIndeterminateComponent @ chunk-WERSD76P.js?v=d3e929c1:14926
+beginWork @ chunk-WERSD76P.js?v=d3e929c1:15914
+callCallback2 @ chunk-WERSD76P.js?v=d3e929c1:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=d3e929c1:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=d3e929c1:3733
+beginWork$1 @ chunk-WERSD76P.js?v=d3e929c1:19765
+performUnitOfWork @ chunk-WERSD76P.js?v=d3e929c1:19198
+workLoopSync @ chunk-WERSD76P.js?v=d3e929c1:19137
+renderRootSync @ chunk-WERSD76P.js?v=d3e929c1:19116
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=d3e929c1:18874
+flushSyncCallbacks @ chunk-WERSD76P.js?v=d3e929c1:9119
+(anonymous) @ chunk-WERSD76P.js?v=d3e929c1:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=d3e929c1:555
+flush @ @tanstack_react-query.js?v=d3e929c1:569
+batch @ @tanstack_react-query.js?v=d3e929c1:587
+dispatch_fn @ @tanstack_react-query.js?v=d3e929c1:996
+setData @ @tanstack_react-query.js?v=d3e929c1:696
+onSuccess @ @tanstack_react-query.js?v=d3e929c1:897
+resolve @ @tanstack_react-query.js?v=d3e929c1:456
+Promise.then
+run @ @tanstack_react-query.js?v=d3e929c1:498
+start @ @tanstack_react-query.js?v=d3e929c1:536
+fetch @ @tanstack_react-query.js?v=d3e929c1:926
+executeFetch_fn @ @tanstack_react-query.js?v=d3e929c1:2211
+onSubscribe @ @tanstack_react-query.js?v=d3e929c1:1898
+subscribe @ @tanstack_react-query.js?v=d3e929c1:24
+(anonymous) @ @tanstack_react-query.js?v=d3e929c1:3022
+subscribeToStore @ chunk-WERSD76P.js?v=d3e929c1:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=d3e929c1:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=d3e929c1:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=d3e929c1:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=d3e929c1:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=d3e929c1:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=d3e929c1:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=d3e929c1:19447
+commitRootImpl @ chunk-WERSD76P.js?v=d3e929c1:19416
+commitRoot @ chunk-WERSD76P.js?v=d3e929c1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=d3e929c1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=d3e929c1:9119
+(anonymous) @ chunk-WERSD76P.js?v=d3e929c1:18627
+ProfilePicture.tsx:55 Uncaught TypeError: Cannot read properties of undefined (reading 'charAt')
+    at ProfilePicture (ProfilePicture.tsx:55:33)
+    at renderWithHooks (chunk-WERSD76P.js?v=d3e929c1:11548:26)
+    at mountIndeterminateComponent (chunk-WERSD76P.js?v=d3e929c1:14926:21)
+    at beginWork (chunk-WERSD76P.js?v=d3e929c1:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-WERSD76P.js?v=d3e929c1:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-WERSD76P.js?v=d3e929c1:3699:24)
+    at invokeGuardedCallback (chunk-WERSD76P.js?v=d3e929c1:3733:39)
+    at beginWork$1 (chunk-WERSD76P.js?v=d3e929c1:19765:15)
+    at performUnitOfWork (chunk-WERSD76P.js?v=d3e929c1:19198:20)
+    at workLoopSync (chunk-WERSD76P.js?v=d3e929c1:19137:13)
+ProfilePicture @ ProfilePicture.tsx:55
+renderWithHooks @ chunk-WERSD76P.js?v=d3e929c1:11548
+mountIndeterminateComponent @ chunk-WERSD76P.js?v=d3e929c1:14926
+beginWork @ chunk-WERSD76P.js?v=d3e929c1:15914
+callCallback2 @ chunk-WERSD76P.js?v=d3e929c1:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=d3e929c1:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=d3e929c1:3733
+beginWork$1 @ chunk-WERSD76P.js?v=d3e929c1:19765
+performUnitOfWork @ chunk-WERSD76P.js?v=d3e929c1:19198
+workLoopSync @ chunk-WERSD76P.js?v=d3e929c1:19137
+renderRootSync @ chunk-WERSD76P.js?v=d3e929c1:19116
+recoverFromConcurrentError @ chunk-WERSD76P.js?v=d3e929c1:18736
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=d3e929c1:18879
+flushSyncCallbacks @ chunk-WERSD76P.js?v=d3e929c1:9119
+(anonymous) @ chunk-WERSD76P.js?v=d3e929c1:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=d3e929c1:555
+flush @ @tanstack_react-query.js?v=d3e929c1:569
+batch @ @tanstack_react-query.js?v=d3e929c1:587
+dispatch_fn @ @tanstack_react-query.js?v=d3e929c1:996
+setData @ @tanstack_react-query.js?v=d3e929c1:696
+onSuccess @ @tanstack_react-query.js?v=d3e929c1:897
+resolve @ @tanstack_react-query.js?v=d3e929c1:456
+Promise.then
+run @ @tanstack_react-query.js?v=d3e929c1:498
+start @ @tanstack_react-query.js?v=d3e929c1:536
+fetch @ @tanstack_react-query.js?v=d3e929c1:926
+executeFetch_fn @ @tanstack_react-query.js?v=d3e929c1:2211
+onSubscribe @ @tanstack_react-query.js?v=d3e929c1:1898
+subscribe @ @tanstack_react-query.js?v=d3e929c1:24
+(anonymous) @ @tanstack_react-query.js?v=d3e929c1:3022
+subscribeToStore @ chunk-WERSD76P.js?v=d3e929c1:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=d3e929c1:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=d3e929c1:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=d3e929c1:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=d3e929c1:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=d3e929c1:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=d3e929c1:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=d3e929c1:19447
+commitRootImpl @ chunk-WERSD76P.js?v=d3e929c1:19416
+commitRoot @ chunk-WERSD76P.js?v=d3e929c1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=d3e929c1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=d3e929c1:9119
+(anonymous) @ chunk-WERSD76P.js?v=d3e929c1:18627
+chunk-WERSD76P.js?v=d3e929c1:14032 The above error occurred in the <ProfilePicture> component:
+
+    at ProfilePicture (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/components/ProfilePicture.tsx:35:3)
+    at div
+    at div
+    at div
+    at _c9 (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at PlayerProfile (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/pages/PlayerProfile.tsx:42:22)
+    at Route (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d3e929c1:191:16)
+    at Switch (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d3e929c1:247:17)
+    at Router (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/App.tsx?v=n0UU9VojBDMi-JtYh_yzb:138:31)
+    at main
+    at div
+    at Layout (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/components/Layout.tsx:22:34)
+    at Provider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=d3e929c1:38:15)
+    at TooltipProvider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d3e929c1:368:5)
+    at ThemeProvider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/components/ThemeProvider.tsx:25:3)
+    at QueryClientProvider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=d3e929c1:2805:3)
+    at ErrorBoundary (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/App.tsx?v=n0UU9VojBDMi-JtYh_yzb:49:5)
+    at App (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/App.tsx?v=n0UU9VojBDMi-JtYh_yzb:317:3)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-WERSD76P.js?v=d3e929c1:14032
+callback @ chunk-WERSD76P.js?v=d3e929c1:14078
+callCallback @ chunk-WERSD76P.js?v=d3e929c1:11248
+commitUpdateQueue @ chunk-WERSD76P.js?v=d3e929c1:11265
+commitLayoutEffectOnFiber @ chunk-WERSD76P.js?v=d3e929c1:17075
+commitLayoutMountEffects_complete @ chunk-WERSD76P.js?v=d3e929c1:17980
+commitLayoutEffects_begin @ chunk-WERSD76P.js?v=d3e929c1:17969
+commitLayoutEffects @ chunk-WERSD76P.js?v=d3e929c1:17920
+commitRootImpl @ chunk-WERSD76P.js?v=d3e929c1:19353
+commitRoot @ chunk-WERSD76P.js?v=d3e929c1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=d3e929c1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=d3e929c1:9119
+(anonymous) @ chunk-WERSD76P.js?v=d3e929c1:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=d3e929c1:555
+flush @ @tanstack_react-query.js?v=d3e929c1:569
+batch @ @tanstack_react-query.js?v=d3e929c1:587
+dispatch_fn @ @tanstack_react-query.js?v=d3e929c1:996
+setData @ @tanstack_react-query.js?v=d3e929c1:696
+onSuccess @ @tanstack_react-query.js?v=d3e929c1:897
+resolve @ @tanstack_react-query.js?v=d3e929c1:456
+Promise.then
+run @ @tanstack_react-query.js?v=d3e929c1:498
+start @ @tanstack_react-query.js?v=d3e929c1:536
+fetch @ @tanstack_react-query.js?v=d3e929c1:926
+executeFetch_fn @ @tanstack_react-query.js?v=d3e929c1:2211
+onSubscribe @ @tanstack_react-query.js?v=d3e929c1:1898
+subscribe @ @tanstack_react-query.js?v=d3e929c1:24
+(anonymous) @ @tanstack_react-query.js?v=d3e929c1:3022
+subscribeToStore @ chunk-WERSD76P.js?v=d3e929c1:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=d3e929c1:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=d3e929c1:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=d3e929c1:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=d3e929c1:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=d3e929c1:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=d3e929c1:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=d3e929c1:19447
+commitRootImpl @ chunk-WERSD76P.js?v=d3e929c1:19416
+commitRoot @ chunk-WERSD76P.js?v=d3e929c1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=d3e929c1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=d3e929c1:9119
+(anonymous) @ chunk-WERSD76P.js?v=d3e929c1:18627
+App.tsx:42 ErrorBoundary caught an error: TypeError: Cannot read properties of undefined (reading 'charAt')
+    at ProfilePicture (ProfilePicture.tsx:55:33)
+    at renderWithHooks (chunk-WERSD76P.js?v=d3e929c1:11548:26)
+    at mountIndeterminateComponent (chunk-WERSD76P.js?v=d3e929c1:14926:21)
+    at beginWork (chunk-WERSD76P.js?v=d3e929c1:15914:22)
+    at beginWork$1 (chunk-WERSD76P.js?v=d3e929c1:19753:22)
+    at performUnitOfWork (chunk-WERSD76P.js?v=d3e929c1:19198:20)
+    at workLoopSync (chunk-WERSD76P.js?v=d3e929c1:19137:13)
+    at renderRootSync (chunk-WERSD76P.js?v=d3e929c1:19116:15)
+    at recoverFromConcurrentError (chunk-WERSD76P.js?v=d3e929c1:18736:28)
+    at performSyncWorkOnRoot (chunk-WERSD76P.js?v=d3e929c1:18879:28) {componentStack: '\n    at ProfilePicture (https://a9be6f4c-d63b-45f8…it.dev/src/App.tsx?v=n0UU9VojBDMi-JtYh_yzb:317:3)'}
+componentDidCatch @ App.tsx:42
+callback @ chunk-WERSD76P.js?v=d3e929c1:14084
+callCallback @ chunk-WERSD76P.js?v=d3e929c1:11248
+commitUpdateQueue @ chunk-WERSD76P.js?v=d3e929c1:11265
+commitLayoutEffectOnFiber @ chunk-WERSD76P.js?v=d3e929c1:17075
+commitLayoutMountEffects_complete @ chunk-WERSD76P.js?v=d3e929c1:17980
+commitLayoutEffects_begin @ chunk-WERSD76P.js?v=d3e929c1:17969
+commitLayoutEffects @ chunk-WERSD76P.js?v=d3e929c1:17920
+commitRootImpl @ chunk-WERSD76P.js?v=d3e929c1:19353
+commitRoot @ chunk-WERSD76P.js?v=d3e929c1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=d3e929c1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=d3e929c1:9119
+(anonymous) @ chunk-WERSD76P.js?v=d3e929c1:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=d3e929c1:555
+flush @ @tanstack_react-query.js?v=d3e929c1:569
+batch @ @tanstack_react-query.js?v=d3e929c1:587
+dispatch_fn @ @tanstack_react-query.js?v=d3e929c1:996
+setData @ @tanstack_react-query.js?v=d3e929c1:696
+onSuccess @ @tanstack_react-query.js?v=d3e929c1:897
+resolve @ @tanstack_react-query.js?v=d3e929c1:456
+Promise.then
+run @ @tanstack_react-query.js?v=d3e929c1:498
+start @ @tanstack_react-query.js?v=d3e929c1:536
+fetch @ @tanstack_react-query.js?v=d3e929c1:926
+executeFetch_fn @ @tanstack_react-query.js?v=d3e929c1:2211
+onSubscribe @ @tanstack_react-query.js?v=d3e929c1:1898
+subscribe @ @tanstack_react-query.js?v=d3e929c1:24
+(anonymous) @ @tanstack_react-query.js?v=d3e929c1:3022
+subscribeToStore @ chunk-WERSD76P.js?v=d3e929c1:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=d3e929c1:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=d3e929c1:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=d3e929c1:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=d3e929c1:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=d3e929c1:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=d3e929c1:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=d3e929c1:19447
+commitRootImpl @ chunk-WERSD76P.js?v=d3e929c1:19416
+commitRoot @ chunk-WERSD76P.js?v=d3e929c1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=d3e929c1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=d3e929c1:9119
+(anonymous) @ chunk-WERSD76P.js?v=d3e929c1:18627
+App.tsx:45 Error details: {error: "TypeError: Cannot read properties of undefined (reading 'charAt')", stack: 'TypeError: Cannot read properties of undefined (re….vite/deps/chunk-WERSD76P.js?v=d3e929c1:18879:28)', componentStack: '\n    at ProfilePicture (https://a9be6f4c-d63b-45f8…it.dev/src/App.tsx?v=n0UU9VojBDMi-JtYh_yzb:317:3)', timestamp: '2025-07-17T20:07:55.559Z', userAgent: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA…like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36'}

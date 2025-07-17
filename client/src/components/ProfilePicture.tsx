@@ -49,10 +49,10 @@ export default function ProfilePicture({
     "Will Bibbings": willbibbingsImg,
   };
 
-  const fullName = `${firstName} ${lastName}`;
+  const fullName = `${firstName || ''} ${lastName || ''}`.trim();
   const profilePicture = profilePictures[fullName];
   
-  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`;
+  const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`;
   
   const sizeClasses = {
     sm: "w-6 h-6 text-xs",
