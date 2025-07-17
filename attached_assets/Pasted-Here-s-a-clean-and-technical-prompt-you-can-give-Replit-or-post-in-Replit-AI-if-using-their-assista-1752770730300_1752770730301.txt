@@ -1,0 +1,92 @@
+Here's a clean and technical prompt you can give Replit (or post in Replit AI if using their assistant), explaining exactly what you want your golf scoring app to do regarding **per-hole stat tracking with memory between holes**:
+
+---
+
+### 🧾 Prompt to Replit (copy-paste this):
+
+---
+
+I want to build a **hole-by-hole stat tracking interface** for my golf app on Replit. Here’s what I need:
+
+---
+
+### 🎯 Core Functionality:
+
+1. **Per-hole data structure:**
+
+   * For each hole (1–18), I want to store:
+
+     * `score` (numeric)
+     * `GIR` (green in regulation, boolean)
+     * `FIR` (fairway in regulation, boolean)
+     * `putts` (numeric)
+     * `penalties` (numeric)
+     * `drive_direction` (options: left, center, right)
+     * `sand_save` (boolean)
+     * `up_and_down` (boolean – optional but implied if GIR = false and putts = 1)
+
+2. **UI Behavior:**
+
+   * The player starts on **Hole 1**.
+   * When stats are entered and the user presses “Next Hole”, the data for **Hole 1** should be saved.
+   * When arriving on **Hole 2**, the form should:
+
+     * Show a **clean slate** (default state: 0s and unclicked toggles)
+     * Unless data for Hole 2 was already saved — in which case, load that data into the form.
+   * When pressing “Previous Hole”, it should show the data that was saved for that hole and allow editing.
+
+---
+
+### 💾 Storage:
+
+* Store all per-hole data in a single state object (ideally using React `useState` or a global state store like Zustand or Redux).
+* Example structure:
+
+```js
+{
+  1: { score: 4, GIR: true, FIR: true, putts: 2, penalties: 0, drive_direction: "left", sand_save: false, up_and_down: false },
+  2: { score: 5, GIR: false, FIR: false, putts: 1, penalties: 1, drive_direction: "right", sand_save: true, up_and_down: true },
+  ...
+}
+```
+
+---
+
+### 🛠️ UI Elements Needed:
+
+* Hole navigation (`Previous`, `Next`, hole # display)
+* Input components:
+
+  * Score (number input)
+  * GIR toggle
+  * FIR toggle
+  * Putts (number input)
+  * Penalties (number input)
+  * Drive Direction (3-way toggle or buttons: L/C/R)
+  * Sand Save (toggle)
+  * Up and Down (auto-detect or optional toggle if needed)
+
+---
+
+### 🔄 Requirements:
+
+* **Data persists** as the user navigates between holes.
+* **Auto-save or manual save** after input (either is fine).
+* When revisiting a hole, **restore all previously saved data** for that hole.
+* If a hole has no data saved yet, **all fields should show default values**.
+
+---
+
+Let me know if you need help wiring this with React state, localStorage, or syncing to a backend like Supabase/MongoDB — we may want to persist scores beyond a single session later.
+
+---
+
+### Bonus features for later:
+
+* Summary page after 18 holes
+* Export to CSV
+* Sync to account / cloud
+
+---
+
+Let me know once that’s built and I’ll help expand it.

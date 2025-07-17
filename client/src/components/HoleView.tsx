@@ -60,7 +60,7 @@ export default function HoleView({
   // Golf statistics state
   const [fairwayInRegulation, setFairwayInRegulation] = useState<boolean | null>(null);
   const [greenInRegulation, setGreenInRegulation] = useState<boolean | null>(null);
-  const [driveDirection, setDriveDirection] = useState<string>('');
+
   const [putts, setPutts] = useState<number>(0);
   const [penalties, setPenalties] = useState<number>(0);
   const [sandSaves, setSandSaves] = useState<number>(0);
@@ -104,7 +104,7 @@ export default function HoleView({
       const stats = {
         fairwayInRegulation: fairwayInRegulation,
         greenInRegulation: greenInRegulation,
-        driveDirection: driveDirection || null,
+        driveDirection: null,
         putts,
         penalties,
         sandSaves,
@@ -124,8 +124,8 @@ export default function HoleView({
     setIsSavingScore(true);
     
     scoreTimeoutRef.current = setTimeout(() => {
-      onScoreUpdate(strokes);
       setIsSavingScore(false);
+      onScoreUpdate(strokes);
     }, 2000);
   };
 
@@ -149,7 +149,7 @@ export default function HoleView({
     if (!isInitialLoad) {
       scheduleStatsSave();
     }
-  }, [fairwayInRegulation, greenInRegulation, driveDirection, putts, penalties, sandSaves, upAndDowns, isInitialLoad]);
+  }, [fairwayInRegulation, greenInRegulation, putts, penalties, sandSaves, upAndDowns, isInitialLoad]);
 
   // Load statistics and score for current hole
   useEffect(() => {
@@ -175,7 +175,7 @@ export default function HoleView({
       
       setFairwayInRegulation(currentHoleScore.fairwayInRegulation);
       setGreenInRegulation(currentHoleScore.greenInRegulation);
-      setDriveDirection(currentHoleScore.driveDirection || '');
+
       setPutts(currentHoleScore.putts || 0);
       setPenalties(currentHoleScore.penalties || 0);
       setSandSaves(currentHoleScore.sandSaves || 0);
@@ -185,7 +185,7 @@ export default function HoleView({
       console.log('No existing stats for hole', hole.number, '- resetting to defaults');
       setFairwayInRegulation(null);
       setGreenInRegulation(null);
-      setDriveDirection('');
+
       setPutts(0);
       setPenalties(0);
       setSandSaves(0);
@@ -199,10 +199,19 @@ export default function HoleView({
   // Get course data for GPS
   const courseData = getCourseForRound(round);
 
+  // Track the current score locally for immediate UI updates
+  const [localScore, setLocalScore] = useState(currentScore);
+  
+  // Update local score when prop changes
+  useEffect(() => {
+    setLocalScore(currentScore);
+  }, [currentScore]);
+
   const updateScore = (strokes: number) => {
     if (strokes < 1) return;
-    // Update the score immediately in UI but schedule save after 2 seconds
-    // This ensures the UI is responsive while preventing excessive API calls
+    // Update the score immediately in UI
+    setLocalScore(strokes);
+    // Schedule save after 2 seconds of inactivity
     scheduleScoreSave(strokes);
   };
 
@@ -298,20 +307,20 @@ export default function HoleView({
                   <Button
                     variant="outline"
                     size="lg"
-                    onClick={() => updateScore(currentScore - 1)}
-                    disabled={currentScore <= 0}
+                    onClick={() => updateScore(localScore - 1)}
+                    disabled={localScore <= 0}
                     className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
                   >
                     <Minus className="w-6 h-6" />
                   </Button>
                   
                   <div className="text-center">
-                    <div className={`text-6xl font-bold ${getScoreColor(currentScore, hole.par)}`}>
-                      {currentScore || "-"}
+                    <div className={`text-6xl font-bold ${getScoreColor(localScore, hole.par)}`}>
+                      {localScore || "-"}
                     </div>
-                    {currentScore > 0 && (
+                    {localScore > 0 && (
                       <div className="text-sm font-medium text-gray-300">
-                        {getScoreName(currentScore, hole.par)}
+                        {getScoreName(localScore, hole.par)}
                       </div>
                     )}
                   </div>
@@ -319,7 +328,7 @@ export default function HoleView({
                   <Button
                     variant="outline"
                     size="lg"
-                    onClick={() => updateScore(currentScore + 1)}
+                    onClick={() => updateScore(localScore + 1)}
                     disabled={false}
                     className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
                   >
@@ -451,36 +460,68 @@ export default function HoleView({
 
             
 
-            {/* Up and Downs */}
-            <Card className="bg-gray-800 border border-gray-700">
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <div className="text-sm text-gray-300 mb-2">Up & Downs</div>
-                  <div className="flex items-center justify-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setUpAndDowns(Math.max(0, upAndDowns - 1))}
-                      disabled={upAndDowns <= 0}
-                      className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </Button>
-                    <div className="text-xl font-bold w-8 text-center text-white">
-                      {upAndDowns}
+            {/* Sand Saves & Up and Downs */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="bg-gray-800 border border-gray-700">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-sm text-gray-300 mb-2">Sand Saves</div>
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSandSaves(Math.max(0, sandSaves - 1))}
+                        disabled={sandSaves <= 0}
+                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </Button>
+                      <div className="text-xl font-bold w-8 text-center text-white">
+                        {sandSaves}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSandSaves(sandSaves + 1)}
+                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </Button>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setUpAndDowns(upAndDowns + 1)}
-                      className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800 border border-gray-700">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-sm text-gray-300 mb-2">Up & Downs</div>
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setUpAndDowns(Math.max(0, upAndDowns - 1))}
+                        disabled={upAndDowns <= 0}
+                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </Button>
+                      <div className="text-xl font-bold w-8 text-center text-white">
+                        {upAndDowns}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setUpAndDowns(upAndDowns + 1)}
+                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Auto-Save Status */}
             {(isSavingStats || updateStatsMutation.isPending) && (
