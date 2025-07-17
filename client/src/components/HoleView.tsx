@@ -299,7 +299,7 @@ export default function HoleView({
                     variant="outline"
                     size="lg"
                     onClick={() => updateScore(currentScore - 1)}
-                    disabled={currentScore <= 0 || isSavingScore || isUpdating}
+                    disabled={currentScore <= 0}
                     className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
                   >
                     <Minus className="w-6 h-6" />
@@ -320,7 +320,7 @@ export default function HoleView({
                     variant="outline"
                     size="lg"
                     onClick={() => updateScore(currentScore + 1)}
-                    disabled={isSavingScore || isUpdating}
+                    disabled={false}
                     className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
                   >
                     <Plus className="w-6 h-6" />
