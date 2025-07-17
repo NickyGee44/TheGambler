@@ -75,7 +75,7 @@ export default function HoleView({
   // Statistics update mutation
   const updateStatsMutation = useMutation({
     mutationFn: async (statsData: any) => {
-      return await apiRequest(`/api/hole-scores/${round}/${hole.number}/stats`, 'PATCH', statsData);
+      return await apiRequest('PATCH', `/api/hole-scores/${round}/${hole.number}/stats`, statsData);
     },
     onSuccess: () => {
       setIsSavingStats(false);
