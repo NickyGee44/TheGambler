@@ -75,7 +75,7 @@ export default function HoleView({
   // Statistics update mutation
   const updateStatsMutation = useMutation({
     mutationFn: async (statsData: any) => {
-      return await apiRequest('PATCH', `/api/hole-scores/${round}/${hole.number}/stats`, statsData);
+      return await apiRequest(`/api/hole-scores/${round}/${hole.number}/stats`, 'PATCH', statsData);
     },
     onSuccess: () => {
       setIsSavingStats(false);
@@ -104,7 +104,6 @@ export default function HoleView({
       const stats = {
         fairwayInRegulation: fairwayInRegulation,
         greenInRegulation: greenInRegulation,
-        driveDirection: null,
         putts,
         penalties,
         sandSaves,
@@ -166,7 +165,6 @@ export default function HoleView({
       console.log('Loading stats for hole', hole.number, ':', {
         fairway: currentHoleScore.fairwayInRegulation,
         green: currentHoleScore.greenInRegulation,
-        drive: currentHoleScore.driveDirection,
         putts: currentHoleScore.putts,
         penalties: currentHoleScore.penalties,
         sandSaves: currentHoleScore.sandSaves,
