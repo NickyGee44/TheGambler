@@ -38,6 +38,7 @@ interface HoleViewProps {
   isLastHole: boolean;
   isUpdating: boolean;
   onShowLeaderboard?: () => void;
+  holeScores: any[];
 }
 
 export default function HoleView({
@@ -50,7 +51,8 @@ export default function HoleView({
   isFirstHole,
   isLastHole,
   isUpdating,
-  onShowLeaderboard
+  onShowLeaderboard,
+  holeScores
 }: HoleViewProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'scoring' | 'map'>('scoring');
@@ -148,16 +150,31 @@ export default function HoleView({
     scheduleStatsSave();
   }, [fairwayInRegulation, greenInRegulation, driveDirection, putts, penalties, sandSaves, upAndDowns]);
 
-  // Reset all statistics to default state when hole changes
+  // Load statistics for current hole
   useEffect(() => {
-    setFairwayInRegulation(null);
-    setGreenInRegulation(null);
-    setDriveDirection('');
-    setPutts(0);
-    setPenalties(0);
-    setSandSaves(0);
-    setUpAndDowns(0);
-  }, [hole.number]);
+    // Find the hole score for the current hole
+    const currentHoleScore = holeScores.find(score => score.hole === hole.number);
+    
+    if (currentHoleScore) {
+      // Load existing statistics for this hole
+      setFairwayInRegulation(currentHoleScore.fairwayInRegulation);
+      setGreenInRegulation(currentHoleScore.greenInRegulation);
+      setDriveDirection(currentHoleScore.driveDirection || '');
+      setPutts(currentHoleScore.putts || 0);
+      setPenalties(currentHoleScore.penalties || 0);
+      setSandSaves(currentHoleScore.sandSaves || 0);
+      setUpAndDowns(currentHoleScore.upAndDowns || 0);
+    } else {
+      // No existing data, reset to defaults
+      setFairwayInRegulation(null);
+      setGreenInRegulation(null);
+      setDriveDirection('');
+      setPutts(0);
+      setPenalties(0);
+      setSandSaves(0);
+      setUpAndDowns(0);
+    }
+  }, [hole.number, holeScores]);
   
   // Get course data for GPS
   const courseData = getCourseForRound(round);

@@ -128,9 +128,16 @@ Preferred communication style: Simple, everyday language.
   - Replaced manual save buttons with seamless auto-save system using setTimeout timers
   - Added visual feedback indicators showing "Auto-saving in 2s..." and "Auto-saving stats in 1s..."
   - Implemented proper timer cleanup and state management to prevent memory leaks
-  - Statistics automatically reset to default state when navigating between holes
   - Scores and statistics now save automatically without user intervention
   - Enhanced user experience with smooth auto-save transitions and loading states
+- **Implemented Hole-Specific Statistics Persistence:**
+  - Statistics now persist per hole and user, loading saved data when navigating between holes
+  - Fairway/green regulation, drive direction, putts, penalties, sand saves, and up-and-downs are saved per hole
+  - Unplayed holes show default state (unselected buttons, zeros for counters)
+  - Previously played holes display their saved statistics when revisited
+  - Added holeScores prop to HoleView component to enable hole-specific data loading
+  - Updated all Round components (Round1, Round2, Round3) to pass hole score data
+  - Enhanced data flow to maintain consistent hole-by-hole statistics across navigation
 
 **July 16, 2025:**
 - **Implemented Comprehensive Golf Statistics Tracking System:**

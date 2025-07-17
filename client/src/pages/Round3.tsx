@@ -236,6 +236,7 @@ export default function Round3() {
               isLastHole={currentHole === 18}
               isUpdating={updateScoreMutation.isPending}
               onShowLeaderboard={() => setShowLeaderboard(true)}
+              holeScores={holeScores}
             />
           </div>
 
