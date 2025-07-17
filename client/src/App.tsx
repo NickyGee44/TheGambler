@@ -40,6 +40,15 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 
   componentDidCatch(error: any, errorInfo: any) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    
+    // Log additional debugging information
+    console.log('Error details:', {
+      error: error?.toString(),
+      stack: error?.stack,
+      componentStack: errorInfo?.componentStack,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent
+    });
   }
 
   render() {
@@ -50,10 +59,27 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
             <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
             <p className="text-muted-foreground mb-4">There was an error loading the app.</p>
             <button 
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded"
+              onClick={() => {
+                // Clear localStorage to reset state
+                try {
+                  localStorage.clear();
+                } catch (e) {
+                  console.warn('Failed to clear localStorage:', e);
+                }
+                window.location.reload();
+              }}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded mr-2"
             >
               Reload Page
+            </button>
+            <button 
+              onClick={() => {
+                // Hard refresh to clear all cached resources
+                window.location.href = window.location.href;
+              }}
+              className="px-4 py-2 bg-secondary text-secondary-foreground rounded"
+            >
+              Hard Refresh
             </button>
           </div>
         </div>

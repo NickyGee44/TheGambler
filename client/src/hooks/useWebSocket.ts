@@ -25,6 +25,12 @@ export const useWebSocket = (url: string, options: WebSocketOptions = {}) => {
 
   const connect = () => {
     try {
+      // Skip WebSocket connection if URL is invalid or missing
+      if (!url || url.includes('undefined')) {
+        console.warn('Invalid WebSocket URL, skipping connection');
+        return;
+      }
+      
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const wsUrl = `${protocol}//${window.location.host}${url}`;
       

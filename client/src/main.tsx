@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// Service Worker registration with update handling
+// Service Worker registration with better error handling
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
@@ -10,9 +10,16 @@ if ('serviceWorker' in navigator) {
         console.log('SW: Service Worker registered');
         
         // Check for updates every 60 seconds
-        setInterval(() => {
-          registration.update();
+        const updateInterval = setInterval(() => {
+          if (registration.active) {
+            registration.update();
+          }
         }, 60000);
+        
+        // Clear interval on page unload
+        window.addEventListener('beforeunload', () => {
+          clearInterval(updateInterval);
+        });
         
         // Handle updates
         registration.addEventListener('updatefound', () => {
@@ -29,15 +36,24 @@ if ('serviceWorker' in navigator) {
         });
       })
       .catch((error) => {
-        console.log('SW: Service Worker registration failed:', error);
+        console.warn('SW: Service Worker registration failed, app will work without offline support:', error);
       });
   });
 
-  // Handle service worker updates
+  // Handle service worker updates with safety check
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     console.log('SW: New service worker activated, reloading page');
-    window.location.reload();
+    // Only reload if we're not in the middle of navigation
+    if (document.readyState === 'complete') {
+      window.location.reload();
+    }
   });
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+const container = document.getElementById("root");
+if (!container) {
+  throw new Error("Root container not found");
+}
+
+const root = createRoot(container);
+root.render(<App />);
