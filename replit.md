@@ -135,6 +135,15 @@ Preferred communication style: Simple, everyday language.
   - Added tournament management to navigation sidebar with admin-only visibility
   - Established foundation for future public tournament expansion beyond current 2025 tournament
   - Tournament management supports comprehensive tournament lifecycle from creation to completion
+- **Fixed Auto-Save Functionality and Removed Drive Direction:**
+  - Corrected API request parameter order for statistics saving (method, url, data)
+  - Fixed statistics auto-save with 1-second delay after user stops making changes
+  - Score auto-save works with 2-second delay after user stops clicking +/- buttons
+  - Completely removed Drive Direction buttons/section as requested
+  - Removed manual "Save Stats" button - now fully automatic
+  - Added proper visual feedback for auto-save status indicators
+  - Statistics now persist per hole and load correctly when navigating between holes
+  - Auto-save timers properly clean up on component unmount to prevent memory leaks
 - **Implemented Comprehensive Historical Performance Tracking System:**
   - Created player_tournament_history table for multi-year tournament data storage
   - Built comprehensive PlayerProfile component with detailed historical statistics and performance analysis
