@@ -122,6 +122,14 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 17, 2025:**
+- **Fixed Team Database Consistency and Cleaned Up Database Structure:**
+  - Corrected Team 1 to be Nick Grossi & Connor Patterson (not Christian Hauck)
+  - Updated Team 3 to be Christian Hauck & Austin Hassani 
+  - Fixed hole_scores table to reflect correct team assignments (moved Connor's scores to Team 1)
+  - Removed redundant database tables (scores, matchups, session) to minimize database complexity
+  - Team 1 now shows 67 points for Round 1 (both players completed) and 7 points for Round 2 (Nick in progress)
+  - Database now uses calculated scores from hole_scores table instead of separate scores table
+  - Streamlined database structure to use only essential tables: hole_scores, teams, users, sessions, side_bets, photos, tournaments, player_tournament_history
 - **Enhanced Score Button Visual Feedback and Birdie Notification System:**
   - Enhanced score button styling with bold text, scale effects, and white borders when selected
   - Implemented comprehensive birdie notification system with real-time pop-up alerts
