@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gambler-cup-2025-v2';
+const CACHE_NAME = 'gambler-cup-2025-v3';
 const urlsToCache = [
   '/',
   '/manifest.json',
