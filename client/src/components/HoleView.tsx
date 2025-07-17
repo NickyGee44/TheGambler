@@ -201,8 +201,7 @@ export default function HoleView({
 
   const updateScore = (strokes: number) => {
     if (strokes < 1) return;
-    // Set the score immediately in the UI but delay saving
-    // The parent component will handle the currentScore state
+    // Only schedule save, don't save immediately on each click
     scheduleScoreSave(strokes);
   };
 
