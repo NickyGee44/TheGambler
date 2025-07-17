@@ -509,13 +509,60 @@ export default function Round3() {
           {/* Hole view with top padding for progress bar */}
           <div className="pt-20">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="play">Play</TabsTrigger>
-                <TabsTrigger value="match">Match</TabsTrigger>
                 <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
               </TabsList>
               
               <TabsContent value="play" className="mt-4">
+                {/* Match Play Information Card */}
+                {currentMatch && (
+                  <div className="mb-6 bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
+                        <Crown className="w-5 h-5" />
+                        Match Play - {currentMatch.holes}
+                      </h3>
+                      <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                        {currentMatch.result || 'In Progress'}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-3">
+                      <div className="text-center">
+                        <div className="font-medium text-sm text-yellow-700 dark:text-yellow-300">
+                          {currentMatch.player1_name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          HCP: {currentMatch.player1_handicap}
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-medium text-sm text-yellow-700 dark:text-yellow-300">
+                          {currentMatch.player2_name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          HCP: {currentMatch.player2_handicap}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {currentMatch.strokes_given > 0 && (
+                      <div className="text-center text-sm text-yellow-700 dark:text-yellow-300 mb-2">
+                        {currentMatch.stroke_recipient_id === currentMatch.player1_id ? currentMatch.player1_name : currentMatch.player2_name} receives {currentMatch.strokes_given} stroke{currentMatch.strokes_given > 1 ? 's' : ''}
+                      </div>
+                    )}
+                    
+                    {currentMatch.points_awarded && (
+                      <div className="text-center">
+                        <Badge className="bg-yellow-600 text-white">
+                          {currentMatch.points_awarded} Points Awarded
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 <HoleView
                   hole={currentHoleData}
                   round={round}
@@ -528,18 +575,6 @@ export default function Round3() {
                   isUpdating={updateScoreMutation.isPending}
                   onShowLeaderboard={() => setShowLeaderboard(true)}
                   holeScores={holeScores}
-                />
-              </TabsContent>
-              
-              <TabsContent value="match" className="mt-4">
-                <MatchPlayView
-                  currentHole={currentHole}
-                  userId={user?.id || 0}
-                  currentMatch={currentMatch}
-                  onHoleComplete={(hole) => {
-                    queryClient.invalidateQueries({ queryKey: ["/api/match-play/matches"] });
-                    queryClient.invalidateQueries({ queryKey: ["/api/match-play/leaderboard"] });
-                  }}
                 />
               </TabsContent>
               
