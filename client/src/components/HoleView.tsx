@@ -141,15 +141,24 @@ export default function HoleView({
     };
   }, []);
 
-  // Auto-save stats when they change
+  // Track if we're in initial load to prevent auto-save during load
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
+  // Auto-save stats when they change (but not on initial load)
   useEffect(() => {
-    scheduleStatsSave();
-  }, [fairwayInRegulation, greenInRegulation, driveDirection, putts, penalties, sandSaves, upAndDowns]);
+    if (!isInitialLoad) {
+      scheduleStatsSave();
+    }
+  }, [fairwayInRegulation, greenInRegulation, driveDirection, putts, penalties, sandSaves, upAndDowns, isInitialLoad]);
 
-  // Load statistics for current hole
+  // Load statistics and score for current hole
   useEffect(() => {
+    setIsInitialLoad(true);
+    
     // Find the hole score for the current hole
     const currentHoleScore = holeScores.find(score => score.hole === hole.number);
+    
+    console.log('Loading hole', hole.number, 'found score:', currentHoleScore);
     
     if (currentHoleScore) {
       // Load existing statistics for this hole
@@ -170,6 +179,9 @@ export default function HoleView({
       setSandSaves(0);
       setUpAndDowns(0);
     }
+    
+    // Set initial load to false after a brief delay to allow state to settle
+    setTimeout(() => setIsInitialLoad(false), 100);
   }, [hole.number, holeScores]);
   
   // Get course data for GPS
@@ -201,7 +213,7 @@ export default function HoleView({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
+    <div key={`hole-${hole.number}-${round}`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="mb-6 text-center">
