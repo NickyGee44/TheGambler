@@ -48,6 +48,9 @@ export interface IStorage {
   updateHoleScoreStats(userId: number, round: number, hole: number, statsData: any): Promise<HoleScore>;
   getLeaderboard(round: number): Promise<(HoleScore & { user: User; team: Team })[]>;
   
+  // Player Statistics
+  getPlayerStatistics(): Promise<any[]>;
+  
   // Side Bets
   getSideBets(): Promise<SideBet[]>;
   createSideBet(bet: InsertSideBet): Promise<SideBet>;
@@ -420,6 +423,186 @@ export class DatabaseStorage implements IStorage {
       }));
 
     return leaderboard;
+  }
+
+  async getPlayerStatistics(): Promise<any[]> {
+    // Get all hole scores with user and team information
+    const holeScoresData = await db.select({
+      holeScore: holeScores,
+      user: users,
+      team: teams,
+    }).from(holeScores)
+      .innerJoin(users, eq(holeScores.userId, users.id))
+      .innerJoin(teams, eq(holeScores.teamId, teams.id))
+      .orderBy(asc(holeScores.userId), asc(holeScores.round), asc(holeScores.hole));
+
+    // Group by user to calculate statistics
+    const userStatsMap = new Map<number, any>();
+
+    for (const data of holeScoresData) {
+      const userId = data.user.id;
+      const holeScore = data.holeScore;
+      
+      if (!userStatsMap.has(userId)) {
+        userStatsMap.set(userId, {
+          userId: userId,
+          firstName: data.user.firstName,
+          lastName: data.user.lastName,
+          totalRounds: new Set<number>(),
+          totalHoles: 0,
+          totalStrokes: 0,
+          totalPoints: 0,
+          fairwayHits: 0,
+          fairwayAttempts: 0,
+          greenHits: 0,
+          greenAttempts: 0,
+          totalPutts: 0,
+          totalPenalties: 0,
+          totalSandSaves: 0,
+          totalUpAndDowns: 0,
+          scoresByHole: [],
+          rounds: new Map<number, any>(),
+        });
+      }
+      
+      const userStats = userStatsMap.get(userId)!;
+      
+      // Track rounds
+      userStats.totalRounds.add(holeScore.round);
+      userStats.totalHoles += 1;
+      userStats.totalStrokes += holeScore.strokes;
+      userStats.totalPoints += holeScore.points;
+      
+      // Calculate score relative to par (assuming par data would be available)
+      const par = 4; // This would come from hole data
+      const scoreDiff = holeScore.strokes - par;
+      userStats.scoresByHole.push({
+        round: holeScore.round,
+        hole: holeScore.hole,
+        strokes: holeScore.strokes,
+        par: par,
+        diff: scoreDiff,
+      });
+      
+      // Track statistics if available
+      if (holeScore.fairwayInRegulation !== null) {
+        userStats.fairwayAttempts += 1;
+        if (holeScore.fairwayInRegulation) {
+          userStats.fairwayHits += 1;
+        }
+      }
+      
+      if (holeScore.greenInRegulation !== null) {
+        userStats.greenAttempts += 1;
+        if (holeScore.greenInRegulation) {
+          userStats.greenHits += 1;
+        }
+      }
+      
+      if (holeScore.putts) {
+        userStats.totalPutts += holeScore.putts;
+      }
+      
+      if (holeScore.penalties) {
+        userStats.totalPenalties += holeScore.penalties;
+      }
+      
+      if (holeScore.sandSaves) {
+        userStats.totalSandSaves += holeScore.sandSaves;
+      }
+      
+      if (holeScore.upAndDowns) {
+        userStats.totalUpAndDowns += holeScore.upAndDowns;
+      }
+      
+      // Track round statistics
+      const roundNum = holeScore.round;
+      if (!userStats.rounds.has(roundNum)) {
+        userStats.rounds.set(roundNum, {
+          round: roundNum,
+          holes: 0,
+          totalStrokes: 0,
+          points: 0,
+          fairwayHits: 0,
+          fairwayAttempts: 0,
+          greenHits: 0,
+          greenAttempts: 0,
+          putts: 0,
+          penalties: 0,
+          sandSaves: 0,
+          upAndDowns: 0,
+        });
+      }
+      
+      const roundStats = userStats.rounds.get(roundNum)!;
+      roundStats.holes += 1;
+      roundStats.totalStrokes += holeScore.strokes;
+      roundStats.points += holeScore.points;
+      
+      if (holeScore.fairwayInRegulation !== null) {
+        roundStats.fairwayAttempts += 1;
+        if (holeScore.fairwayInRegulation) {
+          roundStats.fairwayHits += 1;
+        }
+      }
+      
+      if (holeScore.greenInRegulation !== null) {
+        roundStats.greenAttempts += 1;
+        if (holeScore.greenInRegulation) {
+          roundStats.greenHits += 1;
+        }
+      }
+      
+      if (holeScore.putts) {
+        roundStats.putts += holeScore.putts;
+      }
+      
+      if (holeScore.penalties) {
+        roundStats.penalties += holeScore.penalties;
+      }
+      
+      if (holeScore.sandSaves) {
+        roundStats.sandSaves += holeScore.sandSaves;
+      }
+      
+      if (holeScore.upAndDowns) {
+        roundStats.upAndDowns += holeScore.upAndDowns;
+      }
+    }
+
+    // Convert to final format
+    const playerStats = Array.from(userStatsMap.values()).map(stats => {
+      // Calculate scoring breakdown
+      const birdies = stats.scoresByHole.filter((h: any) => h.diff === -1).length;
+      const eagles = stats.scoresByHole.filter((h: any) => h.diff <= -2).length;
+      const pars = stats.scoresByHole.filter((h: any) => h.diff === 0).length;
+      const bogeys = stats.scoresByHole.filter((h: any) => h.diff === 1).length;
+      const doubleBogeys = stats.scoresByHole.filter((h: any) => h.diff >= 2).length;
+      
+      return {
+        userId: stats.userId,
+        firstName: stats.firstName,
+        lastName: stats.lastName,
+        totalRounds: stats.totalRounds.size,
+        totalHoles: stats.totalHoles,
+        averageScore: stats.totalHoles > 0 ? (stats.totalStrokes / stats.totalHoles).toFixed(1) : 0,
+        fairwayPercentage: stats.fairwayAttempts > 0 ? ((stats.fairwayHits / stats.fairwayAttempts) * 100).toFixed(1) : 0,
+        greenPercentage: stats.greenAttempts > 0 ? ((stats.greenHits / stats.greenAttempts) * 100).toFixed(1) : 0,
+        averagePutts: stats.totalHoles > 0 ? (stats.totalPutts / stats.totalHoles).toFixed(1) : 0,
+        totalPenalties: stats.totalPenalties,
+        totalSandSaves: stats.totalSandSaves,
+        totalUpAndDowns: stats.totalUpAndDowns,
+        birdies: birdies,
+        eagles: eagles,
+        pars: pars,
+        bogeys: bogeys,
+        doubleBogeys: doubleBogeys,
+        totalPoints: stats.totalPoints,
+        rounds: Array.from(stats.rounds.values()),
+      };
+    });
+
+    return playerStats;
   }
 
   // Legacy in-memory storage for development

@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -55,65 +57,60 @@ interface PlayerStats {
 export default function Stats() {
   const [selectedTab, setSelectedTab] = useState("overview");
 
-  // This would be replaced with actual API calls
-  const { data: playerStats, isLoading } = useQuery({
+  // Real-time player statistics
+  const { data: playerStats = [], isLoading } = useQuery({
     queryKey: ["/api/player-stats"],
-    queryFn: async () => {
-      // Mock data for demonstration
-      return [
-        {
-          userId: 1,
-          firstName: "Nick",
-          lastName: "Grossi",
-          totalRounds: 3,
-          totalHoles: 54,
-          averageScore: 85.2,
-          fairwayPercentage: 65.4,
-          greenPercentage: 44.4,
-          averagePutts: 1.8,
-          totalPenalties: 12,
-          totalSandSaves: 3,
-          totalUpAndDowns: 8,
-          totalDuffs: 5,
-          birdies: 4,
-          eagles: 1,
-          pars: 28,
-          bogeys: 18,
-          doubleBogeys: 3,
-          rounds: [
-            { round: 1, score: 88, fairwayHits: 8, fairwayAttempts: 12, greenHits: 6, greenAttempts: 18, putts: 32, penalties: 4, sandSaves: 1, upAndDowns: 3, duffs: 2 },
-            { round: 2, score: 82, fairwayHits: 9, fairwayAttempts: 12, greenHits: 9, greenAttempts: 18, putts: 30, penalties: 3, sandSaves: 2, upAndDowns: 3, duffs: 1 },
-            { round: 3, score: 86, fairwayHits: 7, fairwayAttempts: 12, greenHits: 7, greenAttempts: 18, putts: 34, penalties: 5, sandSaves: 0, upAndDowns: 2, duffs: 2 }
-          ]
-        },
-        {
-          userId: 2,
-          firstName: "Connor",
-          lastName: "Patterson",
-          totalRounds: 3,
-          totalHoles: 54,
-          averageScore: 78.5,
-          fairwayPercentage: 72.2,
-          greenPercentage: 61.1,
-          averagePutts: 1.7,
-          totalPenalties: 8,
-          totalSandSaves: 5,
-          totalUpAndDowns: 12,
-          totalDuffs: 2,
-          birdies: 8,
-          eagles: 0,
-          pars: 35,
-          bogeys: 10,
-          doubleBogeys: 1,
-          rounds: [
-            { round: 1, score: 79, fairwayHits: 9, fairwayAttempts: 12, greenHits: 11, greenAttempts: 18, putts: 29, penalties: 2, sandSaves: 2, upAndDowns: 4, duffs: 1 },
-            { round: 2, score: 76, fairwayHits: 10, fairwayAttempts: 12, greenHits: 12, greenAttempts: 18, putts: 28, penalties: 3, sandSaves: 2, upAndDowns: 4, duffs: 0 },
-            { round: 3, score: 81, fairwayHits: 8, fairwayAttempts: 12, greenHits: 10, greenAttempts: 18, putts: 31, penalties: 3, sandSaves: 1, upAndDowns: 4, duffs: 1 }
-          ]
-        }
-      ] as PlayerStats[];
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
+  // WebSocket for real-time updates
+  useWebSocket('/ws', {
+    onMessage: (data) => {
+      if (data.type === 'HOLE_SCORE_UPDATE' || data.type === 'HOLE_STATS_UPDATE') {
+        // Invalidate player statistics to trigger refresh
+        queryClient.invalidateQueries({ queryKey: ["/api/player-stats"] });
+      }
     }
   });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center text-white">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-golf-green-400 mx-auto mb-4"></div>
+            <p>Loading tournament statistics...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!playerStats || playerStats.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center text-white">
+            <BarChart3 className="w-16 h-16 mx-auto mb-4 text-golf-green-400" />
+            <h2 className="text-2xl font-bold mb-2">No Statistics Available</h2>
+            <p className="text-gray-300">Tournament statistics will appear here once players start recording scores and stats during live rounds.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate tournament-wide statistics
+  const totalHoles = playerStats.reduce((sum: number, player: any) => sum + player.totalHoles, 0);
+  const totalRounds = playerStats.reduce((sum: number, player: any) => sum + player.totalRounds, 0);
+  const averageFairwayPercentage = totalHoles > 0 ? (
+    playerStats.reduce((sum: number, player: any) => sum + (parseFloat(player.fairwayPercentage) || 0), 0) / playerStats.length
+  ).toFixed(1) : 0;
+  const averageGreenPercentage = totalHoles > 0 ? (
+    playerStats.reduce((sum: number, player: any) => sum + (parseFloat(player.greenPercentage) || 0), 0) / playerStats.length
+  ).toFixed(1) : 0;
+
+
 
   if (isLoading) {
     return (
@@ -154,11 +151,11 @@ export default function Stats() {
     getLeaderboardData('fairwayPercentage', 'Fairway Accuracy', true),
     getLeaderboardData('greenPercentage', 'Greens in Regulation', true),
     getLeaderboardData('averagePutts', 'Putting Average', false, true),
-    getLeaderboardData('totalDuffs', 'Most Duffs', false, false),
     getLeaderboardData('birdies', 'Most Birdies', false, false),
     getLeaderboardData('totalPenalties', 'Penalty Strokes', false, false),
     getLeaderboardData('totalSandSaves', 'Sand Saves', false, false),
-    getLeaderboardData('totalUpAndDowns', 'Up & Downs', false, false)
+    getLeaderboardData('totalUpAndDowns', 'Up & Downs', false, false),
+    getLeaderboardData('totalPoints', 'Total Points', false, false)
   ];
 
   return (
@@ -194,22 +191,46 @@ export default function Stats() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Fairway Accuracy</span>
                     <div className="flex items-center gap-2">
-                      <ProfilePicture firstName="Connor" lastName="Patterson" size="sm" />
-                      <span className="text-sm">72.2%</span>
+                      {playerStats.length > 0 && (
+                        <>
+                          <ProfilePicture 
+                            firstName={playerStats.sort((a, b) => parseFloat(b.fairwayPercentage) - parseFloat(a.fairwayPercentage))[0]?.firstName || ""} 
+                            lastName={playerStats.sort((a, b) => parseFloat(b.fairwayPercentage) - parseFloat(a.fairwayPercentage))[0]?.lastName || ""} 
+                            size="sm" 
+                          />
+                          <span className="text-sm">{playerStats.sort((a, b) => parseFloat(b.fairwayPercentage) - parseFloat(a.fairwayPercentage))[0]?.fairwayPercentage || 0}%</span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">GIR</span>
                     <div className="flex items-center gap-2">
-                      <ProfilePicture firstName="Connor" lastName="Patterson" size="sm" />
-                      <span className="text-sm">61.1%</span>
+                      {playerStats.length > 0 && (
+                        <>
+                          <ProfilePicture 
+                            firstName={playerStats.sort((a, b) => parseFloat(b.greenPercentage) - parseFloat(a.greenPercentage))[0]?.firstName || ""} 
+                            lastName={playerStats.sort((a, b) => parseFloat(b.greenPercentage) - parseFloat(a.greenPercentage))[0]?.lastName || ""} 
+                            size="sm" 
+                          />
+                          <span className="text-sm">{playerStats.sort((a, b) => parseFloat(b.greenPercentage) - parseFloat(a.greenPercentage))[0]?.greenPercentage || 0}%</span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Putting</span>
                     <div className="flex items-center gap-2">
-                      <ProfilePicture firstName="Connor" lastName="Patterson" size="sm" />
-                      <span className="text-sm">1.7 avg</span>
+                      {playerStats.length > 0 && (
+                        <>
+                          <ProfilePicture 
+                            firstName={playerStats.sort((a, b) => parseFloat(a.averagePutts) - parseFloat(b.averagePutts))[0]?.firstName || ""} 
+                            lastName={playerStats.sort((a, b) => parseFloat(a.averagePutts) - parseFloat(b.averagePutts))[0]?.lastName || ""} 
+                            size="sm" 
+                          />
+                          <span className="text-sm">{playerStats.sort((a, b) => parseFloat(a.averagePutts) - parseFloat(b.averagePutts))[0]?.averagePutts || 0} avg</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -228,16 +249,16 @@ export default function Stats() {
                   <div>
                     <div className="flex justify-between mb-1">
                       <span className="text-sm">Avg Fairway %</span>
-                      <span className="text-sm font-medium">68.8%</span>
+                      <span className="text-sm font-medium">{averageFairwayPercentage}%</span>
                     </div>
-                    <Progress value={68.8} className="h-2" />
+                    <Progress value={parseFloat(averageFairwayPercentage.toString())} className="h-2" />
                   </div>
                   <div>
                     <div className="flex justify-between mb-1">
                       <span className="text-sm">Avg GIR %</span>
-                      <span className="text-sm font-medium">52.8%</span>
+                      <span className="text-sm font-medium">{averageGreenPercentage}%</span>
                     </div>
-                    <Progress value={52.8} className="h-2" />
+                    <Progress value={parseFloat(averageGreenPercentage.toString())} className="h-2" />
                   </div>
                 </div>
               </CardContent>
@@ -254,15 +275,15 @@ export default function Stats() {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm">Total Birdies</span>
-                    <Badge variant="default">12</Badge>
+                    <Badge variant="default">{playerStats.reduce((sum, p) => sum + p.birdies, 0)}</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm">Total Eagles</span>
-                    <Badge variant="secondary">1</Badge>
+                    <Badge variant="secondary">{playerStats.reduce((sum, p) => sum + p.eagles, 0)}</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm">Total Pars</span>
-                    <Badge variant="outline">63</Badge>
+                    <Badge variant="outline">{playerStats.reduce((sum, p) => sum + p.pars, 0)}</Badge>
                   </div>
                 </div>
               </CardContent>

@@ -53,12 +53,16 @@ export default function Scores() {
   // WebSocket for real-time updates
   useWebSocket('/ws', {
     onMessage: (data) => {
-      if (data.type === 'SCORE_UPDATE') {
+      if (data.type === 'SCORE_UPDATE' || data.type === 'HOLE_SCORE_UPDATE' || data.type === 'HOLE_STATS_UPDATE') {
         queryClient.invalidateQueries({ queryKey: ['/api/scores'] });
-        toast({
-          title: "Score Updated",
-          description: `Team ${data.data.teamId} score has been updated`,
-        });
+        queryClient.invalidateQueries({ queryKey: ['/api/player-stats'] });
+        
+        if (data.type === 'SCORE_UPDATE') {
+          toast({
+            title: "Score Updated",
+            description: `Team ${data.data.teamId} score has been updated`,
+          });
+        }
       }
     }
   });
