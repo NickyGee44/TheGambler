@@ -53,10 +53,10 @@ export default function HoleView({
   onShowLeaderboard
 }: HoleViewProps) {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'score' | 'stats' | 'map'>('score');
+  const [activeTab, setActiveTab] = useState<'scoring' | 'map'>('scoring');
   
   // Golf statistics state
-  const [fairwayHit, setFairwayHit] = useState<boolean | null>(null);
+  const [fairwayInRegulation, setFairwayInRegulation] = useState<boolean | null>(null);
   const [greenInRegulation, setGreenInRegulation] = useState<boolean | null>(null);
   const [driveDirection, setDriveDirection] = useState<string>('');
   const [putts, setPutts] = useState<number>(0);
@@ -92,7 +92,7 @@ export default function HoleView({
   // Auto-save statistics when they change
   const saveStatistics = () => {
     const stats = {
-      fairwayInRegulation: fairwayHit,
+      fairwayInRegulation: fairwayInRegulation,
       greenInRegulation: greenInRegulation,
       driveDirection: driveDirection || null,
       putts,
@@ -168,26 +168,15 @@ export default function HoleView({
         {/* Tab Navigation */}
         <div className="flex mb-6 bg-gray-800 rounded-lg p-1 border border-gray-700 shadow-lg">
           <button
-            onClick={() => setActiveTab('score')}
+            onClick={() => setActiveTab('scoring')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md transition-colors ${
-              activeTab === 'score' 
+              activeTab === 'scoring' 
                 ? 'bg-golf-green-600 text-white shadow-md' 
                 : 'text-gray-300 hover:bg-gray-700 hover:text-white'
             }`}
           >
             <Target className="w-4 h-4" />
-            Score
-          </button>
-          <button
-            onClick={() => setActiveTab('stats')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md transition-colors ${
-              activeTab === 'stats' 
-                ? 'bg-golf-green-600 text-white shadow-md' 
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-            }`}
-          >
-            <Flag className="w-4 h-4" />
-            Stats
+            Scoring
           </button>
           <button
             onClick={() => setActiveTab('map')}
@@ -202,280 +191,285 @@ export default function HoleView({
           </button>
         </div>
 
-        {/* Tab Content */}
-        {activeTab === 'score' && (
-          <Card className="mb-6 bg-gray-800 border-2 border-gray-700 shadow-xl">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-center text-white">Your Score</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center gap-4 mb-4">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => updateScore(currentScore - 1)}
-                disabled={currentScore <= 0 || isUpdating}
-                className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-              >
-                <Minus className="w-6 h-6" />
-              </Button>
-              
-              <div className="text-center">
-                <div className={`text-6xl font-bold ${getScoreColor(currentScore, hole.par)}`}>
-                  {currentScore || "-"}
+        {/* Combined Scoring & Stats Tab */}
+        {activeTab === 'scoring' && (
+          <div className="space-y-6">
+            {/* Central Score Input */}
+            <Card className="bg-gray-800 border-2 border-gray-700 shadow-xl">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-center text-white">Your Score</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-center gap-4 mb-4">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => updateScore(currentScore - 1)}
+                    disabled={currentScore <= 0 || isUpdating}
+                    className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+                  >
+                    <Minus className="w-6 h-6" />
+                  </Button>
+                  
+                  <div className="text-center">
+                    <div className={`text-6xl font-bold ${getScoreColor(currentScore, hole.par)}`}>
+                      {currentScore || "-"}
+                    </div>
+                    {currentScore > 0 && (
+                      <div className="text-sm font-medium text-gray-300">
+                        {getScoreName(currentScore, hole.par)}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => updateScore(currentScore + 1)}
+                    disabled={isUpdating}
+                    className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+                  >
+                    <Plus className="w-6 h-6" />
+                  </Button>
                 </div>
-                {currentScore > 0 && (
-                  <div className="text-sm font-medium text-gray-300">
-                    {getScoreName(currentScore, hole.par)}
+                
+                {isUpdating && (
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-golf-green-400 mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-300">Saving score...</p>
                   </div>
                 )}
-              </div>
-              
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => updateScore(currentScore + 1)}
-                disabled={isUpdating}
-                className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-              >
-                <Plus className="w-6 h-6" />
-              </Button>
+              </CardContent>
+            </Card>
+
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Fairway & Green */}
+              <Card className="bg-gray-800 border border-gray-700">
+                <CardContent className="p-4">
+                  <div className="text-center space-y-3">
+                    <div>
+                      <div className="text-sm text-gray-300 mb-1">Fairway</div>
+                      <div className="flex gap-1">
+                        <Button
+                          variant={fairwayInRegulation ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setFairwayInRegulation(true)}
+                          className={fairwayInRegulation ? "bg-green-600 hover:bg-green-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
+                        >
+                          Hit
+                        </Button>
+                        <Button
+                          variant={!fairwayInRegulation ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setFairwayInRegulation(false)}
+                          className={!fairwayInRegulation ? "bg-red-600 hover:bg-red-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
+                        >
+                          Miss
+                        </Button>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-300 mb-1">Green</div>
+                      <div className="flex gap-1">
+                        <Button
+                          variant={greenInRegulation ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setGreenInRegulation(true)}
+                          className={greenInRegulation ? "bg-green-600 hover:bg-green-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
+                        >
+                          Hit
+                        </Button>
+                        <Button
+                          variant={!greenInRegulation ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setGreenInRegulation(false)}
+                          className={!greenInRegulation ? "bg-red-600 hover:bg-red-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
+                        >
+                          Miss
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Putts & Penalties */}
+              <Card className="bg-gray-800 border border-gray-700">
+                <CardContent className="p-4">
+                  <div className="text-center space-y-3">
+                    <div>
+                      <div className="text-sm text-gray-300 mb-1">Putts</div>
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPutts(Math.max(0, putts - 1))}
+                          disabled={putts <= 0}
+                          className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </Button>
+                        <div className="text-xl font-bold w-8 text-center text-white">
+                          {putts}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPutts(putts + 1)}
+                          className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-300 mb-1">Penalties</div>
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPenalties(Math.max(0, penalties - 1))}
+                          disabled={penalties <= 0}
+                          className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </Button>
+                        <div className="text-xl font-bold w-8 text-center text-white">
+                          {penalties}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPenalties(penalties + 1)}
+                          className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            
-            {isUpdating && (
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-golf-green-400 mx-auto mb-2"></div>
-                <p className="text-sm text-gray-300">Saving score...</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        )}
 
-        {/* Statistics Tab */}
-        {activeTab === 'stats' && (
-          <Card className="mb-6 bg-gray-800 border-2 border-gray-700 shadow-xl">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-center flex items-center justify-center gap-2 text-white">
-                <Flag className="w-5 h-5" />
-                Golf Statistics
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              
-              {/* Fairway Hit (only for Par 4 and Par 5) */}
-              {hole.par >= 4 && (
-                <div>
-                  <h3 className="font-semibold mb-3 text-white">Fairway in Regulation</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant={fairwayHit === true ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setFairwayHit(true)}
-                      className="flex items-center gap-2 bg-golf-green-600 hover:bg-golf-green-700 text-white border-golf-green-600"
-                    >
-                      <Target className="w-4 h-4" />
-                      Hit
-                    </Button>
-                    <Button
-                      variant={fairwayHit === false ? "destructive" : "outline"}
-                      size="sm"
-                      onClick={() => setFairwayHit(false)}
-                      className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white border-red-600"
-                    >
-                      <XCircle className="w-4 h-4" />
-                      Missed
-                    </Button>
+            {/* Drive Direction */}
+            <Card className="bg-gray-800 border border-gray-700">
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <div className="text-sm text-gray-300 mb-2">Drive Direction</div>
+                  <div className="grid grid-cols-3 gap-2 mb-2">
+                    {['left', 'hit', 'right'].map((direction) => (
+                      <Button
+                        key={direction}
+                        variant={driveDirection === direction ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setDriveDirection(direction)}
+                        className={driveDirection === direction ? "bg-golf-green-600 hover:bg-golf-green-700 text-xs py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs py-1"}
+                      >
+                        {direction.charAt(0).toUpperCase() + direction.slice(1)}
+                      </Button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['short', 'long', 'duff'].map((direction) => (
+                      <Button
+                        key={direction}
+                        variant={driveDirection === direction ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setDriveDirection(direction)}
+                        className={driveDirection === direction ? "bg-golf-green-600 hover:bg-golf-green-700 text-xs py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs py-1"}
+                      >
+                        {direction.charAt(0).toUpperCase() + direction.slice(1)}
+                      </Button>
+                    ))}
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Sand Saves & Up and Downs */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="bg-gray-800 border border-gray-700">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-sm text-gray-300 mb-2">Sand Saves</div>
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSandSaves(Math.max(0, sandSaves - 1))}
+                        disabled={sandSaves <= 0}
+                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </Button>
+                      <div className="text-xl font-bold w-8 text-center text-white">
+                        {sandSaves}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSandSaves(sandSaves + 1)}
+                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800 border border-gray-700">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-sm text-gray-300 mb-2">Up & Downs</div>
+                    <div className="flex items-center justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setUpAndDowns(Math.max(0, upAndDowns - 1))}
+                        disabled={upAndDowns <= 0}
+                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </Button>
+                      <div className="text-xl font-bold w-8 text-center text-white">
+                        {upAndDowns}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setUpAndDowns(upAndDowns + 1)}
+                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Save Statistics Button */}
+            <Button
+              onClick={saveStatistics}
+              disabled={updateStatsMutation.isPending}
+              className="w-full bg-golf-green-600 hover:bg-golf-green-700 text-white font-semibold py-3"
+            >
+              {updateStatsMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Flag className="w-4 h-4 mr-2" />
+                  Save Statistics
+                </>
               )}
-
-              {/* Drive Direction */}
-              <div>
-                <h3 className="font-semibold mb-3 text-white">Drive Direction</h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {['left', 'hit', 'right'].map((direction) => (
-                    <Button
-                      key={direction}
-                      variant={driveDirection === direction ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setDriveDirection(direction)}
-                      className={`capitalize ${driveDirection === direction ? 'bg-golf-green-600 hover:bg-golf-green-700 text-white border-golf-green-600' : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600'}`}
-                    >
-                      {direction}
-                    </Button>
-                  ))}
-                </div>
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {['short', 'long', 'duff'].map((direction) => (
-                    <Button
-                      key={direction}
-                      variant={driveDirection === direction ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setDriveDirection(direction)}
-                      className={`capitalize ${driveDirection === direction ? 'bg-golf-green-600 hover:bg-golf-green-700 text-white border-golf-green-600' : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600'}`}
-                    >
-                      {direction}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Green in Regulation */}
-              <div>
-                <h3 className="font-semibold mb-3 text-white">Green in Regulation</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant={greenInRegulation === true ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setGreenInRegulation(true)}
-                    className={`flex items-center gap-2 ${greenInRegulation === true ? 'bg-golf-green-600 hover:bg-golf-green-700 text-white border-golf-green-600' : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600'}`}
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    Hit
-                  </Button>
-                  <Button
-                    variant={greenInRegulation === false ? "destructive" : "outline"}
-                    size="sm"
-                    onClick={() => setGreenInRegulation(false)}
-                    className={`flex items-center gap-2 ${greenInRegulation === false ? 'bg-red-600 hover:bg-red-700 text-white border-red-600' : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600'}`}
-                  >
-                    <XCircle className="w-4 h-4" />
-                    Missed
-                  </Button>
-                </div>
-              </div>
-
-              {/* Putts */}
-              <div>
-                <h3 className="font-semibold mb-3 text-white">Number of Putts</h3>
-                <div className="flex items-center justify-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPutts(Math.max(0, putts - 1))}
-                    disabled={putts <= 0}
-                    className="w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                  <div className="text-3xl font-bold w-16 text-center text-white">
-                    {putts}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPutts(putts + 1)}
-                    className="w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Penalties */}
-              <div>
-                <h3 className="font-semibold mb-3 text-white">Penalty Strokes</h3>
-                <div className="flex items-center justify-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPenalties(Math.max(0, penalties - 1))}
-                    disabled={penalties <= 0}
-                    className="w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                  <div className="text-3xl font-bold w-16 text-center text-white">
-                    {penalties}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPenalties(penalties + 1)}
-                    className="w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Sand Saves & Up and Downs */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-semibold mb-2 text-sm text-white">Sand Saves</h3>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSandSaves(Math.max(0, sandSaves - 1))}
-                      disabled={sandSaves <= 0}
-                      className="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </Button>
-                    <div className="text-xl font-bold w-8 text-center text-white">
-                      {sandSaves}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSandSaves(sandSaves + 1)}
-                      className="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2 text-sm text-white">Up & Downs</h3>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setUpAndDowns(Math.max(0, upAndDowns - 1))}
-                      disabled={upAndDowns <= 0}
-                      className="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </Button>
-                    <div className="text-xl font-bold w-8 text-center text-white">
-                      {upAndDowns}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setUpAndDowns(upAndDowns + 1)}
-                      className="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Save Statistics Button */}
-              <div className="pt-4">
-                <Button
-                  onClick={saveStatistics}
-                  disabled={updateStatsMutation.isPending}
-                  className="w-full bg-golf-green-600 hover:bg-golf-green-700 text-white font-semibold py-3"
-                >
-                  {updateStatsMutation.isPending ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Flag className="w-4 h-4 mr-2" />
-                      Save Statistics
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+            </Button>
+          </div>
         )}
 
         {/* GPS Map Tab */}
