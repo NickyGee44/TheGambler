@@ -30,10 +30,10 @@ interface PlayerStats {
   lastName: string;
   totalRounds: number;
   totalHoles: number;
-  averageScore: number;
-  fairwayPercentage: number;
-  greenPercentage: number;
-  averagePutts: number;
+  averageScore: string;
+  fairwayPercentage: string;
+  greenPercentage: string;
+  averagePutts: string;
   totalPenalties: number;
   totalSandSaves: number;
   totalUpAndDowns: number;
@@ -375,19 +375,19 @@ export default function Stats() {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm">Avg Score</span>
-                        <span className="font-medium">{player.averageScore.toFixed(1)}</span>
+                        <span className="font-medium">{player.averageScore}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm">Fairway %</span>
-                        <span className="font-medium">{player.fairwayPercentage.toFixed(1)}%</span>
+                        <span className="font-medium">{player.fairwayPercentage}%</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm">GIR %</span>
-                        <span className="font-medium">{player.greenPercentage.toFixed(1)}%</span>
+                        <span className="font-medium">{player.greenPercentage}%</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm">Avg Putts</span>
-                        <span className="font-medium">{player.averagePutts.toFixed(1)}</span>
+                        <span className="font-medium">{player.averagePutts}</span>
                       </div>
                     </div>
                     <div className="space-y-2">

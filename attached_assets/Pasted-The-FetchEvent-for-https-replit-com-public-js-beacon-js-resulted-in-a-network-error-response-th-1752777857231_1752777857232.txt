@@ -1,0 +1,70 @@
+The FetchEvent for "https://replit.com/public/js/beacon.js" resulted in a network error response: the promise was rejected.
+sw.js:58 
+            
+            
+           Uncaught (in promise) TypeError: Failed to fetch
+    at sw.js:58:18
+client:536 WebSocket connection to 'wss://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/?token=hMc_6BzFHue4' failed: 
+setupWebSocket @ client:536
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=hMc_6BzFHue4' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+chunk-WERSD76P.js?v=d3e929c1:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+main.tsx:10 SW: Service Worker registered
+stats:1 <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">
+stats:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+useWebSocket.ts:34 WebSocket connected
+Stats.tsx:378 Uncaught TypeError: player.averageScore.toFixed is not a function
+    at Stats.tsx:378:76
+    at Array.map (<anonymous>)
+    at Stats (Stats.tsx:356:27)
+    at renderWithHooks (chunk-WERSD76P.js?v=d3e929c1:11548:26)
+    at updateFunctionComponent (chunk-WERSD76P.js?v=d3e929c1:14582:28)
+    at beginWork (chunk-WERSD76P.js?v=d3e929c1:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-WERSD76P.js?v=d3e929c1:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-WERSD76P.js?v=d3e929c1:3699:24)
+    at invokeGuardedCallback (chunk-WERSD76P.js?v=d3e929c1:3733:39)
+    at beginWork$1 (chunk-WERSD76P.js?v=d3e929c1:19765:15)
+Stats.tsx:378 Uncaught TypeError: player.averageScore.toFixed is not a function
+    at Stats.tsx:378:76
+    at Array.map (<anonymous>)
+    at Stats (Stats.tsx:356:27)
+    at renderWithHooks (chunk-WERSD76P.js?v=d3e929c1:11548:26)
+    at updateFunctionComponent (chunk-WERSD76P.js?v=d3e929c1:14582:28)
+    at beginWork (chunk-WERSD76P.js?v=d3e929c1:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-WERSD76P.js?v=d3e929c1:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-WERSD76P.js?v=d3e929c1:3699:24)
+    at invokeGuardedCallback (chunk-WERSD76P.js?v=d3e929c1:3733:39)
+    at beginWork$1 (chunk-WERSD76P.js?v=d3e929c1:19765:15)
+chunk-WERSD76P.js?v=d3e929c1:14032 The above error occurred in the <Stats> component:
+
+    at Stats (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/pages/Stats.tsx:41:41)
+    at Route (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d3e929c1:191:16)
+    at Switch (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d3e929c1:247:17)
+    at Router (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/App.tsx?v=NeD1tgP8CF7VcuXFYm0E4:104:31)
+    at main
+    at div
+    at Layout (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/components/Layout.tsx:23:34)
+    at Provider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=d3e929c1:38:15)
+    at TooltipProvider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d3e929c1:368:5)
+    at ThemeProvider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/components/ThemeProvider.tsx:25:3)
+    at QueryClientProvider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=d3e929c1:2805:3)
+    at ErrorBoundary (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/App.tsx?v=NeD1tgP8CF7VcuXFYm0E4:49:5)
+    at App (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/App.tsx?v=NeD1tgP8CF7VcuXFYm0E4:273:3)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-WERSD76P.js?v=d3e929c1:14032
+App.tsx:42 ErrorBoundary caught an error: TypeError: player.averageScore.toFixed is not a function
+    at Stats.tsx:378:76
+    at Array.map (<anonymous>)
+    at Stats (Stats.tsx:356:27)
+    at renderWithHooks (chunk-WERSD76P.js?v=d3e929c1:11548:26)
+    at updateFunctionComponent (chunk-WERSD76P.js?v=d3e929c1:14582:28)
+    at beginWork (chunk-WERSD76P.js?v=d3e929c1:15924:22)
+    at beginWork$1 (chunk-WERSD76P.js?v=d3e929c1:19753:22)
+    at performUnitOfWork (chunk-WERSD76P.js?v=d3e929c1:19198:20)
+    at workLoopSync (chunk-WERSD76P.js?v=d3e929c1:19137:13)
+    at renderRootSync (chunk-WERSD76P.js?v=d3e929c1:19116:15) Object
+componentDidCatch @ App.tsx:42
+useWebSocket.ts:49 WebSocket disconnected
