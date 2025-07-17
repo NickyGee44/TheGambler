@@ -201,7 +201,8 @@ export default function HoleView({
 
   const updateScore = (strokes: number) => {
     if (strokes < 1) return;
-    // Only schedule save, don't save immediately on each click
+    // Update the score immediately in UI but schedule save after 2 seconds
+    // This ensures the UI is responsive while preventing excessive API calls
     scheduleScoreSave(strokes);
   };
 
@@ -450,68 +451,36 @@ export default function HoleView({
 
             
 
-            {/* Sand Saves & Up and Downs */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="bg-gray-800 border border-gray-700">
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    <div className="text-sm text-gray-300 mb-2">Sand Saves</div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSandSaves(Math.max(0, sandSaves - 1))}
-                        disabled={sandSaves <= 0}
-                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
-                      >
-                        <Minus className="w-3 h-3" />
-                      </Button>
-                      <div className="text-xl font-bold w-8 text-center text-white">
-                        {sandSaves}
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSandSaves(sandSaves + 1)}
-                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </Button>
+            {/* Up and Downs */}
+            <Card className="bg-gray-800 border border-gray-700">
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <div className="text-sm text-gray-300 mb-2">Up & Downs</div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setUpAndDowns(Math.max(0, upAndDowns - 1))}
+                      disabled={upAndDowns <= 0}
+                      className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </Button>
+                    <div className="text-xl font-bold w-8 text-center text-white">
+                      {upAndDowns}
                     </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setUpAndDowns(upAndDowns + 1)}
+                      className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gray-800 border border-gray-700">
-                <CardContent className="p-4">
-                  <div className="text-center">
-                    <div className="text-sm text-gray-300 mb-2">Up & Downs</div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setUpAndDowns(Math.max(0, upAndDowns - 1))}
-                        disabled={upAndDowns <= 0}
-                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
-                      >
-                        <Minus className="w-3 h-3" />
-                      </Button>
-                      <div className="text-xl font-bold w-8 text-center text-white">
-                        {upAndDowns}
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setUpAndDowns(upAndDowns + 1)}
-                        className="w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600 p-0"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Auto-Save Status */}
             {(isSavingStats || updateStatsMutation.isPending) && (
