@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HoleView from "@/components/HoleView";
+import MatchPlayView from "@/components/MatchPlayView";
 import Layout from "@/components/Layout";
 import { getCourseForRound } from "@shared/courseData";
-import { Play, Flag, Trophy, Users, MapPin, Crown, CheckCircle, Star, ChevronDown, ChevronRight } from "lucide-react";
+import { Play, Flag, Trophy, Users, MapPin, Crown, CheckCircle, Star, ChevronDown, ChevronRight, Target, Zap, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -79,6 +81,141 @@ function PlayerHoleScores({ playerId, round }: { playerId: number; round: number
   );
 }
 
+// Match Play Leaderboard Component
+function MatchPlayLeaderboard({ leaderboard, currentUser }: { 
+  leaderboard: MatchPlayLeaderboard[], 
+  currentUser: any 
+}) {
+  if (leaderboard.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-golf-green-600" />
+            Match Play Leaderboard
+          </CardTitle>
+          <CardDescription>No matches have been completed yet</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8 text-muted-foreground">
+            <Target className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+            <p>Match play results will appear here once matches are completed.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Trophy className="w-5 h-5 text-golf-green-600" />
+          Match Play Leaderboard
+        </CardTitle>
+        <CardDescription>6-hole match play results</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {leaderboard.map((entry, index) => (
+            <div
+              key={entry.playerId}
+              className={`flex items-center justify-between p-4 rounded-lg border-2 ${
+                entry.playerId === currentUser?.id 
+                  ? 'bg-golf-green-50 border-golf-green-200 dark:bg-golf-green-900/20 dark:border-golf-green-700' 
+                  : 'bg-background border-border'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                  index === 0 ? 'bg-yellow-500 text-white' : 
+                  index === 1 ? 'bg-gray-400 text-white' :
+                  index === 2 ? 'bg-amber-600 text-white' : 
+                  'bg-golf-green-600 text-white'
+                }`}>
+                  {index + 1}
+                </div>
+                <ProfilePicture 
+                  firstName={entry.playerName.split(' ')[0]} 
+                  lastName={entry.playerName.split(' ')[1]} 
+                  size="md"
+                />
+                <div>
+                  <div className="font-semibold">
+                    {entry.playerName}
+                    {entry.playerId === currentUser?.id && (
+                      <span className="ml-2 text-xs text-golf-green-600 font-medium">(You)</span>
+                    )}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {entry.matchesPlayed} matches played
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-right">
+                <div className="font-bold text-lg text-golf-green-600">
+                  {entry.totalPoints} pts
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {entry.matchesWon}W - {entry.matchesTied}T - {entry.matchesLost}L
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface MatchPlayGroup {
+  id: number;
+  groupNumber: number;
+  player1Id: number;
+  player2Id: number;
+  player3Id: number;
+  player4Id: number;
+  player1Name: string;
+  player2Name: string;
+  player3Name: string;
+  player4Name: string;
+  player1Handicap: number;
+  player2Handicap: number;
+  player3Handicap: number;
+  player4Handicap: number;
+  createdAt: string;
+}
+
+interface MatchPlayMatch {
+  id: number;
+  groupId: number;
+  player1Id: number;
+  player2Id: number;
+  player1Name: string;
+  player2Name: string;
+  player1Handicap: number;
+  player2Handicap: number;
+  holes: string;
+  strokesGiven: number;
+  strokeRecipientId: number;
+  strokeHoles: number[];
+  winnerId?: number;
+  result?: string;
+  pointsAwarded?: number;
+  createdAt: string;
+}
+
+interface MatchPlayLeaderboard {
+  playerId: number;
+  playerName: string;
+  totalPoints: number;
+  matchesPlayed: number;
+  matchesWon: number;
+  matchesTied: number;
+  matchesLost: number;
+}
+
 export default function Round3() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -91,6 +228,7 @@ export default function Round3() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showRoundComplete, setShowRoundComplete] = useState(false);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("play");
 
   // WebSocket connection for real-time updates
   useWebSocket("/ws", {
@@ -101,6 +239,10 @@ export default function Round3() {
           detail: data.data,
         });
         window.dispatchEvent(event);
+      } else if (data.type === "MATCH_PLAY_CREATED" || data.type === "MATCH_PLAY_RESULT") {
+        // Refresh match play data when updates occur
+        queryClient.invalidateQueries({ queryKey: ["/api/match-play/matches"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/match-play/leaderboard"] });
       }
     },
   });
@@ -115,6 +257,31 @@ export default function Round3() {
   const { data: leaderboard = [] } = useQuery<LeaderboardEntry[]>({
     queryKey: [`/api/leaderboard/${round}`],
     refetchInterval: 10000, // Refresh every 10 seconds
+  });
+
+  // Fetch match play groups
+  const { data: matchPlayGroups = [] } = useQuery<MatchPlayGroup[]>({
+    queryKey: ["/api/match-play/groups"],
+    refetchInterval: 15000, // Refresh every 15 seconds
+  });
+
+  // Fetch match play matches
+  const { data: matchPlayMatches = [] } = useQuery<MatchPlayMatch[]>({
+    queryKey: ["/api/match-play/matches"],
+    refetchInterval: 10000, // Refresh every 10 seconds
+  });
+
+  // Fetch match play leaderboard
+  const { data: matchPlayLeaderboard = [] } = useQuery<MatchPlayLeaderboard[]>({
+    queryKey: ["/api/match-play/leaderboard"],
+    refetchInterval: 10000, // Refresh every 10 seconds
+  });
+
+  // Get current match for the player and hole
+  const { data: currentMatch } = useQuery({
+    queryKey: [`/api/match-play/current-match/${user?.id}/${currentHole}`],
+    enabled: !!user && isRoundStarted,
+    refetchInterval: 5000, // Refresh every 5 seconds during play
   });
 
   const updateScoreMutation = useMutation({
@@ -341,22 +508,49 @@ export default function Round3() {
 
           {/* Hole view with top padding for progress bar */}
           <div className="pt-20">
-            <HoleView
-              hole={currentHoleData}
-              round={round}
-              currentScore={currentScore}
-              onScoreUpdate={updateScore}
-              onPreviousHole={handlePreviousHole}
-              onNextHole={handleNextHole}
-              isFirstHole={currentHole === 1}
-              isLastHole={currentHole === 18}
-              isUpdating={updateScoreMutation.isPending}
-              onShowLeaderboard={() => setShowLeaderboard(true)}
-              holeScores={holeScores}
-            />
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="play">Play</TabsTrigger>
+                <TabsTrigger value="match">Match</TabsTrigger>
+                <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="play" className="mt-4">
+                <HoleView
+                  hole={currentHoleData}
+                  round={round}
+                  currentScore={currentScore}
+                  onScoreUpdate={updateScore}
+                  onPreviousHole={handlePreviousHole}
+                  onNextHole={handleNextHole}
+                  isFirstHole={currentHole === 1}
+                  isLastHole={currentHole === 18}
+                  isUpdating={updateScoreMutation.isPending}
+                  onShowLeaderboard={() => setShowLeaderboard(true)}
+                  holeScores={holeScores}
+                />
+              </TabsContent>
+              
+              <TabsContent value="match" className="mt-4">
+                <MatchPlayView
+                  currentHole={currentHole}
+                  userId={user?.id || 0}
+                  currentMatch={currentMatch}
+                  onHoleComplete={(hole) => {
+                    queryClient.invalidateQueries({ queryKey: ["/api/match-play/matches"] });
+                    queryClient.invalidateQueries({ queryKey: ["/api/match-play/leaderboard"] });
+                  }}
+                />
+              </TabsContent>
+              
+              <TabsContent value="leaderboard" className="mt-4">
+                <MatchPlayLeaderboard
+                  leaderboard={matchPlayLeaderboard}
+                  currentUser={user}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
-
-
         </div>
       </Layout>
     );

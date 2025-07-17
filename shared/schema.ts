@@ -71,16 +71,38 @@ export const photos = pgTable("photos", {
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
-export const matchups = pgTable("matchups", {
+// Round 3 Match Play - 6-hole matches between players
+export const matchPlayMatches = pgTable("match_play_matches", {
   id: serial("id").primaryKey(),
-  foursome: text("foursome").notNull(),
-  player1: text("player1").notNull(),
-  player2: text("player2").notNull(),
-  holes: text("holes").notNull(),
-  strokesDescription: text("strokes_description").notNull(),
-  player1Score: integer("player1_score"),
-  player2Score: integer("player2_score"),
-  winner: text("winner"),
+  round: integer("round").notNull().default(3), // Always 3 for match play
+  player1Id: integer("player1_id").notNull().references(() => users.id),
+  player2Id: integer("player2_id").notNull().references(() => users.id),
+  groupNumber: integer("group_number").notNull(), // 1-4 for the foursomes
+  holeSegment: varchar("hole_segment", { length: 10 }).notNull(), // "1-6", "7-12", "13-18"
+  startHole: integer("start_hole").notNull(), // 1, 7, or 13
+  endHole: integer("end_hole").notNull(), // 6, 12, or 18
+  handicapDifference: integer("handicap_difference").notNull(),
+  strokesGiven: integer("strokes_given").notNull().default(0),
+  strokeRecipientId: integer("stroke_recipient_id").references(() => users.id),
+  strokeHoles: jsonb("stroke_holes").default('[]'), // Array of hole numbers where strokes apply
+  player1NetScore: integer("player1_net_score"),
+  player2NetScore: integer("player2_net_score"),
+  winnerId: integer("winner_id").references(() => users.id),
+  result: varchar("result", { length: 10 }), // "player1_win", "player2_win", "tie"
+  pointsAwarded: jsonb("points_awarded").default('{"player1": 0, "player2": 0}'), // JSON with point allocation
+  matchStatus: varchar("match_status", { length: 20 }).default("pending"), // "pending", "in_progress", "completed"
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Round 3 Groups (foursomes) for match play
+export const matchPlayGroups = pgTable("match_play_groups", {
+  id: serial("id").primaryKey(),
+  groupNumber: integer("group_number").notNull().unique(),
+  player1Id: integer("player1_id").notNull().references(() => users.id),
+  player2Id: integer("player2_id").notNull().references(() => users.id),
+  player3Id: integer("player3_id").notNull().references(() => users.id),
+  player4Id: integer("player4_id").notNull().references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -161,7 +183,13 @@ export const insertPhotoSchema = createInsertSchema(photos).omit({
   uploadedAt: true,
 });
 
-export const insertMatchupSchema = createInsertSchema(matchups).omit({
+export const insertMatchPlayMatchSchema = createInsertSchema(matchPlayMatches).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMatchPlayGroupSchema = createInsertSchema(matchPlayGroups).omit({
   id: true,
   createdAt: true,
 });
@@ -200,8 +228,10 @@ export type SideBet = typeof sideBets.$inferSelect;
 export type InsertSideBet = z.infer<typeof insertSideBetSchema>;
 export type Photo = typeof photos.$inferSelect;
 export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
-export type Matchup = typeof matchups.$inferSelect;
-export type InsertMatchup = z.infer<typeof insertMatchupSchema>;
+export type MatchPlayMatch = typeof matchPlayMatches.$inferSelect;
+export type InsertMatchPlayMatch = z.infer<typeof insertMatchPlayMatchSchema>;
+export type MatchPlayGroup = typeof matchPlayGroups.$inferSelect;
+export type InsertMatchPlayGroup = z.infer<typeof insertMatchPlayGroupSchema>;
 export type HoleScore = typeof holeScores.$inferSelect;
 export type InsertHoleScore = z.infer<typeof insertHoleScoreSchema>;
 export type Tournament = typeof tournaments.$inferSelect;

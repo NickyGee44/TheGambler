@@ -8,6 +8,8 @@ import {
   holeScores,
   tournaments,
   playerTournamentHistory,
+  matchPlayMatches,
+  matchPlayGroups,
   type User,
   type InsertUser,
   type Team,
@@ -18,6 +20,8 @@ import {
   type HoleScore,
   type Tournament,
   type PlayerTournamentHistory,
+  type MatchPlayMatch,
+  type MatchPlayGroup,
   type InsertTeam,
   type InsertScore,
   type InsertSideBet,
@@ -26,6 +30,8 @@ import {
   type InsertHoleScore,
   type InsertTournament,
   type InsertPlayerTournamentHistory,
+  type InsertMatchPlayMatch,
+  type InsertMatchPlayGroup,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, asc } from "drizzle-orm";
@@ -73,6 +79,15 @@ export interface IStorage {
   getMatchups(): Promise<Matchup[]>;
   createMatchup(matchup: InsertMatchup): Promise<Matchup>;
   updateMatchupScore(matchupId: number, player1Score: number, player2Score: number): Promise<Matchup>;
+  
+  // Match Play (Round 3)
+  getMatchPlayGroups(): Promise<MatchPlayGroup[]>;
+  createMatchPlayGroup(group: InsertMatchPlayGroup): Promise<MatchPlayGroup>;
+  getMatchPlayMatches(groupNumber?: number): Promise<MatchPlayMatch[]>;
+  createMatchPlayMatch(match: InsertMatchPlayMatch): Promise<MatchPlayMatch>;
+  updateMatchPlayResult(matchId: number, winnerId: number | null, result: string, pointsAwarded: any): Promise<MatchPlayMatch>;
+  getMatchPlayLeaderboard(): Promise<any[]>;
+  getCurrentMatchForPlayer(playerId: number, currentHole: number): Promise<MatchPlayMatch | null>;
   
   // Player matching
   findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 } | null>;
@@ -1113,6 +1128,138 @@ export class DatabaseStorage implements IStorage {
 
     this.matchups.set(matchupId, updatedMatchup);
     return updatedMatchup;
+  }
+
+  // Match Play Methods (Round 3)
+  async getMatchPlayGroups(): Promise<MatchPlayGroup[]> {
+    return await db.select().from(matchPlayGroups);
+  }
+
+  async createMatchPlayGroup(group: InsertMatchPlayGroup): Promise<MatchPlayGroup> {
+    const [newGroup] = await db
+      .insert(matchPlayGroups)
+      .values(group)
+      .returning();
+    return newGroup;
+  }
+
+  async getMatchPlayMatches(groupNumber?: number): Promise<MatchPlayMatch[]> {
+    const query = db.select().from(matchPlayMatches);
+    if (groupNumber) {
+      return await query.where(eq(matchPlayMatches.groupNumber, groupNumber));
+    }
+    return await query;
+  }
+
+  async createMatchPlayMatch(match: InsertMatchPlayMatch): Promise<MatchPlayMatch> {
+    const [newMatch] = await db
+      .insert(matchPlayMatches)
+      .values(match)
+      .returning();
+    return newMatch;
+  }
+
+  async updateMatchPlayResult(matchId: number, winnerId: number | null, result: string, pointsAwarded: any): Promise<MatchPlayMatch> {
+    const [updatedMatch] = await db
+      .update(matchPlayMatches)
+      .set({
+        winnerId,
+        result,
+        pointsAwarded,
+        matchStatus: 'completed',
+        updatedAt: new Date(),
+      })
+      .where(eq(matchPlayMatches.id, matchId))
+      .returning();
+    return updatedMatch;
+  }
+
+  async getMatchPlayLeaderboard(): Promise<any[]> {
+    // Get all completed matches with player info
+    const matches = await db.select({
+      match: matchPlayMatches,
+      player1: users,
+      player2: users,
+    }).from(matchPlayMatches)
+      .innerJoin(users, eq(matchPlayMatches.player1Id, users.id))
+      .innerJoin(users, eq(matchPlayMatches.player2Id, users.id))
+      .where(eq(matchPlayMatches.matchStatus, 'completed'));
+
+    // Calculate points for each player
+    const playerPoints = new Map<number, { user: User; points: number; matchesPlayed: number }>();
+    
+    for (const match of matches) {
+      const player1Points = (match.match.pointsAwarded as any).player1 || 0;
+      const player2Points = (match.match.pointsAwarded as any).player2 || 0;
+      
+      // Update player 1 points
+      if (!playerPoints.has(match.player1.id)) {
+        playerPoints.set(match.player1.id, {
+          user: match.player1,
+          points: 0,
+          matchesPlayed: 0,
+        });
+      }
+      const player1Data = playerPoints.get(match.player1.id)!;
+      player1Data.points += player1Points;
+      player1Data.matchesPlayed += 1;
+      
+      // Update player 2 points
+      if (!playerPoints.has(match.match.player2Id)) {
+        playerPoints.set(match.match.player2Id, {
+          user: match.match.player2Id === match.player1.id ? match.player1 : match.player2,
+          points: 0,
+          matchesPlayed: 0,
+        });
+      }
+      const player2Data = playerPoints.get(match.match.player2Id)!;
+      player2Data.points += player2Points;
+      player2Data.matchesPlayed += 1;
+    }
+
+    // Convert to leaderboard format
+    return Array.from(playerPoints.values())
+      .sort((a, b) => b.points - a.points)
+      .map(entry => ({
+        user: entry.user,
+        points: entry.points,
+        matchesPlayed: entry.matchesPlayed,
+      }));
+  }
+
+  async getCurrentMatchForPlayer(playerId: number, currentHole: number): Promise<MatchPlayMatch | null> {
+    // Determine which hole segment the current hole belongs to
+    let holeSegment: string;
+    if (currentHole >= 1 && currentHole <= 6) {
+      holeSegment = "1-6";
+    } else if (currentHole >= 7 && currentHole <= 12) {
+      holeSegment = "7-12";
+    } else if (currentHole >= 13 && currentHole <= 18) {
+      holeSegment = "13-18";
+    } else {
+      return null;
+    }
+
+    // Find the match for this player in this hole segment
+    const [match] = await db.select().from(matchPlayMatches)
+      .where(
+        and(
+          eq(matchPlayMatches.holeSegment, holeSegment),
+          eq(matchPlayMatches.player1Id, playerId)
+        )
+      )
+      .union(
+        db.select().from(matchPlayMatches)
+          .where(
+            and(
+              eq(matchPlayMatches.holeSegment, holeSegment),
+              eq(matchPlayMatches.player2Id, playerId)
+            )
+          )
+      )
+      .limit(1);
+
+    return match || null;
   }
 }
 

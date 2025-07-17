@@ -896,5 +896,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Match Play API endpoints for Round 3
+  app.get('/api/match-play/groups', async (req, res) => {
+    try {
+      const groups = await storage.getMatchPlayGroups();
+      res.json(groups);
+    } catch (error) {
+      console.error('Error fetching match play groups:', error);
+      res.status(500).json({ error: 'Failed to fetch match play groups' });
+    }
+  });
+
+  app.post('/api/match-play/groups', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Only allow Nick Grossi and Connor Patterson to create match play groups
+      const allowedUsers = ['Nick Grossi', 'Connor Patterson'];
+      const userName = `${user.firstName} ${user.lastName}`;
+      
+      if (!allowedUsers.includes(userName)) {
+        return res.status(403).json({ error: 'Only Nick Grossi and Connor Patterson can create match play groups' });
+      }
+
+      const group = await storage.createMatchPlayGroup(req.body);
+      res.json(group);
+    } catch (error) {
+      console.error('Error creating match play group:', error);
+      res.status(500).json({ error: 'Failed to create match play group' });
+    }
+  });
+
+  app.get('/api/match-play/matches', async (req, res) => {
+    try {
+      const groupNumber = req.query.groupNumber ? parseInt(req.query.groupNumber as string) : undefined;
+      const matches = await storage.getMatchPlayMatches(groupNumber);
+      res.json(matches);
+    } catch (error) {
+      console.error('Error fetching match play matches:', error);
+      res.status(500).json({ error: 'Failed to fetch match play matches' });
+    }
+  });
+
+  app.post('/api/match-play/matches', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Only allow Nick Grossi and Connor Patterson to create matches
+      const allowedUsers = ['Nick Grossi', 'Connor Patterson'];
+      const userName = `${user.firstName} ${user.lastName}`;
+      
+      if (!allowedUsers.includes(userName)) {
+        return res.status(403).json({ error: 'Only Nick Grossi and Connor Patterson can create matches' });
+      }
+
+      const match = await storage.createMatchPlayMatch(req.body);
+      
+      // Broadcast new match to all clients
+      broadcast({
+        type: 'MATCH_PLAY_CREATED',
+        data: match
+      });
+
+      res.json(match);
+    } catch (error) {
+      console.error('Error creating match play match:', error);
+      res.status(500).json({ error: 'Failed to create match play match' });
+    }
+  });
+
+  app.put('/api/match-play/matches/:id/result', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Only allow Nick Grossi and Connor Patterson to update match results
+      const allowedUsers = ['Nick Grossi', 'Connor Patterson'];
+      const userName = `${user.firstName} ${user.lastName}`;
+      
+      if (!allowedUsers.includes(userName)) {
+        return res.status(403).json({ error: 'Only Nick Grossi and Connor Patterson can update match results' });
+      }
+
+      const { id } = req.params;
+      const { winnerId, result, pointsAwarded } = req.body;
+      
+      const updatedMatch = await storage.updateMatchPlayResult(parseInt(id), winnerId, result, pointsAwarded);
+      
+      // Broadcast match result update to all clients
+      broadcast({
+        type: 'MATCH_PLAY_RESULT',
+        data: updatedMatch
+      });
+
+      res.json(updatedMatch);
+    } catch (error) {
+      console.error('Error updating match play result:', error);
+      res.status(500).json({ error: 'Failed to update match play result' });
+    }
+  });
+
+  app.get('/api/match-play/leaderboard', async (req, res) => {
+    try {
+      const leaderboard = await storage.getMatchPlayLeaderboard();
+      res.json(leaderboard);
+    } catch (error) {
+      console.error('Error fetching match play leaderboard:', error);
+      res.status(500).json({ error: 'Failed to fetch match play leaderboard' });
+    }
+  });
+
+  app.get('/api/match-play/current-match/:playerId/:hole', async (req, res) => {
+    try {
+      const playerId = parseInt(req.params.playerId);
+      const hole = parseInt(req.params.hole);
+      
+      const currentMatch = await storage.getCurrentMatchForPlayer(playerId, hole);
+      res.json(currentMatch);
+    } catch (error) {
+      console.error('Error fetching current match:', error);
+      res.status(500).json({ error: 'Failed to fetch current match' });
+    }
+  });
+
   return httpServer;
 }
