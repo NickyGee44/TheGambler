@@ -11,8 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HoleView from "@/components/HoleView";
 import Layout from "@/components/Layout";
 import { getCourseForRound } from "@shared/courseData";
-import { Play, Flag, Trophy, Users, MapPin, CheckCircle, Star } from "lucide-react";
+import { Play, Flag, Trophy, Users, MapPin, CheckCircle, Star, ChevronDown, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import ProfilePicture from "@/components/ProfilePicture";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
@@ -27,10 +28,56 @@ interface HoleScore {
 }
 
 interface LeaderboardEntry {
-  user: { firstName: string; lastName: string };
+  user: { firstName: string; lastName: string; id: number };
   team: { teamNumber: number };
   totalPoints: number;
   holes: number;
+}
+
+// PlayerHoleScores Component
+function PlayerHoleScores({ playerId, round }: { playerId: number; round: number }) {
+  const { data: holeScores = [] } = useQuery<HoleScore[]>({
+    queryKey: [`/api/player-hole-scores/${playerId}/${round}`],
+    enabled: !!playerId,
+  });
+
+  if (holeScores.length === 0) {
+    return (
+      <div className="px-4 py-2 text-sm text-muted-foreground">
+        No hole scores available for this round
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4 py-2 bg-background/50 rounded-b-lg">
+      <div className="grid grid-cols-9 gap-1 text-xs">
+        {holeScores.map((score) => (
+          <div
+            key={score.hole}
+            className="flex flex-col items-center p-1 bg-muted rounded"
+          >
+            <div className="font-medium text-muted-foreground">
+              {score.hole}
+            </div>
+            <div className={`font-bold ${
+              score.netScore < 0 ? 'text-green-600' : 
+              score.netScore === 0 ? 'text-blue-600' : 
+              score.netScore === 1 ? 'text-yellow-600' : 'text-red-600'
+            }`}>
+              {score.strokes}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {score.points}pt
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-2 text-xs text-muted-foreground text-center">
+        Hole • Score • Points
+      </div>
+    </div>
+  );
 }
 
 export default function Round1() {
@@ -45,6 +92,7 @@ export default function Round1() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardTab, setLeaderboardTab] = useState("team");
   const [showRoundComplete, setShowRoundComplete] = useState(false);
+  const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
 
   // WebSocket connection for real-time updates
   useWebSocket("/ws", {
@@ -260,40 +308,59 @@ export default function Round1() {
                 </TabsContent>
                 
                 <TabsContent value="individual" className="space-y-2 mt-4">
-                  {individualLeaderboard.map((entry, index) => (
-                    <div
-                      key={`${entry.user.firstName}-${entry.user.lastName}`}
-                      className="flex items-center justify-between p-4 bg-muted rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-golf-green-600 text-white flex items-center justify-center font-bold">
-                          {index + 1}
-                        </div>
-                        <ProfilePicture 
-                          firstName={entry.user.firstName} 
-                          lastName={entry.user.lastName} 
-                          size="lg"
-                        />
-                        <div>
-                          <div className="font-semibold">
-                            {entry.user.firstName} {entry.user.lastName}
+                  {individualLeaderboard.map((entry, index) => {
+                    const playerId = `${entry.user.firstName}-${entry.user.lastName}`;
+                    const isExpanded = expandedPlayer === playerId;
+                    return (
+                      <Collapsible 
+                        key={playerId}
+                        open={isExpanded}
+                        onOpenChange={(open) => setExpandedPlayer(open ? playerId : null)}
+                      >
+                        <CollapsibleTrigger asChild>
+                          <div className="flex items-center justify-between p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-golf-green-600 text-white flex items-center justify-center font-bold">
+                                {index + 1}
+                              </div>
+                              <ProfilePicture 
+                                firstName={entry.user.firstName} 
+                                lastName={entry.user.lastName} 
+                                size="lg"
+                              />
+                              <div>
+                                <div className="font-semibold">
+                                  {entry.user.firstName} {entry.user.lastName}
+                                </div>
+                                <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                  <Users className="w-3 h-3" />
+                                  Team {entry.team.teamNumber}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="text-right">
+                                <div className="font-bold text-golf-green-600 text-lg">
+                                  {entry.totalPoints} pts
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  {entry.totalStrokes} strokes • {entry.holes} holes
+                                </div>
+                              </div>
+                              {isExpanded ? (
+                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </div>
                           </div>
-                          <div className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Users className="w-3 h-3" />
-                            Team {entry.team.teamNumber}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold text-golf-green-600 text-lg">
-                          {entry.totalPoints} pts
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {entry.totalStrokes} strokes • {entry.holes} holes
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <PlayerHoleScores playerId={entry.user.id} round={round} />
+                        </CollapsibleContent>
+                      </Collapsible>
+                    );
+                  })}
                   {individualLeaderboard.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
                       No individual scores submitted yet. Be the first to start scoring!

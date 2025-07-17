@@ -528,6 +528,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get hole scores for a specific player (for public viewing)
+  app.get('/api/player-hole-scores/:userId/:round', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const round = parseInt(req.params.round);
+      const holeScores = await storage.getHoleScores(userId, round);
+      res.json(holeScores);
+    } catch (error) {
+      console.error('Error fetching player hole scores:', error);
+      res.status(500).json({ error: 'Failed to fetch player hole scores' });
+    }
+  });
+
   app.post('/api/hole-scores', requireAuth, async (req: any, res) => {
     try {
       const { round, hole, strokes } = req.body;
