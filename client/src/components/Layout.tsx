@@ -11,9 +11,6 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const { user } = useAuth();
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
@@ -21,48 +18,15 @@ export default function Layout({ children }: LayoutProps) {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // PWA install prompt
-    const handleBeforeInstallPrompt = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstallPrompt(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
 
-  const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const choiceResult = await deferredPrompt.userChoice;
-      if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-      }
-      setDeferredPrompt(null);
-      setShowInstallPrompt(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white transition-colors duration-300">
-      {/* PWA Install Button */}
-      {showInstallPrompt && (
-        <div className="fixed top-4 right-4 z-50">
-          <Button
-            onClick={handleInstallClick}
-            className="bg-golf-green-600 hover:bg-golf-green-700 text-white"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Install App
-          </Button>
-        </div>
-      )}
+
 
       {/* Offline Indicator */}
       {isOffline && (

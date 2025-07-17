@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -13,6 +13,7 @@ import Layout from "@/components/Layout";
 import { getCourseForRound } from "@shared/courseData";
 import { Play, Flag, Trophy, Users, MapPin } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
+import { useWebSocket } from "@/hooks/useWebSocket";
 
 interface HoleScore {
   id: number;
@@ -40,6 +41,19 @@ export default function Round1() {
   const [isRoundStarted, setIsRoundStarted] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardTab, setLeaderboardTab] = useState("team");
+
+  // WebSocket connection for real-time updates
+  useWebSocket("/ws", {
+    onMessage: (data) => {
+      if (data.type === "BIRDIE_NOTIFICATION") {
+        // Dispatch custom event for birdie notification
+        const event = new CustomEvent("birdie-notification", {
+          detail: data.data,
+        });
+        window.dispatchEvent(event);
+      }
+    },
+  });
 
   // Fetch user's hole scores for round 1
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({

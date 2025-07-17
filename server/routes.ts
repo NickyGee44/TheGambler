@@ -546,6 +546,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const holeScore = await storage.updateHoleScore(userId, round, hole, strokes);
       
+      // Check for birdie or better and broadcast notification
+      const scoreDiff = strokes - holeScore.par;
+      if (scoreDiff <= -1) { // Birdie or better
+        const user = await storage.getUser(userId);
+        const playerName = user ? `${user.firstName} ${user.lastName}` : 'Unknown Player';
+        
+        let scoreName = 'Birdie';
+        if (scoreDiff <= -3) scoreName = 'Albatross';
+        else if (scoreDiff === -2) scoreName = 'Eagle';
+        
+        // Broadcast birdie notification to all clients
+        broadcast({
+          type: 'BIRDIE_NOTIFICATION',
+          data: { 
+            playerName, 
+            holeNumber: hole, 
+            scoreName,
+            round
+          }
+        });
+      }
+      
       // Broadcast hole score update to all clients
       broadcast({
         type: 'HOLE_SCORE_UPDATE',

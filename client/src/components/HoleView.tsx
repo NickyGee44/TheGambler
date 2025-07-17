@@ -337,10 +337,10 @@ export default function HoleView({
                         variant={localScore === score ? "default" : "outline"}
                         size="lg"
                         onClick={() => updateScore(score)}
-                        className={`w-12 h-12 rounded-full ${
+                        className={`w-12 h-12 rounded-full font-bold text-lg transition-all duration-200 ${
                           localScore === score 
-                            ? `${getScoreColor(score, hole.par).replace('text-', 'bg-').replace('-600', '-600')} text-white` 
-                            : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600'
+                            ? `${getScoreColor(score, hole.par).replace('text-', 'bg-').replace('-600', '-600')} text-white font-extrabold shadow-lg transform scale-105 border-2 border-white` 
+                            : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 hover:scale-102'
                         }`}
                       >
                         {score}
@@ -353,10 +353,10 @@ export default function HoleView({
                     variant={localScore === hole.par + 5 ? "default" : "outline"}
                     size="lg"
                     onClick={() => updateScore(hole.par + 5)}
-                    className={`w-full ${
+                    className={`w-full font-bold transition-all duration-200 ${
                       localScore === hole.par + 5 
-                        ? 'bg-red-600 hover:bg-red-700 text-white' 
-                        : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600'
+                        ? 'bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-white' 
+                        : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 hover:scale-102'
                     }`}
                   >
                     You Suck ({hole.par + 5})

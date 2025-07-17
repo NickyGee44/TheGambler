@@ -23,8 +23,8 @@ import TournamentRules from "@/pages/TournamentRules";
 import AuthPage from "@/pages/AuthPage";
 import PictureAssignment from "@/pages/PictureAssignment";
 import NotFound from "@/pages/not-found";
-import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import UpdateNotification from "@/components/UpdateNotification";
+import BirdieNotification from "@/components/BirdieNotification";
 import { useEffect, useState } from "react";
 import React from "react";
 
@@ -92,20 +92,12 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 
 function Router() {
   const { user, isLoading } = useAuth();
-  const [showPWAPrompt, setShowPWAPrompt] = useState(false);
   const [showUpdateNotification, setShowUpdateNotification] = useState(false);
-
-  useEffect(() => {
-    // Show PWA prompt after a short delay if not already dismissed
-    const hasSeenPrompt = localStorage.getItem('pwa-prompt-dismissed');
-    if (!hasSeenPrompt) {
-      const timer = setTimeout(() => {
-        setShowPWAPrompt(true);
-      }, 3000); // Show after 3 seconds
-      
-      return () => clearTimeout(timer);
-    }
-  }, []);
+  const [birdieNotification, setBirdieNotification] = useState<{
+    playerName: string;
+    holeNumber: number;
+    scoreName: string;
+  } | null>(null);
 
   useEffect(() => {
     // Listen for service worker updates
@@ -113,20 +105,27 @@ function Router() {
       setShowUpdateNotification(true);
     };
 
+    // Listen for birdie notifications
+    const handleBirdieNotification = (event: CustomEvent) => {
+      const { playerName, holeNumber, scoreName } = event.detail;
+      setBirdieNotification({ playerName, holeNumber, scoreName });
+    };
+
     window.addEventListener('sw-update-available', handleSWUpdate);
+    window.addEventListener('birdie-notification', handleBirdieNotification as EventListener);
     
     return () => {
       window.removeEventListener('sw-update-available', handleSWUpdate);
+      window.removeEventListener('birdie-notification', handleBirdieNotification as EventListener);
     };
   }, []);
 
-  const handlePWAPromptDismiss = () => {
-    setShowPWAPrompt(false);
-    localStorage.setItem('pwa-prompt-dismissed', 'true');
-  };
-
   const handleUpdateNotificationDismiss = () => {
     setShowUpdateNotification(false);
+  };
+
+  const handleBirdieNotificationDismiss = () => {
+    setBirdieNotification(null);
   };
 
   if (isLoading) {
@@ -167,14 +166,21 @@ function Router() {
         <Route component={NotFound} />
       </Switch>
       
-      {/* PWA Install Prompt */}
-      {showPWAPrompt && (
-        <PWAInstallPrompt onDismiss={handlePWAPromptDismiss} />
-      )}
+
       
       {/* Update Notification */}
       {showUpdateNotification && (
         <UpdateNotification onDismiss={handleUpdateNotificationDismiss} />
+      )}
+      
+      {/* Birdie Notification */}
+      {birdieNotification && (
+        <BirdieNotification 
+          playerName={birdieNotification.playerName}
+          holeNumber={birdieNotification.holeNumber}
+          scoreName={birdieNotification.scoreName}
+          onDismiss={handleBirdieNotificationDismiss}
+        />
       )}
     </>
   );
