@@ -35,6 +35,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, asc } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 
 // Interface for storage operations
 export interface IStorage {
@@ -1146,7 +1147,7 @@ export class DatabaseStorage implements IStorage {
   async getMatchPlayMatches(groupNumber?: number): Promise<MatchPlayMatch[]> {
     const query = db.select().from(matchPlayMatches);
     if (groupNumber) {
-      return await query.where(eq(matchPlayMatches.groupNumber, groupNumber));
+      return await query.where(eq(matchPlayMatches.groupId, groupNumber));
     }
     return await query;
   }
@@ -1178,11 +1179,11 @@ export class DatabaseStorage implements IStorage {
     // Get all completed matches with player info
     const matches = await db.select({
       match: matchPlayMatches,
-      player1: users,
-      player2: users,
+      player1: alias(users, 'player1'),
+      player2: alias(users, 'player2'),
     }).from(matchPlayMatches)
-      .innerJoin(users, eq(matchPlayMatches.player1Id, users.id))
-      .innerJoin(users, eq(matchPlayMatches.player2Id, users.id))
+      .innerJoin(alias(users, 'player1'), eq(matchPlayMatches.player1Id, alias(users, 'player1').id))
+      .innerJoin(alias(users, 'player2'), eq(matchPlayMatches.player2Id, alias(users, 'player2').id))
       .where(eq(matchPlayMatches.matchStatus, 'completed'));
 
     // Calculate points for each player
@@ -1244,7 +1245,7 @@ export class DatabaseStorage implements IStorage {
     const [match] = await db.select().from(matchPlayMatches)
       .where(
         and(
-          eq(matchPlayMatches.holeSegment, holeSegment),
+          eq(matchPlayMatches.holes, holeSegment),
           eq(matchPlayMatches.player1Id, playerId)
         )
       )
@@ -1252,7 +1253,7 @@ export class DatabaseStorage implements IStorage {
         db.select().from(matchPlayMatches)
           .where(
             and(
-              eq(matchPlayMatches.holeSegment, holeSegment),
+              eq(matchPlayMatches.holes, holeSegment),
               eq(matchPlayMatches.player2Id, playerId)
             )
           )
