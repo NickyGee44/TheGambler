@@ -43,7 +43,7 @@ export default function Scores() {
   
   const { data: scores = [], isLoading: scoresLoading, refetch } = useQuery({
     queryKey: ['/api/scores'],
-    refetchInterval: 30000,
+    refetchInterval: 5000, // Refresh every 5 seconds instead of 30
   });
 
   const { data: teams = [] } = useQuery({
@@ -54,13 +54,20 @@ export default function Scores() {
   useWebSocket('/ws', {
     onMessage: (data) => {
       if (data.type === 'SCORE_UPDATE' || data.type === 'HOLE_SCORE_UPDATE' || data.type === 'HOLE_STATS_UPDATE') {
+        // Force refetch scores immediately
         queryClient.invalidateQueries({ queryKey: ['/api/scores'] });
         queryClient.invalidateQueries({ queryKey: ['/api/player-stats'] });
+        refetch(); // Force immediate refresh
         
         if (data.type === 'SCORE_UPDATE') {
           toast({
             title: "Score Updated",
             description: `Team ${data.data.teamId} score has been updated`,
+          });
+        } else if (data.type === 'HOLE_SCORE_UPDATE') {
+          toast({
+            title: "Hole Score Updated", 
+            description: `Live scoring updated for Round ${data.data.round}`,
           });
         }
       }

@@ -147,6 +147,10 @@ Preferred communication style: Simple, everyday language.
   - Hole-specific statistics now persist correctly when switching between holes during live rounds
   - Fixed type errors in Stats component where string values were being treated as numbers
   - Updated PlayerStats interface to match server response types (string values for formatted statistics)
+  - Enhanced real-time updates for Scores page with faster refresh intervals (5 seconds vs 30 seconds)
+  - Added immediate WebSocket-triggered refreshes for scores and statistics
+  - Fixed statistics string formatting to ensure consistent "0.0" format instead of mixed 0/string types
+  - Improved real-time feedback with immediate notifications for hole score updates
 - **Implemented Comprehensive Historical Performance Tracking System:**
   - Created player_tournament_history table for multi-year tournament data storage
   - Built comprehensive PlayerProfile component with detailed historical statistics and performance analysis
