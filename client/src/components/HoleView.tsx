@@ -355,18 +355,18 @@ export default function HoleView({
                       <div className="text-sm text-gray-300 mb-1">Fairway</div>
                       <div className="flex gap-1">
                         <Button
-                          variant={fairwayInRegulation ? "default" : "outline"}
+                          variant={fairwayInRegulation === true ? "default" : "outline"}
                           size="sm"
                           onClick={() => setFairwayInRegulation(true)}
-                          className={fairwayInRegulation ? "bg-green-600 hover:bg-green-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
+                          className={fairwayInRegulation === true ? "bg-green-600 hover:bg-green-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
                         >
                           Hit
                         </Button>
                         <Button
-                          variant={!fairwayInRegulation ? "default" : "outline"}
+                          variant={fairwayInRegulation === false ? "default" : "outline"}
                           size="sm"
                           onClick={() => setFairwayInRegulation(false)}
-                          className={!fairwayInRegulation ? "bg-red-600 hover:bg-red-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
+                          className={fairwayInRegulation === false ? "bg-red-600 hover:bg-red-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
                         >
                           Miss
                         </Button>
@@ -376,18 +376,18 @@ export default function HoleView({
                       <div className="text-sm text-gray-300 mb-1">Green</div>
                       <div className="flex gap-1">
                         <Button
-                          variant={greenInRegulation ? "default" : "outline"}
+                          variant={greenInRegulation === true ? "default" : "outline"}
                           size="sm"
                           onClick={() => setGreenInRegulation(true)}
-                          className={greenInRegulation ? "bg-green-600 hover:bg-green-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
+                          className={greenInRegulation === true ? "bg-green-600 hover:bg-green-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
                         >
                           Hit
                         </Button>
                         <Button
-                          variant={!greenInRegulation ? "default" : "outline"}
+                          variant={greenInRegulation === false ? "default" : "outline"}
                           size="sm"
                           onClick={() => setGreenInRegulation(false)}
-                          className={!greenInRegulation ? "bg-red-600 hover:bg-red-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
+                          className={greenInRegulation === false ? "bg-red-600 hover:bg-red-700 text-xs px-2 py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1"}
                         >
                           Miss
                         </Button>

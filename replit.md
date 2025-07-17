@@ -151,6 +151,9 @@ Preferred communication style: Simple, everyday language.
   - Added immediate WebSocket-triggered refreshes for scores and statistics
   - Fixed statistics string formatting to ensure consistent "0.0" format instead of mixed 0/string types
   - Improved real-time feedback with immediate notifications for hole score updates
+  - Fixed FIR and GIR button default states to show as unselected (neutral) instead of appearing as "Miss"
+  - Changed button logic to use strict equality checks (=== true/false) so null values show neutral state
+  - Enhanced user experience by making button states more intuitive and visually clear
 - **Implemented Comprehensive Historical Performance Tracking System:**
   - Created player_tournament_history table for multi-year tournament data storage
   - Built comprehensive PlayerProfile component with detailed historical statistics and performance analysis
