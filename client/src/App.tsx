@@ -1,9 +1,9 @@
+import React, { useEffect, useState } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
 import Layout from "@/components/Layout";
 import Home from "@/pages/Home";
@@ -25,8 +25,6 @@ import PictureAssignment from "@/pages/PictureAssignment";
 import NotFound from "@/pages/not-found";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import UpdateNotification from "@/components/UpdateNotification";
-import { useEffect, useState } from "react";
-import React from "react";
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
   constructor(props: {children: React.ReactNode}) {
@@ -155,46 +153,15 @@ function Router() {
 }
 
 function App() {
-  useEffect(() => {
-    // Add manifest link
-    const link = document.createElement('link');
-    link.rel = 'manifest';
-    link.href = '/manifest.json';
-    document.head.appendChild(link);
-
-    // Add theme color meta tag
-    const themeColorMeta = document.createElement('meta');
-    themeColorMeta.name = 'theme-color';
-    themeColorMeta.content = '#059669';
-    document.head.appendChild(themeColorMeta);
-
-    // Add viewport meta tag for PWA
-    const viewportMeta = document.createElement('meta');
-    viewportMeta.name = 'viewport';
-    viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-    document.head.appendChild(viewportMeta);
-
-    // Add apple-touch-icon
-    const appleTouchIcon = document.createElement('link');
-    appleTouchIcon.rel = 'apple-touch-icon';
-    appleTouchIcon.href = '/icons/icon-192x192.png';
-    document.head.appendChild(appleTouchIcon);
-
-    // Set title
-    document.title = 'The Gambler Cup 2025';
-  }, []);
-
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <TooltipProvider>
-            <Layout>
-              <Router />
-            </Layout>
-            <Toaster />
-          </TooltipProvider>
-        </ThemeProvider>
+        <TooltipProvider>
+          <div className="min-h-screen bg-background text-foreground">
+            <Router />
+          </div>
+          <Toaster />
+        </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
