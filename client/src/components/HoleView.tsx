@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useGPS } from "@/hooks/useGPS";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -63,6 +63,12 @@ export default function HoleView({
   const [penalties, setPenalties] = useState<number>(0);
   const [sandSaves, setSandSaves] = useState<number>(0);
   const [upAndDowns, setUpAndDowns] = useState<number>(0);
+  
+  // Auto-save timer refs
+  const scoreTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const statsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isSavingScore, setIsSavingScore] = useState(false);
+  const [isSavingStats, setIsSavingStats] = useState(false);
 
   // Statistics update mutation
   const updateStatsMutation = useMutation({
@@ -74,13 +80,12 @@ export default function HoleView({
       });
     },
     onSuccess: () => {
-      toast({
-        title: "Statistics Updated",
-        description: "Golf statistics have been saved successfully.",
-      });
+      setIsSavingStats(false);
       queryClient.invalidateQueries({ queryKey: ["/api/hole-scores", round] });
+      queryClient.invalidateQueries({ queryKey: ["/api/player-stats"] });
     },
     onError: (error) => {
+      setIsSavingStats(false);
       toast({
         title: "Error",
         description: "Failed to save statistics: " + error.message,
@@ -89,27 +94,66 @@ export default function HoleView({
     },
   });
 
-  // Auto-save statistics when they change
-  const saveStatistics = () => {
-    const stats = {
-      fairwayInRegulation: fairwayInRegulation,
-      greenInRegulation: greenInRegulation,
-      driveDirection: driveDirection || null,
-      putts,
-      penalties,
-      sandSaves,
-      upAndDowns,
-    };
+  // Auto-save statistics with 1-second delay
+  const scheduleStatsSave = () => {
+    if (statsTimeoutRef.current) {
+      clearTimeout(statsTimeoutRef.current);
+    }
     
-    updateStatsMutation.mutate(stats);
+    setIsSavingStats(true);
+    
+    statsTimeoutRef.current = setTimeout(() => {
+      const stats = {
+        fairwayInRegulation: fairwayInRegulation,
+        greenInRegulation: greenInRegulation,
+        driveDirection: driveDirection || null,
+        putts,
+        penalties,
+        sandSaves,
+        upAndDowns,
+      };
+      
+      updateStatsMutation.mutate(stats);
+    }, 1000);
   };
+
+  // Auto-save score with 2-second delay
+  const scheduleScoreSave = (strokes: number) => {
+    if (scoreTimeoutRef.current) {
+      clearTimeout(scoreTimeoutRef.current);
+    }
+    
+    setIsSavingScore(true);
+    
+    scoreTimeoutRef.current = setTimeout(() => {
+      onScoreUpdate(strokes);
+      setIsSavingScore(false);
+    }, 2000);
+  };
+
+  // Clean up timers on unmount
+  useEffect(() => {
+    return () => {
+      if (scoreTimeoutRef.current) {
+        clearTimeout(scoreTimeoutRef.current);
+      }
+      if (statsTimeoutRef.current) {
+        clearTimeout(statsTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Auto-save stats when they change
+  useEffect(() => {
+    scheduleStatsSave();
+  }, [fairwayInRegulation, greenInRegulation, driveDirection, putts, penalties, sandSaves, upAndDowns]);
   
   // Get course data for GPS
   const courseData = getCourseForRound(round);
 
   const updateScore = (strokes: number) => {
     if (strokes < 1) return;
-    onScoreUpdate(strokes);
+    scheduleScoreSave(strokes);
   };
 
   const getScoreColor = (score: number, par: number) => {
@@ -205,7 +249,7 @@ export default function HoleView({
                     variant="outline"
                     size="lg"
                     onClick={() => updateScore(currentScore - 1)}
-                    disabled={currentScore <= 0 || isUpdating}
+                    disabled={currentScore <= 0 || isSavingScore || isUpdating}
                     className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
                   >
                     <Minus className="w-6 h-6" />
@@ -226,17 +270,19 @@ export default function HoleView({
                     variant="outline"
                     size="lg"
                     onClick={() => updateScore(currentScore + 1)}
-                    disabled={isUpdating}
+                    disabled={isSavingScore || isUpdating}
                     className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
                   >
                     <Plus className="w-6 h-6" />
                   </Button>
                 </div>
                 
-                {isUpdating && (
+                {(isSavingScore || isUpdating) && (
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-golf-green-400 mx-auto mb-2"></div>
-                    <p className="text-sm text-gray-300">Saving score...</p>
+                    <p className="text-sm text-gray-300">
+                      {isSavingScore ? "Auto-saving in 2s..." : "Saving score..."}
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -451,24 +497,15 @@ export default function HoleView({
               </Card>
             </div>
 
-            {/* Save Statistics Button */}
-            <Button
-              onClick={saveStatistics}
-              disabled={updateStatsMutation.isPending}
-              className="w-full bg-golf-green-600 hover:bg-golf-green-700 text-white font-semibold py-3"
-            >
-              {updateStatsMutation.isPending ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Flag className="w-4 h-4 mr-2" />
-                  Save Statistics
-                </>
-              )}
-            </Button>
+            {/* Auto-Save Status */}
+            {(isSavingStats || updateStatsMutation.isPending) && (
+              <div className="text-center py-3">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-golf-green-400 mx-auto mb-2"></div>
+                <p className="text-sm text-gray-300">
+                  {isSavingStats ? "Auto-saving stats in 1s..." : "Saving statistics..."}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
