@@ -69,6 +69,12 @@ export default function Home() {
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-golf-green-600 mb-2">Tournament Countdown</h2>
             <p className="text-gray-600 dark:text-gray-400">August 29-31, 2025</p>
+            <div className="mt-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">
+              <p><strong>Friday Aug 29:</strong> 1:10 PM first tee - Deerhurst Golf Course</p>
+              <p><strong>Saturday Aug 30:</strong> 11:20 AM first tee - Deerhurst Golf Course</p>
+              <p><strong>Sunday Aug 31:</strong> 11:40 AM first tee - Muskoka Bay Golf Club</p>
+              <p><strong>Awards Dinner:</strong> 4:00 PM Sunday ($235 pp + tax, pay for own food)</p>
+            </div>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">

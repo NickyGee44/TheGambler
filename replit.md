@@ -157,6 +157,10 @@ Preferred communication style: Simple, everyday language.
   - Implemented circular number buttons for score selection (1 to 4+ over par) with "You Suck" button for 5+ over
   - Changed sand save and up-and-down from numeric counters to intuitive Yes/No toggle buttons
   - Improved scoring UX by eliminating need for +/- clicking with direct score selection
+  - Added detailed tournament schedule with specific tee times for all three rounds
+  - Updated tournament information with Friday 1:10 PM, Saturday 11:20 AM, Sunday 11:40 AM tee times
+  - Added awards dinner information (Sunday 4:00 PM, $235 pp + tax, pay for own food)
+  - Enhanced tournament schedule display throughout Home page and Rules page
 - **Implemented Comprehensive Historical Performance Tracking System:**
   - Created player_tournament_history table for multi-year tournament data storage
   - Built comprehensive PlayerProfile component with detailed historical statistics and performance analysis

@@ -9,10 +9,12 @@ export default function Rules() {
         <h2 className="text-3xl font-bold text-golf-green-600 mb-2">Tournament Rules</h2>
         <p className="text-gray-600 dark:text-gray-400">Official format and scoring guidelines</p>
         <div className="mt-4 bg-golf-green-50 dark:bg-slate-700 p-4 rounded-lg">
-          <h3 className="font-semibold text-golf-green-600 mb-2">Tournament Locations</h3>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            <p><strong>Days 1-2:</strong> Deerhurst Golf Course, Muskoka</p>
-            <p><strong>Final Day:</strong> Muskoka Bay Golf Club</p>
+          <h3 className="font-semibold text-golf-green-600 mb-2">Tournament Schedule</h3>
+          <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+            <p><strong>Friday Aug 29:</strong> 1:10 PM first tee - Deerhurst Golf Course, Muskoka</p>
+            <p><strong>Saturday Aug 30:</strong> 11:20 AM first tee - Deerhurst Golf Course, Muskoka</p>
+            <p><strong>Sunday Aug 31:</strong> 11:40 AM first tee - Muskoka Bay Golf Club</p>
+            <p><strong>Awards Dinner:</strong> 4:00 PM Sunday - A la carte dinner/late lunch ($235 per person plus tax, pay for your own food)</p>
           </div>
         </div>
       </div>
@@ -25,7 +27,7 @@ export default function Rules() {
               <div className="w-8 h-8 bg-golf-green-100 dark:bg-golf-green-900 rounded-full flex items-center justify-center mr-3">
                 <span className="text-golf-green-600 font-bold text-sm">1</span>
               </div>
-              Round 1: Best Ball - Deerhurst Golf Course
+              Round 1: Best Ball - Friday 1:10 PM - Deerhurst Golf Course
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -57,7 +59,7 @@ export default function Rules() {
               <div className="w-8 h-8 bg-golf-green-100 dark:bg-golf-green-900 rounded-full flex items-center justify-center mr-3">
                 <span className="text-golf-green-600 font-bold text-sm">2</span>
               </div>
-              Round 2: Scramble - Deerhurst Golf Course
+              Round 2: Scramble - Saturday 11:20 AM - Deerhurst Golf Course
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -93,7 +95,7 @@ export default function Rules() {
               <div className="w-8 h-8 bg-golf-green-100 dark:bg-golf-green-900 rounded-full flex items-center justify-center mr-3">
                 <span className="text-golf-green-600 font-bold text-sm">3</span>
               </div>
-              Round 3: Net Stroke Play - Muskoka Bay Golf Club
+              Round 3: Net Stroke Play - Sunday 11:40 AM - Muskoka Bay Golf Club
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -127,8 +129,12 @@ export default function Rules() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-gray-600 dark:text-gray-400">
+            <div className="text-gray-600 dark:text-gray-400 space-y-2">
               <p>The team with the highest total points across all three rounds wins the coveted Gambler Championship Trophy. In case of a tie, the team with the best Round 3 performance takes home the hardware.</p>
+              <div className="mt-4 p-3 bg-golf-gold-100 dark:bg-golf-gold-900 rounded-lg">
+                <p className="text-golf-gold-700 dark:text-golf-gold-300 font-semibold">Awards Ceremony & Dinner</p>
+                <p className="text-sm text-golf-gold-600 dark:text-golf-gold-400">Sunday 4:00 PM - A la carte dinner/late lunch following the final round. $235 per person plus tax, pay for your own food and drinks.</p>
+              </div>
             </div>
           </CardContent>
         </Card>
