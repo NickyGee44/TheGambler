@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, X, Home, Users, Trophy, Coins, BookOpen, Camera, Target, Award, Moon, Sun, LogOut, BarChart3 } from "lucide-react";
+import { Menu, X, Home, Users, Trophy, Coins, BookOpen, Camera, Target, Award, Moon, Sun, LogOut, BarChart3, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -22,6 +22,8 @@ export default function Navigation() {
 
   const topTeams = scores?.slice(0, 3) || [];
 
+  const isAdmin = user && ['Nick Grossi', 'Connor Patterson'].includes(`${user.firstName} ${user.lastName}`);
+  
   const navLinks = [
     { href: "/", label: "Home", icon: Home },
     { href: "/teams", label: "Teams", icon: Users },
@@ -34,6 +36,7 @@ export default function Navigation() {
     { href: "/tournament-rules", label: "Tournament Rules", icon: Award },
     { href: "/rules", label: "Course Rules", icon: BookOpen },
     { href: "/photos", label: "Photos", icon: Camera },
+    ...(isAdmin ? [{ href: "/tournament-management", label: "Tournament Management", icon: Settings }] : []),
   ];
 
   const toggleSidebar = () => setIsOpen(!isOpen);

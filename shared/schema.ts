@@ -109,10 +109,26 @@ export const holeScores = pgTable("hole_scores", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Tournament definitions for multi-year support
+export const tournaments = pgTable("tournaments", {
+  id: serial("id").primaryKey(),
+  year: integer("year").notNull().unique(),
+  name: text("name").notNull(),
+  courses: text("courses").array().notNull(), // Array of course names
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  isActive: boolean("is_active").default(false), // Only one tournament can be active at a time
+  champions: text("champions").array(), // Array of champion names
+  location: text("location").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Player tournament history table for multi-year tracking
 export const playerTournamentHistory = pgTable("player_tournament_history", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
+  tournamentId: integer("tournament_id").notNull().references(() => tournaments.id),
   tournamentYear: integer("tournament_year").notNull(),
   teamPartner: text("team_partner").notNull(),
   finalRanking: integer("final_ranking"),
@@ -120,6 +136,7 @@ export const playerTournamentHistory = pgTable("player_tournament_history", {
   round1Points: integer("round1_points").default(0),
   round2Points: integer("round2_points").default(0),
   round3Points: integer("round3_points").default(0),
+  isChampion: boolean("is_champion").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -161,6 +178,12 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 })
 
+export const insertTournamentSchema = createInsertSchema(tournaments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertPlayerTournamentHistorySchema = createInsertSchema(playerTournamentHistory).omit({
   id: true,
   createdAt: true,
@@ -181,5 +204,7 @@ export type Matchup = typeof matchups.$inferSelect;
 export type InsertMatchup = z.infer<typeof insertMatchupSchema>;
 export type HoleScore = typeof holeScores.$inferSelect;
 export type InsertHoleScore = z.infer<typeof insertHoleScoreSchema>;
+export type Tournament = typeof tournaments.$inferSelect;
+export type InsertTournament = z.infer<typeof insertTournamentSchema>;
 export type PlayerTournamentHistory = typeof playerTournamentHistory.$inferSelect;
 export type InsertPlayerTournamentHistory = z.infer<typeof insertPlayerTournamentHistorySchema>;

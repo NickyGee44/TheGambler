@@ -714,5 +714,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Tournament management endpoints
+  app.get('/api/tournaments', async (req, res) => {
+    try {
+      const tournaments = await storage.getTournaments();
+      res.json(tournaments);
+    } catch (error) {
+      console.error('Error fetching tournaments:', error);
+      res.status(500).json({ error: 'Failed to fetch tournaments' });
+    }
+  });
+
+  app.get('/api/tournaments/active', async (req, res) => {
+    try {
+      const activeTournament = await storage.getActiveTournament();
+      res.json(activeTournament);
+    } catch (error) {
+      console.error('Error fetching active tournament:', error);
+      res.status(500).json({ error: 'Failed to fetch active tournament' });
+    }
+  });
+
+  app.get('/api/tournaments/:year', async (req, res) => {
+    try {
+      const year = parseInt(req.params.year);
+      const tournament = await storage.getTournamentByYear(year);
+      res.json(tournament);
+    } catch (error) {
+      console.error('Error fetching tournament by year:', error);
+      res.status(500).json({ error: 'Failed to fetch tournament' });
+    }
+  });
+
+  app.post('/api/tournaments', async (req, res) => {
+    try {
+      const tournamentData = req.body;
+      const newTournament = await storage.createTournament(tournamentData);
+      res.json(newTournament);
+    } catch (error) {
+      console.error('Error creating tournament:', error);
+      res.status(500).json({ error: 'Failed to create tournament' });
+    }
+  });
+
+  app.put('/api/tournaments/:year', async (req, res) => {
+    try {
+      const year = parseInt(req.params.year);
+      const updateData = req.body;
+      const updatedTournament = await storage.updateTournament(year, updateData);
+      res.json(updatedTournament);
+    } catch (error) {
+      console.error('Error updating tournament:', error);
+      res.status(500).json({ error: 'Failed to update tournament' });
+    }
+  });
+
+  app.post('/api/tournaments/:year/activate', async (req, res) => {
+    try {
+      const year = parseInt(req.params.year);
+      const activeTournament = await storage.setActiveTournament(year);
+      res.json(activeTournament);
+    } catch (error) {
+      console.error('Error activating tournament:', error);
+      res.status(500).json({ error: 'Failed to activate tournament' });
+    }
+  });
+
   return httpServer;
 }

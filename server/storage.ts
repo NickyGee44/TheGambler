@@ -6,6 +6,7 @@ import {
   photos,
   matchups,
   holeScores,
+  tournaments,
   playerTournamentHistory,
   type User,
   type InsertUser,
@@ -15,6 +16,7 @@ import {
   type Photo,
   type Matchup,
   type HoleScore,
+  type Tournament,
   type PlayerTournamentHistory,
   type InsertTeam,
   type InsertScore,
@@ -22,6 +24,7 @@ import {
   type InsertPhoto,
   type InsertMatchup,
   type InsertHoleScore,
+  type InsertTournament,
   type InsertPlayerTournamentHistory,
 } from "@shared/schema";
 import { db } from "./db";
@@ -74,6 +77,14 @@ export interface IStorage {
   // Player matching
   findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 } | null>;
   
+  // Tournament management
+  getTournaments(): Promise<Tournament[]>;
+  getActiveTournament(): Promise<Tournament | null>;
+  getTournamentByYear(year: number): Promise<Tournament | null>;
+  createTournament(tournament: InsertTournament): Promise<Tournament>;
+  updateTournament(year: number, updateData: Partial<Tournament>): Promise<Tournament>;
+  setActiveTournament(year: number): Promise<Tournament>;
+  
   // Player Tournament History
   getPlayerTournamentHistory(userId: number): Promise<PlayerTournamentHistory[]>;
   createPlayerTournamentHistory(history: InsertPlayerTournamentHistory): Promise<PlayerTournamentHistory>;
@@ -125,6 +136,49 @@ export class DatabaseStorage implements IStorage {
     }
     
     return null;
+  }
+
+  // Tournament management
+  async getTournaments(): Promise<Tournament[]> {
+    return await db.select().from(tournaments).orderBy(asc(tournaments.year));
+  }
+
+  async getActiveTournament(): Promise<Tournament | null> {
+    const [activeTournament] = await db.select().from(tournaments).where(eq(tournaments.isActive, true));
+    return activeTournament || null;
+  }
+
+  async getTournamentByYear(year: number): Promise<Tournament | null> {
+    const [tournament] = await db.select().from(tournaments).where(eq(tournaments.year, year));
+    return tournament || null;
+  }
+
+  async createTournament(tournament: InsertTournament): Promise<Tournament> {
+    const [newTournament] = await db.insert(tournaments).values(tournament).returning();
+    return newTournament;
+  }
+
+  async updateTournament(year: number, updateData: Partial<Tournament>): Promise<Tournament> {
+    const [updatedTournament] = await db
+      .update(tournaments)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(tournaments.year, year))
+      .returning();
+    return updatedTournament;
+  }
+
+  async setActiveTournament(year: number): Promise<Tournament> {
+    // First, deactivate all tournaments
+    await db.update(tournaments).set({ isActive: false });
+    
+    // Then activate the specified tournament
+    const [activeTournament] = await db
+      .update(tournaments)
+      .set({ isActive: true })
+      .where(eq(tournaments.year, year))
+      .returning();
+    
+    return activeTournament;
   }
 
   // Player Tournament History

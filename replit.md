@@ -122,6 +122,19 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 17, 2025:**
+- **Implemented Multi-Year Tournament Management System:**
+  - Created comprehensive tournaments table with full CRUD operations
+  - Built TournamentManagement.tsx admin interface for managing tournaments across multiple years
+  - Added tournament API endpoints: /api/tournaments, /api/tournaments/active, /api/tournaments/:year
+  - Implemented tournament activation system with single active tournament constraint
+  - Created tournament creation form with year, name, courses, dates, location, and champions
+  - Added champion tracking and setting functionality for completed tournaments
+  - Initialized 2025 tournament as foundation with proper course and date configuration
+  - Restricted tournament management access to admin users only (Nick Grossi, Connor Patterson)
+  - Enhanced database schema with tournaments table supporting multi-year tournament data
+  - Added tournament management to navigation sidebar with admin-only visibility
+  - Established foundation for future public tournament expansion beyond current 2025 tournament
+  - Tournament management supports comprehensive tournament lifecycle from creation to completion
 - **Implemented Comprehensive Historical Performance Tracking System:**
   - Created player_tournament_history table for multi-year tournament data storage
   - Built comprehensive PlayerProfile component with detailed historical statistics and performance analysis
