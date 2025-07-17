@@ -147,6 +147,17 @@ export default function HoleView({
   useEffect(() => {
     scheduleStatsSave();
   }, [fairwayInRegulation, greenInRegulation, driveDirection, putts, penalties, sandSaves, upAndDowns]);
+
+  // Reset all statistics to default state when hole changes
+  useEffect(() => {
+    setFairwayInRegulation(null);
+    setGreenInRegulation(null);
+    setDriveDirection('');
+    setPutts(0);
+    setPenalties(0);
+    setSandSaves(0);
+    setUpAndDowns(0);
+  }, [hole.number]);
   
   // Get course data for GPS
   const courseData = getCourseForRound(round);

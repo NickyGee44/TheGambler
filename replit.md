@@ -121,6 +121,17 @@ Preferred communication style: Simple, everyday language.
 
 ### Recent Changes: Latest modifications with dates
 
+**July 17, 2025:**
+- **Implemented Automatic Saving System with Timer-Based Delays:**
+  - Added auto-save functionality for scores with 2-second delay after user inactivity
+  - Added auto-save functionality for golf statistics with 1-second delay after user inactivity  
+  - Replaced manual save buttons with seamless auto-save system using setTimeout timers
+  - Added visual feedback indicators showing "Auto-saving in 2s..." and "Auto-saving stats in 1s..."
+  - Implemented proper timer cleanup and state management to prevent memory leaks
+  - Statistics automatically reset to default state when navigating between holes
+  - Scores and statistics now save automatically without user intervention
+  - Enhanced user experience with smooth auto-save transitions and loading states
+
 **July 16, 2025:**
 - **Implemented Comprehensive Golf Statistics Tracking System:**
   - Added comprehensive golf statistics to database schema with 8 key tracking metrics
