@@ -449,40 +449,7 @@ export default function HoleView({
               </Card>
             </div>
 
-            {/* Drive Direction */}
-            <Card className="bg-gray-800 border border-gray-700">
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <div className="text-sm text-gray-300 mb-2">Drive Direction</div>
-                  <div className="grid grid-cols-3 gap-2 mb-2">
-                    {['left', 'hit', 'right'].map((direction) => (
-                      <Button
-                        key={direction}
-                        variant={driveDirection === direction ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setDriveDirection(direction)}
-                        className={driveDirection === direction ? "bg-golf-green-600 hover:bg-golf-green-700 text-xs py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs py-1"}
-                      >
-                        {direction.charAt(0).toUpperCase() + direction.slice(1)}
-                      </Button>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['short', 'long', 'duff'].map((direction) => (
-                      <Button
-                        key={direction}
-                        variant={driveDirection === direction ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setDriveDirection(direction)}
-                        className={driveDirection === direction ? "bg-golf-green-600 hover:bg-golf-green-700 text-xs py-1" : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs py-1"}
-                      >
-                        {direction.charAt(0).toUpperCase() + direction.slice(1)}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            
 
             {/* Sand Saves & Up and Downs */}
             <div className="grid grid-cols-2 gap-4">
