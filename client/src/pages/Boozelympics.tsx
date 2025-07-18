@@ -4,7 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Beer, Target, Clock, Users, Medal, Zap, Plus } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Trophy, Beer, Target, Clock, Users, Medal, Zap, Plus, X } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
@@ -49,10 +52,24 @@ interface LeaderboardEntry {
   };
 }
 
+interface Team {
+  id: number;
+  teamNumber: number;
+  player1Name: string;
+  player2Name: string;
+}
+
 export default function Boozelympics() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("leaderboard");
+  
+  // Match logging state
+  const [showLogMatch, setShowLogMatch] = useState<number | null>(null);
+  const [team1Id, setTeam1Id] = useState<number>(0);
+  const [team2Id, setTeam2Id] = useState<number>(0);
+  const [winnerTeamId, setWinnerTeamId] = useState<number>(0);
+  const [notes, setNotes] = useState<string>("");
 
   const { data: games = [], isLoading: gamesLoading } = useQuery({
     queryKey: ['/api/boozelympics/games'],
@@ -66,12 +83,31 @@ export default function Boozelympics() {
     queryKey: ['/api/boozelympics/leaderboard'],
   });
 
+  const { data: teams = [] } = useQuery<Team[]>({
+    queryKey: ['/api/teams'],
+  });
+
   const createGameMutation = useMutation({
     mutationFn: async (gameData: Omit<BoozelympicsGame, 'id' | 'isActive'>) => {
       return await apiRequest('POST', '/api/boozelympics/games', gameData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/boozelympics/games'] });
+    },
+  });
+
+  const createMatchMutation = useMutation({
+    mutationFn: async (matchData: any) => {
+      return await apiRequest('POST', '/api/boozelympics/matches', matchData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/boozelympics/matches'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/boozelympics/leaderboard'] });
+      setShowLogMatch(null);
+      setTeam1Id(0);
+      setTeam2Id(0);
+      setWinnerTeamId(0);
+      setNotes("");
     },
   });
 
@@ -278,10 +314,120 @@ export default function Boozelympics() {
                       <Target className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm">{game.supplies}</span>
                     </div>
-                    {isAdmin && (
-                      <Button className="w-full mt-4" variant="outline">
-                        Log Match
-                      </Button>
+                    <Button 
+                      className="w-full mt-4" 
+                      variant="outline"
+                      onClick={() => setShowLogMatch(game.id)}
+                    >
+                      Log Match
+                    </Button>
+                    
+                    {/* Match logging dropdown */}
+                    {showLogMatch === game.id && (
+                      <div className="mt-4 p-4 border rounded-lg bg-muted/50">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="font-semibold">Log {game.name} Match</h4>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => setShowLogMatch(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label>Team 1</Label>
+                              <Select value={team1Id.toString()} onValueChange={(value) => setTeam1Id(parseInt(value))}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select team 1" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {teams.map((team) => (
+                                    <SelectItem key={team.id} value={team.id.toString()}>
+                                      Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div>
+                              <Label>Team 2</Label>
+                              <Select value={team2Id.toString()} onValueChange={(value) => setTeam2Id(parseInt(value))}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select team 2" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {teams.map((team) => (
+                                    <SelectItem key={team.id} value={team.id.toString()}>
+                                      Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <Label>Winner</Label>
+                            <Select value={winnerTeamId.toString()} onValueChange={(value) => setWinnerTeamId(parseInt(value))}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select winner" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[team1Id, team2Id].filter(Boolean).map((teamId) => {
+                                  const team = teams.find(t => t.id === teamId);
+                                  return team ? (
+                                    <SelectItem key={team.id} value={team.id.toString()}>
+                                      Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
+                                    </SelectItem>
+                                  ) : null;
+                                })}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          <div>
+                            <Label>Notes (Optional)</Label>
+                            <Textarea 
+                              value={notes}
+                              onChange={(e) => setNotes(e.target.value)}
+                              placeholder="Any additional notes about the match..."
+                              className="resize-none"
+                              rows={2}
+                            />
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => {
+                                createMatchMutation.mutate({
+                                  gameId: game.id,
+                                  team1Id,
+                                  team2Id,
+                                  winnerTeamId,
+                                  points: 3,
+                                  bonusPoints: 0,
+                                  notes: notes || `${game.name} match result`
+                                });
+                              }}
+                              disabled={!team1Id || !team2Id || !winnerTeamId || createMatchMutation.isPending}
+                              className="flex-1"
+                            >
+                              {createMatchMutation.isPending ? 'Saving...' : 'Save Match'}
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              onClick={() => setShowLogMatch(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
                 </CardContent>
