@@ -200,18 +200,18 @@ export default function Scores() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-golf-green-50 to-golf-gold-50 dark:from-slate-900 dark:to-slate-800">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Trophy className="w-10 h-10 text-golf-gold-500" />
-            <h2 className="text-4xl font-bold text-golf-green-600">Live Scores</h2>
-            <Medal className="w-10 h-10 text-golf-green-600" />
+    <div className="bg-gradient-to-br from-golf-green-50 to-golf-gold-50 dark:from-slate-900 dark:to-slate-800 min-h-screen">
+      <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8 pb-20">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-golf-gold-500" />
+            <h2 className="text-2xl sm:text-4xl font-bold text-golf-green-600">Live Scores</h2>
+            <Medal className="w-8 h-8 sm:w-10 sm:h-10 text-golf-green-600" />
           </div>
-          <p className="text-lg text-golf-green-700 dark:text-golf-green-400 mb-6">
+          <p className="text-sm sm:text-lg text-golf-green-700 dark:text-golf-green-400 mb-4 sm:mb-6">
             Real-time Tournament Standings • Updated Live
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-4">
+          <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-4">
             <div className="flex items-center text-sm">
               {isOnline ? (
                 <>
@@ -316,15 +316,15 @@ export default function Scores() {
           </div>
         </div>
       
-      <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-        <p className="text-sm text-blue-800 dark:text-blue-200">
+      <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
           <strong>Note:</strong> Scores are automatically calculated from hole-by-hole rounds played by each team. 
           Only Nick Grossi and Connor Patterson can manually adjust scores if needed.
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-6 h-auto">
+        <TabsList className="grid w-full grid-cols-4 mb-4 sm:mb-6 h-auto overflow-hidden">
           <TabsTrigger value="overall" className="flex flex-col items-center gap-1 py-3 text-xs">
             <Trophy className="w-4 h-4" />
             <span className="hidden sm:inline">Overall Scores</span>
@@ -347,54 +347,54 @@ export default function Scores() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overall">
+        <TabsContent value="overall" className="space-y-4">
           <Card className="shadow-lg">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[600px]">
                   <thead className="bg-golf-green-50 dark:bg-slate-700">
                     <tr>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Rank</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Team</th>
-                      <th className="px-6 py-4 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Round 1</th>
-                      <th className="px-6 py-4 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Round 2</th>
-                      <th className="px-6 py-4 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Round 3</th>
-                      <th className="px-6 py-4 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Total</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Rank</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Team</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Round 1</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Round 2</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Round 3</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Total</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                     {scores.map((score: any) => (
                       <tr key={score.id} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
-                        <td className="px-6 py-4">{getRankBadge(score.rank)}</td>
-                        <td className="px-6 py-4">
-                          <div className="font-medium">Team {score.team.teamNumber}</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-3">
-                            <div className="flex items-center gap-2">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">{getRankBadge(score.rank)}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                          <div className="font-medium text-sm sm:text-base">Team {score.team.teamNumber}</div>
+                          <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                            <div className="flex items-center gap-1 sm:gap-2">
                               <ProfilePicture 
                                 firstName={score.team.player1Name.split(' ')[0]} 
                                 lastName={score.team.player1Name.split(' ')[1] || ''} 
-                                size="md"
+                                size="sm"
                               />
-                              <span>{score.team.player1Name}</span>
+                              <span className="truncate">{score.team.player1Name}</span>
                             </div>
-                            <span>&</span>
-                            <div className="flex items-center gap-2">
+                            <span className="hidden sm:inline">&</span>
+                            <div className="flex items-center gap-1 sm:gap-2">
                               <ProfilePicture 
                                 firstName={score.team.player2Name.split(' ')[0]} 
                                 lastName={score.team.player2Name.split(' ')[1] || ''} 
-                                size="md"
+                                size="sm"
                               />
-                              <span>{score.team.player2Name}</span>
+                              <span className="truncate">{score.team.player2Name}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-center font-medium">{score.round1Points || '-'}</td>
-                        <td className="px-6 py-4 text-center font-medium">{score.round2Points || '-'}</td>
-                        <td className="px-6 py-4 text-center font-medium">{score.round3Points || '-'}</td>
-                        <td className="px-6 py-4 text-center">
-                          <div className="font-bold text-golf-green-600">{score.totalPoints}</div>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center font-medium text-sm sm:text-base">{score.round1Points || '-'}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center font-medium text-sm sm:text-base">{score.round2Points || '-'}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center font-medium text-sm sm:text-base">{score.round3Points || '-'}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center">
+                          <div className="font-bold text-golf-green-600 text-sm sm:text-base">{score.totalPoints}</div>
                           {score.currentRoundPoints > 0 && (
-                            <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded mt-1">
+                            <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-1 sm:px-2 py-1 rounded mt-1">
                               Current: {score.currentRoundPoints} pts (#{score.currentRoundStanding})
                             </div>
                           )}
@@ -469,35 +469,36 @@ function BetterBallLeaderboard({ leaderboard }: { leaderboard: any[] }) {
           <p className="text-sm text-gray-600 dark:text-gray-400">Teams use best score between partners on each hole. Shows both gross and net scores.</p>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[500px]">
             <thead className="bg-golf-green-50 dark:bg-slate-700">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Pos</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Team</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Gross</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Net</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">To Par</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Points</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Pos</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Team</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Gross</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Net</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">To Par</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Points</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
               {leaderboard.map((entry: any, index: number) => (
                 <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
-                  <td className="px-4 py-3">{getRankBadge(entry.position || index + 1)}</td>
-                  <td className="px-4 py-3">
-                    <div className="font-medium">Team {entry.team?.teamNumber}</div>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3">{getRankBadge(entry.position || index + 1)}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3">
+                    <div className="font-medium text-xs sm:text-sm">Team {entry.team?.teamNumber}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {entry.team?.player1Name} & {entry.team?.player2Name}
+                      <div>{entry.team?.player1Name}</div>
+                      <div className="sm:inline sm:before:content-['_&_'] ">{entry.team?.player2Name}</div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-center font-medium">{entry.totalGrossStrokes || '-'}</td>
-                  <td className="px-4 py-3 text-center font-medium">{entry.totalNetStrokes || '-'}</td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalGrossStrokes || '-'}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalNetStrokes || '-'}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm">
                     <span className={entry.grossToPar > 0 ? 'text-red-600' : entry.grossToPar < 0 ? 'text-green-600' : 'text-gray-600'}>
                       {entry.grossToPar > 0 ? '+' : ''}{entry.grossToPar || 'E'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center font-bold text-golf-green-600">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-bold text-golf-green-600 text-xs sm:text-sm">
                     {entry.roundPoints || (11 - entry.position) || 0}
                   </td>
                 </tr>
@@ -552,35 +553,36 @@ function ScrambleLeaderboard({ leaderboard }: { leaderboard: any[] }) {
           <p className="text-sm text-gray-600 dark:text-gray-400">Teams play one ball from best position. Lowest total strokes wins.</p>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[500px]">
             <thead className="bg-golf-green-50 dark:bg-slate-700">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Pos</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Team</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Total Strokes</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">To Par</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Holes</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Points</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Pos</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Team</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Strokes</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">To Par</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Holes</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Points</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
               {leaderboard.map((entry: any, index: number) => (
                 <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
-                  <td className="px-4 py-3">{getRankBadge(entry.position || index + 1)}</td>
-                  <td className="px-4 py-3">
-                    <div className="font-medium">Team {entry.team?.teamNumber}</div>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3">{getRankBadge(entry.position || index + 1)}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3">
+                    <div className="font-medium text-xs sm:text-sm">Team {entry.team?.teamNumber}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {entry.team?.player1Name} & {entry.team?.player2Name}
+                      <div>{entry.team?.player1Name}</div>
+                      <div className="sm:inline sm:before:content-['_&_'] ">{entry.team?.player2Name}</div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-center font-medium">{entry.totalStrokes || '-'}</td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalStrokes || '-'}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm">
                     <span className={entry.totalToPar > 0 ? 'text-red-600' : entry.totalToPar < 0 ? 'text-green-600' : 'text-gray-600'}>
                       {entry.totalToPar > 0 ? '+' : ''}{entry.totalToPar || 'E'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-500">{entry.holes}/18</td>
-                  <td className="px-4 py-3 text-center font-bold text-golf-green-600">
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs text-gray-500">{entry.holes}/18</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-bold text-golf-green-600 text-xs sm:text-sm">
                     {entry.roundPoints || (11 - entry.position) || 0}
                   </td>
                 </tr>
