@@ -11,10 +11,9 @@ import ProfilePicture from "@/components/ProfilePicture";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
+interface RegisteredPlayer {
+  name: string;
+  userId: number;
 }
 
 interface Team {
@@ -67,8 +66,8 @@ export function GolfRelay() {
   const [team2Id, setTeam2Id] = useState<number>(0);
   const [winnerTeamId, setWinnerTeamId] = useState<number>(0);
 
-  const { data: users = [] } = useQuery<User[]>({
-    queryKey: ['/api/users'],
+  const { data: registeredPlayers = [] } = useQuery<RegisteredPlayer[]>({
+    queryKey: ['/api/registered-players'],
   });
 
   const { data: teams = [] } = useQuery<Team[]>({
@@ -151,11 +150,11 @@ export function GolfRelay() {
   });
 
   // Calculate leaderboard from individual times
-  const leaderboard = users.map(u => {
-    const userMatches = relayMatches.filter(m => m.playerId === u.id);
+  const leaderboard = registeredPlayers.map(player => {
+    const userMatches = relayMatches.filter(m => m.playerId === player.userId);
     const bestTime = userMatches.length > 0 ? Math.min(...userMatches.map(m => m.timeMs)) : null;
     return {
-      user: u,
+      player,
       totalRuns: userMatches.length,
       bestTime,
       averageTime: userMatches.length > 0 ? 
@@ -188,9 +187,9 @@ export function GolfRelay() {
                 <SelectValue placeholder="Choose player to time" />
               </SelectTrigger>
               <SelectContent>
-                {users.map((u: User) => (
-                  <SelectItem key={u.id} value={u.id.toString()}>
-                    {u.firstName} {u.lastName}
+                {registeredPlayers.map((player) => (
+                  <SelectItem key={player.userId} value={player.userId.toString()}>
+                    {player.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -235,7 +234,7 @@ export function GolfRelay() {
                 disabled={saveTimeMutation.isPending}
                 className="mt-4"
               >
-                Save Time for {users.find(u => u.id === selectedPlayer)?.firstName}
+                Save Time for {registeredPlayers.find(p => p.userId === selectedPlayer)?.name.split(' ')[0]}
               </Button>
             )}
           </div>
@@ -371,28 +370,31 @@ export function GolfRelay() {
             </div>
           ) : (
             <div className="space-y-3">
-              {leaderboard.map((entry, index) => (
-                <div
-                  key={entry.user.id}
-                  className="flex items-center justify-between p-4 rounded-lg border bg-card"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      {index === 0 && <Trophy className="h-5 w-5 text-yellow-500" />}
-                      <span className="font-bold text-lg">#{index + 1}</span>
-                    </div>
-                    <ProfilePicture
-                      firstName={entry.user.firstName}
-                      lastName={entry.user.lastName}
-                      className="h-10 w-10"
-                    />
-                    <div>
-                      <div className="font-semibold">{entry.user.firstName} {entry.user.lastName}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {entry.totalRuns} runs
+              {leaderboard.map((entry, index) => {
+                const [firstName, ...lastNameParts] = entry.player.name.split(' ');
+                const lastName = lastNameParts.join(' ');
+                return (
+                  <div
+                    key={entry.player.userId}
+                    className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        {index === 0 && <Trophy className="h-5 w-5 text-yellow-500" />}
+                        <span className="font-bold text-lg">#{index + 1}</span>
+                      </div>
+                      <ProfilePicture
+                        firstName={firstName}
+                        lastName={lastName}
+                        className="h-10 w-10"
+                      />
+                      <div>
+                        <div className="font-semibold">{entry.player.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {entry.totalRuns} runs
+                        </div>
                       </div>
                     </div>
-                  </div>
                   <div className="text-right">
                     <div className="font-bold text-lg">
                       {entry.bestTime ? formatTime(entry.bestTime) : 'N/A'}
@@ -403,8 +405,9 @@ export function GolfRelay() {
                       </div>
                     )}
                   </div>
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>
