@@ -101,7 +101,7 @@ export interface IStorage {
   getCurrentMatchForPlayer(playerId: number, currentHole: number): Promise<MatchPlayMatch | null>;
   
   // Player matching
-  findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 } | null>;
+  findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2; handicap: number } | null>;
   
   // Tournament management
   getTournaments(): Promise<Tournament[]>;
@@ -166,15 +166,15 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 } | null> {
+  async findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2; handicap: number } | null> {
     const allTeams = await db.select().from(teams);
     
     for (const team of allTeams) {
       if (team.player1Name.toLowerCase() === `${firstName} ${lastName}`.toLowerCase()) {
-        return { teamId: team.id, playerNumber: 1 };
+        return { teamId: team.id, playerNumber: 1, handicap: team.player1Handicap };
       }
       if (team.player2Name.toLowerCase() === `${firstName} ${lastName}`.toLowerCase()) {
-        return { teamId: team.id, playerNumber: 2 };
+        return { teamId: team.id, playerNumber: 2, handicap: team.player2Handicap };
       }
     }
     
@@ -360,9 +360,9 @@ export class DatabaseStorage implements IStorage {
       )
     );
 
-    // Calculate net score and points (simplified Stableford scoring)
+    // Calculate net score and points (Stableford scoring with proper handicap)
     const par = 4; // Default par, can be customized per hole
-    const handicap = 0; // Simplified, can be calculated based on hole difficulty
+    const handicap = await this.calculateHoleHandicap(userId, hole);
     const netScore = strokes - handicap;
     let points = 0;
     
@@ -479,17 +479,74 @@ export class DatabaseStorage implements IStorage {
 
   async getLeaderboard(round: number): Promise<any[]> {
     if (round === 1) {
-      // Round 1: Better ball format - use team better ball leaderboard
-      return this.getTeamBetterBallLeaderboard(round);
+      // Round 1: Better ball format - show tournament placement points
+      return this.getTournamentPlacementLeaderboard(round);
     } else if (round === 2) {
-      // Round 2: Scramble format - one score per hole per team
-      return this.getScrambleLeaderboard(round);
+      // Round 2: Scramble format - show tournament placement points
+      return this.getTournamentPlacementLeaderboard(round);
     } else if (round === 3) {
       // Round 3: Match play format - points from individual matches
       return this.getMatchPlayLeaderboard();
     } else {
       return [];
     }
+  }
+
+  async calculateHoleHandicap(userId: number, hole: number): Promise<number> {
+    // Get the user's course handicap
+    const user = await this.getUser(userId);
+    if (!user) return 0;
+    
+    const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
+    if (!playerInfo) return 0;
+    
+    // Get player's handicap from team assignment
+    const playerHandicap = playerInfo.handicap || 0;
+    
+    // Course handicap allocation - distribute strokes based on hole difficulty
+    // Most golf courses allocate strokes starting from handicap hole 1 (hardest)
+    // For simplicity, we'll use a standard allocation pattern
+    const holeHandicapIndex = [
+      10, 4, 14, 2, 12, 8, 16, 6, 18, 1, 11, 5, 15, 3, 13, 7, 17, 9
+    ];
+    
+    const strokeIndex = holeHandicapIndex[hole - 1] || 18;
+    
+    // Player gets a stroke if their handicap >= stroke index
+    return playerHandicap >= strokeIndex ? 1 : 0;
+  }
+
+  async getTournamentPlacementLeaderboard(round: number): Promise<any[]> {
+    // Get all teams and their tournament placement points for this round
+    const teams = await this.getTeams();
+    const teamPlacementData = [];
+    
+    for (const team of teams) {
+      const roundPoints = await this.calculateTeamRoundPoints(team.id, round);
+      const stablefordPoints = await this.calculateTeamStablefordPoints(team.id, round);
+      const holesCompleted = await this.getTeamHolesCompleted(team.id, round);
+      
+      teamPlacementData.push({
+        id: team.id,
+        team: team,
+        roundPoints: roundPoints,
+        stablefordPoints: stablefordPoints,
+        holesCompleted: holesCompleted,
+        totalPoints: roundPoints, // Use tournament placement points as totalPoints
+        isTeamLeaderboard: true,
+        position: 0 // Will be set after sorting
+      });
+    }
+    
+    // Sort teams by round points (descending) - highest points = best placement
+    teamPlacementData.sort((a, b) => b.roundPoints - a.roundPoints);
+    
+    // Assign positions based on tournament placement points
+    teamPlacementData.forEach((team, index) => {
+      team.position = index + 1;
+    });
+    
+    return teamPlacementData;
   }
 
   async getScrambleLeaderboard(round: number): Promise<any[]> {

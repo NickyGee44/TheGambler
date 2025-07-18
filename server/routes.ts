@@ -661,11 +661,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/leaderboard/:round', async (req, res) => {
     try {
       const round = parseInt(req.params.round);
+      console.log(`Getting leaderboard for round ${round}`);
       const leaderboard = await storage.getLeaderboard(round);
+      console.log('Leaderboard result:', leaderboard[0]); // Debug first result
       res.json(leaderboard);
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
       res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    }
+  });
+
+  // Debug endpoint for tournament placement leaderboard
+  app.get('/api/tournament-placement/:round', async (req, res) => {
+    try {
+      const round = parseInt(req.params.round);
+      console.log(`Getting tournament placement leaderboard for round ${round}`);
+      const leaderboard = await storage.getTournamentPlacementLeaderboard(round);
+      console.log('Tournament placement result:', leaderboard[0]); // Debug first result
+      res.json(leaderboard);
+    } catch (error) {
+      console.error('Error fetching tournament placement leaderboard:', error);
+      res.status(500).json({ error: 'Failed to fetch tournament placement leaderboard' });
     }
   });
 
