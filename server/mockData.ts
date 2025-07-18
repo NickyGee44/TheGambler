@@ -207,7 +207,7 @@ export async function generateMockData() {
       },
       {
         betterName: "Erik Boudreau",
-        opponentName: "Will Bibbings",
+        opponentName: "Will Bibi",
         condition: "Longest drive on hole 12",
         amount: 25,
         round: 2,
@@ -218,7 +218,7 @@ export async function generateMockData() {
       },
       {
         betterName: "Spencer Reid",
-        opponentName: "Jeffrey Reiner",
+        opponentName: "Jeff Reiner",
         condition: "Most birdies in the round",
         amount: 30,
         round: 2,
@@ -240,7 +240,7 @@ export async function generateMockData() {
       },
       {
         betterName: "Jordan Kreller",
-        opponentName: "Johnny Magnatta",
+        opponentName: "Jonathan Magnatta",
         condition: "Fewest penalty strokes",
         amount: 20,
         round: 3,

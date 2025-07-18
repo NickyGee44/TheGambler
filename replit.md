@@ -127,11 +127,11 @@ Preferred communication style: Simple, everyday language.
   - Team 1: Nick Grossi (15 hcp) & Connor Patterson (3 hcp) - Total: 18
   - Team 2: Christian Hauck (5 hcp) & Bailey Carlson (16 hcp) - Total: 21
   - Team 3: Ben Braun (6 hcp) & Nic Huxley (15 hcp) - Total: 21
-  - Team 4: Erik Boudreau (10 hcp) & Will Bibbings (5 hcp) - Total: 15
+  - Team 4: Erik Boudreau (10 hcp) & Will Bibi (5 hcp) - Total: 15
   - Team 5: Nick Cook (12 hcp) & Kevin Durco (3 hcp) - Total: 15
-  - Team 6: Spencer Reid (16 hcp) & Jeffrey Reiner (9 hcp) - Total: 25
+  - Team 6: Spencer Reid (16 hcp) & Jeff Reiner (9 hcp) - Total: 25
   - Team 7: Sye Ellard (18 hcp) & Austin Hassani (17 hcp) - Total: 35
-  - Team 8: Jordan Kreller (6 hcp) & Johnny Magnatta (11 hcp) - Total: 17
+  - Team 8: Jordan Kreller (6 hcp) & Jonathan Magnatta (11 hcp) - Total: 17
   - Fixed overlapping tabs in Scores page with responsive mobile design
   - Updated mock data generation to use actual team assignments from database
   - Enhanced tab styling with vertical layout and proper spacing for all screen sizes
