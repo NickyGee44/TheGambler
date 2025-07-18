@@ -13,9 +13,15 @@ export default function MockDataGenerator() {
 
   const generateMockDataMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('/api/generate-mock-data', {
-        method: 'POST',
-      });
+      console.log('Starting mock data generation...');
+      try {
+        const response = await apiRequest('POST', '/api/generate-mock-data');
+        console.log('Mock data generation successful:', response);
+        return response;
+      } catch (error) {
+        console.error('Mock data generation failed:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
@@ -34,9 +40,10 @@ export default function MockDataGenerator() {
       setIsDialogOpen(false);
     },
     onError: (error) => {
+      console.error('Mock data generation error:', error);
       toast({
         title: "Error",
-        description: "Failed to generate mock data. Please try again.",
+        description: `Failed to generate mock data: ${error.message}`,
         variant: "destructive",
       });
     },
