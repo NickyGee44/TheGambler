@@ -1056,5 +1056,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Boozelympics API routes
+  app.get('/api/boozelympics/games', async (req, res) => {
+    try {
+      const games = await storage.getBoozelympicsGames();
+      res.json(games);
+    } catch (error) {
+      console.error('Error fetching Boozelympics games:', error);
+      res.status(500).json({ error: 'Failed to fetch games' });
+    }
+  });
+
+  app.post('/api/boozelympics/games', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Only allow Nick Grossi to create games
+      const userName = `${user.firstName} ${user.lastName}`;
+      if (userName !== 'Nick Grossi') {
+        return res.status(403).json({ error: 'Only Nick Grossi can create Boozelympics games' });
+      }
+
+      const game = await storage.createBoozelympicsGame(req.body);
+      
+      broadcast({
+        type: 'BOOZELYMPICS_GAME_CREATED',
+        data: game
+      });
+
+      res.json(game);
+    } catch (error) {
+      console.error('Error creating Boozelympics game:', error);
+      res.status(500).json({ error: 'Failed to create game' });
+    }
+  });
+
+  app.get('/api/boozelympics/matches', async (req, res) => {
+    try {
+      const gameId = req.query.gameId ? parseInt(req.query.gameId as string) : undefined;
+      const matches = await storage.getBoozelympicsMatches(gameId);
+      res.json(matches);
+    } catch (error) {
+      console.error('Error fetching Boozelympics matches:', error);
+      res.status(500).json({ error: 'Failed to fetch matches' });
+    }
+  });
+
+  app.post('/api/boozelympics/matches', requireAuth, async (req: any, res) => {
+    try {
+      const match = await storage.createBoozelympicsMatch(req.body);
+      
+      broadcast({
+        type: 'BOOZELYMPICS_MATCH_CREATED',
+        data: match
+      });
+
+      res.json(match);
+    } catch (error) {
+      console.error('Error creating Boozelympics match:', error);
+      res.status(500).json({ error: 'Failed to create match' });
+    }
+  });
+
+  app.get('/api/boozelympics/leaderboard', async (req, res) => {
+    try {
+      const leaderboard = await storage.getBoozelympicsLeaderboard();
+      res.json(leaderboard);
+    } catch (error) {
+      console.error('Error fetching Boozelympics leaderboard:', error);
+      res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    }
+  });
+
+  // Golf Relay specific routes
+  app.get('/api/golf-relay/matches', async (req, res) => {
+    try {
+      const matches = await storage.getGolfRelayMatches();
+      res.json(matches);
+    } catch (error) {
+      console.error('Error fetching Golf Relay matches:', error);
+      res.status(500).json({ error: 'Failed to fetch matches' });
+    }
+  });
+
+  app.post('/api/golf-relay/matches', requireAuth, async (req: any, res) => {
+    try {
+      const match = await storage.createGolfRelayMatch(req.body);
+      
+      broadcast({
+        type: 'GOLF_RELAY_MATCH_CREATED',
+        data: match
+      });
+
+      res.json(match);
+    } catch (error) {
+      console.error('Error creating Golf Relay match:', error);
+      res.status(500).json({ error: 'Failed to create match' });
+    }
+  });
+
+  app.get('/api/golf-relay/leaderboard', async (req, res) => {
+    try {
+      const leaderboard = await storage.getGolfRelayLeaderboard();
+      res.json(leaderboard);
+    } catch (error) {
+      console.error('Error fetching Golf Relay leaderboard:', error);
+      res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    }
+  });
+
   return httpServer;
 }

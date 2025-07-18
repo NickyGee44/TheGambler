@@ -1,0 +1,175 @@
+Here’s a **structured implementation guide for the Golf Relay** event inside the Boozelympics tab — formatted so Replit can build it directly into the app with **game logic, rules, UI layout**, and **timing-based scoring**.
+
+---
+
+### 🏌️‍♂️🍺 Boozelympics Golf Relay — Game Format (For Replit)
+
+---
+
+### 📌 Game Name
+
+**Golf Relay**
+
+---
+
+### 🔄 Game Format
+
+* **1v1 Head-to-head**, double elimination or call-out style bracket
+* Winner is determined by **fastest total time** to complete all stations
+* Use **existing team pairings** or allow solo player challenges
+
+---
+
+### 🧩 Event Breakdown
+
+#### 🏌️‍♂️ 1. Wedge Shot Challenge (Chug Time Based on Distance)
+
+* Player flops a wedge shot aiming to land near a target zone.
+
+* Zones are measured from the starting spot:
+
+  | Distance from target zone | Chug Time            |
+  | ------------------------- | -------------------- |
+  | <1 ft                     | 10 sec               |
+  | 1–2 ft                    | 9 sec                |
+  | 2–3 ft                    | 8 sec                |
+  | 3–4 ft                    | 7 sec                |
+  | 4–5 ft                    | 6 sec                |
+  | 5–6 ft                    | 5 sec                |
+  | 6–7 ft                    | 4 sec                |
+  | 7–8 ft                    | 3 sec                |
+  | 8–9 ft                    | 2 sec                |
+  | 9–10 ft                   | 1 sec                |
+  | >10 ft                    | Finish full drink 🍺 |
+
+* **Admin enters** distance manually into the app (e.g. 2.5 ft), and the app auto-calculates chug time.
+
+---
+
+#### 🔄 2. Flip Cup
+
+* Must successfully flip a cup.
+* Each failed attempt adds **+2 seconds** to total time.
+* App logs how many attempts taken.
+
+---
+
+#### 🏀 3. Pong Shot (Line Formation)
+
+* 3 cups in a line (not triangle)
+* Must make 1 ball into a cup.
+* Each missed attempt = **+3 seconds** to total time.
+* Max attempts: 6. If none made, +10 seconds penalty.
+
+---
+
+#### 🏃‍♂️ 4. Sprint to Finish Line
+
+* Start/finish line timing controlled manually or via a stopwatch.
+* Admin enters final run time.
+
+---
+
+### ⏱️ Final Scoring Formula
+
+```text
+Total Relay Time = Run Time
+                 + Wedge Shot Chug Time (based on distance zone)
+                 + (2s × # of Flip Cup misses)
+                 + (3s × # of Pong misses or +10 if no hits)
+```
+
+🏆 Fastest total relay time wins the matchup.
+
+---
+
+### 📱 UI Layout (Boozelympics Tab → Golf Relay Section)
+
+#### \[ Admin Control Panel ]
+
+* Start Match: Player A vs Player B
+* Record:
+
+  * Distance of Wedge Shot (in feet)
+  * Flip Cup Attempts (count)
+  * Pong Attempts (count)
+  * Final Sprint Time (in seconds)
+* Auto-calculate:
+
+  * Chug Time from wedge zone
+  * Total Time
+  * Winner
+
+#### \[ Match History Section ]
+
+* Stores:
+
+  * Player names
+  * Individual component scores
+  * Total time
+  * Winner
+* Adds performance data to Boozelympics leaderboard
+
+---
+
+### 🧠 Stored in Database As:
+
+| Field              | Type  |
+| ------------------ | ----- |
+| player\_id\_1      | UUID  |
+| player\_id\_2      | UUID  |
+| wedge\_distance\_1 | FLOAT |
+| wedge\_distance\_2 | FLOAT |
+| flip\_misses\_1    | INT   |
+| flip\_misses\_2    | INT   |
+| pong\_misses\_1    | INT   |
+| pong\_misses\_2    | INT   |
+| run\_time\_1       | FLOAT |
+| run\_time\_2       | FLOAT |
+| total\_time\_1     | FLOAT |
+| total\_time\_2     | FLOAT |
+| winner\_id         | UUID  |
+| tournament\_year   | INT   |
+
+---
+
+### 🔥 Bonus Features (Optional Enhancements)
+
+* Live Stopwatch integration with a “Start Timer / Stop Timer” button
+* Distance Estimator Tool using slider (0–12 feet) instead of manual entry
+* Store Video Link (upload funny moment or clip URL)
+* “Craziest Attempt” voting button
+* Sync performance to Player Profile (relay win rate, avg time)
+
+---
+
+### 🏁 Summary (To Show Replit)
+
+```plaintext
+Add a new Boozelympics game called "Golf Relay":
+- 1v1 face-offs with total completion time as win condition.
+- Components:
+  • Wedge shot with chug time = distance zone (0–10 sec, full drink if >10 ft)
+  • Flip cup: +2s per miss
+  • Pong: +3s per miss (max 6 tries), +10s if none made
+  • Sprint back: time manually entered
+- Score = sum of all above
+- Fastest time wins
+- Admin inputs all data, app auto-calculates winner
+- Match results saved to Boozelympics leaderboard and player history
+- Golf Relay fits in one collapsible section in the Boozelympics tab
+```
+
+---
+
+Would you like me to draft the **actual Replit schema in JSON or Firebase format**, or start designing the **frontend layout in React with Tailwind**?
+
+Also:
+
+**Q1:** Do you want a knockout bracket or just free callouts + leaderboard?
+**Q2:** Should we store relay wins on the lifetime profile page?
+**Q3:** Want to build a fun animated timer or keep it manual?
+**Q4:** Do we allow retry attempts later or is it one-and-done per match?
+**Q5:** Should we build a group “RELAY CHAMPS” trophy display in the app too?
+
+Let’s take Boozelympics to legendary status 🍻⛳

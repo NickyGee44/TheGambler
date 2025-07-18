@@ -12,6 +12,7 @@ import Scores from "@/pages/Scores";
 import Stats from "@/pages/Stats";
 import PlayerProfile from "@/pages/PlayerProfile";
 import TournamentManagement from "@/pages/TournamentManagement";
+import Boozelympics from "@/pages/Boozelympics";
 import SideBets from "@/pages/SideBets";
 import Rules from "@/pages/Rules";
 import Photos from "@/pages/Photos";
@@ -19,7 +20,6 @@ import Round1 from "@/pages/Round1";
 import Round2 from "@/pages/Round2";
 import Round3 from "@/pages/Round3";
 import Round3Matchups from "@/pages/Round3Matchups";
-import TournamentRules from "@/pages/TournamentRules";
 import AuthPage from "@/pages/AuthPage";
 import PictureAssignment from "@/pages/PictureAssignment";
 import NotFound from "@/pages/not-found";
@@ -156,6 +156,7 @@ function Router() {
             <Route path="/player/:userId" component={PlayerProfile} />
             <Route path="/tournament-management" component={TournamentManagement} />
             <Route path="/sidebets" component={SideBets} />
+            <Route path="/boozelympics" component={Boozelympics} />
             <Route path="/rules" component={Rules} />
     
             <Route path="/photos" component={Photos} />

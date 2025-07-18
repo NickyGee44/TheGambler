@@ -238,3 +238,77 @@ export type Tournament = typeof tournaments.$inferSelect;
 export type InsertTournament = z.infer<typeof insertTournamentSchema>;
 export type PlayerTournamentHistory = typeof playerTournamentHistory.$inferSelect;
 export type InsertPlayerTournamentHistory = z.infer<typeof insertPlayerTournamentHistorySchema>;
+
+// Boozelympics tables
+export const boozelympicsGames = pgTable("boozelympics_games", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 50 }).notNull(),
+  description: text("description").notNull(),
+  supplies: text("supplies").notNull(),
+  playersNeeded: varchar("players_needed", { length: 20 }).notNull(),
+  timeEstimate: varchar("time_estimate", { length: 20 }).notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const boozelympicsMatches = pgTable("boozelympics_matches", {
+  id: serial("id").primaryKey(),
+  gameId: integer("game_id").notNull().references(() => boozelympicsGames.id),
+  player1Id: integer("player1_id").references(() => users.id),
+  player2Id: integer("player2_id").references(() => users.id),
+  team1Id: integer("team1_id").references(() => teams.id),
+  team2Id: integer("team2_id").references(() => teams.id),
+  winnerId: integer("winner_id").references(() => users.id),
+  winnerTeamId: integer("winner_team_id").references(() => teams.id),
+  points: integer("points").default(0),
+  bonusPoints: integer("bonus_points").default(0),
+  mvpId: integer("mvp_id").references(() => users.id),
+  matchData: jsonb("match_data").default('{}'), // Store game-specific data
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Golf Relay specific matches
+export const golfRelayMatches = pgTable("golf_relay_matches", {
+  id: serial("id").primaryKey(),
+  player1Id: integer("player1_id").notNull().references(() => users.id),
+  player2Id: integer("player2_id").notNull().references(() => users.id),
+  // Player 1 scores
+  wedgeDistance1: integer("wedge_distance_1").notNull(), // in feet * 10 (to store decimals)
+  flipMisses1: integer("flip_misses_1").notNull().default(0),
+  pongMisses1: integer("pong_misses_1").notNull().default(0),
+  runTime1: integer("run_time_1").notNull(), // in milliseconds
+  totalTime1: integer("total_time_1").notNull(), // calculated total in milliseconds
+  // Player 2 scores
+  wedgeDistance2: integer("wedge_distance_2").notNull(),
+  flipMisses2: integer("flip_misses_2").notNull().default(0),
+  pongMisses2: integer("pong_misses_2").notNull().default(0),
+  runTime2: integer("run_time_2").notNull(),
+  totalTime2: integer("total_time_2").notNull(),
+  winnerId: integer("winner_id").notNull().references(() => users.id),
+  tournamentYear: integer("tournament_year").notNull().default(2025),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertBoozelympicsGameSchema = createInsertSchema(boozelympicsGames).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertBoozelympicsMatchSchema = createInsertSchema(boozelympicsMatches).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertGolfRelayMatchSchema = createInsertSchema(golfRelayMatches).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type BoozelympicsGame = typeof boozelympicsGames.$inferSelect;
+export type InsertBoozelympicsGame = z.infer<typeof insertBoozelympicsGameSchema>;
+export type BoozelympicsMatch = typeof boozelympicsMatches.$inferSelect;
+export type InsertBoozelympicsMatch = z.infer<typeof insertBoozelympicsMatchSchema>;
+export type GolfRelayMatch = typeof golfRelayMatches.$inferSelect;
+export type InsertGolfRelayMatch = z.infer<typeof insertGolfRelayMatchSchema>;

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, X, Home, Users, Trophy, Coins, BookOpen, Camera, Target, Award, Moon, Sun, LogOut, BarChart3, Settings } from "lucide-react";
+import { Menu, X, Home, Users, Trophy, Coins, BookOpen, Camera, Target, Award, Moon, Sun, LogOut, BarChart3, Settings, Beer } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -33,6 +33,7 @@ export default function Navigation() {
     { href: "/scores", label: "Scores", icon: Trophy },
     { href: "/stats", label: "Statistics", icon: BarChart3 },
     { href: "/sidebets", label: "Side Bets", icon: Coins },
+    { href: "/boozelympics", label: "Boozelympics", icon: Beer },
     { href: "/rules", label: "Rules", icon: BookOpen },
     { href: "/photos", label: "Photos", icon: Camera },
     ...(isAdmin ? [{ href: "/tournament-management", label: "Tournament Management", icon: Settings }] : []),

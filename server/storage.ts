@@ -10,6 +10,9 @@ import {
   playerTournamentHistory,
   matchPlayMatches,
   matchPlayGroups,
+  boozelympicsGames,
+  boozelympicsMatches,
+  golfRelayMatches,
   type User,
   type InsertUser,
   type Team,
@@ -22,6 +25,9 @@ import {
   type PlayerTournamentHistory,
   type MatchPlayMatch,
   type MatchPlayGroup,
+  type BoozelympicsGame,
+  type BoozelympicsMatch,
+  type GolfRelayMatch,
   type InsertTeam,
   type InsertScore,
   type InsertSideBet,
@@ -32,6 +38,9 @@ import {
   type InsertPlayerTournamentHistory,
   type InsertMatchPlayMatch,
   type InsertMatchPlayGroup,
+  type InsertBoozelympicsGame,
+  type InsertBoozelympicsMatch,
+  type InsertGolfRelayMatch,
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, asc, or, sql } from "drizzle-orm";
@@ -110,6 +119,18 @@ export interface IStorage {
   getPlayerLifetimeStats(userId: number): Promise<any>;
   getPlayerYearlyStats(userId: number, year: number): Promise<any>;
   getAllPlayersHistoricalStats(): Promise<any[]>;
+  
+  // Boozelympics operations
+  getBoozelympicsGames(): Promise<BoozelympicsGame[]>;
+  createBoozelympicsGame(game: InsertBoozelympicsGame): Promise<BoozelympicsGame>;
+  getBoozelympicsMatches(gameId?: number): Promise<BoozelympicsMatch[]>;
+  createBoozelympicsMatch(match: InsertBoozelympicsMatch): Promise<BoozelympicsMatch>;
+  getBoozelympicsLeaderboard(): Promise<any[]>;
+  
+  // Golf Relay operations
+  getGolfRelayMatches(): Promise<GolfRelayMatch[]>;
+  createGolfRelayMatch(match: InsertGolfRelayMatch): Promise<GolfRelayMatch>;
+  getGolfRelayLeaderboard(): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1411,6 +1432,120 @@ export class DatabaseStorage implements IStorage {
       console.error('Error fetching current match:', error);
       return null;
     }
+  }
+
+  // Boozelympics operations
+  async getBoozelympicsGames(): Promise<BoozelympicsGame[]> {
+    return await db.select().from(boozelympicsGames).where(eq(boozelympicsGames.isActive, true));
+  }
+
+  async createBoozelympicsGame(game: InsertBoozelympicsGame): Promise<BoozelympicsGame> {
+    const [newGame] = await db.insert(boozelympicsGames).values(game).returning();
+    return newGame;
+  }
+
+  async getBoozelympicsMatches(gameId?: number): Promise<BoozelympicsMatch[]> {
+    let query = db.select().from(boozelympicsMatches);
+    if (gameId) {
+      query = query.where(eq(boozelympicsMatches.gameId, gameId));
+    }
+    return await query;
+  }
+
+  async createBoozelympicsMatch(match: InsertBoozelympicsMatch): Promise<BoozelympicsMatch> {
+    const [newMatch] = await db.insert(boozelympicsMatches).values(match).returning();
+    return newMatch;
+  }
+
+  async getBoozelympicsLeaderboard(): Promise<any[]> {
+    // Calculate team points from all matches
+    const matches = await db.select().from(boozelympicsMatches);
+    const teamStats = new Map();
+    
+    for (const match of matches) {
+      if (match.winnerTeamId) {
+        if (!teamStats.has(match.winnerTeamId)) {
+          teamStats.set(match.winnerTeamId, { teamId: match.winnerTeamId, points: 0, wins: 0 });
+        }
+        const stats = teamStats.get(match.winnerTeamId);
+        stats.points += (match.points || 3) + (match.bonusPoints || 0);
+        stats.wins += 1;
+      }
+    }
+    
+    // Get team info and sort by points
+    const leaderboard = [];
+    for (const [teamId, stats] of teamStats) {
+      const [team] = await db.select().from(teams).where(eq(teams.id, teamId));
+      if (team) {
+        leaderboard.push({
+          ...stats,
+          team
+        });
+      }
+    }
+    
+    return leaderboard.sort((a, b) => b.points - a.points);
+  }
+
+  // Golf Relay operations
+  async getGolfRelayMatches(): Promise<GolfRelayMatch[]> {
+    return await db.select().from(golfRelayMatches).orderBy(golfRelayMatches.createdAt);
+  }
+
+  async createGolfRelayMatch(match: InsertGolfRelayMatch): Promise<GolfRelayMatch> {
+    const [newMatch] = await db.insert(golfRelayMatches).values(match).returning();
+    return newMatch;
+  }
+
+  async getGolfRelayLeaderboard(): Promise<any[]> {
+    const matches = await db.select().from(golfRelayMatches);
+    const playerStats = new Map();
+    
+    for (const match of matches) {
+      // Track wins for each player
+      if (!playerStats.has(match.player1Id)) {
+        playerStats.set(match.player1Id, { playerId: match.player1Id, wins: 0, totalMatches: 0, bestTime: null });
+      }
+      if (!playerStats.has(match.player2Id)) {
+        playerStats.set(match.player2Id, { playerId: match.player2Id, wins: 0, totalMatches: 0, bestTime: null });
+      }
+      
+      const player1Stats = playerStats.get(match.player1Id);
+      const player2Stats = playerStats.get(match.player2Id);
+      
+      player1Stats.totalMatches += 1;
+      player2Stats.totalMatches += 1;
+      
+      if (match.winnerId === match.player1Id) {
+        player1Stats.wins += 1;
+      } else {
+        player2Stats.wins += 1;
+      }
+      
+      // Track best times
+      if (!player1Stats.bestTime || match.totalTime1 < player1Stats.bestTime) {
+        player1Stats.bestTime = match.totalTime1;
+      }
+      if (!player2Stats.bestTime || match.totalTime2 < player2Stats.bestTime) {
+        player2Stats.bestTime = match.totalTime2;
+      }
+    }
+    
+    // Get player info and create leaderboard
+    const leaderboard = [];
+    for (const [playerId, stats] of playerStats) {
+      const [user] = await db.select().from(users).where(eq(users.id, playerId));
+      if (user) {
+        leaderboard.push({
+          ...stats,
+          user,
+          winRate: stats.totalMatches > 0 ? (stats.wins / stats.totalMatches * 100).toFixed(1) : "0.0"
+        });
+      }
+    }
+    
+    return leaderboard.sort((a, b) => b.wins - a.wins);
   }
 }
 
