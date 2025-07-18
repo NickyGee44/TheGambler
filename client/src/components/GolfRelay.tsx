@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Timer, Target, Users, Play, Plus, Zap } from "lucide-react";
+import { Trophy, Timer, Play, Pause, RotateCcw, Plus, Users } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
@@ -17,22 +17,28 @@ interface User {
   lastName: string;
 }
 
+interface Team {
+  id: number;
+  teamNumber: number;
+  player1Name: string;
+  player2Name: string;
+}
+
 interface GolfRelayMatch {
   id: number;
-  player1Id: number;
-  player2Id: number;
-  wedgeDistance1: number; // in feet * 10
-  flipMisses1: number;
-  pongMisses1: number;
-  runTime1: number; // in milliseconds
-  totalTime1: number;
-  wedgeDistance2: number;
-  flipMisses2: number;
-  pongMisses2: number;
-  runTime2: number;
-  totalTime2: number;
-  winnerId: number;
-  tournamentYear: number;
+  playerId: number;
+  timeMs: number;
+  notes?: string;
+  createdAt: string;
+}
+
+interface BoozelympicsMatch {
+  id: number;
+  gameId: number;
+  team1Id?: number;
+  team2Id?: number;
+  winnerTeamId?: number;
+  points: number;
   notes?: string;
   createdAt: string;
 }
@@ -49,198 +55,325 @@ interface LeaderboardEntry {
 export function GolfRelay() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [showCreateMatch, setShowCreateMatch] = useState(false);
-  const [newMatch, setNewMatch] = useState({
-    player1Id: 0,
-    player2Id: 0,
-    wedgeDistance1: 0,
-    flipMisses1: 0,
-    pongMisses1: 0,
-    runTime1: 0,
-    wedgeDistance2: 0,
-    flipMisses2: 0,
-    pongMisses2: 0,
-    runTime2: 0,
-    notes: ""
-  });
+  
+  // Timer state
+  const [isRunning, setIsRunning] = useState(false);
+  const [time, setTime] = useState(0);
+  const [selectedPlayer, setSelectedPlayer] = useState<number>(0);
+  
+  // Match logging state
+  const [showLogMatch, setShowLogMatch] = useState(false);
+  const [team1Id, setTeam1Id] = useState<number>(0);
+  const [team2Id, setTeam2Id] = useState<number>(0);
+  const [winnerTeamId, setWinnerTeamId] = useState<number>(0);
 
   const { data: users = [] } = useQuery<User[]>({
     queryKey: ['/api/users'],
   });
 
-  const { data: matches = [], isLoading: matchesLoading } = useQuery<GolfRelayMatch[]>({
+  const { data: teams = [] } = useQuery<Team[]>({
+    queryKey: ['/api/teams'],
+  });
+
+  const { data: relayMatches = [] } = useQuery<GolfRelayMatch[]>({
     queryKey: ['/api/golf-relay/matches'],
   });
 
-  const { data: leaderboard = [], isLoading: leaderboardLoading } = useQuery<LeaderboardEntry[]>({
-    queryKey: ['/api/golf-relay/leaderboard'],
+  const { data: golfRelayGame } = useQuery({
+    queryKey: ['/api/boozelympics/games'],
+    select: (games: any[]) => games.find(g => g.name === 'Golf Relay')
   });
 
-  const createMatchMutation = useMutation({
-    mutationFn: async (matchData: any) => {
-      return await apiRequest('POST', '/api/golf-relay/matches', matchData);
+  const { data: teamMatches = [] } = useQuery<BoozelympicsMatch[]>({
+    queryKey: ['/api/boozelympics/matches'],
+    select: (matches: any[]) => matches.filter(m => m.gameId === golfRelayGame?.id)
+  });
+
+  // Timer logic
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isRunning) {
+      interval = setInterval(() => {
+        setTime(prevTime => prevTime + 10);
+      }, 10);
+    }
+    return () => clearInterval(interval);
+  }, [isRunning]);
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    const milliseconds = Math.floor((ms % 1000) / 10);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+  };
+
+  const startTimer = () => setIsRunning(true);
+  const stopTimer = () => setIsRunning(false);
+  const resetTimer = () => {
+    setTime(0);
+    setIsRunning(false);
+  };
+
+  const saveTimeMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('POST', '/api/golf-relay/matches', {
+        playerId: selectedPlayer,
+        timeMs: time,
+        notes: `${formatTime(time)} - Golf Relay completion`
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/golf-relay/matches'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/golf-relay/leaderboard'] });
-      setShowCreateMatch(false);
-      setNewMatch({
-        player1Id: 0,
-        player2Id: 0,
-        wedgeDistance1: 0,
-        flipMisses1: 0,
-        pongMisses1: 0,
-        runTime1: 0,
-        wedgeDistance2: 0,
-        flipMisses2: 0,
-        pongMisses2: 0,
-        runTime2: 0,
-        notes: ""
-      });
+      resetTimer();
+      setSelectedPlayer(0);
     },
   });
 
-  const calculateChugTime = (distanceFeet: number): number => {
-    if (distanceFeet < 1) return 10;
-    if (distanceFeet < 2) return 9;
-    if (distanceFeet < 3) return 8;
-    if (distanceFeet < 4) return 7;
-    if (distanceFeet < 5) return 6;
-    if (distanceFeet < 6) return 5;
-    if (distanceFeet < 7) return 4;
-    if (distanceFeet < 8) return 3;
-    if (distanceFeet < 9) return 2;
-    if (distanceFeet < 10) return 1;
-    return 60; // Full drink
-  };
+  const logTeamMatchMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('POST', '/api/boozelympics/matches', {
+        gameId: golfRelayGame?.id,
+        team1Id,
+        team2Id,
+        winnerTeamId,
+        points: 3,
+        notes: `Golf Relay match between teams`
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/boozelympics/matches'] });
+      setShowLogMatch(false);
+      setTeam1Id(0);
+      setTeam2Id(0);
+      setWinnerTeamId(0);
+    },
+  });
 
-  const calculateTotalTime = (player: 'player1' | 'player2') => {
-    const wedgeDistance = player === 'player1' ? newMatch.wedgeDistance1 : newMatch.wedgeDistance2;
-    const flipMisses = player === 'player1' ? newMatch.flipMisses1 : newMatch.flipMisses2;
-    const pongMisses = player === 'player1' ? newMatch.pongMisses1 : newMatch.pongMisses2;
-    const runTime = player === 'player1' ? newMatch.runTime1 : newMatch.runTime2;
-
-    const chugTime = calculateChugTime(wedgeDistance / 10); // Convert back to feet
-    const flipPenalty = flipMisses * 2;
-    const pongPenalty = pongMisses > 0 ? (pongMisses >= 6 ? 10 : pongMisses * 3) : 0;
-
-    return runTime + (chugTime * 1000) + (flipPenalty * 1000) + (pongPenalty * 1000);
-  };
-
-  const submitMatch = () => {
-    const totalTime1 = calculateTotalTime('player1');
-    const totalTime2 = calculateTotalTime('player2');
-    const winnerId = totalTime1 < totalTime2 ? newMatch.player1Id : newMatch.player2Id;
-
-    const matchData = {
-      ...newMatch,
-      totalTime1,
-      totalTime2,
-      winnerId,
-      tournamentYear: 2025
+  // Calculate leaderboard from individual times
+  const leaderboard = users.map(u => {
+    const userMatches = relayMatches.filter(m => m.playerId === u.id);
+    const bestTime = userMatches.length > 0 ? Math.min(...userMatches.map(m => m.timeMs)) : null;
+    return {
+      user: u,
+      totalRuns: userMatches.length,
+      bestTime,
+      averageTime: userMatches.length > 0 ? 
+        Math.round(userMatches.reduce((sum, m) => sum + m.timeMs, 0) / userMatches.length) : null
     };
-
-    createMatchMutation.mutate(matchData);
-  };
-
-  const formatTime = (milliseconds: number): string => {
-    const totalSeconds = milliseconds / 1000;
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = (totalSeconds % 60).toFixed(1);
-    return minutes > 0 ? `${minutes}:${seconds.padStart(4, '0')}` : `${seconds}s`;
-  };
-
-  const isAdmin = user && `${user.firstName} ${user.lastName}` === 'Nick Grossi';
-
-  if (matchesLoading || leaderboardLoading) {
-    return (
-      <div className="space-y-6">
-        <Card className="animate-pulse">
-          <CardHeader>
-            <div className="h-6 bg-muted rounded w-1/3"></div>
-            <div className="h-4 bg-muted rounded w-1/2"></div>
-          </CardHeader>
-          <CardContent>
-            <div className="h-40 bg-muted rounded"></div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  }).filter(entry => entry.totalRuns > 0)
+    .sort((a, b) => {
+      if (!a.bestTime) return 1;
+      if (!b.bestTime) return -1;
+      return a.bestTime - b.bestTime;
+    });
 
   return (
     <div className="space-y-6">
-      {/* Golf Relay Rules */}
+      {/* Timer Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-orange-500" />
-            Golf Relay Rules
+            <Timer className="h-5 w-5 text-blue-500" />
+            Golf Relay Timer
           </CardTitle>
-          <CardDescription>1v1 head-to-head relay with multiple stations</CardDescription>
+          <CardDescription>Time individual player runs through the Golf Relay course</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold text-sm mb-2">🏌️ Station 1: Wedge Shot</h4>
-                <p className="text-sm text-muted-foreground">
-                  Flop shot to target. Chug time based on distance (1s at 10ft, 10s at 1ft, full drink at 10ft+)
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-sm mb-2">🔄 Station 2: Flip Cup</h4>
-                <p className="text-sm text-muted-foreground">
-                  Must flip cup successfully. +2 seconds per failed attempt
-                </p>
-              </div>
+        <CardContent className="space-y-6">
+          {/* Player Selection */}
+          <div>
+            <Label>Select Player</Label>
+            <Select value={selectedPlayer.toString()} onValueChange={(value) => setSelectedPlayer(parseInt(value))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose player to time" />
+              </SelectTrigger>
+              <SelectContent>
+                {users.map((u: User) => (
+                  <SelectItem key={u.id} value={u.id.toString()}>
+                    {u.firstName} {u.lastName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Timer Display */}
+          <div className="text-center">
+            <div className="text-6xl font-bold mb-4 font-mono">
+              {formatTime(time)}
             </div>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold text-sm mb-2">🏀 Station 3: Pong Shot</h4>
-                <p className="text-sm text-muted-foreground">
-                  3 cups in line. +3 seconds per miss (max 6 tries, +10s if none made)
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-sm mb-2">🏃 Station 4: Sprint</h4>
-                <p className="text-sm text-muted-foreground">
-                  Sprint to finish line (manual timing)
-                </p>
-              </div>
+            <div className="flex justify-center gap-4">
+              <Button
+                onClick={startTimer}
+                disabled={isRunning || !selectedPlayer}
+                className="flex items-center gap-2"
+              >
+                <Play className="h-4 w-4" />
+                Start
+              </Button>
+              <Button
+                onClick={stopTimer}
+                disabled={!isRunning}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Pause className="h-4 w-4" />
+                Stop
+              </Button>
+              <Button
+                onClick={resetTimer}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Reset
+              </Button>
             </div>
+            {time > 0 && selectedPlayer && !isRunning && (
+              <Button
+                onClick={() => saveTimeMutation.mutate()}
+                disabled={saveTimeMutation.isPending}
+                className="mt-4"
+              >
+                Save Time for {users.find(u => u.id === selectedPlayer)?.firstName}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Leaderboard */}
+      {/* Team Match Logging */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-yellow-500" />
-              Golf Relay Leaderboard
+              <Users className="h-5 w-5 text-green-500" />
+              Team vs Team Matches
             </CardTitle>
-            <CardDescription>Player standings and best times</CardDescription>
+            <CardDescription>Log results from team competitions</CardDescription>
           </div>
-          {isAdmin && (
-            <Button onClick={() => setShowCreateMatch(true)} disabled={createMatchMutation.isPending}>
-              <Plus className="h-4 w-4 mr-2" />
-              Log Match
-            </Button>
+          <Button onClick={() => setShowLogMatch(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Log Match
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {showLogMatch && (
+            <div className="space-y-4 p-4 border rounded-lg mb-4">
+              <h4 className="font-semibold">Log Team Match Result</h4>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label>Team 1</Label>
+                  <Select value={team1Id.toString()} onValueChange={(value) => setTeam1Id(parseInt(value))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team 1" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map((team) => (
+                        <SelectItem key={team.id} value={team.id.toString()}>
+                          Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Team 2</Label>
+                  <Select value={team2Id.toString()} onValueChange={(value) => setTeam2Id(parseInt(value))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team 2" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map((team) => (
+                        <SelectItem key={team.id} value={team.id.toString()}>
+                          Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Winner</Label>
+                  <Select value={winnerTeamId.toString()} onValueChange={(value) => setWinnerTeamId(parseInt(value))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select winner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[team1Id, team2Id].filter(Boolean).map((teamId) => {
+                        const team = teams.find(t => t.id === teamId);
+                        return team ? (
+                          <SelectItem key={team.id} value={team.id.toString()}>
+                            Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
+                          </SelectItem>
+                        ) : null;
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => logTeamMatchMutation.mutate()}
+                  disabled={!team1Id || !team2Id || !winnerTeamId || logTeamMatchMutation.isPending}
+                >
+                  {logTeamMatchMutation.isPending ? 'Saving...' : 'Save Match'}
+                </Button>
+                <Button variant="outline" onClick={() => setShowLogMatch(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
           )}
+
+          {/* Recent Team Matches */}
+          <div className="space-y-2">
+            <h4 className="font-semibold">Recent Team Matches</h4>
+            {teamMatches.length === 0 ? (
+              <p className="text-muted-foreground">No team matches logged yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {teamMatches.slice(0, 5).map((match) => {
+                  const team1 = teams.find(t => t.id === match.team1Id);
+                  const team2 = teams.find(t => t.id === match.team2Id);
+                  const winner = teams.find(t => t.id === match.winnerTeamId);
+                  return (
+                    <div key={match.id} className="flex items-center justify-between p-3 border rounded">
+                      <div className="text-sm">
+                        <span className="font-medium">Team {team1?.teamNumber}</span> vs{' '}
+                        <span className="font-medium">Team {team2?.teamNumber}</span>
+                      </div>
+                      <div className="text-sm">
+                        Winner: <span className="font-semibold text-green-600">Team {winner?.teamNumber}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Individual Leaderboard */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-yellow-500" />
+            Individual Times Leaderboard
+          </CardTitle>
+          <CardDescription>Best individual completion times</CardDescription>
         </CardHeader>
         <CardContent>
           {leaderboard.length === 0 ? (
             <div className="text-center py-8">
               <Timer className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No Golf Relay matches yet. Start racing!</p>
+              <p className="text-muted-foreground">No times recorded yet. Start timing runs!</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {leaderboard.map((entry: LeaderboardEntry, index: number) => (
+            <div className="space-y-3">
+              {leaderboard.map((entry, index) => (
                 <div
-                  key={entry.playerId}
+                  key={entry.user.id}
                   className="flex items-center justify-between p-4 rounded-lg border bg-card"
                 >
                   <div className="flex items-center gap-4">
@@ -256,307 +389,22 @@ export function GolfRelay() {
                     <div>
                       <div className="font-semibold">{entry.user.firstName} {entry.user.lastName}</div>
                       <div className="text-sm text-muted-foreground">
-                        {entry.wins} wins • {entry.winRate}% win rate
+                        {entry.totalRuns} runs
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-lg">{entry.wins} wins</div>
-                    {entry.bestTime && (
+                    <div className="font-bold text-lg">
+                      {entry.bestTime ? formatTime(entry.bestTime) : 'N/A'}
+                    </div>
+                    {entry.averageTime && (
                       <div className="text-sm text-muted-foreground">
-                        Best: {formatTime(entry.bestTime)}
+                        Avg: {formatTime(entry.averageTime)}
                       </div>
                     )}
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Create Match Form */}
-      {showCreateMatch && isAdmin && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Play className="h-5 w-5 text-green-500" />
-              Log Golf Relay Match
-            </CardTitle>
-            <CardDescription>Record the results of a completed Golf Relay race</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Player Selection */}
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="player1">Player 1</Label>
-                  <Select value={newMatch.player1Id.toString()} onValueChange={(value) => 
-                    setNewMatch(prev => ({ ...prev, player1Id: parseInt(value) }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select player 1" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {users.map((u: User) => (
-                        <SelectItem key={u.id} value={u.id.toString()}>
-                          {u.firstName} {u.lastName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="player2">Player 2</Label>
-                  <Select value={newMatch.player2Id.toString()} onValueChange={(value) => 
-                    setNewMatch(prev => ({ ...prev, player2Id: parseInt(value) }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select player 2" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {users.map((u: User) => (
-                        <SelectItem key={u.id} value={u.id.toString()}>
-                          {u.firstName} {u.lastName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Player 1 Stats */}
-              <div className="space-y-4">
-                <h4 className="font-semibold text-lg">Player 1 Results</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="wedgeDistance1">Wedge Distance (ft)</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={newMatch.wedgeDistance1 / 10}
-                      onChange={(e) => setNewMatch(prev => ({ 
-                        ...prev, 
-                        wedgeDistance1: Math.round(parseFloat(e.target.value || '0') * 10) 
-                      }))}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Chug time: {calculateChugTime(newMatch.wedgeDistance1 / 10)}s
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="flipMisses1">Flip Cup Misses</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={newMatch.flipMisses1}
-                      onChange={(e) => setNewMatch(prev => ({ 
-                        ...prev, 
-                        flipMisses1: parseInt(e.target.value || '0') 
-                      }))}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Penalty: +{newMatch.flipMisses1 * 2}s
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="pongMisses1">Pong Misses</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="6"
-                      value={newMatch.pongMisses1}
-                      onChange={(e) => setNewMatch(prev => ({ 
-                        ...prev, 
-                        pongMisses1: parseInt(e.target.value || '0') 
-                      }))}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Penalty: +{newMatch.pongMisses1 >= 6 ? 10 : newMatch.pongMisses1 * 3}s
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="runTime1">Sprint Time (seconds)</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={newMatch.runTime1 / 1000}
-                      onChange={(e) => setNewMatch(prev => ({ 
-                        ...prev, 
-                        runTime1: Math.round(parseFloat(e.target.value || '0') * 1000) 
-                      }))}
-                    />
-                  </div>
-                </div>
-                <div className="bg-muted p-3 rounded">
-                  <p className="text-sm font-semibold">
-                    Total Time: {formatTime(calculateTotalTime('player1'))}
-                  </p>
-                </div>
-              </div>
-
-              {/* Player 2 Stats */}
-              <div className="space-y-4">
-                <h4 className="font-semibold text-lg">Player 2 Results</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="wedgeDistance2">Wedge Distance (ft)</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={newMatch.wedgeDistance2 / 10}
-                      onChange={(e) => setNewMatch(prev => ({ 
-                        ...prev, 
-                        wedgeDistance2: Math.round(parseFloat(e.target.value || '0') * 10) 
-                      }))}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Chug time: {calculateChugTime(newMatch.wedgeDistance2 / 10)}s
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="flipMisses2">Flip Cup Misses</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={newMatch.flipMisses2}
-                      onChange={(e) => setNewMatch(prev => ({ 
-                        ...prev, 
-                        flipMisses2: parseInt(e.target.value || '0') 
-                      }))}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Penalty: +{newMatch.flipMisses2 * 2}s
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="pongMisses2">Pong Misses</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="6"
-                      value={newMatch.pongMisses2}
-                      onChange={(e) => setNewMatch(prev => ({ 
-                        ...prev, 
-                        pongMisses2: parseInt(e.target.value || '0') 
-                      }))}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Penalty: +{newMatch.pongMisses2 >= 6 ? 10 : newMatch.pongMisses2 * 3}s
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="runTime2">Sprint Time (seconds)</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={newMatch.runTime2 / 1000}
-                      onChange={(e) => setNewMatch(prev => ({ 
-                        ...prev, 
-                        runTime2: Math.round(parseFloat(e.target.value || '0') * 1000) 
-                      }))}
-                    />
-                  </div>
-                </div>
-                <div className="bg-muted p-3 rounded">
-                  <p className="text-sm font-semibold">
-                    Total Time: {formatTime(calculateTotalTime('player2'))}
-                  </p>
-                </div>
-              </div>
-
-              {/* Notes and Submit */}
-              <div className="md:col-span-2 space-y-4">
-                <div>
-                  <Label htmlFor="notes">Notes (optional)</Label>
-                  <Input
-                    value={newMatch.notes}
-                    onChange={(e) => setNewMatch(prev => ({ ...prev, notes: e.target.value }))}
-                    placeholder="Any additional notes about the match..."
-                  />
-                </div>
-                <div className="flex gap-4">
-                  <Button 
-                    onClick={submitMatch} 
-                    disabled={!newMatch.player1Id || !newMatch.player2Id || createMatchMutation.isPending}
-                    className="flex-1"
-                  >
-                    <Zap className="h-4 w-4 mr-2" />
-                    {createMatchMutation.isPending ? 'Saving...' : 'Save Match'}
-                  </Button>
-                  <Button variant="outline" onClick={() => setShowCreateMatch(false)}>
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Recent Matches */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Timer className="h-5 w-5" />
-            Recent Matches
-          </CardTitle>
-          <CardDescription>Latest Golf Relay competitions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {matches.length === 0 ? (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No matches recorded yet. Start racing!</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {matches.slice(0, 10).map((match: GolfRelayMatch) => {
-                const player1 = users.find((u: User) => u.id === match.player1Id);
-                const player2 = users.find((u: User) => u.id === match.player2Id);
-                const winner = users.find((u: User) => u.id === match.winnerId);
-                
-                return (
-                  <div
-                    key={match.id}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        {player1 && (
-                          <ProfilePicture
-                            firstName={player1.firstName}
-                            lastName={player1.lastName}
-                            className="h-8 w-8"
-                          />
-                        )}
-                        <span className="text-sm">vs</span>
-                        {player2 && (
-                          <ProfilePicture
-                            firstName={player2.firstName}
-                            lastName={player2.lastName}
-                            className="h-8 w-8"
-                          />
-                        )}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-sm">
-                          {player1?.firstName} vs {player2?.firstName}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(match.createdAt).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <Badge variant="secondary">
-                        🏆 {winner?.firstName}
-                      </Badge>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {formatTime(match.totalTime1)} vs {formatTime(match.totalTime2)}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           )}
         </CardContent>

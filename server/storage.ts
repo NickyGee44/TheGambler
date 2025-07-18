@@ -1488,7 +1488,7 @@ export class DatabaseStorage implements IStorage {
     return leaderboard.sort((a, b) => b.points - a.points);
   }
 
-  // Golf Relay operations
+  // Golf Relay operations  
   async getGolfRelayMatches(): Promise<GolfRelayMatch[]> {
     return await db.select().from(golfRelayMatches).orderBy(golfRelayMatches.createdAt);
   }
@@ -1503,32 +1503,21 @@ export class DatabaseStorage implements IStorage {
     const playerStats = new Map();
     
     for (const match of matches) {
-      // Track wins for each player
-      if (!playerStats.has(match.player1Id)) {
-        playerStats.set(match.player1Id, { playerId: match.player1Id, wins: 0, totalMatches: 0, bestTime: null });
-      }
-      if (!playerStats.has(match.player2Id)) {
-        playerStats.set(match.player2Id, { playerId: match.player2Id, wins: 0, totalMatches: 0, bestTime: null });
-      }
-      
-      const player1Stats = playerStats.get(match.player1Id);
-      const player2Stats = playerStats.get(match.player2Id);
-      
-      player1Stats.totalMatches += 1;
-      player2Stats.totalMatches += 1;
-      
-      if (match.winnerId === match.player1Id) {
-        player1Stats.wins += 1;
-      } else {
-        player2Stats.wins += 1;
+      if (!playerStats.has(match.playerId)) {
+        playerStats.set(match.playerId, { 
+          playerId: match.playerId, 
+          totalRuns: 0, 
+          bestTime: null,
+          totalTime: 0
+        });
       }
       
-      // Track best times
-      if (!player1Stats.bestTime || match.totalTime1 < player1Stats.bestTime) {
-        player1Stats.bestTime = match.totalTime1;
-      }
-      if (!player2Stats.bestTime || match.totalTime2 < player2Stats.bestTime) {
-        player2Stats.bestTime = match.totalTime2;
+      const stats = playerStats.get(match.playerId);
+      stats.totalRuns += 1;
+      stats.totalTime += match.timeMs;
+      
+      if (!stats.bestTime || match.timeMs < stats.bestTime) {
+        stats.bestTime = match.timeMs;
       }
     }
     
@@ -1540,12 +1529,16 @@ export class DatabaseStorage implements IStorage {
         leaderboard.push({
           ...stats,
           user,
-          winRate: stats.totalMatches > 0 ? (stats.wins / stats.totalMatches * 100).toFixed(1) : "0.0"
+          averageTime: stats.totalRuns > 0 ? Math.round(stats.totalTime / stats.totalRuns) : null
         });
       }
     }
     
-    return leaderboard.sort((a, b) => b.wins - a.wins);
+    return leaderboard.sort((a, b) => {
+      if (!a.bestTime) return 1;
+      if (!b.bestTime) return -1;
+      return a.bestTime - b.bestTime;
+    });
   }
 }
 

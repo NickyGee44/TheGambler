@@ -268,25 +268,11 @@ export const boozelympicsMatches = pgTable("boozelympics_matches", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Golf Relay specific matches
+// Simple Golf Relay timer matches
 export const golfRelayMatches = pgTable("golf_relay_matches", {
   id: serial("id").primaryKey(),
-  player1Id: integer("player1_id").notNull().references(() => users.id),
-  player2Id: integer("player2_id").notNull().references(() => users.id),
-  // Player 1 scores
-  wedgeDistance1: integer("wedge_distance_1").notNull(), // in feet * 10 (to store decimals)
-  flipMisses1: integer("flip_misses_1").notNull().default(0),
-  pongMisses1: integer("pong_misses_1").notNull().default(0),
-  runTime1: integer("run_time_1").notNull(), // in milliseconds
-  totalTime1: integer("total_time_1").notNull(), // calculated total in milliseconds
-  // Player 2 scores
-  wedgeDistance2: integer("wedge_distance_2").notNull(),
-  flipMisses2: integer("flip_misses_2").notNull().default(0),
-  pongMisses2: integer("pong_misses_2").notNull().default(0),
-  runTime2: integer("run_time_2").notNull(),
-  totalTime2: integer("total_time_2").notNull(),
-  winnerId: integer("winner_id").notNull().references(() => users.id),
-  tournamentYear: integer("tournament_year").notNull().default(2025),
+  playerId: integer("player_id").notNull().references(() => users.id),
+  timeMs: integer("time_ms").notNull(), // total time in milliseconds
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
 });
