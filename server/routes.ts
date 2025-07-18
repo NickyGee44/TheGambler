@@ -241,10 +241,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Generate mock data endpoint (admin only)
   app.post('/api/generate-mock-data', requireAuth, async (req: any, res) => {
     try {
+      console.log('Mock data generation request received');
       const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       if (!user) {
+        console.log('User not found:', userId);
         return res.status(401).json({ error: 'User not found' });
       }
       
@@ -252,17 +254,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allowedUsers = ['Nick Grossi', 'Connor Patterson'];
       const userName = `${user.firstName} ${user.lastName}`;
       
+      console.log('User attempting mock data generation:', userName);
+      
       if (!allowedUsers.includes(userName)) {
+        console.log('Access denied for user:', userName);
         return res.status(403).json({ error: 'Only Nick Grossi and Connor Patterson can generate mock data' });
       }
       
+      console.log('Starting mock data generation...');
       const { generateMockData } = await import('./mockData');
       await generateMockData();
       
+      console.log('Mock data generation completed successfully');
       res.json({ message: 'Mock data generated successfully' });
     } catch (error) {
       console.error('Error generating mock data:', error);
-      res.status(500).json({ error: 'Failed to generate mock data' });
+      console.error('Stack trace:', error.stack);
+      res.status(500).json({ error: `Failed to generate mock data: ${error.message}` });
     }
   });
 

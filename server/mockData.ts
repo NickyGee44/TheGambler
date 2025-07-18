@@ -134,86 +134,94 @@ export async function generateMockData() {
       }
     }
     
-    // Insert all hole scores
-    await db.insert(holeScores).values(allMockScores);
+    // Insert all hole scores in batches to avoid database limits
+    console.log(`Inserting ${allMockScores.length} hole scores...`);
+    
+    // Insert in batches of 100 to avoid potential database limits
+    const batchSize = 100;
+    for (let i = 0; i < allMockScores.length; i += batchSize) {
+      const batch = allMockScores.slice(i, i + batchSize);
+      await db.insert(holeScores).values(batch);
+      console.log(`Inserted batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(allMockScores.length / batchSize)}`);
+    }
     
     // Generate mock side bets
     const mockSideBets = [
       {
-        challenger: "Nick Grossi",
-        challengee: "Connor Patterson",
-        description: "Closest to the pin on hole 7",
+        betterName: "Nick Grossi",
+        opponentName: "Connor Patterson",
+        condition: "Closest to the pin on hole 7",
         amount: 20,
         round: 1,
         status: "Accepted",
         result: "Won",
-        winner: "Nick Grossi",
+        winnerName: "Nick Grossi",
         createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
       },
       {
-        challenger: "Christian Hauck",
-        challengee: "Bailey Carlson",
-        description: "Fewest putts on the back 9",
+        betterName: "Christian Hauck",
+        opponentName: "Bailey Carlson",
+        condition: "Fewest putts on the back 9",
         amount: 15,
         round: 1,
         status: "Accepted",
         result: "Won",
-        winner: "Bailey Carlson",
+        winnerName: "Bailey Carlson",
         createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       },
       {
-        challenger: "Erik Boudreau",
-        challengee: "Will Bibbings",
-        description: "Longest drive on hole 12",
+        betterName: "Erik Boudreau",
+        opponentName: "Will Bibbings",
+        condition: "Longest drive on hole 12",
         amount: 25,
         round: 2,
         status: "Accepted",
         result: "Won",
-        winner: "Erik Boudreau",
+        winnerName: "Erik Boudreau",
         createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
       },
       {
-        challenger: "Spencer Reid",
-        challengee: "Jeffrey Reiner",
-        description: "Most birdies in the round",
+        betterName: "Spencer Reid",
+        opponentName: "Jeffrey Reiner",
+        condition: "Most birdies in the round",
         amount: 30,
         round: 2,
         status: "Declined",
         result: "Declined",
-        winner: null,
+        winnerName: null,
         createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
       },
       {
-        challenger: "Sye Ellard",
-        challengee: "Austin Hassani",
-        description: "Better score on par 3s",
+        betterName: "Sye Ellard",
+        opponentName: "Austin Hassani",
+        condition: "Better score on par 3s",
         amount: 10,
         round: 3,
         status: "Pending",
         result: "Pending",
-        winner: null,
+        winnerName: null,
         createdAt: new Date(),
       },
       {
-        challenger: "Jordan Kreller",
-        challengee: "Johnny Magnatta",
-        description: "Fewest penalty strokes",
+        betterName: "Jordan Kreller",
+        opponentName: "Johnny Magnatta",
+        condition: "Fewest penalty strokes",
         amount: 20,
         round: 3,
         status: "Accepted",
         result: "Pending",
-        winner: null,
+        winnerName: null,
         createdAt: new Date(),
       },
       {
-        challenger: "Nick Cook",
-        challengee: "Kevin Durco",
-        description: "Best net score on holes 1-9",
+        betterName: "Nick Cook",
+        opponentName: "Kevin Durco",
+        condition: "Best net score on holes 1-9",
         amount: 25,
         round: 3,
         status: "Pending",
         result: "Pending",
-        winner: null,
+        winnerName: null,
         createdAt: new Date(),
       },
     ];
@@ -227,35 +235,30 @@ export async function generateMockData() {
       {
         filename: "tournament_start.jpg",
         caption: "All 16 players at the tee box ready for Round 1",
-        uploadedBy: "Nick Grossi",
         imageUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiMyMjc3M2IiLz48dGV4dCB4PSIyMDAiIHk9IjE1MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCI+VG91cm5hbWVudCBTdGFydDwvdGV4dD48L3N2Zz4=",
         uploadedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       },
       {
         filename: "hole_in_one.jpg",
         caption: "Connor's hole-in-one on hole 8!",
-        uploadedBy: "Connor Patterson",
         imageUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiMxNjgzMzEiLz48Y2lyY2xlIGN4PSIyMDAiIGN5PSIxNTAiIHI9IjMwIiBmaWxsPSJ3aGl0ZSIvPjx0ZXh0IHg9IjIwMCIgeT0iMjIwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2Ij5Ib2xlIGluIE9uZSE8L3RleHQ+PC9zdmc+",
         uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
       },
       {
         filename: "team_celebration.jpg",
         caption: "Team 3 celebrating their Round 2 victory",
-        uploadedBy: "Ben Braun",
         imageUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmNTk3MjAiLz48dGV4dCB4PSIyMDAiIHk9IjE1MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCI+VGVhbSBDZWxlYnJhdGlvbiE8L3RleHQ+PC9zdmc+",
         uploadedAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
       },
       {
         filename: "sunset_golf.jpg",
         caption: "Beautiful sunset over Muskoka Bay Golf Club",
-        uploadedBy: "Erik Boudreau",
         imageUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJzdW5zZXQiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZmI5MjNkIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZmJkNDNkIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9InVybCgjc3Vuc2V0KSIvPjxjaXJjbGUgY3g9IjMwMCIgY3k9IjgwIiByPSI0MCIgZmlsbD0iI2Y1OTcyMCIvPjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2Ij5TdW5zZXQgR29sZjwvdGV4dD48L3N2Zz4=",
         uploadedAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
       },
       {
         filename: "funny_mishit.jpg",
         caption: "Spencer's ball somehow ended up in the parking lot",
-        uploadedBy: "Jeffrey Reiner",
         imageUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiM2Mzc0ZjEiLz48dGV4dCB4PSIyMDAiIHk9IjE1MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiI+RnVubnkgTWlzaGl0ITwvdGV4dD48L3N2Zz4=",
         uploadedAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
       },
