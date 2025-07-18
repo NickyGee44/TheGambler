@@ -548,8 +548,13 @@ export default function Round3() {
                     </div>
                     
                     {currentMatch.strokesGiven > 0 && (
-                      <div className="text-center text-sm text-yellow-700 dark:text-yellow-300 mb-2">
-                        {currentMatch.strokeRecipientId === currentMatch.player1Id ? currentMatch.player1Name : currentMatch.player2Name} receives {currentMatch.strokesGiven} stroke{currentMatch.strokesGiven > 1 ? 's' : ''}
+                      <div className="text-center mb-3">
+                        <div className="text-sm text-yellow-700 dark:text-yellow-300 mb-2">
+                          {currentMatch.strokeRecipientId === currentMatch.player1Id ? currentMatch.player1Name : currentMatch.player2Name} receives {currentMatch.strokesGiven} stroke{currentMatch.strokesGiven > 1 ? 's' : ''}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Stroke holes: {currentMatch.strokeHoles && currentMatch.strokeHoles.length > 0 ? currentMatch.strokeHoles.join(', ') : 'None'}
+                        </div>
                       </div>
                     )}
                     
@@ -575,6 +580,8 @@ export default function Round3() {
                   isUpdating={updateScoreMutation.isPending}
                   onShowLeaderboard={() => setShowLeaderboard(true)}
                   holeScores={holeScores}
+                  currentMatch={currentMatch}
+                  userId={user?.id}
                 />
               </TabsContent>
               

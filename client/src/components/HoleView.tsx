@@ -39,6 +39,8 @@ interface HoleViewProps {
   isUpdating: boolean;
   onShowLeaderboard?: () => void;
   holeScores: any[];
+  currentMatch?: any;
+  userId?: number;
 }
 
 export default function HoleView({
@@ -52,7 +54,9 @@ export default function HoleView({
   isLastHole,
   isUpdating,
   onShowLeaderboard,
-  holeScores
+  holeScores,
+  currentMatch,
+  userId
 }: HoleViewProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'scoring' | 'map'>('scoring');
@@ -197,6 +201,22 @@ export default function HoleView({
   // Get course data for GPS
   const courseData = getCourseForRound(round);
 
+  // Check if current hole is a stroke hole for Round 3 match play
+  const isStrokeHole = () => {
+    if (round !== 3 || !currentMatch || !currentMatch.strokeHoles) return false;
+    return currentMatch.strokeHoles.includes(hole.number);
+  };
+
+  // Get stroke recipient name
+  const getStrokeRecipient = () => {
+    if (!currentMatch || !currentMatch.strokeRecipientId) return null;
+    const isPlayer1 = currentMatch.player1Id === userId;
+    if (currentMatch.strokeRecipientId === userId) {
+      return isPlayer1 ? currentMatch.player1Name : currentMatch.player2Name;
+    }
+    return isPlayer1 ? currentMatch.player2Name : currentMatch.player1Name;
+  };
+
   // Track the current score locally for immediate UI updates
   const [localScore, setLocalScore] = useState(currentScore);
   
@@ -253,6 +273,11 @@ export default function HoleView({
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Target className="w-5 h-5 text-golf-green-400" />
                 <h1 className="text-xl font-bold text-white">Hole {hole.number}</h1>
+                {isStrokeHole() && (
+                  <Badge variant="secondary" className="bg-yellow-500 text-white text-xs px-2 py-1">
+                    +1 Stroke
+                  </Badge>
+                )}
               </div>
               <div className="flex items-center justify-center gap-2 text-xs text-gray-300">
                 <span>Par {hole.par}</span>
@@ -260,6 +285,9 @@ export default function HoleView({
                 <span>{hole.yardage}y</span>
                 <span>•</span>
                 <span>HCP {hole.handicap}</span>
+                {isStrokeHole() && (
+                  <span className="text-yellow-400 font-medium">• Stroke Hole</span>
+                )}
               </div>
             </div>
           </div>
