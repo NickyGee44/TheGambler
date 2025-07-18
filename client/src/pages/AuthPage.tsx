@@ -70,26 +70,7 @@ export default function AuthPage() {
     },
   });
 
-  const quickLoginMutation = useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/quick-login");
-      return await res.json();
-    },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/user"], user);
-      toast({
-        title: "Login successful",
-        description: "Welcome back, Nick!",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Quick login failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+
   
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -238,15 +219,7 @@ export default function AuthPage() {
                         {loginMutation.isPending ? "Logging in..." : "Log In"}
                       </Button>
                       
-                      {/* Quick login for Nick Grossi */}
-                      <Button 
-                        type="button"
-                        onClick={() => quickLoginMutation.mutate()}
-                        className="w-full bg-blue-600 hover:bg-blue-700"
-                        disabled={quickLoginMutation.isPending}
-                      >
-                        {quickLoginMutation.isPending ? "Logging in..." : "Quick Login as Nick Grossi"}
-                      </Button>
+
                     </form>
                   </TabsContent>
                   

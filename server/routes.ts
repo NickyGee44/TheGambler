@@ -73,24 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Quick login route for Nick Grossi
-  app.post('/api/quick-login', async (req, res) => {
-    try {
-      const user = await storage.getUserByName('Nick', 'Grossi');
-      if (user) {
-        req.login(user, (err) => {
-          if (err) {
-            return res.status(500).json({ error: 'Login failed' });
-          }
-          res.json(user);
-        });
-      } else {
-        res.status(404).json({ error: 'User not found' });
-      }
-    } catch (error) {
-      res.status(500).json({ error: 'Login failed' });
-    }
-  });
+
 
   // Golf Course API endpoints
   app.get('/api/golf-course/search', async (req, res) => {
