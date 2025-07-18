@@ -1088,15 +1088,13 @@ export class DatabaseStorage implements IStorage {
     
     // Check which round is in progress
     for (const round of rounds) {
-      const scores = await db.select().from(holeScores).where(
-        and(eq(holeScores.teamId, teamId), eq(holeScores.round, round))
-      );
+      const holesCompleted = await this.getTeamHolesCompleted(teamId, round);
       
-      if (scores.length > 0 && scores.length < 18) {
+      if (holesCompleted > 0 && holesCompleted < 18) {
         // This round is in progress
         currentRound = round;
         break;
-      } else if (scores.length === 18) {
+      } else if (holesCompleted === 18) {
         // This round is complete, check next round
         if (round < 3) {
           currentRound = round + 1;
@@ -1151,10 +1149,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTeamHolesCompleted(teamId: number, round: number): Promise<number> {
-    const scores = await db.select().from(holeScores).where(
-      and(eq(holeScores.teamId, teamId), eq(holeScores.round, round))
-    );
-    return scores.length;
+    // Get unique holes completed for this team in this round
+    const uniqueHoles = await db.selectDistinct({ hole: holeScores.hole })
+      .from(holeScores)
+      .where(and(eq(holeScores.teamId, teamId), eq(holeScores.round, round)));
+    
+    return uniqueHoles.length;
   }
 
   private async calculateTeamRoundPoints(teamId: number, round: number): Promise<number> {
@@ -1176,10 +1176,14 @@ export class DatabaseStorage implements IStorage {
     const allTeams = await this.getTeams();
     const teamPerformances = await Promise.all(allTeams.map(async (team) => {
       const teamStablefordPoints = await this.calculateTeamStablefordPoints(team.id, round);
+      const holesCompleted = await this.getTeamHolesCompleted(team.id, round);
+      
+
+      
       return {
         teamId: team.id,
         stablefordPoints: teamStablefordPoints,
-        holesCompleted: await this.getTeamHolesCompleted(team.id, round)
+        holesCompleted: holesCompleted
       };
     }));
 
@@ -1203,7 +1207,8 @@ export class DatabaseStorage implements IStorage {
     }
 
     // Award points: 1st place = 10 points, 2nd = 9 points, etc. (minimum 1 point)
-    return Math.max(1, 11 - teamPosition);
+    const placementPoints = Math.max(1, 11 - teamPosition);
+    return placementPoints;
   }
 
   private async calculateTeamStablefordPoints(teamId: number, round: number): Promise<number> {
