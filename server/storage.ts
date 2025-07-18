@@ -1200,61 +1200,71 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMatchPlayLeaderboard(): Promise<any[]> {
-    // Get all matches
-    const matches = await db.select().from(matchPlayMatches);
+    try {
+      // Get all matches using raw SQL to avoid schema issues
+      const result = await db.execute(sql`
+        SELECT * FROM match_play_matches
+      `);
+      
+      const matches = result.rows;
 
-    // Calculate points for each player
-    const playerPoints = new Map<number, { user: any; points: number; matchesPlayed: number }>();
-    
-    for (const match of matches) {
-      const player1Points = match.pointsAwarded || 0;
-      const player2Points = match.pointsAwarded || 0;
+      // Calculate points for each player
+      const playerPoints = new Map<number, { user: any; points: number; matchesPlayed: number }>();
       
-      // Get user data for both players
-      const player1User = await this.getUser(match.player1Id);
-      const player2User = await this.getUser(match.player2Id);
-      
-      // Update player 1 points
-      if (!playerPoints.has(match.player1Id)) {
-        playerPoints.set(match.player1Id, {
-          user: player1User,
-          points: 0,
-          matchesPlayed: 0,
-        });
+      for (const match of matches) {
+        const player1Id = match.player1_id as number;
+        const player2Id = match.player2_id as number;
+        const winnerId = match.winner_id as number | null;
+        
+        // Get user data for both players
+        const player1User = await this.getUser(player1Id.toString());
+        const player2User = await this.getUser(player2Id.toString());
+        
+        // Update player 1 points
+        if (!playerPoints.has(player1Id)) {
+          playerPoints.set(player1Id, {
+            user: player1User,
+            points: 0,
+            matchesPlayed: 0,
+          });
+        }
+        const player1Data = playerPoints.get(player1Id)!;
+        if (winnerId === player1Id) {
+          player1Data.points += 2; // Win = 2 points
+        } else if (winnerId === null) {
+          player1Data.points += 1; // Tie = 1 point
+        } // Loss = 0 points
+        player1Data.matchesPlayed += 1;
+        
+        // Update player 2 points
+        if (!playerPoints.has(player2Id)) {
+          playerPoints.set(player2Id, {
+            user: player2User,
+            points: 0,
+            matchesPlayed: 0,
+          });
+        }
+        const player2Data = playerPoints.get(player2Id)!;
+        if (winnerId === player2Id) {
+          player2Data.points += 2; // Win = 2 points
+        } else if (winnerId === null) {
+          player2Data.points += 1; // Tie = 1 point
+        } // Loss = 0 points
+        player2Data.matchesPlayed += 1;
       }
-      const player1Data = playerPoints.get(match.player1Id)!;
-      if (match.winnerId === match.player1Id) {
-        player1Data.points += 2; // Win = 2 points
-      } else if (match.winnerId === null) {
-        player1Data.points += 1; // Tie = 1 point
-      } // Loss = 0 points
-      player1Data.matchesPlayed += 1;
-      
-      // Update player 2 points
-      if (!playerPoints.has(match.player2Id)) {
-        playerPoints.set(match.player2Id, {
-          user: player2User,
-          points: 0,
-          matchesPlayed: 0,
-        });
-      }
-      const player2Data = playerPoints.get(match.player2Id)!;
-      if (match.winnerId === match.player2Id) {
-        player2Data.points += 2; // Win = 2 points
-      } else if (match.winnerId === null) {
-        player2Data.points += 1; // Tie = 1 point
-      } // Loss = 0 points
-      player2Data.matchesPlayed += 1;
+
+      // Convert to leaderboard format
+      return Array.from(playerPoints.values())
+        .sort((a, b) => b.points - a.points)
+        .map(entry => ({
+          user: entry.user,
+          points: entry.points,
+          matchesPlayed: entry.matchesPlayed,
+        }));
+    } catch (error) {
+      console.error('Error fetching match play leaderboard:', error);
+      return [];
     }
-
-    // Convert to leaderboard format
-    return Array.from(playerPoints.values())
-      .sort((a, b) => b.points - a.points)
-      .map(entry => ({
-        user: entry.user,
-        points: entry.points,
-        matchesPlayed: entry.matchesPlayed,
-      }));
   }
 
   async getCurrentMatchForPlayer(playerId: number, currentHole: number): Promise<MatchPlayMatch | null> {

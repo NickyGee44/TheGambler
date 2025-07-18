@@ -121,6 +121,18 @@ Preferred communication style: Simple, everyday language.
 
 ### Recent Changes: Latest modifications with dates
 
+**July 18, 2025:**
+- **Fixed Match Play System and Updated Round 3 Matchups:**
+  - Resolved critical database schema mismatches between schema definitions and actual database tables
+  - Fixed SQL syntax errors in getCurrentMatchForPlayer and getMatchPlayLeaderboard methods using raw SQL queries
+  - Updated match play data to reflect correct Round 3 matchups based on official tournament groups
+  - Fixed field naming issues between API responses (camelCase) and frontend component usage
+  - Nick Grossi now correctly matched with Connor Patterson (holes 1-6), Johnny Magnatta (holes 7-12), and Austin Hassani (holes 13-18)
+  - Match play information card now displays properly above scoring interface on Round 3 page
+  - Fixed match play leaderboard API to work correctly with raw SQL queries
+  - Strokes given calculations now match official tournament rules (1 stroke to Connor, 1 to Johnny, 0 to Austin)
+  - All match play APIs now return correct data and integrate seamlessly with Round 3 scoring interface
+
 **July 17, 2025:**
 - **Fixed Team Database Consistency and Cleaned Up Database Structure:**
   - Corrected Team 1 to be Nick Grossi & Connor Patterson (not Christian Hauck)
