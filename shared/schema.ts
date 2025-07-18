@@ -103,6 +103,14 @@ export const matchPlayGroups = pgTable("match_play_groups", {
   player2Id: integer("player2_id").notNull().references(() => users.id),
   player3Id: integer("player3_id").notNull().references(() => users.id),
   player4Id: integer("player4_id").notNull().references(() => users.id),
+  player1Name: varchar("player1_name", { length: 100 }).notNull(),
+  player2Name: varchar("player2_name", { length: 100 }).notNull(),
+  player3Name: varchar("player3_name", { length: 100 }).notNull(),
+  player4Name: varchar("player4_name", { length: 100 }).notNull(),
+  player1Handicap: integer("player1_handicap").notNull(),
+  player2Handicap: integer("player2_handicap").notNull(),
+  player3Handicap: integer("player3_handicap").notNull(),
+  player4Handicap: integer("player4_handicap").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

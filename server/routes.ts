@@ -264,11 +264,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log('Starting mock data generation...');
-      const { generateMockData } = await import('./mockData');
-      await generateMockData();
+      const { generateMockMatchPlayData } = await import('./mockData_temp');
+      const result = await generateMockMatchPlayData();
       
       console.log('Mock data generation completed successfully');
-      res.json({ message: 'Mock data generated successfully' });
+      res.json({ 
+        message: 'Mock data generated successfully',
+        data: {
+          groupsCreated: result.groupsCount,
+          matchesCreated: result.matchesCount
+        }
+      });
     } catch (error) {
       console.error('Error generating mock data:', error);
       console.error('Stack trace:', error.stack);
