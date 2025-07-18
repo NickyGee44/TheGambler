@@ -141,4 +141,21 @@ export function setupAuth(app: Express) {
     const user = req.user as SelectUser;
     res.json({ id: user.id, firstName: user.firstName, lastName: user.lastName });
   });
+
+  // Quick login endpoint for testing
+  app.post("/api/quick-login", async (req, res) => {
+    try {
+      const user = await storage.getUserByName("Nick", "Grossi");
+      if (user) {
+        req.login(user, (err) => {
+          if (err) throw err;
+          res.json({ id: user.id, firstName: user.firstName, lastName: user.lastName });
+        });
+      } else {
+        res.status(404).json({ error: "User not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
 }

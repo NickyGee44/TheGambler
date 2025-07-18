@@ -122,6 +122,24 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 18, 2025:**
+- **Implemented Baseball Booze 4-Player Logging System:**
+  - Created specialized interface for Baseball Booze game with 4 individual player dropdowns (2 per team)
+  - Each team has separate player selection from registered players instead of team-based selection
+  - Dynamic winner selection showing team combinations based on selected players
+  - Enhanced form validation requiring all 4 players to be selected before match submission
+  - Server-side handling for Baseball Booze matches with custom player mapping logic
+  - All other Boozelympics games continue using standard team vs team interface
+- **Fixed Critical Database Schema Issues:**
+  - Resolved "column 'round' does not exist" error by updating match_play_matches table structure
+  - Fixed database column naming conflicts between legacy and new schema definitions
+  - Corrected match play table to use proper column names (player1_id, player2_id with round column)
+  - Eliminated photo generation from mock data system to prevent database column errors
+  - All database operations now work correctly with proper schema alignment
+- **Enhanced Mock Data Generation:**
+  - Removed photo generation from mock data system as requested by user
+  - Mock data now focuses on hole scores and side bets without photo dependencies
+  - Faster mock data generation with reduced database complexity
+  - Fixed mock data endpoint to work reliably without photo table conflicts
 - **Fixed Boozelympics Implementation and Simplified Golf Relay System:**
   - Resolved TypeScript compilation errors by removing TournamentRules import and correcting ProfilePicture imports
   - Fixed database column naming conflicts between schema (camelCase) and database (underscore) conventions

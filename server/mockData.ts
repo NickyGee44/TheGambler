@@ -230,48 +230,12 @@ export async function generateMockData() {
     await db.delete(sideBets);
     await db.insert(sideBets).values(mockSideBets);
     
-    // Generate mock photos
-    const mockPhotos = [
-      {
-        filename: "tournament_start.jpg",
-        caption: "All 16 players at the tee box ready for Round 1",
-        imageUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiMyMjc3M2IiLz48dGV4dCB4PSIyMDAiIHk9IjE1MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCI+VG91cm5hbWVudCBTdGFydDwvdGV4dD48L3N2Zz4=",
-        uploadedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      },
-      {
-        filename: "hole_in_one.jpg",
-        caption: "Connor's hole-in-one on hole 8!",
-        imageUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiMxNjgzMzEiLz48Y2lyY2xlIGN4PSIyMDAiIGN5PSIxNTAiIHI9IjMwIiBmaWxsPSJ3aGl0ZSIvPjx0ZXh0IHg9IjIwMCIgeT0iMjIwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2Ij5Ib2xlIGluIE9uZSE8L3RleHQ+PC9zdmc+",
-        uploadedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-      },
-      {
-        filename: "team_celebration.jpg",
-        caption: "Team 3 celebrating their Round 2 victory",
-        imageUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmNTk3MjAiLz48dGV4dCB4PSIyMDAiIHk9IjE1MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCI+VGVhbSBDZWxlYnJhdGlvbiE8L3RleHQ+PC9zdmc+",
-        uploadedAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
-      },
-      {
-        filename: "sunset_golf.jpg",
-        caption: "Beautiful sunset over Muskoka Bay Golf Club",
-        imageUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJzdW5zZXQiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZmI5MjNkIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZmJkNDNkIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9InVybCgjc3Vuc2V0KSIvPjxjaXJjbGUgY3g9IjMwMCIgY3k9IjgwIiByPSI0MCIgZmlsbD0iI2Y1OTcyMCIvPjx0ZXh0IHg9IjIwMCIgeT0iMjUwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2Ij5TdW5zZXQgR29sZjwvdGV4dD48L3N2Zz4=",
-        uploadedAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-      },
-      {
-        filename: "funny_mishit.jpg",
-        caption: "Spencer's ball somehow ended up in the parking lot",
-        imageUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiM2Mzc0ZjEiLz48dGV4dCB4PSIyMDAiIHk9IjE1MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiI+RnVubnkgTWlzaGl0ITwvdGV4dD48L3N2Zz4=",
-        uploadedAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-      },
-    ];
-    
-    // Clear existing photos and insert mock data
-    await db.delete(photos);
-    await db.insert(photos).values(mockPhotos);
+    // Skip photo generation as requested by user
     
     console.log("✅ Mock data generated successfully!");
     console.log(`- Generated ${allMockScores.length} hole scores`);
     console.log(`- Generated ${mockSideBets.length} side bets`);
-    console.log(`- Generated ${mockPhotos.length} photos`);
+    console.log(`- Skipped photo generation as requested`);
     
   } catch (error) {
     console.error("Error generating mock data:", error);
