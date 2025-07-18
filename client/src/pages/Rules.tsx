@@ -124,9 +124,40 @@ export default function Rules() {
               
               <div>
                 <h3 className="font-semibold text-foreground mb-2">Point Structure:</h3>
-                <p className="text-sm text-muted-foreground">
-                  Same as Round 1 (1st = 10pts, 2nd = 8pts, etc.)
-                </p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>1st Place:</span>
+                    <Badge variant="default">10 pts</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>2nd Place:</span>
+                    <Badge variant="secondary">8 pts</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>3rd Place:</span>
+                    <Badge variant="secondary">6 pts</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>4th Place:</span>
+                    <Badge variant="secondary">5 pts</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>5th Place:</span>
+                    <Badge variant="outline">4 pts</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>6th Place:</span>
+                    <Badge variant="outline">3 pts</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>7th Place:</span>
+                    <Badge variant="outline">2 pts</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>8th Place:</span>
+                    <Badge variant="outline">1 pt</Badge>
+                  </div>
+                </div>
               </div>
               
               <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
@@ -135,7 +166,7 @@ export default function Rules() {
                   Drinking Rule
                 </h4>
                 <p className="text-sm text-orange-700 dark:text-orange-300">
-                  Each player starts at +18, subtract 1 stroke per drink
+                  Player whose shot is not taken, must take a drink
                 </p>
               </div>
             </CardContent>

@@ -1181,8 +1181,9 @@ export class DatabaseStorage implements IStorage {
       
       // Award points based on current standing if round is in progress
       if (teamData && teamData.holesCompleted > 0 && teamData.holesCompleted < 18) {
-        // Award temporary points based on current standing
-        const pointsAwarded = Math.max(1, 11 - teamPosition);
+        // Award temporary points based on current standing using new point structure
+        const pointsMap = [10, 8, 6, 5, 4, 3, 2, 1]; // Index 0 = 1st place, Index 1 = 2nd place, etc.
+        const pointsAwarded = teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 1;
         return pointsAwarded;
       }
     }
@@ -1264,8 +1265,9 @@ export class DatabaseStorage implements IStorage {
       return 0;
     }
 
-    // Award points: 1st place = 10 points, 2nd = 9 points, etc. (minimum 1 point)
-    const placementPoints = Math.max(1, 11 - teamPosition);
+    // Award points: 1st=10pts, 2nd=8pts, 3rd=6pts, 4th=5pts, 5th=4pts, 6th=3pts, 7th=2pts, 8th=1pt
+    const pointsMap = [10, 8, 6, 5, 4, 3, 2, 1]; // Index 0 = 1st place, Index 1 = 2nd place, etc.
+    const placementPoints = teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 1;
     return placementPoints;
   }
 
