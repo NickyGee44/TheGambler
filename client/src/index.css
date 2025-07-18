@@ -97,6 +97,14 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+  }
+  
+  html, body {
+    height: auto !important;
+    min-height: 100vh;
   }
   
   /* Force dark mode theme */
@@ -108,6 +116,22 @@
 @layer utilities {
   .golf-card {
     @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  /* Mobile scrolling fixes */
+  .mobile-scroll-fix {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    height: auto;
+    min-height: 0;
+  }
+  
+  .page-container {
+    position: relative;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
   .countdown-digit {
