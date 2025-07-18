@@ -1,0 +1,96 @@
+Here is the corrected set of **Round 3 Matchups** with proper **stroke advantages**:
+
+✅ **Clarified Rule:**
+
+> *The higher handicap player gets strokes against the lower handicap player.*
+> *Strokes given = ⌊(Handicap Difference ÷ 3)⌋ → max 6 strokes per 6-hole match.*
+
+For each 1v1 match, **the player receiving strokes is the worse (higher handicap) player**, and the strokes are applied to the **hardest holes** in the 6-hole segment.
+
+---
+
+### 🏌️‍♂️ Group 1: *Jordan (6), Christian (5), Connor (3), Ben (6)*
+
+| Matchup             | HCP Diff | Strokes Given | **Recipient (gets strokes)** |
+| ------------------- | -------- | ------------- | ---------------------------- |
+| Jordan vs Christian | 1        | 0             | –                            |
+| Jordan vs Connor    | 3        | 1             | **Jordan**                   |
+| Jordan vs Ben       | 0        | 0             | –                            |
+| Christian vs Connor | 2        | 0             | –                            |
+| Christian vs Ben    | 1        | 0             | –                            |
+| Connor vs Ben       | 3        | 1             | **Ben**                      |
+
+---
+
+### 🏌️‍♂️ Group 2: *Spencer (16), Jeff (9), Kevin (3), Erik (10)*
+
+| Matchup          | HCP Diff | Strokes Given | **Recipient (gets strokes)** |
+| ---------------- | -------- | ------------- | ---------------------------- |
+| Spencer vs Jeff  | 7        | 2             | **Spencer**                  |
+| Spencer vs Kevin | 13       | 4             | **Spencer**                  |
+| Spencer vs Erik  | 6        | 2             | **Spencer**                  |
+| Jeff vs Kevin    | 6        | 2             | **Jeff**                     |
+| Jeff vs Erik     | 1        | 0             | –                            |
+| Kevin vs Erik    | 7        | 2             | **Erik**                     |
+
+---
+
+### 🏌️‍♂️ Group 3: *Sye (18), Will (5), Nic (15), Bailey (16)*
+
+| Matchup        | HCP Diff | Strokes Given | **Recipient (gets strokes)** |
+| -------------- | -------- | ------------- | ---------------------------- |
+| Sye vs Will    | 13       | 4             | **Sye**                      |
+| Sye vs Nic     | 3        | 1             | **Sye**                      |
+| Sye vs Bailey  | 2        | 0             | –                            |
+| Will vs Nic    | 10       | 3             | **Nic**                      |
+| Will vs Bailey | 11       | 3             | **Bailey**                   |
+| Nic vs Bailey  | 1        | 0             | –                            |
+
+---
+
+### 🏌️‍♂️ Group 4: *Nick G (15), Nick C (12), Johnny (11), Austin (17)*
+
+| Matchup          | HCP Diff | Strokes Given | **Recipient (gets strokes)** |
+| ---------------- | -------- | ------------- | ---------------------------- |
+| Nick G vs Nick C | 3        | 1             | **Nick G**                   |
+| Nick G vs Johnny | 4        | 1             | **Nick G**                   |
+| Nick G vs Austin | 2        | 0             | –                            |
+| Nick C vs Johnny | 1        | 0             | –                            |
+| Nick C vs Austin | 5        | 1             | **Austin**                   |
+| Johnny vs Austin | 6        | 2             | **Austin**                   |
+
+---
+
+### 🧠 What This Looks Like In-App (Replit Dev Instructions):
+
+* Show each 6-hole match with:
+
+  * **Both players' names and HCPs**
+  * **How many strokes are given** and **who receives them**
+  * **Which holes** strokes apply to (based on that 6-hole segment’s hardest holes)
+* On a hole where a stroke is given, show it clearly:
+
+  > *Example: “Nick G receives 1 stroke on Hole 5 (HCP 1)”*
+
+---
+
+### Want this as a structured export?
+
+I can output this as:
+
+* ✅ JSON
+* ✅ CSV / Excel
+* ✅ Firestore document setup for Firebase
+* ✅ Static HTML table for use in app
+
+Let me know your preference.
+
+---
+
+### 🔁 Follow-Up Options:
+
+**Q1:** Want me to auto-assign stroke holes using the hole-by-hole HCP ranking for Deerhurst and Muskoka Bay?
+**Q2:** Should I generate this as part of your player matchups page with “Live Scoring” functionality?
+**Q3:** Do you want these matchups logged to each player’s tournament history card automatically?
+**Q4:** Should we randomize matchups each year but maintain fairness based on HCP tiers?
+**Q5:** Want me to version this as JSON now for Replit import?

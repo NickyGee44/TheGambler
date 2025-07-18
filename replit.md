@@ -122,15 +122,17 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 18, 2025:**
-- **Implemented Complete 4-Group Round 3 Tournament Structure:**
+- **Implemented Complete 4-Group Round 3 Tournament Structure with Corrected Stroke Allocations:**
   - Corrected Round 3 matchup system to reflect official tournament format with 4 groups of 4 players each
   - **Group 1**: Jordan Kreller, Christian Hauck, Connor Patterson, Ben Braun
   - **Group 2**: Spencer Reid, Jeffrey Reiner, Kevin Durco, Erik Boudreau  
   - **Group 3**: Sye Ellard, Will Bibbings, Nic Huxley, Bailey Carlson
   - **Group 4**: Nick Grossi, Nick Cook, Johnny Magnatta, Austin Hassani
   - Each group plays 6 matches across 3 sets of 6 holes (1-6, 7-12, 13-18)
-  - Nick Grossi's corrected matches: vs Nick Cook (holes 1-6, Nick C gets 1 stroke), vs Johnny Magnatta (holes 7-12, Johnny gets 1 stroke), vs Austin Hassani (holes 13-18, no strokes)
-  - All stroke allocations based on handicap differences following official tournament rules
+  - **Fixed stroke allocation rule**: Higher handicap players receive strokes (not lower handicap players)
+  - Nick Grossi's corrected matches: vs Nick Cook (holes 1-6, Nick G gets 1 stroke), vs Johnny Magnatta (holes 7-12, Nick G gets 1 stroke), vs Austin Hassani (holes 13-18, no strokes)
+  - Stroke calculation: ⌊(Handicap Difference ÷ 3)⌋ with max 6 strokes per 6-hole match
+  - All stroke allocations verified correct with higher handicap players receiving appropriate strokes
   - Added missing tournament players (Austin Hassani, Jeffrey Reiner, Bailey Carlson, Jordan Kreller, Nic Huxley, Nick Cook) to user database
   - Complete tournament structure with 24 total matches across 4 groups properly configured
   - Match play information displays correctly for each 6-hole segment during Round 3 scoring
