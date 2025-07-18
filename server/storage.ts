@@ -147,6 +147,11 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getUserByFullName(fullName: string): Promise<User | undefined> {
+    const [firstName, lastName] = fullName.split(' ');
+    return await this.getUserByName(firstName, lastName);
+  }
+
   async getAllUsers(): Promise<User[]> {
     const allUsers = await db.select().from(users);
     return allUsers;
@@ -986,29 +991,31 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
-    // Calculate projected points for current round based on current position
-    const allTeams = await this.getTeams();
-    const teamCurrentScores = await Promise.all(allTeams.map(async (team) => {
-      const roundPoints = await this.calculateTeamRoundPoints(team.id, currentRound);
-      return {
-        teamId: team.id,
-        points: roundPoints,
-        holesCompleted: await this.getTeamHolesCompleted(team.id, currentRound)
-      };
-    }));
-    
-    // Sort by current round points to determine standings
-    teamCurrentScores.sort((a, b) => b.points - a.points);
-    
-    // Find this team's current position and award points accordingly
-    const teamPosition = teamCurrentScores.findIndex(score => score.teamId === teamId) + 1;
-    const teamData = teamCurrentScores.find(score => score.teamId === teamId);
-    
-    // Award points based on current standing if round is in progress
-    if (teamData && teamData.holesCompleted > 0 && teamData.holesCompleted < 18) {
-      // Award temporary points based on current standing
-      const pointsAwarded = Math.max(1, 10 - teamPosition);
-      return pointsAwarded;
+    // For rounds 1 and 2, show live placement-based points during play
+    if (currentRound === 1 || currentRound === 2) {
+      const allTeams = await this.getTeams();
+      const teamCurrentScores = await Promise.all(allTeams.map(async (team) => {
+        const stablefordPoints = await this.calculateTeamStablefordPoints(team.id, currentRound);
+        return {
+          teamId: team.id,
+          stablefordPoints: stablefordPoints,
+          holesCompleted: await this.getTeamHolesCompleted(team.id, currentRound)
+        };
+      }));
+      
+      // Sort by current Stableford points to determine standings
+      teamCurrentScores.sort((a, b) => b.stablefordPoints - a.stablefordPoints);
+      
+      // Find this team's current position and award points accordingly
+      const teamPosition = teamCurrentScores.findIndex(score => score.teamId === teamId) + 1;
+      const teamData = teamCurrentScores.find(score => score.teamId === teamId);
+      
+      // Award points based on current standing if round is in progress
+      if (teamData && teamData.holesCompleted > 0 && teamData.holesCompleted < 18) {
+        // Award temporary points based on current standing
+        const pointsAwarded = Math.max(1, 11 - teamPosition);
+        return pointsAwarded;
+      }
     }
     
     return await this.calculateTeamRoundPoints(teamId, currentRound);
@@ -1038,6 +1045,55 @@ export class DatabaseStorage implements IStorage {
   }
 
   private async calculateTeamRoundPoints(teamId: number, round: number): Promise<number> {
+    // For rounds 1 and 2, calculate based on team finishing position (1-10 points)
+    if (round === 1 || round === 2) {
+      return await this.calculateTournamentPlacementPoints(teamId, round);
+    }
+    
+    // For round 3 (match play), calculate based on individual match results
+    if (round === 3) {
+      return await this.calculateMatchPlayPoints(teamId, round);
+    }
+    
+    return 0;
+  }
+
+  private async calculateTournamentPlacementPoints(teamId: number, round: number): Promise<number> {
+    // Get all teams' performance for this round
+    const allTeams = await this.getTeams();
+    const teamPerformances = await Promise.all(allTeams.map(async (team) => {
+      const teamStablefordPoints = await this.calculateTeamStablefordPoints(team.id, round);
+      return {
+        teamId: team.id,
+        stablefordPoints: teamStablefordPoints,
+        holesCompleted: await this.getTeamHolesCompleted(team.id, round)
+      };
+    }));
+
+    // Only include teams that have completed the round (18 holes)
+    const completedTeams = teamPerformances.filter(team => team.holesCompleted === 18);
+    
+    // If the round isn't complete, return 0 points
+    if (completedTeams.length === 0) {
+      return 0;
+    }
+
+    // Sort teams by Stableford points (descending - highest points = best performance)
+    completedTeams.sort((a, b) => b.stablefordPoints - a.stablefordPoints);
+
+    // Find team's position and award placement points (1st = 10 points, 2nd = 9 points, etc.)
+    const teamPosition = completedTeams.findIndex(team => team.teamId === teamId) + 1;
+    
+    if (teamPosition === 0) {
+      // Team hasn't completed the round yet
+      return 0;
+    }
+
+    // Award points: 1st place = 10 points, 2nd = 9 points, etc. (minimum 1 point)
+    return Math.max(1, 11 - teamPosition);
+  }
+
+  private async calculateTeamStablefordPoints(teamId: number, round: number): Promise<number> {
     // Get all hole scores for this team and round
     const teamHoleScores = await db.select()
       .from(holeScores)
@@ -1048,8 +1104,56 @@ export class DatabaseStorage implements IStorage {
         )
       );
 
-    // Sum all points for this team and round
+    // Sum all Stableford points for this team and round
     return teamHoleScores.reduce((total, holeScore) => total + holeScore.points, 0);
+  }
+
+  private async calculateMatchPlayPoints(teamId: number, round: number): Promise<number> {
+    // For Round 3 match play, points are based on individual match results
+    // Each team member can earn points from their matches
+    
+    // Get team members
+    const team = await this.getTeam(teamId);
+    if (!team) return 0;
+
+    // Get both players' user IDs
+    const player1 = await this.getUserByFullName(team.player1Name);
+    const player2 = await this.getUserByFullName(team.player2Name);
+    
+    if (!player1 || !player2) return 0;
+
+    // Calculate points for both players from their match play results
+    const player1Points = await this.calculatePlayerMatchPlayPoints(player1.id);
+    const player2Points = await this.calculatePlayerMatchPlayPoints(player2.id);
+
+    return player1Points + player2Points;
+  }
+
+  private async calculatePlayerMatchPlayPoints(playerId: number): Promise<number> {
+    // Get all match results for this player
+    const matches = await db.select()
+      .from(matchPlayMatches)
+      .where(
+        or(
+          eq(matchPlayMatches.player1Id, playerId),
+          eq(matchPlayMatches.player2Id, playerId)
+        )
+      );
+
+    let totalPoints = 0;
+    
+    for (const match of matches) {
+      if (match.winnerId === playerId) {
+        // Player won the match - award 2 points
+        totalPoints += 2;
+      } else if (match.result === 'tie') {
+        // Match was tied - award 1 point
+        totalPoints += 1;
+      }
+      // No points for losing a match
+    }
+
+    return totalPoints;
   }
 
   async updateScore(teamId: number, round: number, score: number, userId?: number): Promise<Score> {
