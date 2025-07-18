@@ -70,6 +70,7 @@ export interface IStorage {
   updateHoleScore(userId: number, round: number, hole: number, strokes: number): Promise<HoleScore>;
   updateHoleScoreStats(userId: number, round: number, hole: number, statsData: any): Promise<HoleScore>;
   getLeaderboard(round: number): Promise<(HoleScore & { user: User; team: Team })[]>;
+  getScrambleLeaderboard(round: number): Promise<any[]>;
   
   // Player Statistics
   getPlayerStatistics(): Promise<any[]>;

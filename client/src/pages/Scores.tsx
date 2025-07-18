@@ -69,6 +69,17 @@ export default function Scores() {
     refetchInterval: 10000,
   });
 
+  // Individual scores for detailed view
+  const { data: round1BetterBall = [] } = useQuery({
+    queryKey: ['/api/team-better-ball', 1],
+    refetchInterval: 10000,
+  });
+
+  const { data: round2Scramble = [] } = useQuery({
+    queryKey: ['/api/team-scramble', 2],
+    refetchInterval: 10000,
+  });
+
   // WebSocket for real-time updates
   useWebSocket('/ws', {
     onMessage: (data) => {
@@ -407,11 +418,11 @@ export default function Scores() {
         </TabsContent>
 
         <TabsContent value="round1">
-          <BetterBallLeaderboard leaderboard={round1Leaderboard} />
+          <BetterBallLeaderboard leaderboard={round1BetterBall} />
         </TabsContent>
 
         <TabsContent value="round2">
-          <ScrambleLeaderboard leaderboard={round2Leaderboard} />
+          <ScrambleLeaderboard leaderboard={round2Scramble} />
         </TabsContent>
 
         <TabsContent value="round3">

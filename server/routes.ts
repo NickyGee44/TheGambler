@@ -696,6 +696,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/team-scramble/:round', async (req, res) => {
+    try {
+      const round = parseInt(req.params.round);
+      const leaderboard = await storage.getScrambleLeaderboard(round);
+      res.json(leaderboard);
+    } catch (error) {
+      console.error('Error fetching team scramble leaderboard:', error);
+      res.status(500).json({ error: 'Failed to fetch team scramble leaderboard' });
+    }
+  });
+
   // Admin endpoint for updating profile picture assignments
   app.post('/api/admin/update-profile-component', requireAuth, async (req: any, res) => {
     try {
