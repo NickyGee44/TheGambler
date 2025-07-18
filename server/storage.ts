@@ -33,8 +33,8 @@ import {
   type InsertMatchPlayMatch,
   type InsertMatchPlayGroup,
 } from "@shared/schema";
-import { db } from "./db";
-import { eq, and, asc } from "drizzle-orm";
+import { db, pool } from "./db";
+import { eq, and, asc, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 // Interface for storage operations
@@ -1145,11 +1145,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMatchPlayMatches(groupNumber?: number): Promise<MatchPlayMatch[]> {
-    const query = db.select().from(matchPlayMatches);
-    if (groupNumber) {
-      return await query.where(eq(matchPlayMatches.groupId, groupNumber));
+    try {
+      // Use raw SQL to avoid schema mismatch issues - return manual structure
+      const result = groupNumber 
+        ? await db.execute(sql`SELECT * FROM match_play_matches WHERE group_id = ${groupNumber}`)
+        : await db.execute(sql`SELECT * FROM match_play_matches`);
+      
+      // Convert database rows to proper match objects
+      return result.rows.map((row: any) => ({
+        id: row.id,
+        groupId: row.group_id,
+        player1Id: row.player1_id,
+        player2Id: row.player2_id,
+        player1Name: row.player1_name,
+        player2Name: row.player2_name,
+        player1Handicap: row.player1_handicap,
+        player2Handicap: row.player2_handicap,
+        holes: row.holes,
+        strokesGiven: row.strokes_given,
+        strokeRecipientId: row.stroke_recipient_id,
+        strokeHoles: row.stroke_holes,
+        winnerId: row.winner_id,
+        result: row.result,
+        pointsAwarded: row.points_awarded,
+        createdAt: row.created_at
+      }));
+    } catch (error) {
+      console.error('Error fetching match play matches:', error);
+      return [];
     }
-    return await query;
   }
 
   async createMatchPlayMatch(match: InsertMatchPlayMatch): Promise<MatchPlayMatch> {
@@ -1176,45 +1200,50 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMatchPlayLeaderboard(): Promise<any[]> {
-    // Get all completed matches with player info
-    const matches = await db.select({
-      match: matchPlayMatches,
-      player1: alias(users, 'player1'),
-      player2: alias(users, 'player2'),
-    }).from(matchPlayMatches)
-      .innerJoin(alias(users, 'player1'), eq(matchPlayMatches.player1Id, alias(users, 'player1').id))
-      .innerJoin(alias(users, 'player2'), eq(matchPlayMatches.player2Id, alias(users, 'player2').id))
-      .where(eq(matchPlayMatches.matchStatus, 'completed'));
+    // Get all matches
+    const matches = await db.select().from(matchPlayMatches);
 
     // Calculate points for each player
-    const playerPoints = new Map<number, { user: User; points: number; matchesPlayed: number }>();
+    const playerPoints = new Map<number, { user: any; points: number; matchesPlayed: number }>();
     
     for (const match of matches) {
-      const player1Points = (match.match.pointsAwarded as any).player1 || 0;
-      const player2Points = (match.match.pointsAwarded as any).player2 || 0;
+      const player1Points = match.pointsAwarded || 0;
+      const player2Points = match.pointsAwarded || 0;
+      
+      // Get user data for both players
+      const player1User = await this.getUser(match.player1Id);
+      const player2User = await this.getUser(match.player2Id);
       
       // Update player 1 points
-      if (!playerPoints.has(match.player1.id)) {
-        playerPoints.set(match.player1.id, {
-          user: match.player1,
+      if (!playerPoints.has(match.player1Id)) {
+        playerPoints.set(match.player1Id, {
+          user: player1User,
           points: 0,
           matchesPlayed: 0,
         });
       }
-      const player1Data = playerPoints.get(match.player1.id)!;
-      player1Data.points += player1Points;
+      const player1Data = playerPoints.get(match.player1Id)!;
+      if (match.winnerId === match.player1Id) {
+        player1Data.points += 2; // Win = 2 points
+      } else if (match.winnerId === null) {
+        player1Data.points += 1; // Tie = 1 point
+      } // Loss = 0 points
       player1Data.matchesPlayed += 1;
       
       // Update player 2 points
-      if (!playerPoints.has(match.match.player2Id)) {
-        playerPoints.set(match.match.player2Id, {
-          user: match.match.player2Id === match.player1.id ? match.player1 : match.player2,
+      if (!playerPoints.has(match.player2Id)) {
+        playerPoints.set(match.player2Id, {
+          user: player2User,
           points: 0,
           matchesPlayed: 0,
         });
       }
-      const player2Data = playerPoints.get(match.match.player2Id)!;
-      player2Data.points += player2Points;
+      const player2Data = playerPoints.get(match.player2Id)!;
+      if (match.winnerId === match.player2Id) {
+        player2Data.points += 2; // Win = 2 points
+      } else if (match.winnerId === null) {
+        player2Data.points += 1; // Tie = 1 point
+      } // Loss = 0 points
       player2Data.matchesPlayed += 1;
     }
 
@@ -1241,26 +1270,44 @@ export class DatabaseStorage implements IStorage {
       return null;
     }
 
-    // Find the match for this player in this hole segment
-    const [match] = await db.select().from(matchPlayMatches)
-      .where(
-        and(
-          eq(matchPlayMatches.holes, holeSegment),
-          eq(matchPlayMatches.player1Id, playerId)
-        )
-      )
-      .union(
-        db.select().from(matchPlayMatches)
-          .where(
-            and(
-              eq(matchPlayMatches.holes, holeSegment),
-              eq(matchPlayMatches.player2Id, playerId)
-            )
-          )
-      )
-      .limit(1);
-
-    return match || null;
+    try {
+      // Use direct SQL query to avoid schema issues
+      const result = await db.execute(sql`
+        SELECT * FROM match_play_matches 
+        WHERE holes = ${holeSegment} 
+        AND (player1_id = ${playerId} OR player2_id = ${playerId})
+      `);
+      
+      const match = result.rows[0];
+      console.log('Found match:', match);
+      
+      if (!match) {
+        return null;
+      }
+      
+      // Convert database row to match object
+      return {
+        id: match.id,
+        groupId: match.group_id,
+        player1Id: match.player1_id,
+        player2Id: match.player2_id,
+        player1Name: match.player1_name,
+        player2Name: match.player2_name,
+        player1Handicap: match.player1_handicap,
+        player2Handicap: match.player2_handicap,
+        holes: match.holes,
+        strokesGiven: match.strokes_given,
+        strokeRecipientId: match.stroke_recipient_id,
+        strokeHoles: match.stroke_holes,
+        winnerId: match.winner_id,
+        result: match.result,
+        pointsAwarded: match.points_awarded,
+        createdAt: match.created_at
+      };
+    } catch (error) {
+      console.error('Error fetching current match:', error);
+      return null;
+    }
   }
 }
 

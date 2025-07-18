@@ -531,32 +531,32 @@ export default function Round3() {
                     <div className="grid grid-cols-2 gap-4 mb-3">
                       <div className="text-center">
                         <div className="font-medium text-sm text-yellow-700 dark:text-yellow-300">
-                          {currentMatch.player1_name}
+                          {currentMatch.player1Name}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          HCP: {currentMatch.player1_handicap}
+                          HCP: {currentMatch.player1Handicap}
                         </div>
                       </div>
                       <div className="text-center">
                         <div className="font-medium text-sm text-yellow-700 dark:text-yellow-300">
-                          {currentMatch.player2_name}
+                          {currentMatch.player2Name}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          HCP: {currentMatch.player2_handicap}
+                          HCP: {currentMatch.player2Handicap}
                         </div>
                       </div>
                     </div>
                     
-                    {currentMatch.strokes_given > 0 && (
+                    {currentMatch.strokesGiven > 0 && (
                       <div className="text-center text-sm text-yellow-700 dark:text-yellow-300 mb-2">
-                        {currentMatch.stroke_recipient_id === currentMatch.player1_id ? currentMatch.player1_name : currentMatch.player2_name} receives {currentMatch.strokes_given} stroke{currentMatch.strokes_given > 1 ? 's' : ''}
+                        {currentMatch.strokeRecipientId === currentMatch.player1Id ? currentMatch.player1Name : currentMatch.player2Name} receives {currentMatch.strokesGiven} stroke{currentMatch.strokesGiven > 1 ? 's' : ''}
                       </div>
                     )}
                     
-                    {currentMatch.points_awarded && (
+                    {currentMatch.pointsAwarded && (
                       <div className="text-center">
                         <Badge className="bg-yellow-600 text-white">
-                          {currentMatch.points_awarded} Points Awarded
+                          {currentMatch.pointsAwarded} Points Awarded
                         </Badge>
                       </div>
                     )}
