@@ -343,6 +343,25 @@ export class DatabaseStorage implements IStorage {
     return scores;
   }
 
+  async getAllHoleScoresForRound(round: number): Promise<any[]> {
+    const scores = await db.select({
+      holeScore: holeScores,
+      user: users,
+      team: teams,
+    }).from(holeScores)
+      .innerJoin(users, eq(holeScores.userId, users.id))
+      .innerJoin(teams, eq(holeScores.teamId, teams.id))
+      .where(eq(holeScores.round, round))
+      .orderBy(asc(holeScores.hole));
+
+    // Transform the data to match the expected format
+    return scores.map(score => ({
+      ...score.holeScore,
+      user: score.user,
+      team: score.team
+    }));
+  }
+
   async createHoleScore(holeScore: InsertHoleScore): Promise<HoleScore> {
     const [score] = await db
       .insert(holeScores)

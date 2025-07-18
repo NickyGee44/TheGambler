@@ -108,7 +108,7 @@ export default function Round1() {
 
   // Fetch user's hole scores for round 1
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({
-    queryKey: [`/api/hole-scores/${round}`],
+    queryKey: [`/api/my-hole-scores/${round}`],
     enabled: !!user,
   });
 
@@ -127,7 +127,7 @@ export default function Round1() {
 
   // Fetch all hole scores for individual scores table
   const { data: allHoleScores = [] } = useQuery({
-    queryKey: ['/api/hole-scores', round],
+    queryKey: [`/api/hole-scores/${round}`],
     refetchInterval: 10000,
   });
 

@@ -546,7 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Hole scoring endpoints
-  app.get('/api/hole-scores/:round', requireAuth, async (req: any, res) => {
+  app.get('/api/my-hole-scores/:round', requireAuth, async (req: any, res) => {
     try {
       const round = parseInt(req.params.round);
       const userId = req.user.id;
@@ -569,6 +569,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching player hole scores:', error);
       res.status(500).json({ error: 'Failed to fetch player hole scores' });
+    }
+  });
+
+  // Get ALL hole scores for a specific round (for individual scores table)
+  app.get('/api/hole-scores/:round', async (req, res) => {
+    try {
+      const round = parseInt(req.params.round);
+      const allHoleScores = await storage.getAllHoleScoresForRound(round);
+      res.json(allHoleScores);
+    } catch (error) {
+      console.error('Error fetching all hole scores for round:', error);
+      res.status(500).json({ error: 'Failed to fetch hole scores for round' });
     }
   });
 
