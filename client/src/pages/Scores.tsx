@@ -409,11 +409,11 @@ export default function Scores() {
         </TabsContent>
 
         <TabsContent value="round1">
-          <BetterBallLeaderboard leaderboard={round1BetterBall} />
+          <BetterBallLeaderboard leaderboard={round1Leaderboard} />
         </TabsContent>
 
         <TabsContent value="round2">
-          <ScrambleLeaderboard leaderboard={round2Scramble} />
+          <ScrambleLeaderboard leaderboard={round2Leaderboard} />
         </TabsContent>
 
         <TabsContent value="round3">
@@ -487,7 +487,7 @@ function BetterBallLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                   <td className="px-4 py-3">
                     <div className="font-medium">Team {entry.team?.teamNumber}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {entry.players?.map((p: any) => p.firstName).join(' & ') || 'Loading...'}
+                      {entry.team?.player1Name} & {entry.team?.player2Name}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-center font-medium">{entry.totalGrossStrokes || '-'}</td>
@@ -497,7 +497,9 @@ function BetterBallLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                       {entry.grossToPar > 0 ? '+' : ''}{entry.grossToPar || 'E'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center font-bold text-golf-green-600">{entry.totalPoints || 0}</td>
+                  <td className="px-4 py-3 text-center font-bold text-golf-green-600">
+                    {entry.roundPoints || (11 - entry.position) || 0}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -568,7 +570,7 @@ function ScrambleLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                   <td className="px-4 py-3">
                     <div className="font-medium">Team {entry.team?.teamNumber}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {entry.players?.map((p: any) => p.firstName).join(' & ') || 'Loading...'}
+                      {entry.team?.player1Name} & {entry.team?.player2Name}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-center font-medium">{entry.totalStrokes || '-'}</td>
@@ -578,7 +580,9 @@ function ScrambleLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center text-sm text-gray-500">{entry.holes}/18</td>
-                  <td className="px-4 py-3 text-center font-bold text-golf-green-600">{entry.totalPoints || 0}</td>
+                  <td className="px-4 py-3 text-center font-bold text-golf-green-600">
+                    {entry.roundPoints || (11 - entry.position) || 0}
+                  </td>
                 </tr>
               ))}
             </tbody>
