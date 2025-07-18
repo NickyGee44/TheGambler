@@ -18,6 +18,7 @@ import { RefreshCw, Edit, Trophy, Medal, Award, Wifi, WifiOff, Target, Flag, Use
 import ProfilePicture from "@/components/ProfilePicture";
 import MockDataGenerator from "@/components/MockDataGenerator";
 import LoadingPage from "@/components/LoadingPage";
+import IndividualScoresTable from "@/components/IndividualScoresTable";
 
 export default function Scores() {
   const [selectedTeam, setSelectedTeam] = useState<string>("");
@@ -78,6 +79,22 @@ export default function Scores() {
 
   const { data: round2Scramble = [], isLoading: round2ScrambleLoading } = useQuery({
     queryKey: ['/api/team-scramble', 2],
+    refetchInterval: 10000,
+  });
+
+  // Individual hole scores for all rounds
+  const { data: round1HoleScores = [], isLoading: round1HoleScoresLoading } = useQuery({
+    queryKey: ['/api/hole-scores', 1],
+    refetchInterval: 10000,
+  });
+
+  const { data: round2HoleScores = [], isLoading: round2HoleScoresLoading } = useQuery({
+    queryKey: ['/api/hole-scores', 2],
+    refetchInterval: 10000,
+  });
+
+  const { data: round3HoleScores = [], isLoading: round3HoleScoresLoading } = useQuery({
+    queryKey: ['/api/hole-scores', 3],
     refetchInterval: 10000,
   });
 
@@ -409,18 +426,122 @@ export default function Scores() {
         </TabsContent>
 
         <TabsContent value="round1">
-          <BetterBallLeaderboard leaderboard={round1Leaderboard} />
+          <Round1DetailedView leaderboard={round1Leaderboard} />
         </TabsContent>
 
         <TabsContent value="round2">
-          <ScrambleLeaderboard leaderboard={round2Leaderboard} />
+          <Round2DetailedView leaderboard={round2Leaderboard} />
         </TabsContent>
 
         <TabsContent value="round3">
-          <MatchPlayLeaderboard leaderboard={round3Leaderboard} />
+          <Round3DetailedView leaderboard={round3Leaderboard} />
         </TabsContent>
       </Tabs>
       </div>
+    </div>
+  );
+}
+
+// Detailed view components with both leaderboards and individual scores
+
+function Round1DetailedView({ leaderboard }: { leaderboard: any[] }) {
+  const [activeSubTab, setActiveSubTab] = useState("leaderboard");
+  
+  const { data: holeScores = [] } = useQuery({
+    queryKey: ['/api/hole-scores', 1],
+    refetchInterval: 10000,
+  });
+
+  return (
+    <div className="space-y-4">
+      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+            <Trophy className="w-4 h-4" />
+            Better Ball Leaderboard
+          </TabsTrigger>
+          <TabsTrigger value="individual" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Individual Scores
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="leaderboard">
+          <BetterBallLeaderboard leaderboard={leaderboard} />
+        </TabsContent>
+
+        <TabsContent value="individual">
+          <IndividualScoresTable holeScores={holeScores} round={1} format="Better Ball" />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function Round2DetailedView({ leaderboard }: { leaderboard: any[] }) {
+  const [activeSubTab, setActiveSubTab] = useState("leaderboard");
+  
+  const { data: holeScores = [] } = useQuery({
+    queryKey: ['/api/hole-scores', 2],
+    refetchInterval: 10000,
+  });
+
+  return (
+    <div className="space-y-4">
+      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+            <Trophy className="w-4 h-4" />
+            Scramble Leaderboard
+          </TabsTrigger>
+          <TabsTrigger value="individual" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Individual Scores
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="leaderboard">
+          <ScrambleLeaderboard leaderboard={leaderboard} />
+        </TabsContent>
+
+        <TabsContent value="individual">
+          <IndividualScoresTable holeScores={holeScores} round={2} format="Scramble" />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function Round3DetailedView({ leaderboard }: { leaderboard: any[] }) {
+  const [activeSubTab, setActiveSubTab] = useState("leaderboard");
+  
+  const { data: holeScores = [] } = useQuery({
+    queryKey: ['/api/hole-scores', 3],
+    refetchInterval: 10000,
+  });
+
+  return (
+    <div className="space-y-4">
+      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+            <Trophy className="w-4 h-4" />
+            Match Play Leaderboard
+          </TabsTrigger>
+          <TabsTrigger value="individual" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Individual Scores
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="leaderboard">
+          <MatchPlayLeaderboard leaderboard={leaderboard} />
+        </TabsContent>
+
+        <TabsContent value="individual">
+          <IndividualScoresTable holeScores={holeScores} round={3} format="Match Play" />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
