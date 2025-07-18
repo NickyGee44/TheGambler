@@ -11,12 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HoleView from "@/components/HoleView";
 import Layout from "@/components/Layout";
 import { getCourseForRound } from "@shared/courseData";
-import { Play, Flag, Trophy, Users, MapPin, CheckCircle, Star, ChevronDown, ChevronRight } from "lucide-react";
+import { Play, Flag, Trophy, Users, MapPin, CheckCircle, Star } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import ProfilePicture from "@/components/ProfilePicture";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
+import IndividualScoresTable from "@/components/IndividualScoresTable";
 
 interface HoleScore {
   id: number;
@@ -92,7 +92,6 @@ export default function Round1() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardTab, setLeaderboardTab] = useState("team");
   const [showRoundComplete, setShowRoundComplete] = useState(false);
-  const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
 
   // WebSocket connection for real-time updates
   useWebSocket("/ws", {
@@ -124,6 +123,12 @@ export default function Round1() {
     queryKey: [`/api/team-better-ball/${round}`],
     refetchInterval: 10000, // Refresh every 10 seconds
     enabled: !!user, // Only fetch when user is authenticated
+  });
+
+  // Fetch all hole scores for individual scores table
+  const { data: allHoleScores = [] } = useQuery({
+    queryKey: ['/api/hole-scores', round],
+    refetchInterval: 10000,
   });
 
   const updateScoreMutation = useMutation({
@@ -308,65 +313,7 @@ export default function Round1() {
                 </TabsContent>
                 
                 <TabsContent value="individual" className="space-y-2 mt-4">
-                  {individualLeaderboard.map((entry, index) => {
-                    if (!entry.user) return null;
-                    const playerId = `${entry.user.firstName}-${entry.user.lastName}`;
-                    const isExpanded = expandedPlayer === playerId;
-                    return (
-                      <Collapsible 
-                        key={playerId}
-                        open={isExpanded}
-                        onOpenChange={(open) => setExpandedPlayer(open ? playerId : null)}
-                      >
-                        <CollapsibleTrigger asChild>
-                          <div className="flex items-center justify-between p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-golf-green-600 text-white flex items-center justify-center font-bold">
-                                {index + 1}
-                              </div>
-                              <ProfilePicture 
-                                firstName={entry.user.firstName} 
-                                lastName={entry.user.lastName} 
-                                size="lg"
-                              />
-                              <div>
-                                <div className="font-semibold">
-                                  {entry.user.firstName} {entry.user.lastName}
-                                </div>
-                                <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                  <Users className="w-3 h-3" />
-                                  Team {entry.team.teamNumber}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="text-right">
-                                <div className="font-bold text-golf-green-600 text-lg">
-                                  {entry.totalPoints} pts
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                  {entry.totalStrokes} strokes • {entry.holes} holes
-                                </div>
-                              </div>
-                              {isExpanded ? (
-                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                              ) : (
-                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                              )}
-                            </div>
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <PlayerHoleScores playerId={entry.user.id} round={round} />
-                        </CollapsibleContent>
-                      </Collapsible>
-                    );
-                  })}
-                  {individualLeaderboard.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No individual scores submitted yet. Be the first to start scoring!
-                    </div>
-                  )}
+                  <IndividualScoresTable holeScores={allHoleScores} round={round} format="Better Ball" />
                 </TabsContent>
               </Tabs>
             </CardContent>
