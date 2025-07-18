@@ -158,4 +158,21 @@ export function setupAuth(app: Express) {
       res.status(500).json({ error: "Login failed" });
     }
   });
+
+  // Browser quick login endpoint for testing
+  app.get("/api/browser-quick-login", async (req, res) => {
+    try {
+      const user = await storage.getUserByName("Nick", "Grossi");
+      if (user) {
+        req.login(user, (err) => {
+          if (err) throw err;
+          res.redirect("/");
+        });
+      } else {
+        res.status(404).json({ error: "User not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
 }

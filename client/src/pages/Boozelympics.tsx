@@ -71,11 +71,15 @@ export default function Boozelympics() {
   const [winnerTeamId, setWinnerTeamId] = useState<number>(0);
   const [notes, setNotes] = useState<string>("");
   
-  // Baseball Booze specific state (4 players)
+  // Baseball Booze specific state (8 players - 4 per team)
   const [team1Player1Id, setTeam1Player1Id] = useState<number>(0);
   const [team1Player2Id, setTeam1Player2Id] = useState<number>(0);
+  const [team1Player3Id, setTeam1Player3Id] = useState<number>(0);
+  const [team1Player4Id, setTeam1Player4Id] = useState<number>(0);
   const [team2Player1Id, setTeam2Player1Id] = useState<number>(0);
   const [team2Player2Id, setTeam2Player2Id] = useState<number>(0);
+  const [team2Player3Id, setTeam2Player3Id] = useState<number>(0);
+  const [team2Player4Id, setTeam2Player4Id] = useState<number>(0);
 
   const { data: games = [], isLoading: gamesLoading } = useQuery({
     queryKey: ['/api/boozelympics/games'],
@@ -121,8 +125,12 @@ export default function Boozelympics() {
       // Reset Baseball Booze specific state
       setTeam1Player1Id(0);
       setTeam1Player2Id(0);
+      setTeam1Player3Id(0);
+      setTeam1Player4Id(0);
       setTeam2Player1Id(0);
       setTeam2Player2Id(0);
+      setTeam2Player3Id(0);
+      setTeam2Player4Id(0);
     },
   });
 
@@ -352,12 +360,12 @@ export default function Boozelympics() {
                         </div>
                         
                         <div className="space-y-4">
-                          {/* Baseball Booze requires 4 individual players */}
+                          {/* Baseball Booze requires 8 individual players (4 per team) */}
                           {game.name === "Baseball Booze" ? (
                             <div className="space-y-4">
                               <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                  <Label className="font-semibold">Team 1 Players</Label>
+                                  <Label className="font-semibold">Team 1 Players (4 players)</Label>
                                   <div className="space-y-2">
                                     <Select value={team1Player1Id.toString()} onValueChange={(value) => setTeam1Player1Id(parseInt(value))}>
                                       <SelectTrigger>
@@ -383,11 +391,35 @@ export default function Boozelympics() {
                                         ))}
                                       </SelectContent>
                                     </Select>
+                                    <Select value={team1Player3Id.toString()} onValueChange={(value) => setTeam1Player3Id(parseInt(value))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select player 3" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {registeredPlayers.map((player: any) => (
+                                          <SelectItem key={player.userId} value={player.userId.toString()}>
+                                            {player.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <Select value={team1Player4Id.toString()} onValueChange={(value) => setTeam1Player4Id(parseInt(value))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select player 4" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {registeredPlayers.map((player: any) => (
+                                          <SelectItem key={player.userId} value={player.userId.toString()}>
+                                            {player.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
                                   </div>
                                 </div>
                                 
                                 <div className="space-y-2">
-                                  <Label className="font-semibold">Team 2 Players</Label>
+                                  <Label className="font-semibold">Team 2 Players (4 players)</Label>
                                   <div className="space-y-2">
                                     <Select value={team2Player1Id.toString()} onValueChange={(value) => setTeam2Player1Id(parseInt(value))}>
                                       <SelectTrigger>
@@ -413,6 +445,30 @@ export default function Boozelympics() {
                                         ))}
                                       </SelectContent>
                                     </Select>
+                                    <Select value={team2Player3Id.toString()} onValueChange={(value) => setTeam2Player3Id(parseInt(value))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select player 3" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {registeredPlayers.map((player: any) => (
+                                          <SelectItem key={player.userId} value={player.userId.toString()}>
+                                            {player.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <Select value={team2Player4Id.toString()} onValueChange={(value) => setTeam2Player4Id(parseInt(value))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select player 4" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {registeredPlayers.map((player: any) => (
+                                          <SelectItem key={player.userId} value={player.userId.toString()}>
+                                            {player.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
                                   </div>
                                 </div>
                               </div>
@@ -424,14 +480,14 @@ export default function Boozelympics() {
                                     <SelectValue placeholder="Select winning team" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {(team1Player1Id && team1Player2Id) && (
+                                    {(team1Player1Id && team1Player2Id && team1Player3Id && team1Player4Id) && (
                                       <SelectItem value="1">
-                                        Team 1: {registeredPlayers.find((p: any) => p.userId === team1Player1Id)?.name} & {registeredPlayers.find((p: any) => p.userId === team1Player2Id)?.name}
+                                        Team 1: {registeredPlayers.find((p: any) => p.userId === team1Player1Id)?.name}, {registeredPlayers.find((p: any) => p.userId === team1Player2Id)?.name}, {registeredPlayers.find((p: any) => p.userId === team1Player3Id)?.name}, {registeredPlayers.find((p: any) => p.userId === team1Player4Id)?.name}
                                       </SelectItem>
                                     )}
-                                    {(team2Player1Id && team2Player2Id) && (
+                                    {(team2Player1Id && team2Player2Id && team2Player3Id && team2Player4Id) && (
                                       <SelectItem value="2">
-                                        Team 2: {registeredPlayers.find((p: any) => p.userId === team2Player1Id)?.name} & {registeredPlayers.find((p: any) => p.userId === team2Player2Id)?.name}
+                                        Team 2: {registeredPlayers.find((p: any) => p.userId === team2Player1Id)?.name}, {registeredPlayers.find((p: any) => p.userId === team2Player2Id)?.name}, {registeredPlayers.find((p: any) => p.userId === team2Player3Id)?.name}, {registeredPlayers.find((p: any) => p.userId === team2Player4Id)?.name}
                                       </SelectItem>
                                     )}
                                   </SelectContent>
@@ -515,8 +571,8 @@ export default function Boozelympics() {
                                   // For Baseball Booze, we need to determine the actual team IDs from the selected players
                                   // This will require some logic to map players to teams for scoring
                                   const teamPlayerData = {
-                                    team1Players: [team1Player1Id, team1Player2Id],
-                                    team2Players: [team2Player1Id, team2Player2Id],
+                                    team1Players: [team1Player1Id, team1Player2Id, team1Player3Id, team1Player4Id],
+                                    team2Players: [team2Player1Id, team2Player2Id, team2Player3Id, team2Player4Id],
                                     winnerTeam: winnerTeamId
                                   };
                                   
@@ -544,7 +600,7 @@ export default function Boozelympics() {
                               }}
                               disabled={
                                 game.name === "Baseball Booze" 
-                                  ? (!team1Player1Id || !team1Player2Id || !team2Player1Id || !team2Player2Id || !winnerTeamId || createMatchMutation.isPending)
+                                  ? (!team1Player1Id || !team1Player2Id || !team1Player3Id || !team1Player4Id || !team2Player1Id || !team2Player2Id || !team2Player3Id || !team2Player4Id || !winnerTeamId || createMatchMutation.isPending)
                                   : (!team1Id || !team2Id || !winnerTeamId || createMatchMutation.isPending)
                               }
                               className="flex-1"
