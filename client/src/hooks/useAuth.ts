@@ -18,6 +18,8 @@ export function useAuth() {
       return await res.json();
     },
     onSuccess: () => {
+      // Clear token from localStorage
+      localStorage.removeItem("auth-token");
       // Clear user data from cache
       queryClient.setQueryData(["/api/user"], null);
       // Invalidate all queries to force re-fetch after logout
@@ -28,6 +30,7 @@ export function useAuth() {
     onError: (error) => {
       console.error("Logout error:", error);
       // Even if logout fails, clear local cache and reload
+      localStorage.removeItem("auth-token");
       queryClient.setQueryData(["/api/user"], null);
       queryClient.invalidateQueries();
       window.location.href = "/";

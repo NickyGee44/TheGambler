@@ -38,8 +38,18 @@ export default function AuthPage() {
       const res = await apiRequest("POST", "/api/login", credentials);
       return await res.json();
     },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/user"], user);
+    onSuccess: (data) => {
+      // Store token if provided (fallback authentication)
+      if (data.token) {
+        localStorage.setItem("auth-token", data.token);
+      }
+      
+      // Store user data
+      queryClient.setQueryData(["/api/user"], {
+        id: data.id,
+        firstName: data.firstName,
+        lastName: data.lastName
+      });
     },
     onError: (error: Error) => {
       toast({
@@ -55,8 +65,19 @@ export default function AuthPage() {
       const res = await apiRequest("POST", "/api/register", credentials);
       return await res.json();
     },
-    onSuccess: (user) => {
-      queryClient.setQueryData(["/api/user"], user);
+    onSuccess: (data) => {
+      // Store token if provided (fallback authentication)
+      if (data.token) {
+        localStorage.setItem("auth-token", data.token);
+      }
+      
+      // Store user data
+      queryClient.setQueryData(["/api/user"], {
+        id: data.id,
+        firstName: data.firstName,
+        lastName: data.lastName
+      });
+      
       // Invalidate both player lists to update dropdowns
       queryClient.invalidateQueries({ queryKey: ["/api/players"] });
       queryClient.invalidateQueries({ queryKey: ["/api/registered-players"] });

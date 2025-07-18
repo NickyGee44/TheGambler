@@ -9,11 +9,34 @@ import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema, insertHoleSc
 import { z } from "zod";
 
 // Middleware to check authentication
-function requireAuth(req: any, res: any, next: any) {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ error: 'Authentication required' });
+async function requireAuth(req: any, res: any, next: any) {
+  // First try session-based authentication
+  if (req.isAuthenticated()) {
+    return next();
   }
-  next();
+  
+  // Fallback to token-based authentication
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    const { getUserFromToken } = await import('./auth');
+    const userId = getUserFromToken(token);
+    
+    if (userId) {
+      try {
+        const user = await storage.getUser(userId);
+        if (user) {
+          // Attach user to request for routes that need it
+          req.user = user;
+          return next();
+        }
+      } catch (error) {
+        console.error("Error fetching user by token:", error);
+      }
+    }
+  }
+  
+  return res.status(401).json({ error: 'Authentication required' });
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
