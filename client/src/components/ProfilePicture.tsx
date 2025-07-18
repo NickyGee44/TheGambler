@@ -47,6 +47,10 @@ export default function ProfilePicture({
     "Spencer Reid": spencerreidImg,
     "Sye Ellard": syeellardImg,
     "Will Bibbings": willbibbingsImg,
+    // Keep old names for backward compatibility
+    "Jeff Reiner": jeffreyreinerImg,
+    "Jonathan Magnatta": johnnymagnattaImg,
+    "Will Bibi": willbibbingsImg,
   };
 
   const fullName = `${firstName || ''} ${lastName || ''}`.trim();

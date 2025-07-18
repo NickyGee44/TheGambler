@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Plus, DollarSign, CheckCircle, XCircle, Clock, Bell, AlertTriangle, Users, Vote } from "lucide-react";
 import { SideBet } from "@shared/schema";
 import ProfilePicture from "@/components/ProfilePicture";
+import LoadingPage from "@/components/LoadingPage";
 
 export default function SideBets() {
   const [selectedRound, setSelectedRound] = useState<string>("");
@@ -245,26 +246,7 @@ export default function SideBets() {
   const allPlayers = teams.flatMap((team: any) => [team.player1Name, team.player2Name]);
 
   if (isLoading) {
-    return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-8">
-          {[1, 2, 3].map((round) => (
-            <Card key={round} className="shadow-lg">
-              <CardHeader>
-                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {[...Array(2)].map((_, i) => (
-                    <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
+    return <LoadingPage message="Loading side bets..." fullScreen />;
   }
 
   return (

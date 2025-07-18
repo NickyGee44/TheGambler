@@ -12,6 +12,7 @@ import ProfilePicture from "@/components/ProfilePicture";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { GolfRelay } from "@/components/GolfRelay";
+import LoadingPage from "@/components/LoadingPage";
 
 interface BoozelympicsGame {
   id: number;
@@ -202,28 +203,10 @@ export default function Boozelympics() {
     }
   };
 
-  if (gamesLoading || matchesLoading || leaderboardLoading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <Beer className="h-8 w-8 text-amber-500" />
-          <h1 className="text-3xl font-bold text-foreground">🍻 Boozelympics</h1>
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader>
-                <div className="h-6 bg-muted rounded w-3/4"></div>
-                <div className="h-4 bg-muted rounded w-1/2"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-20 bg-muted rounded"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
+  const isMainLoading = gamesLoading || matchesLoading || leaderboardLoading;
+  
+  if (isMainLoading) {
+    return <LoadingPage message="Loading Boozelympics..." fullScreen />;
   }
 
   return (

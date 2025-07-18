@@ -17,6 +17,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { RefreshCw, Edit, Trophy, Medal, Award, Wifi, WifiOff, Target, Flag, Users } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
 import MockDataGenerator from "@/components/MockDataGenerator";
+import LoadingPage from "@/components/LoadingPage";
 
 export default function Scores() {
   const [selectedTeam, setSelectedTeam] = useState<string>("");
@@ -49,33 +50,33 @@ export default function Scores() {
     refetchInterval: 5000, // Refresh every 5 seconds for live updates
   });
 
-  const { data: teams = [] } = useQuery({
+  const { data: teams = [], isLoading: teamsLoading } = useQuery({
     queryKey: ['/api/teams'],
   });
 
   // Round-specific leaderboards
-  const { data: round1Leaderboard = [] } = useQuery({
+  const { data: round1Leaderboard = [], isLoading: round1Loading } = useQuery({
     queryKey: ['/api/leaderboard', 1],
     refetchInterval: 10000,
   });
 
-  const { data: round2Leaderboard = [] } = useQuery({
+  const { data: round2Leaderboard = [], isLoading: round2Loading } = useQuery({
     queryKey: ['/api/leaderboard', 2],
     refetchInterval: 10000,
   });
 
-  const { data: round3Leaderboard = [] } = useQuery({
+  const { data: round3Leaderboard = [], isLoading: round3Loading } = useQuery({
     queryKey: ['/api/leaderboard', 3],
     refetchInterval: 10000,
   });
 
   // Individual scores for detailed view
-  const { data: round1BetterBall = [] } = useQuery({
+  const { data: round1BetterBall = [], isLoading: round1BetterBallLoading } = useQuery({
     queryKey: ['/api/team-better-ball', 1],
     refetchInterval: 10000,
   });
 
-  const { data: round2Scramble = [] } = useQuery({
+  const { data: round2Scramble = [], isLoading: round2ScrambleLoading } = useQuery({
     queryKey: ['/api/team-scramble', 2],
     refetchInterval: 10000,
   });
@@ -191,21 +192,11 @@ export default function Scores() {
     }
   };
 
-  if (isLoading || scoresLoading) {
-    return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6">
-            <div className="space-y-4">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  // Check if main data is loading
+  const isMainLoading = isLoading || scoresLoading || teamsLoading;
+  
+  if (isMainLoading) {
+    return <LoadingPage message="Loading tournament scores..." fullScreen />;
   }
 
   return (

@@ -64,7 +64,7 @@ const matchupData = [
     foursome: "Foursome 2",
     matchup: "Spencer Reid vs Jeffrey Reiner",
     holes: "1–6",
-    strokes: "Spencer gets 2 strokes from Jeff",
+    strokes: "Spencer gets 2 strokes from Jeffrey",
     player1: "Spencer Reid",
     player2: "Jeffrey Reiner"
   },
@@ -96,7 +96,7 @@ const matchupData = [
     foursome: "Foursome 2",
     matchup: "Jeffrey Reiner vs Erik Boudreau",
     holes: "7–12",
-    strokes: "Erik gets 1 stroke from Jeff",
+    strokes: "Erik gets 1 stroke from Jeffrey",
     player1: "Jeffrey Reiner",
     player2: "Erik Boudreau"
   },
@@ -166,11 +166,11 @@ const matchupData = [
   },
   {
     foursome: "Foursome 4",
-    matchup: "Nick Grossi vs Jonathan Magnatta",
+    matchup: "Nick Grossi vs Johnny Magnatta",
     holes: "7–12",
-    strokes: "Jonathan gives Nick 2 strokes",
+    strokes: "Johnny gives Nick 2 strokes",
     player1: "Nick Grossi",
-    player2: "Jonathan Magnatta"
+    player2: "Johnny Magnatta"
   },
   {
     foursome: "Foursome 4",
@@ -182,11 +182,11 @@ const matchupData = [
   },
   {
     foursome: "Foursome 4",
-    matchup: "Nick Cook vs Jonathan Magnatta",
+    matchup: "Nick Cook vs Johnny Magnatta",
     holes: "1–6",
     strokes: "No strokes given",
     player1: "Nick Cook",
-    player2: "Jonathan Magnatta"
+    player2: "Johnny Magnatta"
   },
   {
     foursome: "Foursome 4",
@@ -198,10 +198,10 @@ const matchupData = [
   },
   {
     foursome: "Foursome 4",
-    matchup: "Jonathan Magnatta vs Austin Hassani",
+    matchup: "Johnny Magnatta vs Austin Hassani",
     holes: "13–18",
-    strokes: "Austin gets 2 strokes from Jonathan",
-    player1: "Jonathan Magnatta",
+    strokes: "Austin gets 2 strokes from Johnny",
+    player1: "Johnny Magnatta",
     player2: "Austin Hassani"
   }
 ];
