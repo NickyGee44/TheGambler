@@ -16,6 +16,7 @@ import { Play, Flag, Trophy, Users, MapPin, Crown, CheckCircle, Star, ChevronDow
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import ProfilePicture from "@/components/ProfilePicture";
+import ScoreIndicator from "@/components/ScoreIndicator";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
 
@@ -61,13 +62,11 @@ function PlayerHoleScores({ playerId, round }: { playerId: number; round: number
             <div className="font-medium text-muted-foreground">
               {score.hole}
             </div>
-            <div className={`font-bold ${
-              score.netScore < 0 ? 'text-green-600' : 
-              score.netScore === 0 ? 'text-blue-600' : 
-              score.netScore === 1 ? 'text-yellow-600' : 'text-red-600'
-            }`}>
-              {score.strokes}
-            </div>
+            <ScoreIndicator 
+              strokes={score.strokes} 
+              par={score.par} 
+              size="sm"
+            />
             <div className="text-xs text-muted-foreground">
               {score.points}pt
             </div>

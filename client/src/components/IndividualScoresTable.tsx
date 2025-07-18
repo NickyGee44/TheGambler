@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import ProfilePicture from "@/components/ProfilePicture";
+import ScoreIndicator from "@/components/ScoreIndicator";
 
 interface IndividualScoresTableProps {
   holeScores: any[];
@@ -25,7 +26,10 @@ export default function IndividualScoresTable({ holeScores, round, format }: Ind
         totalScore: 0
       };
     }
-    acc[key].holes[score.hole] = score.strokes;
+    acc[key].holes[score.hole] = {
+      strokes: score.strokes,
+      par: score.par || 4
+    };
     acc[key].totalScore += score.strokes || 0;
     return acc;
   }, {});
@@ -92,13 +96,26 @@ export default function IndividualScoresTable({ holeScores, round, format }: Ind
                   <td className="px-2 py-2">
                     <span className="text-xs">Team {player.team?.teamNumber || 'N/A'}</span>
                   </td>
-                  {holes.map(hole => (
-                    <td key={hole} className="px-1 py-2 text-center text-xs">
-                      <span className={`${player.holes[hole] ? 'font-medium' : 'text-gray-400'}`}>
-                        {player.holes[hole] || '-'}
-                      </span>
-                    </td>
-                  ))}
+                  {holes.map(hole => {
+                    const holeData = player.holes[hole];
+                    if (!holeData) {
+                      return (
+                        <td key={hole} className="px-1 py-2 text-center text-xs">
+                          <span className="text-gray-400">-</span>
+                        </td>
+                      );
+                    }
+                    
+                    return (
+                      <td key={hole} className="px-1 py-2 text-center">
+                        <ScoreIndicator 
+                          strokes={holeData.strokes} 
+                          par={holeData.par} 
+                          size="sm"
+                        />
+                      </td>
+                    );
+                  })}
                   <td className="px-2 py-2 text-center font-bold text-golf-green-600 text-xs">
                     {player.totalScore || '-'}
                   </td>
