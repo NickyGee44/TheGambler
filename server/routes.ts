@@ -224,6 +224,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const scores = await storage.getCalculatedScores();
       res.json(scores);
     } catch (error) {
+      console.error('Error fetching calculated scores:', error);
       res.status(500).json({ error: 'Failed to fetch scores' });
     }
   });
@@ -234,6 +235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const liveScores = await storage.getLiveScores();
       res.json(liveScores);
     } catch (error) {
+      console.error('Error fetching live scores:', error);
       res.status(500).json({ error: 'Failed to fetch live scores' });
     }
   });

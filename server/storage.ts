@@ -56,6 +56,7 @@ export interface IStorage {
   
   // Teams
   getTeams(): Promise<Team[]>;
+  getTeam(teamId: number): Promise<Team | undefined>;
   createTeam(team: InsertTeam): Promise<Team>;
   
   // Scores
@@ -891,6 +892,10 @@ export class DatabaseStorage implements IStorage {
 
   async getTeams(): Promise<Team[]> {
     return Array.from(this.teams.values()).sort((a, b) => a.teamNumber - b.teamNumber);
+  }
+
+  async getTeam(teamId: number): Promise<Team | undefined> {
+    return this.teams.get(teamId);
   }
 
   async createTeam(insertTeam: InsertTeam): Promise<Team> {

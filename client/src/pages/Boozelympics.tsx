@@ -70,6 +70,12 @@ export default function Boozelympics() {
   const [team2Id, setTeam2Id] = useState<number>(0);
   const [winnerTeamId, setWinnerTeamId] = useState<number>(0);
   const [notes, setNotes] = useState<string>("");
+  
+  // Baseball Booze specific state (4 players)
+  const [team1Player1Id, setTeam1Player1Id] = useState<number>(0);
+  const [team1Player2Id, setTeam1Player2Id] = useState<number>(0);
+  const [team2Player1Id, setTeam2Player1Id] = useState<number>(0);
+  const [team2Player2Id, setTeam2Player2Id] = useState<number>(0);
 
   const { data: games = [], isLoading: gamesLoading } = useQuery({
     queryKey: ['/api/boozelympics/games'],
@@ -85,6 +91,10 @@ export default function Boozelympics() {
 
   const { data: teams = [] } = useQuery<Team[]>({
     queryKey: ['/api/teams'],
+  });
+
+  const { data: registeredPlayers = [] } = useQuery({
+    queryKey: ['/api/registered-players'],
   });
 
   const createGameMutation = useMutation({
@@ -108,6 +118,11 @@ export default function Boozelympics() {
       setTeam2Id(0);
       setWinnerTeamId(0);
       setNotes("");
+      // Reset Baseball Booze specific state
+      setTeam1Player1Id(0);
+      setTeam1Player2Id(0);
+      setTeam2Player1Id(0);
+      setTeam2Player2Id(0);
     },
   });
 
@@ -337,58 +352,150 @@ export default function Boozelympics() {
                         </div>
                         
                         <div className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <Label>Team 1</Label>
-                              <Select value={team1Id.toString()} onValueChange={(value) => setTeam1Id(parseInt(value))}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select team 1" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {teams.map((team) => (
-                                    <SelectItem key={team.id} value={team.id.toString()}>
-                                      Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                          {/* Baseball Booze requires 4 individual players */}
+                          {game.name === "Baseball Booze" ? (
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label className="font-semibold">Team 1 Players</Label>
+                                  <div className="space-y-2">
+                                    <Select value={team1Player1Id.toString()} onValueChange={(value) => setTeam1Player1Id(parseInt(value))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select player 1" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {registeredPlayers.map((player: any) => (
+                                          <SelectItem key={player.userId} value={player.userId.toString()}>
+                                            {player.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <Select value={team1Player2Id.toString()} onValueChange={(value) => setTeam1Player2Id(parseInt(value))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select player 2" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {registeredPlayers.map((player: any) => (
+                                          <SelectItem key={player.userId} value={player.userId.toString()}>
+                                            {player.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label className="font-semibold">Team 2 Players</Label>
+                                  <div className="space-y-2">
+                                    <Select value={team2Player1Id.toString()} onValueChange={(value) => setTeam2Player1Id(parseInt(value))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select player 1" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {registeredPlayers.map((player: any) => (
+                                          <SelectItem key={player.userId} value={player.userId.toString()}>
+                                            {player.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <Select value={team2Player2Id.toString()} onValueChange={(value) => setTeam2Player2Id(parseInt(value))}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select player 2" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {registeredPlayers.map((player: any) => (
+                                          <SelectItem key={player.userId} value={player.userId.toString()}>
+                                            {player.name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <Label>Winning Team</Label>
+                                <Select value={winnerTeamId.toString()} onValueChange={(value) => setWinnerTeamId(parseInt(value))}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select winning team" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {(team1Player1Id && team1Player2Id) && (
+                                      <SelectItem value="1">
+                                        Team 1: {registeredPlayers.find((p: any) => p.userId === team1Player1Id)?.name} & {registeredPlayers.find((p: any) => p.userId === team1Player2Id)?.name}
+                                      </SelectItem>
+                                    )}
+                                    {(team2Player1Id && team2Player2Id) && (
+                                      <SelectItem value="2">
+                                        Team 2: {registeredPlayers.find((p: any) => p.userId === team2Player1Id)?.name} & {registeredPlayers.find((p: any) => p.userId === team2Player2Id)?.name}
+                                      </SelectItem>
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </div>
-                            
-                            <div>
-                              <Label>Team 2</Label>
-                              <Select value={team2Id.toString()} onValueChange={(value) => setTeam2Id(parseInt(value))}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select team 2" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {teams.map((team) => (
-                                    <SelectItem key={team.id} value={team.id.toString()}>
-                                      Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                          ) : (
+                            /* Standard team vs team interface */
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label>Team 1</Label>
+                                <Select value={team1Id.toString()} onValueChange={(value) => setTeam1Id(parseInt(value))}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select team 1" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {teams.map((team) => (
+                                      <SelectItem key={team.id} value={team.id.toString()}>
+                                        Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              
+                              <div>
+                                <Label>Team 2</Label>
+                                <Select value={team2Id.toString()} onValueChange={(value) => setTeam2Id(parseInt(value))}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select team 2" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {teams.map((team) => (
+                                      <SelectItem key={team.id} value={team.id.toString()}>
+                                        Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </div>
-                          </div>
+                          )}
                           
-                          <div>
-                            <Label>Winner</Label>
-                            <Select value={winnerTeamId.toString()} onValueChange={(value) => setWinnerTeamId(parseInt(value))}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select winner" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {[team1Id, team2Id].filter(Boolean).map((teamId) => {
-                                  const team = teams.find(t => t.id === teamId);
-                                  return team ? (
-                                    <SelectItem key={team.id} value={team.id.toString()}>
-                                      Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
-                                    </SelectItem>
-                                  ) : null;
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                          {/* Winner selection for non-Baseball Booze games */}
+                          {game.name !== "Baseball Booze" && (
+                            <div>
+                              <Label>Winner</Label>
+                              <Select value={winnerTeamId.toString()} onValueChange={(value) => setWinnerTeamId(parseInt(value))}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select winner" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[team1Id, team2Id].filter(Boolean).map((teamId) => {
+                                    const team = teams.find(t => t.id === teamId);
+                                    return team ? (
+                                      <SelectItem key={team.id} value={team.id.toString()}>
+                                        Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
+                                      </SelectItem>
+                                    ) : null;
+                                  })}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
                           
                           <div>
                             <Label>Notes (Optional)</Label>
@@ -404,17 +511,42 @@ export default function Boozelympics() {
                           <div className="flex gap-2">
                             <Button
                               onClick={() => {
-                                createMatchMutation.mutate({
-                                  gameId: game.id,
-                                  team1Id,
-                                  team2Id,
-                                  winnerTeamId,
-                                  points: 3,
-                                  bonusPoints: 0,
-                                  notes: notes || `${game.name} match result`
-                                });
+                                if (game.name === "Baseball Booze") {
+                                  // For Baseball Booze, we need to determine the actual team IDs from the selected players
+                                  // This will require some logic to map players to teams for scoring
+                                  const teamPlayerData = {
+                                    team1Players: [team1Player1Id, team1Player2Id],
+                                    team2Players: [team2Player1Id, team2Player2Id],
+                                    winnerTeam: winnerTeamId
+                                  };
+                                  
+                                  createMatchMutation.mutate({
+                                    gameId: game.id,
+                                    team1Id: null, // Will be determined by server from player mapping
+                                    team2Id: null, // Will be determined by server from player mapping
+                                    winnerTeamId: parseInt(winnerTeamId.toString()),
+                                    points: 3,
+                                    bonusPoints: 0,
+                                    notes: notes || `${game.name} match result`,
+                                    matchData: teamPlayerData
+                                  });
+                                } else {
+                                  createMatchMutation.mutate({
+                                    gameId: game.id,
+                                    team1Id,
+                                    team2Id,
+                                    winnerTeamId,
+                                    points: 3,
+                                    bonusPoints: 0,
+                                    notes: notes || `${game.name} match result`
+                                  });
+                                }
                               }}
-                              disabled={!team1Id || !team2Id || !winnerTeamId || createMatchMutation.isPending}
+                              disabled={
+                                game.name === "Baseball Booze" 
+                                  ? (!team1Player1Id || !team1Player2Id || !team2Player1Id || !team2Player2Id || !winnerTeamId || createMatchMutation.isPending)
+                                  : (!team1Id || !team2Id || !winnerTeamId || createMatchMutation.isPending)
+                              }
                               className="flex-1"
                             >
                               {createMatchMutation.isPending ? 'Saving...' : 'Save Match'}
