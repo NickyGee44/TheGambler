@@ -2,7 +2,85 @@ import { db } from "./db";
 import { holeScores, sideBets, photos, users, teams } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
-// Mock hole scores for all 16 players across 3 rounds
+// Dynamic mock data generator that uses actual teams and users
+async function generateMockHoleScores() {
+  console.log("Fetching actual teams and users from database...");
+  
+  // Get all teams with their players
+  const allTeams = await db.select().from(teams);
+  const allUsers = await db.select().from(users);
+  
+  console.log(`Found ${allTeams.length} teams and ${allUsers.length} users`);
+  
+  // Create user mapping by name
+  const userMap = new Map();
+  allUsers.forEach(user => {
+    const fullName = `${user.firstName} ${user.lastName}`;
+    userMap.set(fullName, user.id);
+  });
+  
+  const pars = [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 3, 4, 5, 4, 4, 3, 4, 5];
+  const mockData = [];
+  
+  // Generate hole scores for each team and player
+  for (const team of allTeams) {
+    const player1Id = userMap.get(team.player1Name);
+    const player2Id = userMap.get(team.player2Name);
+    
+    if (!player1Id || !player2Id) {
+      console.warn(`Could not find user IDs for team ${team.teamNumber}: ${team.player1Name}, ${team.player2Name}`);
+      continue;
+    }
+    
+    // Generate 3 rounds of data for each player
+    for (let round = 1; round <= 3; round++) {
+      for (let hole = 1; hole <= 18; hole++) {
+        // Player 1
+        mockData.push({
+          userId: player1Id,
+          teamId: team.id,
+          round,
+          hole,
+          strokes: Math.floor(Math.random() * 4) + 3, // 3-6 strokes
+          par: pars[hole - 1],
+          handicap: 1,
+          netScore: 0,
+          points: Math.floor(Math.random() * 6) + 1,
+          fairwayInRegulation: Math.random() > 0.4,
+          greenInRegulation: Math.random() > 0.3,
+          putts: Math.floor(Math.random() * 3) + 1,
+          penalties: Math.random() > 0.8 ? 1 : 0,
+          sandSaves: Math.random() > 0.9 ? 1 : 0,
+          upAndDowns: Math.random() > 0.8 ? 1 : 0,
+        });
+        
+        // Player 2
+        mockData.push({
+          userId: player2Id,
+          teamId: team.id,
+          round,
+          hole,
+          strokes: Math.floor(Math.random() * 4) + 3,
+          par: pars[hole - 1],
+          handicap: 1,
+          netScore: 0,
+          points: Math.floor(Math.random() * 6) + 1,
+          fairwayInRegulation: Math.random() > 0.4,
+          greenInRegulation: Math.random() > 0.3,
+          putts: Math.floor(Math.random() * 3) + 1,
+          penalties: Math.random() > 0.8 ? 1 : 0,
+          sandSaves: Math.random() > 0.9 ? 1 : 0,
+          upAndDowns: Math.random() > 0.8 ? 1 : 0,
+        });
+      }
+    }
+  }
+  
+  console.log(`Generated ${mockData.length} hole scores for ${allTeams.length} teams`);
+  return mockData;
+}
+
+// Mock hole scores for all 16 players across 3 rounds (old static version - will be replaced)
 const mockHoleScores = [
   // Round 1 - Nick Grossi (Team 1)
   ...Array.from({ length: 18 }, (_, i) => ({
@@ -89,50 +167,8 @@ export async function generateMockData() {
     // Clear existing hole scores
     await db.delete(holeScores);
     
-    // Generate hole scores for all 16 players across 3 rounds
-    const allMockScores = [];
-    const playerIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-    const teamIds = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
-    
-    for (let round = 1; round <= 3; round++) {
-      for (let playerIndex = 0; playerIndex < playerIds.length; playerIndex++) {
-        const playerId = playerIds[playerIndex];
-        const teamId = teamIds[playerIndex];
-        
-        // Generate 18 holes for this player/round
-        for (let hole = 1; hole <= 18; hole++) {
-          const par = [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 3, 4, 5, 4, 4, 3, 4, 5][hole - 1];
-          const strokes = Math.floor(Math.random() * 5) + 3; // 3-7 strokes
-          const netScore = strokes - par;
-          
-          // Calculate points based on net score
-          let points = 0;
-          if (netScore <= -2) points = 6; // Eagle or better
-          else if (netScore === -1) points = 4; // Birdie
-          else if (netScore === 0) points = 2; // Par
-          else if (netScore === 1) points = 1; // Bogey
-          else points = 0; // Double bogey or worse
-          
-          allMockScores.push({
-            userId: playerId,
-            teamId: teamId,
-            round: round,
-            hole: hole,
-            strokes: strokes,
-            par: par,
-            handicap: 1,
-            netScore: netScore,
-            points: points,
-            fairwayInRegulation: Math.random() > 0.4,
-            greenInRegulation: Math.random() > 0.3,
-            putts: Math.floor(Math.random() * 3) + 1,
-            penalties: Math.random() > 0.8 ? 1 : 0,
-            sandSaves: Math.random() > 0.9 ? 1 : 0,
-            upAndDowns: Math.random() > 0.8 ? 1 : 0,
-          });
-        }
-      }
-    }
+    // Generate dynamic hole scores using actual teams and users
+    const allMockScores = await generateMockHoleScores();
     
     // Insert all hole scores in batches to avoid database limits
     console.log(`Inserting ${allMockScores.length} hole scores...`);

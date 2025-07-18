@@ -322,22 +322,26 @@ export default function Scores() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-6">
-          <TabsTrigger value="overall" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-4 mb-6 h-auto">
+          <TabsTrigger value="overall" className="flex flex-col items-center gap-1 py-3 text-xs">
             <Trophy className="w-4 h-4" />
-            Overall Scores
+            <span className="hidden sm:inline">Overall Scores</span>
+            <span className="sm:hidden">Overall</span>
           </TabsTrigger>
-          <TabsTrigger value="round1" className="flex items-center gap-2">
+          <TabsTrigger value="round1" className="flex flex-col items-center gap-1 py-3 text-xs">
             <Target className="w-4 h-4" />
-            Round 1: Better Ball
+            <span className="hidden sm:inline">Round 1: Better Ball</span>
+            <span className="sm:hidden">Round 1</span>
           </TabsTrigger>
-          <TabsTrigger value="round2" className="flex items-center gap-2">
+          <TabsTrigger value="round2" className="flex flex-col items-center gap-1 py-3 text-xs">
             <Users className="w-4 h-4" />
-            Round 2: Scramble
+            <span className="hidden sm:inline">Round 2: Scramble</span>
+            <span className="sm:hidden">Round 2</span>
           </TabsTrigger>
-          <TabsTrigger value="round3" className="flex items-center gap-2">
+          <TabsTrigger value="round3" className="flex flex-col items-center gap-1 py-3 text-xs">
             <Flag className="w-4 h-4" />
-            Round 3: Match Play
+            <span className="hidden sm:inline">Round 3: Match Play</span>
+            <span className="sm:hidden">Round 3</span>
           </TabsTrigger>
         </TabsList>
 
