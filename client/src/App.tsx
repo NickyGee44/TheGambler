@@ -157,7 +157,7 @@ function Router() {
             <Route path="/tournament-management" component={TournamentManagement} />
             <Route path="/sidebets" component={SideBets} />
             <Route path="/rules" component={Rules} />
-            <Route path="/tournament-rules" component={TournamentRules} />
+    
             <Route path="/photos" component={Photos} />
             <Route path="/round3-matchups" component={Round3Matchups} />
             <Route path="/admin/picture-assignment" component={PictureAssignment} />

@@ -245,6 +245,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Live scores endpoint for real-time standings
+  app.get('/api/live-scores', async (req, res) => {
+    try {
+      const liveScores = await storage.getLiveScores();
+      res.json(liveScores);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch live scores' });
+    }
+  });
+
   app.post('/api/scores', requireAuth, async (req: any, res) => {
     try {
       const { teamId, round, score } = req.body;

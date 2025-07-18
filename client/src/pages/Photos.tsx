@@ -71,6 +71,25 @@ export default function Photos() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file type and size
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select an image file (JPG, PNG, etc.)",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast({
+          title: "File Too Large",
+          description: "Please select an image smaller than 10MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {

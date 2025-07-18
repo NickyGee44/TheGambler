@@ -923,6 +923,99 @@ export class DatabaseStorage implements IStorage {
     return calculatedScores;
   }
 
+  async getLiveScores(): Promise<(Score & { team: Team; currentRoundPoints: number; currentRoundStanding: number; })[]> {
+    // First get the calculated scores
+    const calculatedScores = await this.getCalculatedScores();
+    
+    // Determine current round and add live standings
+    const liveScores = await Promise.all(calculatedScores.map(async (score) => {
+      const currentRoundPoints = await this.getCurrentRoundPoints(score.teamId);
+      const currentRoundStanding = await this.getCurrentRoundStanding(score.teamId);
+      
+      return {
+        ...score,
+        currentRoundPoints,
+        currentRoundStanding,
+      };
+    }));
+    
+    return liveScores;
+  }
+
+  async getCurrentRoundPoints(teamId: number): Promise<number> {
+    // Determine which round is currently active based on hole scores
+    const rounds = [1, 2, 3];
+    let currentRound = 1;
+    
+    // Check which round is in progress
+    for (const round of rounds) {
+      const scores = await db.select().from(holeScores).where(
+        and(eq(holeScores.teamId, teamId), eq(holeScores.round, round))
+      );
+      
+      if (scores.length > 0 && scores.length < 18) {
+        // This round is in progress
+        currentRound = round;
+        break;
+      } else if (scores.length === 18) {
+        // This round is complete, check next round
+        if (round < 3) {
+          currentRound = round + 1;
+        }
+      }
+    }
+    
+    // Calculate projected points for current round based on current position
+    const allTeams = await this.getTeams();
+    const teamCurrentScores = await Promise.all(allTeams.map(async (team) => {
+      const roundPoints = await this.calculateTeamRoundPoints(team.id, currentRound);
+      return {
+        teamId: team.id,
+        points: roundPoints,
+        holesCompleted: await this.getTeamHolesCompleted(team.id, currentRound)
+      };
+    }));
+    
+    // Sort by current round points to determine standings
+    teamCurrentScores.sort((a, b) => b.points - a.points);
+    
+    // Find this team's current position and award points accordingly
+    const teamPosition = teamCurrentScores.findIndex(score => score.teamId === teamId) + 1;
+    const teamData = teamCurrentScores.find(score => score.teamId === teamId);
+    
+    // Award points based on current standing if round is in progress
+    if (teamData && teamData.holesCompleted > 0 && teamData.holesCompleted < 18) {
+      // Award temporary points based on current standing
+      const pointsAwarded = Math.max(1, 10 - teamPosition);
+      return pointsAwarded;
+    }
+    
+    return await this.calculateTeamRoundPoints(teamId, currentRound);
+  }
+
+  async getCurrentRoundStanding(teamId: number): Promise<number> {
+    // Get all teams' current round performance
+    const allTeams = await this.getTeams();
+    const teamScores = await Promise.all(allTeams.map(async (team) => ({
+      teamId: team.id,
+      points: await this.getCurrentRoundPoints(team.id)
+    })));
+    
+    // Sort by points (descending) to get standings
+    teamScores.sort((a, b) => b.points - a.points);
+    
+    // Find this team's position
+    const position = teamScores.findIndex(score => score.teamId === teamId) + 1;
+    return position;
+  }
+
+  async getTeamHolesCompleted(teamId: number, round: number): Promise<number> {
+    const scores = await db.select().from(holeScores).where(
+      and(eq(holeScores.teamId, teamId), eq(holeScores.round, round))
+    );
+    return scores.length;
+  }
+
   private async calculateTeamRoundPoints(teamId: number, round: number): Promise<number> {
     // Get all hole scores for this team and round
     const teamHoleScores = await db.select()

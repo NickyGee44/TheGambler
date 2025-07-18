@@ -122,6 +122,31 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 18, 2025:**
+- **Enhanced Live Scoring System with Real-Time Current Standings:**
+  - Implemented live scoring API endpoint (`/api/live-scores`) that displays current round standings
+  - Added real-time points calculation showing current position during active rounds
+  - Live scores update every 5 seconds displaying temporary standings based on current performance
+  - Teams now show "Current: X pts (#Y)" indicators during active rounds
+  - Enhanced WebSocket integration for instant score updates across all connected clients
+  - Improved Scores page to show live standings alongside completed round scores
+  - Added current round points calculation with position-based temporary scoring
+  - Real-time leaderboard updates during hole-by-hole play with live position tracking
+- **Consolidated Tournament Rules and Enhanced Admin Access:**
+  - Removed redundant TournamentRules.tsx page and consolidated with Rules.tsx
+  - Updated navigation to show single "Rules" menu item instead of separate tournament/course rules
+  - Enhanced admin-only access for tournament management (restricted to Nick Grossi)
+  - Tournament management tab now properly restricted to admin users only
+  - Streamlined rules interface with comprehensive tournament information in one location
+- **Enhanced Photo Upload System with Camera Roll Support:**
+  - Added comprehensive file validation (type checking, 10MB size limit)
+  - Integrated camera roll access with `capture="environment"` attribute for mobile devices
+  - Enhanced photo upload interface with preview functionality and drag-and-drop support
+  - Added proper error handling for invalid file types and oversized images
+  - Improved user experience with clear upload progress indicators
+  - Mobile-optimized photo selection with automatic camera roll access
+  - Enhanced photo gallery display with responsive grid layout and loading states
+
+**July 18, 2025:**
 - **Implemented Complete 4-Group Round 3 Tournament Structure with Corrected Stroke Allocations:**
   - Corrected Round 3 matchup system to reflect official tournament format with 4 groups of 4 players each
   - **Group 1**: Jordan Kreller, Christian Hauck, Connor Patterson, Ben Braun

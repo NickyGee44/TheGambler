@@ -42,8 +42,8 @@ export default function Scores() {
   }, [isAuthenticated, isLoading, toast]);
   
   const { data: scores = [], isLoading: scoresLoading, refetch } = useQuery({
-    queryKey: ['/api/scores'],
-    refetchInterval: 5000, // Refresh every 5 seconds instead of 30
+    queryKey: ['/api/live-scores'],
+    refetchInterval: 5000, // Refresh every 5 seconds for live updates
   });
 
   const { data: teams = [] } = useQuery({
@@ -55,6 +55,7 @@ export default function Scores() {
     onMessage: (data) => {
       if (data.type === 'SCORE_UPDATE' || data.type === 'HOLE_SCORE_UPDATE' || data.type === 'HOLE_STATS_UPDATE') {
         // Force refetch scores immediately
+        queryClient.invalidateQueries({ queryKey: ['/api/live-scores'] });
         queryClient.invalidateQueries({ queryKey: ['/api/scores'] });
         queryClient.invalidateQueries({ queryKey: ['/api/player-stats'] });
         refetch(); // Force immediate refresh
@@ -66,8 +67,8 @@ export default function Scores() {
           });
         } else if (data.type === 'HOLE_SCORE_UPDATE') {
           toast({
-            title: "Hole Score Updated", 
-            description: `Live scoring updated for Round ${data.data.round}`,
+            title: "Live Score Updated", 
+            description: `Current standings updated for Round ${data.data.round}`,
           });
         }
       }
@@ -338,10 +339,17 @@ export default function Scores() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center font-medium">{score.round1 || '-'}</td>
-                    <td className="px-6 py-4 text-center font-medium">{score.round2 || '-'}</td>
-                    <td className="px-6 py-4 text-center font-medium">{score.round3 || '-'}</td>
-                    <td className="px-6 py-4 text-center font-bold text-golf-green-600">{score.totalScore}</td>
+                    <td className="px-6 py-4 text-center font-medium">{score.round1Points || '-'}</td>
+                    <td className="px-6 py-4 text-center font-medium">{score.round2Points || '-'}</td>
+                    <td className="px-6 py-4 text-center font-medium">{score.round3Points || '-'}</td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="font-bold text-golf-green-600">{score.totalPoints}</div>
+                      {score.currentRoundPoints > 0 && (
+                        <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded mt-1">
+                          Current: {score.currentRoundPoints} pts (#{score.currentRoundStanding})
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

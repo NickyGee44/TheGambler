@@ -33,8 +33,7 @@ export default function Navigation() {
     { href: "/scores", label: "Scores", icon: Trophy },
     { href: "/stats", label: "Statistics", icon: BarChart3 },
     { href: "/sidebets", label: "Side Bets", icon: Coins },
-    { href: "/tournament-rules", label: "Tournament Rules", icon: Award },
-    { href: "/rules", label: "Course Rules", icon: BookOpen },
+    { href: "/rules", label: "Rules", icon: BookOpen },
     { href: "/photos", label: "Photos", icon: Camera },
     ...(isAdmin ? [{ href: "/tournament-management", label: "Tournament Management", icon: Settings }] : []),
   ];
