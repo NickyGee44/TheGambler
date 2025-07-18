@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Volleyball, Trophy, Beer } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Volleyball, Trophy, Beer, Database } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const [timeLeft, setTimeLeft] = useState({
@@ -10,6 +14,36 @@ export default function Home() {
     minutes: 0,
     seconds: 0
   });
+
+  const { toast } = useToast();
+
+  const { data: user } = useQuery({
+    queryKey: ['/api/user'],
+    retry: false,
+  });
+
+  const mockDataMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('/api/generate-mock-data', {
+        method: 'POST',
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Mock Data Generated",
+        description: "Tournament data has been generated successfully. Check the leaderboards!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to generate mock data: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const isAdmin = user?.firstName === "Nick" && user?.lastName === "Grossi";
 
   useEffect(() => {
     const targetDate = new Date('2025-08-29T08:00:00').getTime();
@@ -105,6 +139,37 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Admin Mock Data Generation */}
+      {isAdmin && (
+        <div className="bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800">
+          <div className="max-w-6xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-red-800 dark:text-red-200">Admin Tools</h3>
+                <p className="text-sm text-red-600 dark:text-red-400">Generate mock tournament data for testing leaderboards</p>
+              </div>
+              <Button
+                onClick={() => mockDataMutation.mutate()}
+                disabled={mockDataMutation.isPending}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {mockDataMutation.isPending ? (
+                  <>
+                    <Database className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Database className="w-4 h-4 mr-2" />
+                    Generate Mock Data
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tournament Overview */}
       <div className="max-w-6xl mx-auto px-4 py-12">
