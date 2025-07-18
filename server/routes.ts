@@ -255,6 +255,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate mock data endpoint (admin only)
+  app.post('/api/generate-mock-data', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+      
+      // Only allow Nick Grossi and Connor Patterson to generate mock data
+      const allowedUsers = ['Nick Grossi', 'Connor Patterson'];
+      const userName = `${user.firstName} ${user.lastName}`;
+      
+      if (!allowedUsers.includes(userName)) {
+        return res.status(403).json({ error: 'Only Nick Grossi and Connor Patterson can generate mock data' });
+      }
+      
+      const { generateMockData } = await import('./mockData');
+      await generateMockData();
+      
+      res.json({ message: 'Mock data generated successfully' });
+    } catch (error) {
+      console.error('Error generating mock data:', error);
+      res.status(500).json({ error: 'Failed to generate mock data' });
+    }
+  });
+
   app.post('/api/scores', requireAuth, async (req: any, res) => {
     try {
       const { teamId, round, score } = req.body;

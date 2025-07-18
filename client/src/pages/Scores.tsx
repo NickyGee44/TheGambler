@@ -15,6 +15,7 @@ import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { RefreshCw, Edit, Trophy, Medal, Award, Wifi, WifiOff } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
+import MockDataGenerator from "@/components/MockDataGenerator";
 
 export default function Scores() {
   const [selectedTeam, setSelectedTeam] = useState<string>("");
@@ -214,13 +215,15 @@ export default function Scores() {
             </Button>
             {/* Only show edit button for Nick Grossi and Connor Patterson */}
             {user && ((user.firstName === 'Nick' && user.lastName === 'Grossi') || (user.firstName === 'Connor' && user.lastName === 'Patterson')) && (
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-golf-gold-500 hover:bg-golf-gold-600 text-white border-golf-gold-400">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Update Scores
-                  </Button>
-                </DialogTrigger>
+              <>
+                <MockDataGenerator />
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-golf-gold-500 hover:bg-golf-gold-600 text-white border-golf-gold-400">
+                      <Edit className="w-4 h-4 mr-2" />
+                      Update Scores
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle className="text-golf-green-600">Update Score</DialogTitle>
@@ -288,6 +291,7 @@ export default function Scores() {
                   </form>
                 </DialogContent>
               </Dialog>
+              </>
             )}
           </div>
         </div>
