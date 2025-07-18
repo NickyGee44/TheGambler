@@ -309,6 +309,7 @@ export default function Round1() {
                 
                 <TabsContent value="individual" className="space-y-2 mt-4">
                   {individualLeaderboard.map((entry, index) => {
+                    if (!entry.user) return null;
                     const playerId = `${entry.user.firstName}-${entry.user.lastName}`;
                     const isExpanded = expandedPlayer === playerId;
                     return (

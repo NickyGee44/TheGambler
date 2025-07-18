@@ -479,9 +479,9 @@ function BetterBallLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                 <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                   <td className="px-4 py-3">{getRankBadge(entry.position || index + 1)}</td>
                   <td className="px-4 py-3">
-                    <div className="font-medium">Team {entry.team.teamNumber}</div>
+                    <div className="font-medium">Team {entry.team?.teamNumber}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {entry.players.map((p: any) => p.firstName).join(' & ')}
+                      {entry.players?.map((p: any) => p.firstName).join(' & ') || 'Loading...'}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-center font-medium">{entry.totalGrossStrokes || '-'}</td>
@@ -560,9 +560,9 @@ function ScrambleLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                 <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                   <td className="px-4 py-3">{getRankBadge(entry.position || index + 1)}</td>
                   <td className="px-4 py-3">
-                    <div className="font-medium">Team {entry.team.teamNumber}</div>
+                    <div className="font-medium">Team {entry.team?.teamNumber}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {entry.players.map((p: any) => p.firstName).join(' & ')}
+                      {entry.players?.map((p: any) => p.firstName).join(' & ') || 'Loading...'}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-center font-medium">{entry.totalStrokes || '-'}</td>
@@ -643,15 +643,15 @@ function MatchPlayLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <ProfilePicture 
-                        firstName={entry.firstName || entry.user?.firstName} 
-                        lastName={entry.lastName || entry.user?.lastName} 
+                        firstName={entry.firstName || entry.user?.firstName || ''} 
+                        lastName={entry.lastName || entry.user?.lastName || ''} 
                         size="md"
                       />
-                      <span className="font-medium">{entry.firstName || entry.user?.firstName} {entry.lastName || entry.user?.lastName}</span>
+                      <span className="font-medium">{entry.firstName || entry.user?.firstName || 'Unknown'} {entry.lastName || entry.user?.lastName || 'Player'}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm">Team {entry.team?.teamNumber}</span>
+                    <span className="text-sm">Team {entry.team?.teamNumber || 'N/A'}</span>
                   </td>
                   <td className="px-4 py-3 text-center font-medium">{entry.matchesWon || 0}</td>
                   <td className="px-4 py-3 text-center text-sm text-gray-500">{entry.matchesPlayed || 0}</td>
