@@ -85,9 +85,8 @@ function MatchPlayLeaderboard({ leaderboard, currentUser }: {
   leaderboard: MatchPlayLeaderboard[], 
   currentUser: any 
 }) {
-  // Debug logging
-  console.log("MatchPlayLeaderboard - leaderboard data:", leaderboard);
-  console.log("MatchPlayLeaderboard - currentUser:", currentUser);
+  // Debug logging (removing console logs)
+  // console.log("MatchPlayLeaderboard - leaderboard data:", leaderboard);
   
   if (!leaderboard || leaderboard.length === 0) {
     return (
@@ -280,10 +279,8 @@ export default function Round3() {
     refetchInterval: 10000, // Refresh every 10 seconds
   });
 
-  // Debug logging for main component
-  console.log("Round3 - matchPlayLeaderboard:", matchPlayLeaderboard);
-  console.log("Round3 - isLeaderboardLoading:", isLeaderboardLoading);
-  console.log("Round3 - leaderboardError:", leaderboardError);
+  // Debug logging for main component (removing console logs)
+  // console.log("Round3 - matchPlayLeaderboard:", matchPlayLeaderboard);
 
   // Get current match for the player and hole
   const { data: currentMatch } = useQuery({

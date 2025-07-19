@@ -771,16 +771,16 @@ function MatchPlayLeaderboard({ leaderboard }: { leaderboard: any[] }) {
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
               {leaderboard.map((entry: any, index: number) => (
-                <tr key={entry.id || index} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                <tr key={entry.playerId || entry.id || index} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                   <td className="px-4 py-3">{getRankBadge(entry.position || index + 1)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <ProfilePicture 
-                        firstName={entry.firstName || entry.user?.firstName || ''} 
-                        lastName={entry.lastName || entry.user?.lastName || ''} 
+                        firstName={entry.playerName?.split(' ')[0] || entry.firstName || entry.user?.firstName || ''} 
+                        lastName={entry.playerName?.split(' ')[1] || entry.lastName || entry.user?.lastName || ''} 
                         size="md"
                       />
-                      <span className="font-medium">{entry.firstName || entry.user?.firstName || 'Unknown'} {entry.lastName || entry.user?.lastName || 'Player'}</span>
+                      <span className="font-medium">{entry.playerName || `${entry.firstName || entry.user?.firstName || 'Unknown'} ${entry.lastName || entry.user?.lastName || 'Player'}`}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">

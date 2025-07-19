@@ -121,6 +121,16 @@ Preferred communication style: Simple, everyday language.
 
 ### Recent Changes: Latest modifications with dates
 
+**July 19, 2025:**
+- **Fixed Round 3 Leaderboard Display in Scores Page:**
+  - Resolved "Unknown Player" issue in Round 3 match play leaderboard displayed in Scores page tabs
+  - Updated MatchPlayLeaderboard component in Scores.tsx to correctly use `playerName` field from API response
+  - API `/api/leaderboard/3` returns correct data structure with `playerId` and `playerName` fields
+  - Component now properly displays player names by prioritizing `playerName` field over legacy firstName/lastName structure
+  - Fixed ProfilePicture component to correctly split `playerName` into first and last name components
+  - Enhanced match play leaderboard to show player names, match statistics, and team information accurately
+  - All Round 3 leaderboard displays now show actual player names instead of "Unknown Player" fallback text
+
 **July 18, 2025:**
 - **Fixed Team Database Structure and Tab Interface:**
   - Corrected teams database to match proper tournament assignments
