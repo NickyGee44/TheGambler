@@ -54,11 +54,20 @@ export const sideBets = pgTable("side_bets", {
   opponentName: text("opponent_name").notNull(),
   amount: integer("amount").notNull(),
   condition: text("condition").notNull(),
+  // Enhanced preset match options
+  matchType: text("match_type").notNull().default("custom"), // "team", "individual", "custom"
+  scoringType: text("scoring_type"), // "gross", "net_stroke", "net_match" (null for custom)
+  challengerTeamId: integer("challenger_team_id").references(() => teams.id), // Auto-populated for team matches
+  opponentTeamId: integer("opponent_team_id").references(() => teams.id), // Selected for team matches
+  challengerId: integer("challenger_id").references(() => users.id), // Auto-populated for individual matches
+  opponentId: integer("opponent_id").references(() => users.id), // Selected for individual matches
+  // Status and resolution
   status: text("status").default("Pending"), // Pending, Accepted, Declined
   result: text("result").default("Pending"), // Pending, Won, Lost, Push
-  winnerName: text("winner_name"), // Winner decided by witnesses
+  winnerName: text("winner_name"), // Winner decided by witnesses or admin
   witnessVotes: jsonb("witness_votes").default('{}'), // JSON object tracking witness votes
   readyForResolution: boolean("ready_for_resolution").default(false), // True after round is complete
+  resolvedBy: text("resolved_by"), // "witnesses" or "admin"
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

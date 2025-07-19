@@ -22,6 +22,11 @@ export default function SideBets() {
   const [amount, setAmount] = useState<string>("");
   const [condition, setCondition] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // Enhanced preset match options
+  const [matchType, setMatchType] = useState<string>("custom"); // "team", "individual", "custom"
+  const [scoringType, setScoringType] = useState<string>(""); // "gross", "net_stroke", "net_match"
+  const [selectedOpponentTeam, setSelectedOpponentTeam] = useState<string>("");
+  const [selectedOpponentPlayer, setSelectedOpponentPlayer] = useState<string>("");
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -32,6 +37,10 @@ export default function SideBets() {
 
   const { data: teams = [] } = useQuery({
     queryKey: ['/api/teams'],
+  });
+
+  const { data: registeredPlayers = [] } = useQuery({
+    queryKey: ['/api/registered-players'],
   });
 
   // WebSocket for real-time updates
@@ -172,6 +181,10 @@ export default function SideBets() {
     setOpponentName("");
     setAmount("");
     setCondition("");
+    setMatchType("custom");
+    setScoringType("");
+    setSelectedOpponentTeam("");
+    setSelectedOpponentPlayer("");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -179,30 +192,115 @@ export default function SideBets() {
     
     const currentUserName = user ? `${user.firstName} ${user.lastName}` : '';
     
-    if (!selectedRound || !opponentName || !amount || !condition) {
+    // Validation based on match type
+    if (!selectedRound || !amount) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
     }
 
-    if (currentUserName === opponentName) {
-      toast({
-        title: "Error",
-        description: "You cannot challenge yourself",
-        variant: "destructive",
-      });
-      return;
+    let finalOpponentName = opponentName;
+    let finalCondition = condition;
+    
+    // Handle preset match types
+    if (matchType === "team") {
+      if (!selectedOpponentTeam || !scoringType) {
+        toast({
+          title: "Error",
+          description: "Please select opponent team and scoring type",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const currentUserTeam = teams.find(t => t.id === user?.teamId);
+      const opponentTeam = teams.find(t => t.id === parseInt(selectedOpponentTeam));
+      
+      if (currentUserTeam?.id === opponentTeam?.id) {
+        toast({
+          title: "Error",
+          description: "You cannot challenge your own team",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      finalOpponentName = `Team ${opponentTeam?.teamNumber}`;
+      finalCondition = `Team vs Team - ${scoringType.replace('_', ' ').toUpperCase()} - Round ${selectedRound}`;
+    } else if (matchType === "individual") {
+      if (!selectedOpponentPlayer || !scoringType) {
+        toast({
+          title: "Error",
+          description: "Please select opponent player and scoring type",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Check round restrictions for individual matches
+      if (selectedRound === "2") {
+        toast({
+          title: "Error",
+          description: "Individual matches are not available for Round 2 (Better Ball format)",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      finalOpponentName = selectedOpponentPlayer;
+      finalCondition = `Individual - ${scoringType.replace('_', ' ').toUpperCase()} - Round ${selectedRound}`;
+      
+      if (currentUserName === finalOpponentName) {
+        toast({
+          title: "Error",
+          description: "You cannot challenge yourself",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      // Custom match
+      if (!opponentName || !condition) {
+        toast({
+          title: "Error",
+          description: "Please fill in opponent and condition for custom match",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (currentUserName === opponentName) {
+        toast({
+          title: "Error",
+          description: "You cannot challenge yourself",
+          variant: "destructive",
+        });
+        return;
+      }
     }
+
+    // Find team and player IDs for database storage
+    let challengerTeamId = user?.teamId;
+    let opponentTeamId = matchType === "team" ? parseInt(selectedOpponentTeam) : null;
+    let challengerId = user?.id;
+    let opponentId = matchType === "individual" ? 
+      registeredPlayers.find(p => `${p.firstName} ${p.lastName}` === selectedOpponentPlayer)?.userId : null;
 
     createSideBetMutation.mutate({
       round: parseInt(selectedRound),
       betterName: currentUserName,
-      opponentName,
+      opponentName: finalOpponentName,
       amount: parseInt(amount),
-      condition,
+      condition: finalCondition,
+      matchType,
+      scoringType: scoringType || null,
+      challengerTeamId,
+      opponentTeamId,
+      challengerId,
+      opponentId,
     });
   };
 
@@ -263,11 +361,35 @@ export default function SideBets() {
               Place New Bet
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-golf-green-600">Place New Bet</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Match Type Selection */}
+              <div>
+                <Label>Match Type</Label>
+                <Select value={matchType} onValueChange={(value) => {
+                  setMatchType(value);
+                  // Reset dependent fields when match type changes
+                  setOpponentName("");
+                  setSelectedOpponentTeam("");
+                  setSelectedOpponentPlayer("");
+                  setScoringType("");
+                  setCondition("");
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select match type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="team">Team vs Team</SelectItem>
+                    <SelectItem value="individual">Individual Match</SelectItem>
+                    <SelectItem value="custom">Custom Match</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Round Selection */}
               <div>
                 <Label htmlFor="round">Round</Label>
                 <Select value={selectedRound} onValueChange={setSelectedRound}>
@@ -275,40 +397,157 @@ export default function SideBets() {
                     <SelectValue placeholder="Select round" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">Round 1 - Best Ball (Deerhurst)</SelectItem>
+                    <SelectItem value="1">Round 1 - Better Ball (Deerhurst)</SelectItem>
                     <SelectItem value="2">Round 2 - Scramble (Deerhurst)</SelectItem>
-                    <SelectItem value="3">Round 3 - Net Stroke Play (Muskoka Bay)</SelectItem>
+                    <SelectItem value="3">Round 3 - Match Play (Muskoka Bay)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              
+
+              {/* Team Match Interface */}
+              {matchType === "team" && (
+                <>
+                  <div>
+                    <Label>Your Team</Label>
+                    <Input
+                      value={`Team ${teams.find(t => t.id === user?.teamId)?.teamNumber || ''} - ${user?.firstName} ${user?.lastName} & Partner`}
+                      disabled
+                      className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label>Opponent Team</Label>
+                    <Select value={selectedOpponentTeam} onValueChange={setSelectedOpponentTeam}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select opponent team" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teams.filter((team: any) => team.id !== user?.teamId).map((team: any) => (
+                          <SelectItem key={team.id} value={team.id.toString()}>
+                            Team {team.teamNumber} - {team.player1Name} & {team.player2Name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label>Scoring Type</Label>
+                    <Select value={scoringType} onValueChange={setScoringType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select scoring type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {selectedRound === "1" || selectedRound === "2" ? (
+                          <SelectItem value="gross">Gross Score Only</SelectItem>
+                        ) : (
+                          <>
+                            <SelectItem value="gross">Gross Score</SelectItem>
+                            <SelectItem value="net_stroke">Net Stroke Play</SelectItem>
+                            <SelectItem value="net_match">Net Match Play</SelectItem>
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+
+              {/* Individual Match Interface */}
+              {matchType === "individual" && (
+                <>
+                  <div>
+                    <Label>Challenger</Label>
+                    <Input
+                      value={user ? `${user.firstName} ${user.lastName}` : ''}
+                      disabled
+                      className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label>Opponent Player</Label>
+                    <Select value={selectedOpponentPlayer} onValueChange={setSelectedOpponentPlayer}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select opponent player" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {registeredPlayers
+                          .filter((player: any) => player.userId !== user?.id)
+                          .map((player: any) => (
+                            <SelectItem key={player.userId} value={`${player.firstName} ${player.lastName}`}>
+                              {player.firstName} {player.lastName}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {selectedRound !== "2" && (
+                    <div>
+                      <Label>Scoring Type</Label>
+                      <Select value={scoringType} onValueChange={setScoringType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select scoring type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="gross">Gross Score</SelectItem>
+                          <SelectItem value="net_stroke">Net Stroke Play</SelectItem>
+                          {selectedRound === "3" && (
+                            <SelectItem value="net_match">Net Match Play</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Custom Match Interface */}
+              {matchType === "custom" && (
+                <>
+                  <div>
+                    <Label htmlFor="challenger">Challenger</Label>
+                    <Input
+                      id="challenger"
+                      value={user ? `${user.firstName} ${user.lastName}` : ''}
+                      disabled
+                      className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">You are automatically set as the challenger</p>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="opponent">Opponent</Label>
+                    <Select value={opponentName} onValueChange={setOpponentName}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select opponent" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allPlayers.map((player, index) => (
+                          <SelectItem key={index} value={player}>{player}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="condition">Custom Condition</Label>
+                    <Input
+                      id="condition"
+                      value={condition}
+                      onChange={(e) => setCondition(e.target.value)}
+                      placeholder="e.g., Better round score, Most birdies, etc."
+                      className="focus:ring-golf-green-500 focus:border-golf-green-500"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Amount (common for all types) */}
               <div>
-                <Label htmlFor="better">Challenger</Label>
-                <Input
-                  id="better"
-                  value={user ? `${user.firstName} ${user.lastName}` : ''}
-                  disabled
-                  className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-                />
-                <p className="text-xs text-gray-500 mt-1">You are automatically set as the challenger</p>
-              </div>
-              
-              <div>
-                <Label htmlFor="opponent">Opponent</Label>
-                <Select value={opponentName} onValueChange={setOpponentName}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select opponent" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allPlayers.map((player, index) => (
-                      <SelectItem key={index} value={player}>{player}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="amount">Amount</Label>
+                <Label htmlFor="amount">Wager Amount</Label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-3 w-4 h-4 text-gray-500" />
                   <Input
@@ -321,18 +560,8 @@ export default function SideBets() {
                   />
                 </div>
               </div>
-              
-              <div>
-                <Label htmlFor="condition">Condition</Label>
-                <Input
-                  id="condition"
-                  value={condition}
-                  onChange={(e) => setCondition(e.target.value)}
-                  placeholder="Better round score"
-                  className="focus:ring-golf-green-500 focus:border-golf-green-500"
-                />
-              </div>
-              
+
+              {/* Submit/Cancel buttons */}
               <div className="flex space-x-3 pt-4">
                 <Button 
                   type="submit" 

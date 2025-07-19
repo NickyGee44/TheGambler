@@ -1661,7 +1661,14 @@ export class DatabaseStorage implements IStorage {
       const matches = result.rows;
 
       // Calculate points for each player
-      const playerPoints = new Map<number, { user: any; points: number; matchesPlayed: number }>();
+      const playerPoints = new Map<number, { 
+        user: any; 
+        points: number; 
+        matchesPlayed: number;
+        matchesWon: number;
+        matchesTied: number;
+        matchesLost: number;
+      }>();
       
       for (const match of matches) {
         const player1Id = match.player1_id as number;
@@ -1672,46 +1679,64 @@ export class DatabaseStorage implements IStorage {
         const player1User = await this.getUser(player1Id.toString());
         const player2User = await this.getUser(player2Id.toString());
         
-        // Update player 1 points
+        // Update player 1 stats
         if (!playerPoints.has(player1Id)) {
           playerPoints.set(player1Id, {
             user: player1User,
             points: 0,
             matchesPlayed: 0,
+            matchesWon: 0,
+            matchesTied: 0,
+            matchesLost: 0,
           });
         }
         const player1Data = playerPoints.get(player1Id)!;
         if (winnerId === player1Id) {
           player1Data.points += 2; // Win = 2 points
+          player1Data.matchesWon += 1;
         } else if (winnerId === null) {
           player1Data.points += 1; // Tie = 1 point
-        } // Loss = 0 points
+          player1Data.matchesTied += 1;
+        } else {
+          player1Data.matchesLost += 1; // Loss = 0 points
+        }
         player1Data.matchesPlayed += 1;
         
-        // Update player 2 points
+        // Update player 2 stats
         if (!playerPoints.has(player2Id)) {
           playerPoints.set(player2Id, {
             user: player2User,
             points: 0,
             matchesPlayed: 0,
+            matchesWon: 0,
+            matchesTied: 0,
+            matchesLost: 0,
           });
         }
         const player2Data = playerPoints.get(player2Id)!;
         if (winnerId === player2Id) {
           player2Data.points += 2; // Win = 2 points
+          player2Data.matchesWon += 1;
         } else if (winnerId === null) {
           player2Data.points += 1; // Tie = 1 point
-        } // Loss = 0 points
+          player2Data.matchesTied += 1;
+        } else {
+          player2Data.matchesLost += 1; // Loss = 0 points
+        }
         player2Data.matchesPlayed += 1;
       }
 
-      // Convert to leaderboard format
+      // Convert to leaderboard format matching frontend expectations
       return Array.from(playerPoints.values())
         .sort((a, b) => b.points - a.points)
         .map(entry => ({
-          user: entry.user,
-          points: entry.points,
+          playerId: entry.user?.id || 0,
+          playerName: entry.user ? `${entry.user.firstName} ${entry.user.lastName}` : 'Unknown Player',
+          totalPoints: entry.points,
           matchesPlayed: entry.matchesPlayed,
+          matchesWon: entry.matchesWon,
+          matchesTied: entry.matchesTied,
+          matchesLost: entry.matchesLost,
         }));
     } catch (error) {
       console.error('Error fetching match play leaderboard:', error);
