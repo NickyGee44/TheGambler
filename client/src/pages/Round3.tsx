@@ -85,7 +85,11 @@ function MatchPlayLeaderboard({ leaderboard, currentUser }: {
   leaderboard: MatchPlayLeaderboard[], 
   currentUser: any 
 }) {
-  if (leaderboard.length === 0) {
+  // Debug logging
+  console.log("MatchPlayLeaderboard - leaderboard data:", leaderboard);
+  console.log("MatchPlayLeaderboard - currentUser:", currentUser);
+  
+  if (!leaderboard || leaderboard.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -135,13 +139,13 @@ function MatchPlayLeaderboard({ leaderboard, currentUser }: {
                   {index + 1}
                 </div>
                 <ProfilePicture 
-                  firstName={entry.playerName.split(' ')[0]} 
-                  lastName={entry.playerName.split(' ')[1]} 
+                  firstName={entry.playerName?.split(' ')[0] || 'Unknown'} 
+                  lastName={entry.playerName?.split(' ')[1] || ''} 
                   size="md"
                 />
                 <div>
                   <div className="font-semibold">
-                    {entry.playerName}
+                    {entry.playerName || 'Unknown Player'}
                     {entry.playerId === currentUser?.id && (
                       <span className="ml-2 text-xs text-golf-green-600 font-medium">(You)</span>
                     )}
@@ -271,10 +275,15 @@ export default function Round3() {
   });
 
   // Fetch match play leaderboard
-  const { data: matchPlayLeaderboard = [] } = useQuery<MatchPlayLeaderboard[]>({
+  const { data: matchPlayLeaderboard = [], isLoading: isLeaderboardLoading, error: leaderboardError } = useQuery<MatchPlayLeaderboard[]>({
     queryKey: ["/api/match-play/leaderboard"],
     refetchInterval: 10000, // Refresh every 10 seconds
   });
+
+  // Debug logging for main component
+  console.log("Round3 - matchPlayLeaderboard:", matchPlayLeaderboard);
+  console.log("Round3 - isLeaderboardLoading:", isLeaderboardLoading);
+  console.log("Round3 - leaderboardError:", leaderboardError);
 
   // Get current match for the player and hole
   const { data: currentMatch } = useQuery({
