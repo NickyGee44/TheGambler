@@ -85,8 +85,7 @@ function MatchPlayLeaderboard({ leaderboard, currentUser }: {
   leaderboard: MatchPlayLeaderboard[], 
   currentUser: any 
 }) {
-  // Debug logging (removing console logs)
-  // console.log("MatchPlayLeaderboard - leaderboard data:", leaderboard);
+  // Component receives leaderboard data from API
   
   if (!leaderboard || leaderboard.length === 0) {
     return (
@@ -279,8 +278,7 @@ export default function Round3() {
     refetchInterval: 10000, // Refresh every 10 seconds
   });
 
-  // Debug logging for main component (removing console logs)
-  // console.log("Round3 - matchPlayLeaderboard:", matchPlayLeaderboard);
+  // Match play leaderboard data fetched above
 
   // Get current match for the player and hole
   const { data: currentMatch } = useQuery({
@@ -419,7 +417,7 @@ export default function Round3() {
             <CardContent>
               <div className="space-y-2">
                 {leaderboard.map((entry, index) => {
-                  const playerId = `${entry.user.firstName}-${entry.user.lastName}`;
+                  const playerId = `${entry.playerId || entry.user?.firstName || 'player'}-${entry.user?.lastName || entry.playerName || index}`;
                   const isExpanded = expandedPlayer === playerId;
                   return (
                     <Collapsible 
@@ -439,17 +437,17 @@ export default function Round3() {
                               {index + 1}
                             </div>
                             <ProfilePicture 
-                              firstName={entry.user.firstName} 
-                              lastName={entry.user.lastName} 
+                              firstName={entry.playerName?.split(' ')[0] || entry.user?.firstName || 'Unknown'} 
+                              lastName={entry.playerName?.split(' ')[1] || entry.user?.lastName || 'Player'} 
                               size="lg"
                             />
                             <div>
                               <div className="font-semibold">
-                                {entry.user.firstName} {entry.user.lastName}
+                                {entry.playerName || `${entry.user?.firstName || 'Unknown'} ${entry.user?.lastName || 'Player'}`}
                               </div>
                               <div className="text-sm text-muted-foreground flex items-center gap-1">
                                 <Users className="w-3 h-3" />
-                                Team {entry.team.teamNumber}
+                                Team {entry.team?.teamNumber || 'N/A'}
                               </div>
                             </div>
                           </div>
