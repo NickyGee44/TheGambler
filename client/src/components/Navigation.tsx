@@ -36,6 +36,7 @@ export default function Navigation() {
     { href: "/boozelympics", label: "Boozelympics", icon: Beer },
     { href: "/rules", label: "Rules", icon: BookOpen },
     { href: "/photos", label: "Photos", icon: Camera },
+    { href: "/test-round", label: "Test Round", icon: Target }, // TEST ROUND - Circle Pines Borden
     ...(isAdmin ? [{ href: "/tournament-management", label: "Tournament Management", icon: Settings }] : []),
   ];
 

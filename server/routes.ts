@@ -995,6 +995,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // TEST ROUND - Circle Pines Borden Golf Club (SELF-CONTAINED FOR EASY DELETION)
+  
+  // Get test round scores for a user
+  app.get('/api/test-round/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const scores = await storage.getTestRoundScores(parseInt(userId));
+      res.json(scores);
+    } catch (error) {
+      console.error('Error fetching test round scores:', error);
+      res.status(500).json({ error: 'Failed to fetch test round scores' });
+    }
+  });
+
+  // Update test round score with GPS tracking
+  app.put('/api/test-round/:userId/:hole', requireAuth, async (req: any, res) => {
+    try {
+      const { userId, hole } = req.params;
+      const scoreData = req.body;
+      
+      // Verify user can edit their own scores
+      if (req.user.id !== parseInt(userId)) {
+        return res.status(403).json({ error: 'You can only edit your own scores' });
+      }
+      
+      const updatedScore = await storage.updateTestRoundScore(
+        parseInt(userId),
+        parseInt(hole),
+        scoreData
+      );
+      
+      // Broadcast test round update
+      broadcast({
+        type: 'TEST_ROUND_UPDATE',
+        data: {
+          userId: parseInt(userId),
+          hole: parseInt(hole),
+          score: updatedScore
+        }
+      });
+      
+      res.json(updatedScore);
+    } catch (error) {
+      console.error('Error updating test round score:', error);
+      res.status(500).json({ error: 'Failed to update test round score' });
+    }
+  });
+
+  // Delete all test round data (for cleanup)
+  app.delete('/api/test-round/all', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Only allow Nick Grossi and Connor Patterson to delete test data
+      const allowedUsers = ['Nick Grossi', 'Connor Patterson'];
+      const userName = `${user.firstName} ${user.lastName}`;
+      
+      if (!allowedUsers.includes(userName)) {
+        return res.status(403).json({ error: 'Only Nick Grossi and Connor Patterson can delete test round data' });
+      }
+
+      await storage.deleteAllTestRoundScores();
+      
+      broadcast({
+        type: 'TEST_ROUND_CLEARED',
+        data: { message: 'All test round data has been cleared' }
+      });
+      
+      res.json({ success: true, message: 'All test round data deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting test round data:', error);
+      res.status(500).json({ error: 'Failed to delete test round data' });
+    }
+  });
+
   // Match Play API endpoints for Round 3
   app.get('/api/match-play/groups', async (req, res) => {
     try {
