@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useGPS } from '@/hooks/useGPS';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import ProfessionalGolfGPS from '@/components/ProfessionalGolfGPS';
+
 
 // Circle Pines Borden Golf Club course data
 const COURSE_DATA = {
@@ -400,15 +400,27 @@ function HoleView({ hole, holeData, userScore, onScoreUpdate, onNext, onPrevious
                       <span>Accuracy: ±{Math.round(gpsData.accuracy || 0)}m</span>
                     </div>
                     
-                    {/* Professional GPS Map Component */}
-                    <ProfessionalGolfGPS
-                      playerLat={gpsData.lat || 0}
-                      playerLng={gpsData.lng || 0}
-                      holeNumber={hole}
-                      par={holeData.par}
-                      yardage={holeData.yardage}
-                      handicap={holeData.handicap}
-                    />
+                    {/* GPS Location Display */}
+                    <div className="p-4 bg-green-900/20 border border-green-500/20 rounded-lg">
+                      <h4 className="font-semibold text-green-200 mb-2">Course Information</h4>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-green-300">Hole:</span> {hole}
+                        </div>
+                        <div>
+                          <span className="text-green-300">Par:</span> {holeData.par}
+                        </div>
+                        <div>
+                          <span className="text-green-300">Yardage:</span> {holeData.yardage}
+                        </div>
+                        <div>
+                          <span className="text-green-300">Handicap:</span> {holeData.handicap}
+                        </div>
+                      </div>
+                      <div className="mt-3 p-2 bg-green-800/20 rounded text-xs text-green-300">
+                        GPS coordinates recorded: {gpsData.lat?.toFixed(6)}, {gpsData.lng?.toFixed(6)}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-8">
