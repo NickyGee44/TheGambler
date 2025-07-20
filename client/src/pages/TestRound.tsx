@@ -110,8 +110,8 @@ function HoleView({ hole, holeData, userScore, onScoreUpdate, onNext, onPrevious
       strokes: localScore,
       par: holeData.par,
       ...stats,
-      gpsLat: gpsData?.latitude?.toString(),
-      gpsLng: gpsData?.longitude?.toString(),
+      gpsLat: gpsData?.lat?.toString(),
+      gpsLng: gpsData?.lng?.toString(),
       gpsAccuracy: gpsData?.accuracy?.toString(),
     };
     onScoreUpdate(hole, scoreData);
@@ -393,7 +393,7 @@ function HoleView({ hole, holeData, userScore, onScoreUpdate, onNext, onPrevious
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-sm">
                       <Target className="h-4 w-4 text-green-400" />
-                      <span>Location: {gpsData.latitude?.toFixed(6)}, {gpsData.longitude?.toFixed(6)}</span>
+                      <span>Location: {gpsData.lat?.toFixed(6)}, {gpsData.lng?.toFixed(6)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Clock className="h-4 w-4 text-green-400" />
@@ -402,8 +402,8 @@ function HoleView({ hole, holeData, userScore, onScoreUpdate, onNext, onPrevious
                     
                     {/* Professional GPS Map Component */}
                     <ProfessionalGolfGPS
-                      playerLat={gpsData.latitude || 0}
-                      playerLng={gpsData.longitude || 0}
+                      playerLat={gpsData.lat || 0}
+                      playerLng={gpsData.lng || 0}
                       holeNumber={hole}
                       par={holeData.par}
                       yardage={holeData.yardage}
