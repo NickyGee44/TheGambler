@@ -24,7 +24,7 @@ import {
   CheckCircle,
   XCircle
 } from "lucide-react";
-import EnhancedGolfGPS from "./EnhancedGolfGPS";
+import { EnhancedGolfGPS } from "./EnhancedGolfGPS";
 
 
 interface HoleViewProps {
