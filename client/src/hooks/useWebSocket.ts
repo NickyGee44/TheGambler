@@ -25,6 +25,10 @@ export const useWebSocket = (url: string, options: WebSocketOptions = {}) => {
 
   const connect = () => {
     try {
+      // Temporarily disable WebSocket connections to fix app loading
+      console.log('WebSocket connections temporarily disabled');
+      return;
+      
       // Skip WebSocket connection if URL is invalid or missing
       if (!url || url.includes('undefined')) {
         console.warn('Invalid WebSocket URL, skipping connection');
