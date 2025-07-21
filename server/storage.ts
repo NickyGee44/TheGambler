@@ -4,7 +4,7 @@ import {
   scores,
   sideBets,
   photos,
-
+  matchups,
   holeScores,
   tournaments,
   playerTournamentHistory,
@@ -13,14 +13,13 @@ import {
   boozelympicsGames,
   boozelympicsMatches,
   golfRelayMatches,
-  testRoundScores, // TEST ROUND - CIRCLE PINES BORDEN
   type User,
   type InsertUser,
   type Team,
   type Score,
   type SideBet,
   type Photo,
-
+  type Matchup,
   type HoleScore,
   type Tournament,
   type PlayerTournamentHistory,
@@ -29,13 +28,11 @@ import {
   type BoozelympicsGame,
   type BoozelympicsMatch,
   type GolfRelayMatch,
-  type TestRoundScore, // TEST ROUND
-  type InsertTestRoundScore, // TEST ROUND
   type InsertTeam,
   type InsertScore,
   type InsertSideBet,
   type InsertPhoto,
-
+  type InsertMatchup,
   type InsertHoleScore,
   type InsertTournament,
   type InsertPlayerTournamentHistory,
@@ -90,11 +87,10 @@ export interface IStorage {
   getPhotos(): Promise<Photo[]>;
   createPhoto(photo: InsertPhoto): Promise<Photo>;
   
-  // TEST ROUND - Circle Pines Borden Golf Club (SELF-CONTAINED)
-  getTestRoundScores(userId: number): Promise<TestRoundScore[]>;
-  createTestRoundScore(score: InsertTestRoundScore): Promise<TestRoundScore>;
-  updateTestRoundScore(userId: number, hole: number, data: Partial<TestRoundScore>): Promise<TestRoundScore>;
-  deleteAllTestRoundScores(): Promise<void>; // For easy deletion
+  // Matchups
+  getMatchups(): Promise<Matchup[]>;
+  createMatchup(matchup: InsertMatchup): Promise<Matchup>;
+  updateMatchupScore(matchupId: number, player1Score: number, player2Score: number): Promise<Matchup>;
   
   // Match Play (Round 3)
   getMatchPlayGroups(): Promise<MatchPlayGroup[]>;
@@ -1906,52 +1902,6 @@ export class DatabaseStorage implements IStorage {
       if (!b.bestTime) return -1;
       return a.bestTime - b.bestTime;
     });
-  }
-
-  // TEST ROUND - Circle Pines Borden Golf Club (SELF-CONTAINED FOR EASY DELETION)
-  async getTestRoundScores(userId: number): Promise<TestRoundScore[]> {
-    return await db.select().from(testRoundScores)
-      .where(eq(testRoundScores.userId, userId))
-      .orderBy(asc(testRoundScores.hole));
-  }
-
-  async createTestRoundScore(score: InsertTestRoundScore): Promise<TestRoundScore> {
-    const [newScore] = await db.insert(testRoundScores).values(score).returning();
-    return newScore;
-  }
-
-  async updateTestRoundScore(userId: number, hole: number, data: Partial<TestRoundScore>): Promise<TestRoundScore> {
-    const [updatedScore] = await db.update(testRoundScores)
-      .set({ ...data, updatedAt: new Date() })
-      .where(and(eq(testRoundScores.userId, userId), eq(testRoundScores.hole, hole)))
-      .returning();
-    
-    if (!updatedScore) {
-      // Create new score if it doesn't exist
-      const newScore: InsertTestRoundScore = {
-        userId,
-        hole,
-        par: data.par || 4,
-        strokes: data.strokes,
-        gpsLat: data.gpsLat,
-        gpsLng: data.gpsLng,
-        gpsAccuracy: data.gpsAccuracy,
-        fairwayInRegulation: data.fairwayInRegulation,
-        greenInRegulation: data.greenInRegulation,
-        driveDirection: data.driveDirection,
-        putts: data.putts,
-        penalties: data.penalties,
-        sandSaves: data.sandSaves,
-        upAndDowns: data.upAndDowns,
-      };
-      return await this.createTestRoundScore(newScore);
-    }
-    
-    return updatedScore;
-  }
-
-  async deleteAllTestRoundScores(): Promise<void> {
-    await db.delete(testRoundScores);
   }
 }
 

@@ -180,29 +180,6 @@ export const playerTournamentHistory = pgTable("player_tournament_history", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// TEST ROUND - Circle Pines Borden Golf Club (SELF-CONTAINED FOR EASY DELETION)
-export const testRoundScores = pgTable("test_round_scores", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  hole: integer("hole").notNull(), // 1-18
-  par: integer("par").notNull().default(4),
-  strokes: integer("strokes"),
-  // GPS tracking for test round
-  gpsLat: text("gps_lat"), // Player's GPS location when score was recorded
-  gpsLng: text("gps_lng"),
-  gpsAccuracy: text("gps_accuracy"),
-  // Enhanced golf statistics tracking
-  fairwayInRegulation: boolean("fairway_in_regulation"),
-  greenInRegulation: boolean("green_in_regulation").default(false),
-  driveDirection: varchar("drive_direction", { length: 10 }),
-  putts: integer("putts").default(0),
-  penalties: integer("penalties").default(0),
-  sandSaves: integer("sand_saves").default(0),
-  upAndDowns: integer("up_and_downs").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
 export const insertTeamSchema = createInsertSchema(teams).omit({
   id: true,
   createdAt: true,
@@ -258,13 +235,6 @@ export const insertPlayerTournamentHistorySchema = createInsertSchema(playerTour
   updatedAt: true,
 });
 
-// Test Round Schema - SELF-CONTAINED FOR CIRCLE PINES BORDEN
-export const insertTestRoundScoreSchema = createInsertSchema(testRoundScores).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Team = typeof teams.$inferSelect;
@@ -285,10 +255,6 @@ export type Tournament = typeof tournaments.$inferSelect;
 export type InsertTournament = z.infer<typeof insertTournamentSchema>;
 export type PlayerTournamentHistory = typeof playerTournamentHistory.$inferSelect;
 export type InsertPlayerTournamentHistory = z.infer<typeof insertPlayerTournamentHistorySchema>;
-
-// Test Round Types - SELF-CONTAINED FOR CIRCLE PINES BORDEN
-export type InsertTestRoundScore = z.infer<typeof insertTestRoundScoreSchema>;
-export type TestRoundScore = typeof testRoundScores.$inferSelect;
 
 // Boozelympics tables
 export const boozelympicsGames = pgTable("boozelympics_games", {

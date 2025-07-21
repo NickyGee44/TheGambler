@@ -22,7 +22,6 @@ import Round3 from "@/pages/Round3";
 import Round3Matchups from "@/pages/Round3Matchups";
 import AuthPage from "@/pages/AuthPage";
 import PictureAssignment from "@/pages/PictureAssignment";
-import TestRound from "@/pages/TestRound"; // TEST ROUND - Circle Pines Borden
 import NotFound from "@/pages/not-found";
 import UpdateNotification from "@/components/UpdateNotification";
 import BirdieNotification from "@/components/BirdieNotification";
@@ -161,7 +160,6 @@ function Router() {
             <Route path="/rules" component={Rules} />
     
             <Route path="/photos" component={Photos} />
-            <Route path="/test-round" component={TestRound} />
             <Route path="/round3-matchups" component={Round3Matchups} />
             <Route path="/admin/picture-assignment" component={PictureAssignment} />
           </>
