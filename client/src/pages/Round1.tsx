@@ -460,7 +460,7 @@ export default function Round1() {
             </div>
             <CardTitle className="text-2xl text-white">Round 1</CardTitle>
             <CardDescription className="text-gray-300">
-              {course.name} • {course.location}
+              Deerhurst Golf Course • Muskoka, ON
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -469,15 +469,15 @@ export default function Round1() {
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
                   <div className="font-medium text-gray-300">Par</div>
-                  <div className="text-golf-green-400">{course.par}</div>
+                  <div className="text-golf-green-400">72</div>
                 </div>
                 <div>
                   <div className="font-medium text-gray-300">Yardage</div>
-                  <div className="text-golf-green-400">{course.yardage}</div>
+                  <div className="text-golf-green-400">6,847</div>
                 </div>
                 <div>
                   <div className="font-medium text-gray-300">Rating</div>
-                  <div className="text-golf-green-400">{course.rating}</div>
+                  <div className="text-golf-green-400">73.2</div>
                 </div>
               </div>
             </div>
