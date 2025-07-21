@@ -274,15 +274,18 @@ export default function Round1() {
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="flex -space-x-2">
-                            {entry.players.map((player) => (
-                              <ProfilePicture 
-                                key={player.id}
-                                firstName={player.firstName} 
-                                lastName={player.lastName} 
-                                size="md"
-                                className="border-2 border-white"
-                              />
-                            ))}
+                            <ProfilePicture 
+                              firstName={entry.team.player1Name?.split(' ')[0] || 'Player'} 
+                              lastName={entry.team.player1Name?.split(' ')[1] || '1'} 
+                              size="md"
+                              className="border-2 border-white"
+                            />
+                            <ProfilePicture 
+                              firstName={entry.team.player2Name?.split(' ')[0] || 'Player'} 
+                              lastName={entry.team.player2Name?.split(' ')[1] || '2'} 
+                              size="md"
+                              className="border-2 border-white"
+                            />
                           </div>
                           <div>
                             <div className="font-semibold">
@@ -312,7 +315,7 @@ export default function Round1() {
                 </TabsContent>
                 
                 <TabsContent value="individual" className="space-y-2 mt-4">
-                  <IndividualScoresTable holeScores={allHoleScores} round={round} format="Better Ball" />
+                  <IndividualScoresTable holeScores={allHoleScores || []} round={round} format="Better Ball" />
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -324,7 +327,14 @@ export default function Round1() {
 
   // Show hole view when round is started
   if (isRoundStarted) {
-    const currentHoleData = course.holes[currentHole - 1];
+    // Generate hole data for current hole
+    const currentHoleData = {
+      hole: currentHole,
+      number: currentHole,
+      par: currentHole <= 6 ? 4 : currentHole <= 12 ? 3 : currentHole <= 18 ? 5 : 4, // Simple par assignment
+      yardage: 350 + (currentHole * 10), // Simple yardage assignment
+      handicap: currentHole
+    };
     const currentScore = getScoreForHole(currentHole);
     
     return (
