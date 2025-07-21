@@ -1,20 +1,20 @@
 import { useState, useEffect } from 'react';
 
 export interface GPSLocation {
-  lat: number;
-  lng: number;
+  latitude: number;
+  longitude: number;
   accuracy: number;
 }
 
 export interface GPSHook {
-  location: GPSLocation | null;
+  position: GPSLocation | null;
   isLoading: boolean;
   error: string | null;
   requestLocation: () => void;
 }
 
 export const useGPS = (): GPSHook => {
-  const [location, setLocation] = useState<GPSLocation | null>(null);
+  const [position, setPosition] = useState<GPSLocation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,9 +31,9 @@ export const useGPS = (): GPSHook => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         console.log(`GPS Success: Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}`);
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
+        setPosition({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
           accuracy: position.coords.accuracy
         });
         setIsLoading(false);
@@ -77,9 +77,9 @@ export const useGPS = (): GPSHook => {
     if (navigator.geolocation) {
       watchId = navigator.geolocation.watchPosition(
         (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
+          setPosition({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
             accuracy: position.coords.accuracy
           });
         },
@@ -102,7 +102,7 @@ export const useGPS = (): GPSHook => {
   }, []);
 
   return {
-    location,
+    position,
     isLoading,
     error,
     requestLocation

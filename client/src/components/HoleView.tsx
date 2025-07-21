@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { HoleData, calculateDistance } from "@shared/courseData";
+import { HoleData, getCourseForRound } from "@shared/courseData";
 import { 
   Target, 
   MapPin, 
@@ -24,8 +24,8 @@ import {
   CheckCircle,
   XCircle
 } from "lucide-react";
-import ProfessionalGolfGPS from "./ProfessionalGolfGPS";
-import { getCourseForRound } from "@shared/courseData";
+import EnhancedGolfGPS from "./EnhancedGolfGPS";
+
 
 interface HoleViewProps {
   hole: HoleData;
@@ -597,11 +597,10 @@ export default function HoleView({
         {/* GPS Map Tab */}
         {activeTab === 'map' && (
           <div className="mb-6">
-            <ProfessionalGolfGPS 
-              hole={hole} 
-              courseName={courseData.name}
-              courseCenter={courseData.clubhouse}
-              round={round}
+            <EnhancedGolfGPS 
+              hole={hole.hole} 
+              par={hole.par}
+              handicap={hole.handicap}
             />
           </div>
         )}

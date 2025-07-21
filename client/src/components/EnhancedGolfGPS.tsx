@@ -1,212 +1,350 @@
-import { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Loader } from '@googlemaps/js-api-loader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { useGPS } from '@/hooks/useGPS';
-import { useToast } from '@/hooks/use-toast';
-import { HoleData, calculateDistance } from '@shared/courseData';
-import { getTournamentCourses, GolfCourseDetails } from '@shared/golfCourseAPI';
-import { 
-  Navigation, 
-  MapPin, 
-  Flag, 
-  Crosshair, 
-  Target,
-  Info,
-  Loader2
-} from 'lucide-react';
+import { calculateDistanceInYards, getHoleCoordinates } from '@shared/courseData';
+import { MapPin, Target, Navigation, Crosshair } from 'lucide-react';
 
 interface EnhancedGolfGPSProps {
-  hole: HoleData;
-  round: number;
-  courseName: string;
-  courseCenter: { lat: number; lng: number };
+  hole: number;
+  par: number;
+  handicap: number;
 }
 
-export default function EnhancedGolfGPS({ hole, round, courseName, courseCenter }: EnhancedGolfGPSProps) {
-  const { location, isLoading: gpsLoading, error: gpsError, requestLocation } = useGPS();
-  const { toast } = useToast();
-  const [courseDetails, setCourseDetails] = useState<GolfCourseDetails | null>(null);
-  const [isLoadingCourse, setIsLoadingCourse] = useState(false);
+export default function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [userMarker, setUserMarker] = useState<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const [tempMarker, setTempMarker] = useState<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const [teeMarker, setTeeMarker] = useState<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const [greenMarker, setGreenMarker] = useState<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const [courseLine, setCourseLine] = useState<google.maps.Polyline | null>(null);
+  const [tempLine, setTempLine] = useState<google.maps.Polyline | null>(null);
+  const [yardages, setYardages] = useState<{ toGreen: number; toTempMarker?: number }>({ toGreen: 0 });
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
+  
+  const { position, error: gpsError, isLoading } = useGPS();
 
-  // Load course details from Golf Course API
+  // Initialize Google Maps
   useEffect(() => {
-    async function loadCourseDetails() {
-      setIsLoadingCourse(true);
+    const initMap = async () => {
       try {
-        const courses = await getTournamentCourses();
-        const courseData = round === 3 ? courses.muskokaBay : courses.deerhurst;
-        setCourseDetails(courseData);
+        const loader = new Loader({
+          apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+          version: 'weekly',
+          libraries: ['marker']
+        });
+
+        await loader.load();
         
-        if (courseData) {
-          toast({
-            title: "Course Data Loaded",
-            description: `Found ${courseData.club_name} - ${courseData.course_name}`,
-          });
+        if (!mapRef.current) return;
+
+        const holeCoords = getHoleCoordinates(hole);
+        if (!holeCoords.tee || !holeCoords.green) {
+          setMapError('Hole coordinates not found');
+          return;
         }
+
+        // Center map on tee box
+        const mapInstance = new google.maps.Map(mapRef.current, {
+          center: { lat: holeCoords.tee.latitude, lng: holeCoords.tee.longitude },
+          zoom: 17,
+          mapTypeId: google.maps.MapTypeId.SATELLITE,
+          disableDefaultUI: true,
+          zoomControl: true,
+          gestureHandling: 'greedy'
+        });
+
+        setMap(mapInstance);
+        setMapLoaded(true);
+
+        // Add click listener for temporary marker placement
+        mapInstance.addListener('click', (event: google.maps.MapMouseEvent) => {
+          if (event.latLng) {
+            placeTempMarker(event.latLng, mapInstance);
+          }
+        });
+
+        setMapError(null);
       } catch (error) {
-        console.error('Failed to load course details:', error);
-      } finally {
-        setIsLoadingCourse(false);
+        console.error('Maps initialization error:', error);
+        setMapError('Failed to load Google Maps. Please check your API key.');
       }
+    };
+
+    initMap();
+  }, [hole]);
+
+  // Update markers and lines when map is ready
+  useEffect(() => {
+    if (!map || !mapLoaded) return;
+
+    const holeCoords = getHoleCoordinates(hole);
+    if (!holeCoords.tee || !holeCoords.green) return;
+
+    // Clear existing markers and lines
+    clearMarkers();
+
+    // Create tee marker (red triangle)
+    const teeElement = document.createElement('div');
+    teeElement.innerHTML = '🏌️';
+    teeElement.style.fontSize = '24px';
+    teeElement.title = `Hole ${hole} Tee`;
+
+    const teeMarkerInstance = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: holeCoords.tee.latitude, lng: holeCoords.tee.longitude },
+      content: teeElement,
+      title: `Hole ${hole} Tee`
+    });
+    setTeeMarker(teeMarkerInstance);
+
+    // Create green marker (flag)
+    const greenElement = document.createElement('div');
+    greenElement.innerHTML = '🚩';
+    greenElement.style.fontSize = '24px';
+    greenElement.title = `Hole ${hole} Green`;
+
+    const greenMarkerInstance = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: holeCoords.green.latitude, lng: holeCoords.green.longitude },
+      content: greenElement,
+      title: `Hole ${hole} Green`
+    });
+    setGreenMarker(greenMarkerInstance);
+
+    // Draw line from tee to green
+    const line = new google.maps.Polyline({
+      path: [
+        { lat: holeCoords.tee.latitude, lng: holeCoords.tee.longitude },
+        { lat: holeCoords.green.latitude, lng: holeCoords.green.longitude }
+      ],
+      geodesic: true,
+      strokeColor: '#FFFFFF',
+      strokeOpacity: 0.8,
+      strokeWeight: 3,
+      map
+    });
+    setCourseLine(line);
+
+    // Update yardages
+    updateYardages();
+  }, [map, mapLoaded, hole]);
+
+  // Update user location marker
+  useEffect(() => {
+    if (!map || !position) return;
+
+    // Clear existing user marker
+    if (userMarker) {
+      userMarker.map = null;
     }
 
-    loadCourseDetails();
-  }, [round, toast]);
+    // Create user marker (blue dot with crosshairs)
+    const userElement = document.createElement('div');
+    userElement.innerHTML = '📍';
+    userElement.style.fontSize = '20px';
+    userElement.style.filter = 'hue-rotate(200deg)';
+    userElement.title = 'Your Location';
 
-  // Calculate yardage to different green positions
-  const calculateYardage = (targetLat: number, targetLng: number) => {
-    if (!location) return 0;
-    return Math.round(calculateDistance(location.lat, location.lng, targetLat, targetLng) * 1093.61); // Convert km to yards
+    const userMarkerInstance = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: position.latitude, lng: position.longitude },
+      content: userElement,
+      title: 'Your Location'
+    });
+    setUserMarker(userMarkerInstance);
+
+    updateYardages();
+  }, [map, position]);
+
+  const placeTempMarker = (latLng: google.maps.LatLng, mapInstance: google.maps.Map) => {
+    // Remove existing temp marker and line
+    if (tempMarker) {
+      tempMarker.map = null;
+    }
+    if (tempLine) {
+      tempLine.setMap(null);
+    }
+
+    // Create temp marker (target icon)
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = '🎯';
+    tempElement.style.fontSize = '20px';
+    tempElement.title = 'Measurement Point';
+
+    const tempMarkerInstance = new google.maps.marker.AdvancedMarkerElement({
+      map: mapInstance,
+      position: latLng,
+      content: tempElement,
+      title: 'Measurement Point'
+    });
+    setTempMarker(tempMarkerInstance);
+
+    // Draw line from user to temp marker if user location is available
+    if (position) {
+      const line = new google.maps.Polyline({
+        path: [
+          { lat: position.latitude, lng: position.longitude },
+          latLng
+        ],
+        geodesic: true,
+        strokeColor: '#FF4444',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        strokePattern: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4 }, offset: '0', repeat: '20px' }],
+        map: mapInstance
+      });
+      setTempLine(line);
+    }
+
+    updateYardages(latLng);
   };
 
+  const updateYardages = (tempLocation?: google.maps.LatLng) => {
+    if (!position) return;
+
+    const holeCoords = getHoleCoordinates(hole);
+    if (!holeCoords.green) return;
+
+    const toGreen = calculateDistanceInYards(
+      position.latitude,
+      position.longitude,
+      holeCoords.green.latitude,
+      holeCoords.green.longitude
+    );
+
+    let toTempMarker: number | undefined;
+    if (tempLocation) {
+      toTempMarker = calculateDistanceInYards(
+        position.latitude,
+        position.longitude,
+        tempLocation.lat(),
+        tempLocation.lng()
+      );
+    }
+
+    setYardages({ toGreen, toTempMarker });
+  };
+
+  const clearMarkers = () => {
+    if (teeMarker) teeMarker.map = null;
+    if (greenMarker) greenMarker.map = null;
+    if (tempMarker) tempMarker.map = null;
+    if (courseLine) courseLine.setMap(null);
+    if (tempLine) tempLine.setMap(null);
+    setTeeMarker(null);
+    setGreenMarker(null);
+    setTempMarker(null);
+    setCourseLine(null);
+    setTempLine(null);
+  };
+
+  if (mapError) {
+    return (
+      <Card className="w-full h-[400px] flex items-center justify-center">
+        <div className="text-center text-red-600">
+          <MapPin className="w-12 h-12 mx-auto mb-4" />
+          <p>{mapError}</p>
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-4">
       {/* Hole Information Header */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Flag className="h-5 w-5" />
-                Hole {hole.number}
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {courseName} • Par {hole.par} • {hole.yardage} yards
-              </p>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-golf-green-600" />
+              Hole {hole}
+            </span>
+            <div className="flex gap-2">
+              <Badge variant="outline">Par {par}</Badge>
+              <Badge variant="outline">HCP {handicap}</Badge>
             </div>
-            <div className="text-right">
-              <Badge variant="outline">HCP {hole.handicap}</Badge>
-            </div>
-          </div>
+          </CardTitle>
         </CardHeader>
       </Card>
 
-      {/* Course Information */}
-      {courseDetails && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5" />
-              Course Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Course:</span>
-                <span className="text-sm font-medium">{courseDetails.club_name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Location:</span>
-                <span className="text-sm font-medium">
-                  {courseDetails.location.city}, {courseDetails.location.state}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Rating:</span>
-                <span className="text-sm font-medium">{courseDetails.rating}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Slope:</span>
-                <span className="text-sm font-medium">{courseDetails.slope}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* GPS Location Status */}
+      {/* Yardage Display */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            GPS Location
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Status:</span>
-              <div className="flex items-center gap-2">
-                {gpsLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                <Badge variant={location ? "default" : "secondary"}>
-                  {gpsLoading ? "Getting GPS..." : location ? "GPS Active" : "GPS Inactive"}
-                </Badge>
+        <CardContent className="p-4">
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div>
+              <div className="text-2xl font-bold text-golf-green-600">
+                {yardages.toGreen}
+              </div>
+              <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                <Navigation className="w-3 h-3" />
+                To Green Center
               </div>
             </div>
-            
-            {location && (
-              <>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Coordinates:</span>
-                  <span className="text-sm font-mono">
-                    {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
-                  </span>
+            {yardages.toTempMarker && (
+              <div>
+                <div className="text-2xl font-bold text-red-600">
+                  {yardages.toTempMarker}
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Accuracy:</span>
-                  <span className="text-sm">±{Math.round(location.accuracy)} meters</span>
+                <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                  <Crosshair className="w-3 h-3" />
+                  To Target
                 </div>
-              </>
-            )}
-            
-            {gpsError && (
-              <div className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
-                {gpsError}
               </div>
             )}
-            
-            <Button 
-              onClick={requestLocation}
-              disabled={gpsLoading}
-              className="w-full"
-            >
-              <Navigation className="h-4 w-4 mr-2" />
-              {gpsLoading ? "Getting Location..." : "Update GPS Location"}
-            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Course Yardage Information */}
+      {/* GPS Status */}
+      {(isLoading || gpsError) && (
+        <Card>
+          <CardContent className="p-4">
+            {isLoading && (
+              <div className="flex items-center gap-2 text-blue-600">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                Getting GPS location...
+              </div>
+            )}
+            {gpsError && (
+              <div className="text-red-600">
+                GPS Error: {gpsError}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Map Container */}
+      <Card className="overflow-hidden">
+        <div 
+          ref={mapRef} 
+          className="w-full h-[400px] bg-gray-100 flex items-center justify-center"
+        >
+          {!mapLoaded && (
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golf-green-600 mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading satellite imagery...</p>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Instructions */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Flag className="h-5 w-5" />
-            Course Yardages
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                {hole.yardage}
-              </div>
-              <div className="text-sm text-muted-foreground">total hole distance</div>
-            </div>
-            
-            <Separator />
-            
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-              <div className="text-center space-y-2">
-                <div className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                  ⚠️ GPS Distance Calculations Unavailable
-                </div>
-                <div className="text-xs text-yellow-700 dark:text-yellow-300">
-                  Precise hole coordinates are needed for accurate yardage calculations. 
-                  Use course markers and your best judgment for shot distances.
-                </div>
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <div className="text-sm text-muted-foreground">Use course markers for:</div>
-              <div className="text-sm font-medium mt-1">
-                • 150-yard markers • Sprinkler heads • Tee markers
-              </div>
-            </div>
+        <CardContent className="p-4">
+          <div className="text-sm text-muted-foreground space-y-2">
+            <p className="flex items-center gap-2">
+              <Target className="w-4 h-4" />
+              Tap anywhere on the map to measure distance to that point
+            </p>
+            <p className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              🏌️ = Tee Box  •  🚩 = Green Center  •  📍 = Your Location  •  🎯 = Target
+            </p>
           </div>
         </CardContent>
       </Card>

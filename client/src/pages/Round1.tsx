@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HoleView from "@/components/HoleView";
 import Layout from "@/components/Layout";
-import { getCourseForRound } from "@shared/courseData";
+// Course data removed - using simplified GPS system
 import { Play, Flag, Trophy, Users, MapPin, CheckCircle, Star } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -84,7 +84,7 @@ export default function Round1() {
   const { toast } = useToast();
   const [location, navigate] = useLocation();
   const round = 1;
-  const course = getCourseForRound(round);
+  // Course data integrated into GPS component
   
   const [currentHole, setCurrentHole] = useState(1);
   const [isRoundStarted, setIsRoundStarted] = useState(false);
