@@ -48,9 +48,16 @@ export default function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPS
         
         if (!mapRef.current) return;
 
-        const holeCoords = getHoleCoordinates(hole);
-        if (!holeCoords.tee || !holeCoords.green) {
-          setMapError('Hole coordinates not found');
+        let holeCoords;
+        try {
+          holeCoords = getHoleCoordinates(hole);
+          if (!holeCoords || !holeCoords.tee || !holeCoords.green) {
+            setMapError('Hole coordinates not found for hole ' + hole);
+            return;
+          }
+        } catch (error) {
+          console.error('Error getting hole coordinates:', error);
+          setMapError('Unable to load hole coordinates');
           return;
         }
 
@@ -88,8 +95,14 @@ export default function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPS
   useEffect(() => {
     if (!map || !mapLoaded) return;
 
-    const holeCoords = getHoleCoordinates(hole);
-    if (!holeCoords.tee || !holeCoords.green) return;
+    let holeCoords;
+    try {
+      holeCoords = getHoleCoordinates(hole);
+      if (!holeCoords || !holeCoords.tee || !holeCoords.green) return;
+    } catch (error) {
+      console.error('Error getting hole coordinates for markers:', error);
+      return;
+    }
 
     // Clear existing markers and lines
     clearMarkers();
@@ -142,29 +155,33 @@ export default function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPS
 
   // Update user location marker
   useEffect(() => {
-    if (!map || !position) return;
+    try {
+      if (!map || !position) return;
 
-    // Clear existing user marker
-    if (userMarker) {
-      userMarker.map = null;
+      // Clear existing user marker
+      if (userMarker) {
+        userMarker.map = null;
+      }
+
+      // Create user marker (blue dot with crosshairs)
+      const userElement = document.createElement('div');
+      userElement.innerHTML = '📍';
+      userElement.style.fontSize = '20px';
+      userElement.style.filter = 'hue-rotate(200deg)';
+      userElement.title = 'Your Location';
+
+      const userMarkerInstance = new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: { lat: position.latitude, lng: position.longitude },
+        content: userElement,
+        title: 'Your Location'
+      });
+      setUserMarker(userMarkerInstance);
+
+      updateYardages();
+    } catch (error) {
+      console.error('Error updating user location marker:', error);
     }
-
-    // Create user marker (blue dot with crosshairs)
-    const userElement = document.createElement('div');
-    userElement.innerHTML = '📍';
-    userElement.style.fontSize = '20px';
-    userElement.style.filter = 'hue-rotate(200deg)';
-    userElement.title = 'Your Location';
-
-    const userMarkerInstance = new google.maps.marker.AdvancedMarkerElement({
-      map,
-      position: { lat: position.latitude, lng: position.longitude },
-      content: userElement,
-      title: 'Your Location'
-    });
-    setUserMarker(userMarkerInstance);
-
-    updateYardages();
   }, [map, position]);
 
   const placeTempMarker = (latLng: google.maps.LatLng, mapInstance: google.maps.Map) => {
@@ -211,29 +228,33 @@ export default function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPS
   };
 
   const updateYardages = (tempLocation?: google.maps.LatLng) => {
-    if (!position) return;
+    try {
+      if (!position) return;
 
-    const holeCoords = getHoleCoordinates(hole);
-    if (!holeCoords.green) return;
+      const holeCoords = getHoleCoordinates(hole);
+      if (!holeCoords || !holeCoords.green) return;
 
-    const toGreen = calculateDistanceInYards(
-      position.latitude,
-      position.longitude,
-      holeCoords.green.latitude,
-      holeCoords.green.longitude
-    );
-
-    let toTempMarker: number | undefined;
-    if (tempLocation) {
-      toTempMarker = calculateDistanceInYards(
+      const toGreen = calculateDistanceInYards(
         position.latitude,
         position.longitude,
-        tempLocation.lat(),
-        tempLocation.lng()
+        holeCoords.green.latitude,
+        holeCoords.green.longitude
       );
-    }
 
-    setYardages({ toGreen, toTempMarker });
+      let toTempMarker: number | undefined;
+      if (tempLocation) {
+        toTempMarker = calculateDistanceInYards(
+          position.latitude,
+          position.longitude,
+          tempLocation.lat(),
+          tempLocation.lng()
+        );
+      }
+
+      setYardages({ toGreen, toTempMarker });
+    } catch (error) {
+      console.error('Error updating yardages:', error);
+    }
   };
 
   const clearMarkers = () => {
@@ -277,13 +298,23 @@ export default function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPS
           <CardContent className="p-4">
             <div className="text-center">
               <div className="text-3xl font-bold text-golf-green-400 mb-2">
-                {position && holeCoords.green ? 
-                  calculateDistanceInYards(
-                    position.latitude, 
-                    position.longitude, 
-                    holeCoords.green.latitude, 
-                    holeCoords.green.longitude
-                  ) : '---'}
+                {(() => {
+                  try {
+                    const coords = getHoleCoordinates(hole);
+                    if (position && coords && coords.green) {
+                      return calculateDistanceInYards(
+                        position.latitude, 
+                        position.longitude, 
+                        coords.green.latitude, 
+                        coords.green.longitude
+                      );
+                    }
+                    return '---';
+                  } catch (error) {
+                    console.error('GPS calculation error:', error);
+                    return '---';
+                  }
+                })()}
               </div>
               <div className="text-sm text-gray-300 flex items-center justify-center gap-1">
                 <Navigation className="w-4 h-4" />
@@ -311,14 +342,23 @@ export default function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPS
   }
 
   // Always show GPS yardage information even if map fails
-  const holeCoords = getHoleCoordinates(hole);
-  const toGreen = position && holeCoords.green ? 
-    calculateDistanceInYards(
-      position.latitude, 
-      position.longitude, 
-      holeCoords.green.latitude, 
-      holeCoords.green.longitude
-    ) : null;
+  const toGreen = (() => {
+    try {
+      const holeCoords = getHoleCoordinates(hole);
+      if (position && holeCoords && holeCoords.green) {
+        return calculateDistanceInYards(
+          position.latitude, 
+          position.longitude, 
+          holeCoords.green.latitude, 
+          holeCoords.green.longitude
+        );
+      }
+      return null;
+    } catch (error) {
+      console.error('GPS calculation error:', error);
+      return null;
+    }
+  })();
 
   return (
     <div className="w-full space-y-4">
