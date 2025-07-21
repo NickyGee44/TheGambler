@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useGPS } from '@/hooks/useGPS';
 import { calculateDistanceInYards, getHoleCoordinates } from '@shared/courseData';
-import { MapPin, Target, Navigation, Crosshair } from 'lucide-react';
+import { MapPin, Target, Navigation, Crosshair, AlertCircle } from 'lucide-react';
 
 interface EnhancedGolfGPSProps {
   hole: number;
@@ -31,8 +31,15 @@ export default function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPS
   useEffect(() => {
     const initMap = async () => {
       try {
+        // Check if API key is available
+        const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+        if (!apiKey) {
+          setMapError('Google Maps API key not configured. Contact admin to set up GPS functionality.');
+          return;
+        }
+
         const loader = new Loader({
-          apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+          apiKey: apiKey,
           version: 'weekly',
           libraries: ['marker']
         });
@@ -70,7 +77,7 @@ export default function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPS
         setMapError(null);
       } catch (error) {
         console.error('Maps initialization error:', error);
-        setMapError('Failed to load Google Maps. Please check your API key.');
+        setMapError('Google Maps temporarily unavailable. GPS yardage calculations still work below.');
       }
     };
 
@@ -230,67 +237,127 @@ export default function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPS
   };
 
   const clearMarkers = () => {
-    if (teeMarker) teeMarker.map = null;
-    if (greenMarker) greenMarker.map = null;
-    if (tempMarker) tempMarker.map = null;
-    if (courseLine) courseLine.setMap(null);
-    if (tempLine) tempLine.setMap(null);
-    setTeeMarker(null);
-    setGreenMarker(null);
-    setTempMarker(null);
-    setCourseLine(null);
-    setTempLine(null);
+    try {
+      if (teeMarker && teeMarker.map) teeMarker.map = null;
+      if (greenMarker && greenMarker.map) greenMarker.map = null;
+      if (tempMarker && tempMarker.map) tempMarker.map = null;
+      if (courseLine) courseLine.setMap(null);
+      if (tempLine) tempLine.setMap(null);
+      setTeeMarker(null);
+      setGreenMarker(null);
+      setTempMarker(null);
+      setCourseLine(null);
+      setTempLine(null);
+    } catch (error) {
+      console.error('Error clearing markers:', error);
+    }
   };
 
   if (mapError) {
     return (
-      <Card className="w-full h-[400px] flex items-center justify-center">
-        <div className="text-center text-red-600">
-          <MapPin className="w-12 h-12 mx-auto mb-4" />
-          <p>{mapError}</p>
-        </div>
-      </Card>
+      <div className="w-full space-y-4">
+        {/* Show GPS info even when map fails */}
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between text-white">
+              <span className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-golf-green-600" />
+                Hole {hole}
+              </span>
+              <div className="flex gap-2">
+                <Badge variant="outline" className="text-golf-green-400 border-golf-green-400">Par {par}</Badge>
+                <Badge variant="outline" className="text-golf-sand-400 border-golf-sand-400">HCP {handicap}</Badge>
+              </div>
+            </CardTitle>
+          </CardHeader>
+        </Card>
+
+        {/* GPS Yardage - works without map */}
+        <Card className="bg-gray-800 border-gray-700">
+          <CardContent className="p-4">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-golf-green-400 mb-2">
+                {position && holeCoords.green ? 
+                  calculateDistanceInYards(
+                    position.latitude, 
+                    position.longitude, 
+                    holeCoords.green.latitude, 
+                    holeCoords.green.longitude
+                  ) : '---'}
+              </div>
+              <div className="text-sm text-gray-300 flex items-center justify-center gap-1">
+                <Navigation className="w-4 h-4" />
+                Yards to Green Center
+              </div>
+              {!position && (
+                <div className="text-xs text-gray-500 mt-2">
+                  {isLoading ? 'Getting GPS location...' : 'GPS location required for distance'}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Map error message */}
+        <Card className="bg-gray-800 border-gray-700">
+          <CardContent className="p-4 text-center">
+            <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-400" />
+            <p className="text-sm text-red-400">{mapError}</p>
+            <p className="text-xs text-gray-500 mt-1">Yardage calculations work without the map</p>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
+
+  // Always show GPS yardage information even if map fails
+  const holeCoords = getHoleCoordinates(hole);
+  const toGreen = position && holeCoords.green ? 
+    calculateDistanceInYards(
+      position.latitude, 
+      position.longitude, 
+      holeCoords.green.latitude, 
+      holeCoords.green.longitude
+    ) : null;
 
   return (
     <div className="w-full space-y-4">
       {/* Hole Information Header */}
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between text-white">
             <span className="flex items-center gap-2">
               <Target className="w-5 h-5 text-golf-green-600" />
               Hole {hole}
             </span>
             <div className="flex gap-2">
-              <Badge variant="outline">Par {par}</Badge>
-              <Badge variant="outline">HCP {handicap}</Badge>
+              <Badge variant="outline" className="text-golf-green-400 border-golf-green-400">Par {par}</Badge>
+              <Badge variant="outline" className="text-golf-sand-400 border-golf-sand-400">HCP {handicap}</Badge>
             </div>
           </CardTitle>
         </CardHeader>
       </Card>
 
       {/* Yardage Display */}
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardContent className="p-4">
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <div className="text-2xl font-bold text-golf-green-600">
-                {yardages.toGreen}
+              <div className="text-3xl font-bold text-golf-green-400">
+                {toGreen || '---'}
               </div>
-              <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-                <Navigation className="w-3 h-3" />
+              <div className="text-sm text-gray-300 flex items-center justify-center gap-1">
+                <Navigation className="w-4 h-4" />
                 To Green Center
               </div>
             </div>
             {yardages.toTempMarker && (
               <div>
-                <div className="text-2xl font-bold text-red-600">
+                <div className="text-3xl font-bold text-red-400">
                   {yardages.toTempMarker}
                 </div>
-                <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-                  <Crosshair className="w-3 h-3" />
+                <div className="text-sm text-gray-300 flex items-center justify-center gap-1">
+                  <Crosshair className="w-4 h-4" />
                   To Target
                 </div>
               </div>
