@@ -30,6 +30,7 @@ interface FullScreenGPSProps {
   onHoleChange: (newHole: number) => void;
   onShowLeaderboard: () => void;
   currentScore?: number;
+  onScoreUpdate: (strokes: number) => void;
 }
 
 export function FullScreenGPS({ 
@@ -40,7 +41,8 @@ export function FullScreenGPS({
   onClose, 
   onHoleChange, 
   onShowLeaderboard,
-  currentScore 
+  currentScore,
+  onScoreUpdate
 }: FullScreenGPSProps) {
   const { position, isLoading } = useGPS();
   const mapRef = useRef<HTMLDivElement>(null);
@@ -92,26 +94,11 @@ export function FullScreenGPS({
 
   const toTarget = getTargetDistance();
 
-  // Save score mutation
-  const saveScoreMutation = useMutation({
-    mutationFn: async (score: number) => {
-      const response = await fetch(`/api/hole-scores/${round}/${hole}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ strokes: score })
-      });
-      if (!response.ok) throw new Error('Failed to save score');
-      return response.json();
-    },
-    onSuccess: () => {
-      setIsSaving(false);
-      queryClient.invalidateQueries({ queryKey: ['/api/hole-scores', round] });
-      queryClient.invalidateQueries({ queryKey: ['/api/my-hole-scores', round] });
-    },
-    onError: () => {
-      setIsSaving(false);
-    }
-  });
+  // Use the same scoring mechanism as the main Score tab
+  const updateScoreCallback = (score: number) => {
+    setIsSaving(false);
+    onScoreUpdate(score);
+  };
 
   // Initialize Google Maps
   useEffect(() => {
@@ -315,7 +302,7 @@ export function FullScreenGPS({
     }
   };
 
-  // Auto-save score with 2-second delay
+  // Auto-save score with 2-second delay (same as main Score tab)
   const scheduleScoreSave = (score: number) => {
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
@@ -323,7 +310,7 @@ export function FullScreenGPS({
     
     setIsSaving(true);
     saveTimeoutRef.current = setTimeout(() => {
-      saveScoreMutation.mutate(score);
+      updateScoreCallback(score);
     }, 2000);
   };
 
@@ -334,7 +321,7 @@ export function FullScreenGPS({
   };
 
   const handleSaveScore = () => {
-    saveScoreMutation.mutate(selectedScore);
+    updateScoreCallback(selectedScore);
   };
 
   // Update selected score when hole changes
@@ -476,11 +463,11 @@ export function FullScreenGPS({
                     </Button>
                   ))}
                 </div>
-                {/* Auto-save indicator instead of manual save button */}
-                {(isSaving || saveScoreMutation.isPending) && (
+                {/* Auto-save indicator */}
+                {isSaving && (
                   <div className="flex items-center gap-2 text-xs text-golf-green-400">
                     <div className="w-3 h-3 border border-golf-green-400 border-t-transparent rounded-full animate-spin"></div>
-                    <span>{isSaving ? "Auto-saving in 2s..." : "Saving..."}</span>
+                    <span>Auto-saving in 2s...</span>
                   </div>
                 )}
               </div>

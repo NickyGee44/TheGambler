@@ -659,7 +659,8 @@ export default function HoleView({
           par={hole.par}
           handicap={hole.handicap}
           round={round}
-          currentScore={currentScore}
+          currentScore={localScore}
+          onScoreUpdate={updateScore}
           onClose={() => setShowFullScreenGPS(false)}
           onHoleChange={(newHole) => {
             // Keep full screen GPS open when switching holes
