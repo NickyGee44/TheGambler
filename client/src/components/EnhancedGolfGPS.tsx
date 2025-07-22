@@ -17,6 +17,8 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
   const [viewMode, setViewMode] = useState<'yardage' | 'map'>('yardage');
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<any>(null);
+  const [targetMarker, setTargetMarker] = useState<{ lat: number; lng: number } | null>(null);
+  const targetMarkerRef = useRef<any>(null);
 
   // Calculate yardages safely
   const getYardages = () => {
@@ -51,6 +53,25 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
 
   const { toGreen, toTee } = getYardages();
 
+  // Calculate distance to target marker
+  const getTargetDistance = () => {
+    try {
+      if (!position || !targetMarker) return null;
+      
+      return calculateDistanceInYards(
+        position.latitude,
+        position.longitude,
+        targetMarker.lat,
+        targetMarker.lng
+      );
+    } catch (error) {
+      console.error('Target distance calculation error:', error);
+      return null;
+    }
+  };
+
+  const toTarget = getTargetDistance();
+
   // Initialize Google Maps
   useEffect(() => {
     if (viewMode === 'map' && mapRef.current && !googleMapRef.current) {
@@ -58,12 +79,12 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
     }
   }, [viewMode, hole]);
 
-  // Update map when position changes
+  // Update map when position or target changes
   useEffect(() => {
-    if (googleMapRef.current && position) {
+    if (googleMapRef.current && (position || targetMarker)) {
       updateMapMarkers();
     }
-  }, [position]);
+  }, [position, targetMarker]);
 
   const initializeMap = async () => {
     try {
@@ -92,6 +113,14 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
       });
 
       googleMapRef.current = map;
+      
+      // Add click listener for placing target markers
+      map.addListener('click', (event: any) => {
+        const lat = event.latLng.lat();
+        const lng = event.latLng.lng();
+        setTargetMarker({ lat, lng });
+      });
+      
       updateMapMarkers();
     } catch (error) {
       console.error('Error initializing Google Maps:', error);
@@ -117,6 +146,8 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
       const holeCoords = getHoleCoordinates(hole);
       if (!holeCoords) return;
 
+      // Clear existing markers (except we'll manage target marker separately)
+      
       // Use standard Marker instead of AdvancedMarkerElement to avoid domain issues
       // Add tee marker
       if (holeCoords.tee) {
@@ -182,6 +213,46 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
             strokeColor: '#ffffff',
             strokeOpacity: 0.8,
             strokeWeight: 2,
+            map: googleMapRef.current
+          });
+        }
+      }
+
+      // Add target marker if set
+      if (targetMarker) {
+        // Remove previous target marker
+        if (targetMarkerRef.current) {
+          targetMarkerRef.current.setMap(null);
+        }
+
+        // Create new target marker
+        targetMarkerRef.current = new (window as any).google.maps.Marker({
+          map: googleMapRef.current,
+          position: { lat: targetMarker.lat, lng: targetMarker.lng },
+          title: 'Target Location',
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="14" fill="#f59e0b" stroke="white" stroke-width="2"/>
+                <text x="16" y="20" text-anchor="middle" fill="white" font-size="14">🎯</text>
+              </svg>
+            `),
+            scaledSize: new (window as any).google.maps.Size(32, 32)
+          }
+        });
+
+        // Add line from user position to target if user position exists
+        if (position) {
+          new (window as any).google.maps.Polyline({
+            path: [
+              { lat: position.latitude, lng: position.longitude },
+              { lat: targetMarker.lat, lng: targetMarker.lng }
+            ],
+            geodesic: true,
+            strokeColor: '#f59e0b',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            strokeStyle: 'dashed',
             map: googleMapRef.current
           });
         }
@@ -346,7 +417,7 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
                   style={{ minHeight: '320px' }}
                 />
                 {/* Map Overlay - Yardage Display */}
-                {position && (toGreen || toTee) && (
+                {position && (toGreen || toTee || toTarget) && (
                   <div className="absolute top-4 left-4 bg-black/80 text-white px-3 py-2 rounded-lg">
                     <div className="flex gap-4 text-sm">
                       {toGreen && (
@@ -361,7 +432,20 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
                           <span className="font-bold text-golf-sand-400">{toTee}y</span>
                         </div>
                       )}
+                      {toTarget && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-lg">🎯</span>
+                          <span className="font-bold text-amber-400">{toTarget}y</span>
+                        </div>
+                      )}
                     </div>
+                  </div>
+                )}
+                
+                {/* Instructions overlay */}
+                {viewMode === 'map' && !targetMarker && (
+                  <div className="absolute bottom-4 left-4 right-4 bg-black/80 text-white px-3 py-2 rounded-lg text-center">
+                    <div className="text-xs text-gray-300">Tap anywhere on the map to measure distance</div>
                   </div>
                 )}
               </div>
@@ -388,6 +472,14 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-0.5 bg-white rounded"></div>
                   <span className="text-gray-300">Hole Layout</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🎯</span>
+                  <span className="text-gray-300">Target Marker (Tap to Place)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-0.5 bg-amber-400 rounded"></div>
+                  <span className="text-gray-300">Distance to Target</span>
                 </div>
               </div>
             </CardContent>
