@@ -33,6 +33,7 @@ export function FullScreenGPS({
   const googleMapRef = useRef<any>(null);
   const [targetMarker, setTargetMarker] = useState<{ lat: number; lng: number } | null>(null);
   const targetMarkerRef = useRef<any>(null);
+  const targetLineRef = useRef<any>(null);
   const [selectedScore, setSelectedScore] = useState<number>(currentScore || par);
   const queryClient = useQueryClient();
 
@@ -236,9 +237,12 @@ export function FullScreenGPS({
 
       // Add target marker if set
       if (targetMarker) {
-        // Remove previous target marker
+        // Remove previous target marker and line
         if (targetMarkerRef.current) {
           targetMarkerRef.current.setMap(null);
+        }
+        if (targetLineRef.current) {
+          targetLineRef.current.setMap(null);
         }
 
         // Create new target marker
@@ -259,7 +263,7 @@ export function FullScreenGPS({
 
         // Add line from user position to target if user position exists
         if (position) {
-          new (window as any).google.maps.Polyline({
+          targetLineRef.current = new (window as any).google.maps.Polyline({
             path: [
               { lat: position.latitude, lng: position.longitude },
               { lat: targetMarker.lat, lng: targetMarker.lng }

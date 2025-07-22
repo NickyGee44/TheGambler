@@ -19,6 +19,7 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
   const googleMapRef = useRef<any>(null);
   const [targetMarker, setTargetMarker] = useState<{ lat: number; lng: number } | null>(null);
   const targetMarkerRef = useRef<any>(null);
+  const targetLineRef = useRef<any>(null);
 
   // Calculate yardages safely
   const getYardages = () => {
@@ -146,8 +147,11 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
       const holeCoords = getHoleCoordinates(hole);
       if (!holeCoords) return;
 
-      // Clear existing markers (except we'll manage target marker separately)
-      
+      // Clear ALL existing markers and lines on the map
+      googleMapRef.current.data.forEach((feature: any) => {
+        googleMapRef.current.data.remove(feature);
+      });
+
       // Use standard Marker instead of AdvancedMarkerElement to avoid domain issues
       // Add tee marker
       if (holeCoords.tee) {
@@ -241,9 +245,14 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
           }
         });
 
+        // Remove previous target line
+        if (targetLineRef.current) {
+          targetLineRef.current.setMap(null);
+        }
+
         // Add line from user position to target if user position exists
         if (position) {
-          new (window as any).google.maps.Polyline({
+          targetLineRef.current = new (window as any).google.maps.Polyline({
             path: [
               { lat: position.latitude, lng: position.longitude },
               { lat: targetMarker.lat, lng: targetMarker.lng }
@@ -252,7 +261,6 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
             strokeColor: '#f59e0b',
             strokeOpacity: 0.8,
             strokeWeight: 2,
-            strokeStyle: 'dashed',
             map: googleMapRef.current
           });
         }
