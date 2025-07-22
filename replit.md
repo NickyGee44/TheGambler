@@ -137,8 +137,12 @@ Preferred communication style: Simple, everyday language.
   - GPS component now works reliably across all devices and browsers without crashes
   - Added proper loading states and error messages for GPS functionality
   - Fixed server CORS headers to allow external domain access beyond Replit preview
+  - Updated API request handling to use absolute URLs for external domain compatibility
+  - Enhanced service worker to properly handle cross-origin requests for PWA functionality
+  - Re-enabled WebSocket connections with external domain support
+  - Updated PWA manifest with proper golf-themed colors and external domain configuration
+  - Fixed base URL resolution in query client for reliable external browser and PWA access
   - Confirmed stable operation with comprehensive try-catch blocks around all GPS operations
-  - Temporarily disabled WebSocket connections to prevent connection conflicts during development
 
 **July 19, 2025:**
 - **Implemented Advanced GPS Functionality with Google Maps Integration:**

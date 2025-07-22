@@ -25,6 +25,11 @@ self.addEventListener('install', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
+  // Skip cross-origin requests that aren't same-origin
+  if (!url.origin.includes(self.location.origin) && !url.pathname.startsWith('/api/')) {
+    return;
+  }
+  
   // Network-first for HTML pages and API calls
   if (event.request.mode === 'navigate' || url.pathname.startsWith('/api/')) {
     event.respondWith(
