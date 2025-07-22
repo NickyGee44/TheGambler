@@ -598,7 +598,7 @@ export default function HoleView({
         {activeTab === 'map' && (
           <div className="mb-6">
             <EnhancedGolfGPS 
-              hole={hole.hole} 
+              hole={hole.number} 
               par={hole.par}
               handicap={hole.handicap}
             />
