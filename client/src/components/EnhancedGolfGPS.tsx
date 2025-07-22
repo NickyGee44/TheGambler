@@ -71,7 +71,7 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
       const loader = new Loader({
         apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
         version: 'weekly',
-        libraries: ['marker']
+        libraries: ['maps']
       });
 
       await loader.load();
@@ -95,81 +95,103 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
       updateMapMarkers();
     } catch (error) {
       console.error('Error initializing Google Maps:', error);
+      // Show fallback message in map container
+      if (mapRef.current) {
+        mapRef.current.innerHTML = `
+          <div class="w-full h-80 bg-gray-700 rounded-lg flex items-center justify-center text-white">
+            <div class="text-center p-4">
+              <div class="text-lg mb-2">🗺️ Satellite View Unavailable</div>
+              <div class="text-sm text-gray-300">Maps may be restricted on this domain</div>
+              <div class="text-xs text-gray-400 mt-2">Use the Yardages view for GPS data</div>
+            </div>
+          </div>
+        `;
+      }
     }
   };
 
   const updateMapMarkers = () => {
     if (!googleMapRef.current) return;
 
-    // Clear existing markers
-    googleMapRef.current.setOptions({});
+    try {
+      const holeCoords = getHoleCoordinates(hole);
+      if (!holeCoords) return;
 
-    const holeCoords = getHoleCoordinates(hole);
-    if (!holeCoords) return;
-
-    // Add tee marker
-    if (holeCoords.tee) {
-      new (window as any).google.maps.marker.AdvancedMarkerElement({
-        map: googleMapRef.current,
-        position: { lat: holeCoords.tee.latitude, lng: holeCoords.tee.longitude },
-        title: `Hole ${hole} Tee`,
-        content: createMarkerContent('🏌️', '#ef4444')
-      });
-    }
-
-    // Add green marker
-    if (holeCoords.green) {
-      new (window as any).google.maps.marker.AdvancedMarkerElement({
-        map: googleMapRef.current,
-        position: { lat: holeCoords.green.latitude, lng: holeCoords.green.longitude },
-        title: `Hole ${hole} Green`,
-        content: createMarkerContent('🚩', '#10b981')
-      });
-    }
-
-    // Add user position marker
-    if (position) {
-      new (window as any).google.maps.marker.AdvancedMarkerElement({
-        map: googleMapRef.current,
-        position: { lat: position.latitude, lng: position.longitude },
-        title: 'Your Location',
-        content: createMarkerContent('📍', '#3b82f6')
-      });
-
-      // Add line from tee to green
-      if (holeCoords.tee && holeCoords.green) {
-        new (window as any).google.maps.Polyline({
-          path: [
-            { lat: holeCoords.tee.latitude, lng: holeCoords.tee.longitude },
-            { lat: holeCoords.green.latitude, lng: holeCoords.green.longitude }
-          ],
-          geodesic: true,
-          strokeColor: '#ffffff',
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          map: googleMapRef.current
+      // Use standard Marker instead of AdvancedMarkerElement to avoid domain issues
+      // Add tee marker
+      if (holeCoords.tee) {
+        new (window as any).google.maps.Marker({
+          map: googleMapRef.current,
+          position: { lat: holeCoords.tee.latitude, lng: holeCoords.tee.longitude },
+          title: `Hole ${hole} Tee`,
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="14" fill="#ef4444" stroke="white" stroke-width="2"/>
+                <text x="16" y="20" text-anchor="middle" fill="white" font-size="14">🏌️</text>
+              </svg>
+            `),
+            scaledSize: new (window as any).google.maps.Size(32, 32)
+          }
         });
       }
+
+      // Add green marker
+      if (holeCoords.green) {
+        new (window as any).google.maps.Marker({
+          map: googleMapRef.current,
+          position: { lat: holeCoords.green.latitude, lng: holeCoords.green.longitude },
+          title: `Hole ${hole} Green`,
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="14" fill="#10b981" stroke="white" stroke-width="2"/>
+                <text x="16" y="20" text-anchor="middle" fill="white" font-size="14">🚩</text>
+              </svg>
+            `),
+            scaledSize: new (window as any).google.maps.Size(32, 32)
+          }
+        });
+      }
+
+      // Add user position marker
+      if (position) {
+        new (window as any).google.maps.Marker({
+          map: googleMapRef.current,
+          position: { lat: position.latitude, lng: position.longitude },
+          title: 'Your Location',
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="14" fill="#3b82f6" stroke="white" stroke-width="2"/>
+                <text x="16" y="20" text-anchor="middle" fill="white" font-size="14">📍</text>
+              </svg>
+            `),
+            scaledSize: new (window as any).google.maps.Size(32, 32)
+          }
+        });
+
+        // Add line from tee to green
+        if (holeCoords.tee && holeCoords.green) {
+          new (window as any).google.maps.Polyline({
+            path: [
+              { lat: holeCoords.tee.latitude, lng: holeCoords.tee.longitude },
+              { lat: holeCoords.green.latitude, lng: holeCoords.green.longitude }
+            ],
+            geodesic: true,
+            strokeColor: '#ffffff',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            map: googleMapRef.current
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating map markers:', error);
     }
   };
 
-  const createMarkerContent = (emoji: string, color: string) => {
-    const div = document.createElement('div');
-    div.style.cssText = `
-      background: ${color};
-      border: 2px solid white;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    `;
-    div.innerHTML = emoji;
-    return div;
-  };
+
 
   return (
     <div className="w-full space-y-4">
