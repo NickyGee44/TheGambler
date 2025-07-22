@@ -49,7 +49,9 @@ export function FullScreenGPS({
   const targetMarkerRef = useRef<any>(null);
   const targetLineRef = useRef<any>(null);
   const [selectedScore, setSelectedScore] = useState<number>(currentScore || par);
+  const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Calculate yardages
   const getYardages = () => {
@@ -102,8 +104,12 @@ export function FullScreenGPS({
       return response.json();
     },
     onSuccess: () => {
+      setIsSaving(false);
       queryClient.invalidateQueries({ queryKey: ['/api/hole-scores', round] });
       queryClient.invalidateQueries({ queryKey: ['/api/my-hole-scores', round] });
+    },
+    onError: () => {
+      setIsSaving(false);
     }
   });
 
@@ -309,9 +315,41 @@ export function FullScreenGPS({
     }
   };
 
+  // Auto-save score with 2-second delay
+  const scheduleScoreSave = (score: number) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    setIsSaving(true);
+    saveTimeoutRef.current = setTimeout(() => {
+      saveScoreMutation.mutate(score);
+    }, 2000);
+  };
+
+  const updateScore = (score: number) => {
+    if (score < 1) return;
+    setSelectedScore(score);
+    scheduleScoreSave(score);
+  };
+
   const handleSaveScore = () => {
     saveScoreMutation.mutate(selectedScore);
   };
+
+  // Update selected score when hole changes
+  useEffect(() => {
+    setSelectedScore(currentScore || par);
+  }, [currentScore, par, hole]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleNextHole = () => {
     if (hole < 18) {
@@ -427,25 +465,24 @@ export function FullScreenGPS({
                       key={score}
                       variant={selectedScore === score ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setSelectedScore(score)}
-                      className={`w-8 h-8 p-0 text-xs ${
+                      onClick={() => updateScore(score)}
+                      className={`w-8 h-8 p-0 text-xs font-bold transform transition-all ${
                         selectedScore === score 
-                          ? 'bg-golf-green-500 text-white' 
-                          : 'text-white border-gray-600'
+                          ? 'bg-golf-green-500 text-white scale-110 ring-2 ring-white' 
+                          : 'text-white border-gray-600 hover:scale-105'
                       }`}
                     >
                       {score}
                     </Button>
                   ))}
                 </div>
-                <Button 
-                  onClick={handleSaveScore}
-                  disabled={saveScoreMutation.isPending}
-                  className="bg-golf-green-600 hover:bg-golf-green-700 text-white"
-                  size="sm"
-                >
-                  {saveScoreMutation.isPending ? 'Saving...' : 'Save'}
-                </Button>
+                {/* Auto-save indicator instead of manual save button */}
+                {(isSaving || saveScoreMutation.isPending) && (
+                  <div className="flex items-center gap-2 text-xs text-golf-green-400">
+                    <div className="w-3 h-3 border border-golf-green-400 border-t-transparent rounded-full animate-spin"></div>
+                    <span>{isSaving ? "Auto-saving in 2s..." : "Saving..."}</span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

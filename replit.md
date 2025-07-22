@@ -122,6 +122,13 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 22, 2025:**
+- **Enhanced Full-Screen GPS with Auto-Save Score Functionality:**
+  - Added automatic score saving to full-screen GPS with 2-second delay matching main score page behavior
+  - Full-screen GPS now includes score buttons with auto-save functionality identical to main scoring interface
+  - Scores save automatically when changed in full-screen map view without manual save button
+  - Enhanced visual feedback with loading indicators and score button styling matching main interface
+  - Full-screen GPS maintains persistence when switching holes without closing map view
+  - Complete scoring functionality available in both regular score tab and full-screen satellite map
 - **Added Dual-View GPS System with Google Maps Integration:**
   - Enhanced GPS component with toggle between Yardages view and Satellite Map view
   - Integrated Google Maps API with satellite imagery showing actual hole surroundings
