@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HoleView from "@/components/HoleView";
 import MatchPlayView from "@/components/MatchPlayView";
 import Layout from "@/components/Layout";
-// Course data removed - using simplified GPS system
+import { getCourseForRound } from "@shared/courseData";
 import { Play, Flag, Trophy, Users, MapPin, Crown, CheckCircle, Star, ChevronDown, ChevronRight, Target, Zap, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
