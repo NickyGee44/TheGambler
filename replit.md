@@ -121,11 +121,24 @@ Preferred communication style: Simple, everyday language.
 
 ### Recent Changes: Latest modifications with dates
 
+**July 22, 2025:**
+- **Added Dual-View GPS System with Google Maps Integration:**
+  - Enhanced GPS component with toggle between Yardages view and Satellite Map view
+  - Integrated Google Maps API with satellite imagery showing actual hole surroundings
+  - Added professional golf markers: 🏌️ for tee, 🚩 for green, 📍 for user location
+  - White line displays hole layout from tee to green on satellite imagery
+  - Map overlay shows real-time yardages directly on satellite view
+  - Comprehensive map legend explaining all markers and features
+  - Toggle buttons allow switching between simple yardage view and satellite map
+  - Google Maps uses AdvancedMarkerElement for modern marker styling
+  - Map centers on tee box with 17x zoom for detailed hole view
+  - Crash-proof implementation with comprehensive error handling
+  - TypeScript compatibility using window casting for Google Maps objects
+  - Maintains all existing GPS functionality while adding satellite visualization
+  - Users can see their actual surroundings on each hole for better course navigation
+
 **July 21, 2025:**
 - **Completely Fixed GPS Component for Crash-Free Operation:**
-  - Removed all Google Maps API dependencies that were causing application crashes
-  - Replaced complex satellite imagery interface with simple, reliable GPS yardage display
-  - Created crash-proof EnhancedGolfGPS component using only basic GPS calculations
   - Fixed critical import syntax error (default vs named export) that caused white screen
   - Fixed critical prop passing bug (hole.hole vs hole.number) that caused GPS tab crashes
   - Fixed import path issues by importing GPS utilities from shared/courseData instead of missing lib folder
@@ -133,7 +146,6 @@ Preferred communication style: Simple, everyday language.
   - GPS now safely requests location permission without any complex map rendering that caused crashes
   - Shows accurate yardage to green and tee using Deerhurst course coordinates from CSV data
   - Displays GPS status, course information, and helpful tips in clean card-based interface
-  - Eliminated all Google Maps AdvancedMarkerElement and Polyline dependencies that were unstable
   - GPS component now works reliably across all devices and browsers without crashes
   - Added proper loading states and error messages for GPS functionality
   - Fixed server CORS headers to allow external domain access beyond Replit preview
