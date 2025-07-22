@@ -13,6 +13,8 @@ import {
   boozelympicsGames,
   boozelympicsMatches,
   golfRelayMatches,
+  testRoundHoleScores,
+  testRoundConfig,
   type User,
   type InsertUser,
   type Team,
@@ -28,6 +30,8 @@ import {
   type BoozelympicsGame,
   type BoozelympicsMatch,
   type GolfRelayMatch,
+  type TestRoundHoleScore,
+  type TestRoundConfig,
   type InsertTeam,
   type InsertScore,
   type InsertSideBet,
@@ -41,6 +45,8 @@ import {
   type InsertBoozelympicsGame,
   type InsertBoozelympicsMatch,
   type InsertGolfRelayMatch,
+  type InsertTestRoundHoleScore,
+  type InsertTestRoundConfig,
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, asc, or, sql } from "drizzle-orm";
@@ -133,6 +139,14 @@ export interface IStorage {
   getGolfRelayMatches(): Promise<GolfRelayMatch[]>;
   createGolfRelayMatch(match: InsertGolfRelayMatch): Promise<GolfRelayMatch>;
   getGolfRelayLeaderboard(): Promise<any[]>;
+  
+  // Test Round operations
+  getTestRoundHoleScores(userId?: number): Promise<TestRoundHoleScore[]>;
+  createTestRoundHoleScore(holeScore: InsertTestRoundHoleScore): Promise<TestRoundHoleScore>;
+  updateTestRoundHoleScore(userId: number, hole: number, strokes: number): Promise<TestRoundHoleScore>;
+  updateTestRoundHoleScoreStats(userId: number, hole: number, statsData: any): Promise<TestRoundHoleScore>;
+  getTestRoundConfig(): Promise<TestRoundConfig | null>;
+  canAccessTestRound(userId: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1902,6 +1916,87 @@ export class DatabaseStorage implements IStorage {
       if (!b.bestTime) return -1;
       return a.bestTime - b.bestTime;
     });
+  }
+
+  // Test Round operations
+  async getTestRoundHoleScores(userId?: number): Promise<TestRoundHoleScore[]> {
+    const query = db.select().from(testRoundHoleScores).orderBy(asc(testRoundHoleScores.hole));
+    
+    if (userId) {
+      return await query.where(eq(testRoundHoleScores.userId, userId));
+    }
+    
+    return await query;
+  }
+
+  async createTestRoundHoleScore(holeScore: InsertTestRoundHoleScore): Promise<TestRoundHoleScore> {
+    const [newScore] = await db.insert(testRoundHoleScores).values(holeScore).returning();
+    return newScore;
+  }
+
+  async updateTestRoundHoleScore(userId: number, hole: number, strokes: number): Promise<TestRoundHoleScore> {
+    // Get current hole data for par and handicap calculations
+    const lionheadCourse = await import('@shared/courseData');
+    const holeData = lionheadCourse.lionheadCourse.holes.find(h => h.number === hole);
+    const par = holeData?.par || 4;
+    const handicap = holeData?.handicap || 0;
+    
+    // For test round, net score equals strokes (no handicap adjustments)
+    const netScore = strokes;
+    
+    // Calculate gross match play points (1 = win, 0.5 = tie, 0 = loss against par)
+    let points = 0;
+    if (strokes < par) points = 1;
+    else if (strokes === par) points = 0.5;
+
+    // Check if record exists
+    const existing = await db.select().from(testRoundHoleScores)
+      .where(and(eq(testRoundHoleScores.userId, userId), eq(testRoundHoleScores.hole, hole)));
+
+    if (existing.length > 0) {
+      // Update existing record
+      const [updated] = await db.update(testRoundHoleScores)
+        .set({ strokes, netScore, points, par, handicap, updatedAt: new Date() })
+        .where(and(eq(testRoundHoleScores.userId, userId), eq(testRoundHoleScores.hole, hole)))
+        .returning();
+      return updated;
+    } else {
+      // Create new record
+      const [created] = await db.insert(testRoundHoleScores)
+        .values({ userId, hole, strokes, par, handicap, netScore, points })
+        .returning();
+      return created;
+    }
+  }
+
+  async updateTestRoundHoleScoreStats(userId: number, hole: number, statsData: any): Promise<TestRoundHoleScore> {
+    const [updated] = await db.update(testRoundHoleScores)
+      .set({
+        fairwayInRegulation: statsData.fairwayInRegulation,
+        greenInRegulation: statsData.greenInRegulation,
+        driveDirection: statsData.driveDirection,
+        putts: statsData.putts,
+        penalties: statsData.penalties,
+        sandSaves: statsData.sandSaves,
+        upAndDowns: statsData.upAndDowns,
+        updatedAt: new Date()
+      })
+      .where(and(eq(testRoundHoleScores.userId, userId), eq(testRoundHoleScores.hole, hole)))
+      .returning();
+    return updated;
+  }
+
+  async getTestRoundConfig(): Promise<TestRoundConfig | null> {
+    const [config] = await db.select().from(testRoundConfig).where(eq(testRoundConfig.isActive, true));
+    return config || null;
+  }
+
+  async canAccessTestRound(userId: number): Promise<boolean> {
+    const config = await this.getTestRoundConfig();
+    if (!config) return false;
+    
+    const allowedIds = Array.isArray(config.allowedPlayerIds) ? config.allowedPlayerIds : [1, 3, 6, 13];
+    return allowedIds.includes(userId);
   }
 }
 

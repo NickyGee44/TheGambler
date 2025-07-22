@@ -256,6 +256,57 @@ export type InsertTournament = z.infer<typeof insertTournamentSchema>;
 export type PlayerTournamentHistory = typeof playerTournamentHistory.$inferSelect;
 export type InsertPlayerTournamentHistory = z.infer<typeof insertPlayerTournamentHistorySchema>;
 
+// Test Round - For practice/test rounds with specific players
+export const testRoundHoleScores = pgTable("test_round_hole_scores", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  hole: integer("hole").notNull(), // 1-18
+  strokes: integer("strokes").notNull(),
+  par: integer("par").notNull().default(4),
+  handicap: integer("handicap").notNull().default(0),
+  netScore: integer("net_score").notNull(), // strokes - handicap (same as strokes for gross play)
+  points: integer("points").notNull().default(0), // Gross match play points
+  // Golf statistics
+  fairwayInRegulation: boolean("fairway_in_regulation"), // null for par 3s
+  greenInRegulation: boolean("green_in_regulation").notNull().default(false),
+  driveDirection: varchar("drive_direction", { length: 10 }), // 'left', 'right', 'long', 'short', 'duff', 'hit'
+  putts: integer("putts").notNull().default(0),
+  penalties: integer("penalties").notNull().default(0),
+  sandSaves: integer("sand_saves").notNull().default(0),
+  upAndDowns: integer("up_and_downs").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Test Round configuration
+export const testRoundConfig = pgTable("test_round_config", {
+  id: serial("id").primaryKey(),
+  courseName: varchar("course_name").notNull().default("Lionhead Golf Course"),
+  location: varchar("location").notNull().default("Mississauga, Ontario"),
+  roundDate: timestamp("round_date").notNull(),
+  isActive: boolean("is_active").default(true),
+  allowedPlayerIds: jsonb("allowed_player_ids").default('[1, 3, 6, 13]'), // Nick, Erik, Connor, Bailey
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertTestRoundHoleScoreSchema = createInsertSchema(testRoundHoleScores).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTestRoundConfigSchema = createInsertSchema(testRoundConfig).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type TestRoundHoleScore = typeof testRoundHoleScores.$inferSelect;
+export type InsertTestRoundHoleScore = z.infer<typeof insertTestRoundHoleScoreSchema>;
+export type TestRoundConfig = typeof testRoundConfig.$inferSelect;
+export type InsertTestRoundConfig = z.infer<typeof insertTestRoundConfigSchema>;
+
 // Boozelympics tables
 export const boozelympicsGames = pgTable("boozelympics_games", {
   id: serial("id").primaryKey(),

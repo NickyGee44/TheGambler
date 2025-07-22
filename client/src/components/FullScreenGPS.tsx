@@ -64,9 +64,9 @@ export function FullScreenGPS({
       if (!coords) return { toGreen: null, toTee: null };
       
       const toGreen = coords.green ? 
-        calculateDistanceInYards(position.latitude, position.longitude, coords.green.latitude, coords.green.longitude) : null;
+        calculateDistanceInYards(position, coords.green) : null;
       const toTee = coords.tee ? 
-        calculateDistanceInYards(position.latitude, position.longitude, coords.tee.latitude, coords.tee.longitude) : null;
+        calculateDistanceInYards(position, coords.tee) : null;
       
       return { toGreen, toTee };
     } catch (error) {
@@ -82,10 +82,8 @@ export function FullScreenGPS({
       if (!position || !targetMarker) return null;
       
       return calculateDistanceInYards(
-        position.latitude,
-        position.longitude,
-        targetMarker.lat,
-        targetMarker.lng
+        position,
+        { latitude: targetMarker.lat, longitude: targetMarker.lng }
       );
     } catch (error) {
       return null;

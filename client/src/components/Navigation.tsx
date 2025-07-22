@@ -20,9 +20,12 @@ export default function Navigation() {
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 
-  const topTeams = scores?.slice(0, 3) || [];
+  const topTeams = Array.isArray(scores) ? scores.slice(0, 3) : [];
 
   const isAdmin = user && ['Nick Grossi', 'Connor Patterson'].includes(`${user.firstName} ${user.lastName}`);
+  
+  // Check if user can access test round
+  const canAccessTestRound = user && [1, 3, 6, 13].includes(user.id);
   
   const navLinks = [
     { href: "/", label: "Home", icon: Home },
@@ -30,6 +33,7 @@ export default function Navigation() {
     { href: "/round1", label: "Round 1", icon: Target },
     { href: "/round2", label: "Round 2", icon: Target },
     { href: "/round3", label: "Round 3", icon: Target },
+    ...(canAccessTestRound ? [{ href: "/test-round", label: "Test Round", icon: Target }] : []),
     { href: "/scores", label: "Scores", icon: Trophy },
     { href: "/stats", label: "Statistics", icon: BarChart3 },
     { href: "/sidebets", label: "Side Bets", icon: Coins },
@@ -142,7 +146,7 @@ export default function Navigation() {
           <div className="bg-golf-green-50 dark:bg-slate-700 p-4 rounded-lg">
             <h3 className="font-semibold text-sm mb-3 text-golf-green-600">Live Leaderboard</h3>
             <div className="space-y-2 text-sm">
-              {topTeams.map((score, index) => (
+              {topTeams.map((score: any, index: number) => (
                 <div key={score.id} className="flex justify-between items-center">
                   <span className="font-medium flex items-center">
                     {index === 0 && <Trophy className="w-3 h-3 mr-1 text-golf-gold-500" />}

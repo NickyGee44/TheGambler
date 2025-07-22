@@ -1238,5 +1238,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test Round API endpoints
+  app.get('/api/test-round/config', async (req, res) => {
+    try {
+      const config = await storage.getTestRoundConfig();
+      res.json(config);
+    } catch (error) {
+      console.error('Error fetching test round config:', error);
+      res.status(500).json({ error: 'Failed to fetch test round config' });
+    }
+  });
+
+  app.get('/api/test-round/my-scores', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Check if user can access test round
+      const canAccess = await storage.canAccessTestRound(user.id);
+      if (!canAccess) {
+        return res.status(403).json({ error: 'Access denied to test round' });
+      }
+
+      const scores = await storage.getTestRoundHoleScores(user.id);
+      res.json(scores);
+    } catch (error) {
+      console.error('Error fetching test round scores:', error);
+      res.status(500).json({ error: 'Failed to fetch test round scores' });
+    }
+  });
+
+  app.get('/api/test-round/scores', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Check if user can access test round
+      const canAccess = await storage.canAccessTestRound(user.id);
+      if (!canAccess) {
+        return res.status(403).json({ error: 'Access denied to test round' });
+      }
+
+      const allScores = await storage.getTestRoundHoleScores();
+      res.json(allScores);
+    } catch (error) {
+      console.error('Error fetching all test round scores:', error);
+      res.status(500).json({ error: 'Failed to fetch test round scores' });
+    }
+  });
+
+  app.patch('/api/test-round/scores/:hole', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Check if user can access test round
+      const canAccess = await storage.canAccessTestRound(user.id);
+      if (!canAccess) {
+        return res.status(403).json({ error: 'Access denied to test round' });
+      }
+
+      const hole = parseInt(req.params.hole);
+      const { strokes } = req.body;
+
+      if (!hole || hole < 1 || hole > 18) {
+        return res.status(400).json({ error: 'Invalid hole number' });
+      }
+
+      if (!strokes || strokes < 1 || strokes > 15) {
+        return res.status(400).json({ error: 'Invalid strokes value' });
+      }
+
+      const updatedScore = await storage.updateTestRoundHoleScore(user.id, hole, strokes);
+      
+      // Broadcast test round score update
+      broadcast({
+        type: 'TEST_ROUND_SCORE_UPDATE',
+        data: {
+          userId: user.id,
+          hole,
+          strokes,
+          userName: `${user.firstName} ${user.lastName}`
+        }
+      });
+
+      res.json(updatedScore);
+    } catch (error) {
+      console.error('Error updating test round score:', error);
+      res.status(500).json({ error: 'Failed to update test round score' });
+    }
+  });
+
+  app.patch('/api/test-round/scores/:hole/stats', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Check if user can access test round
+      const canAccess = await storage.canAccessTestRound(user.id);
+      if (!canAccess) {
+        return res.status(403).json({ error: 'Access denied to test round' });
+      }
+
+      const hole = parseInt(req.params.hole);
+      const statsData = req.body;
+
+      if (!hole || hole < 1 || hole > 18) {
+        return res.status(400).json({ error: 'Invalid hole number' });
+      }
+
+      const updatedScore = await storage.updateTestRoundHoleScoreStats(user.id, hole, statsData);
+      
+      res.json(updatedScore);
+    } catch (error) {
+      console.error('Error updating test round stats:', error);
+      res.status(500).json({ error: 'Failed to update test round stats' });
+    }
+  });
+
   return httpServer;
 }
