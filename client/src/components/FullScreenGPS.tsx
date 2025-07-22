@@ -60,7 +60,7 @@ export function FullScreenGPS({
     try {
       if (!position) return { toGreen: null, toTee: null };
       
-      const coords = getHoleCoordinates(hole);
+      const coords = getHoleCoordinates(hole, round);
       if (!coords) return { toGreen: null, toTee: null };
       
       const toGreen = coords.green ? 

@@ -616,6 +616,7 @@ export default function HoleView({
               hole={hole.number} 
               par={hole.par}
               handicap={hole.handicap}
+              round={round}
               onOpenFullScreen={() => setShowFullScreenGPS(true)}
             />
           </div>

@@ -9,10 +9,11 @@ interface EnhancedGolfGPSProps {
   hole: number;
   par: number;
   handicap: number;
+  round?: number;
   onOpenFullScreen?: () => void;
 }
 
-export function EnhancedGolfGPS({ hole, par, handicap, onOpenFullScreen }: EnhancedGolfGPSProps) {
+export function EnhancedGolfGPS({ hole, par, handicap, round, onOpenFullScreen }: EnhancedGolfGPSProps) {
   const { position, isLoading, error } = useGPS();
 
   // Calculate yardages safely
@@ -20,24 +21,13 @@ export function EnhancedGolfGPS({ hole, par, handicap, onOpenFullScreen }: Enhan
     try {
       if (!position) return { toGreen: null, toTee: null };
       
-      const holeCoords = getHoleCoordinates(hole);
+      const holeCoords = getHoleCoordinates(hole, round);
       if (!holeCoords || !holeCoords.green || !holeCoords.tee) {
         return { toGreen: null, toTee: null };
       }
 
-      const toGreen = calculateDistanceInYards(
-        position.latitude,
-        position.longitude,
-        holeCoords.green.latitude,
-        holeCoords.green.longitude
-      );
-
-      const toTee = calculateDistanceInYards(
-        position.latitude,
-        position.longitude,
-        holeCoords.tee.latitude,
-        holeCoords.tee.longitude
-      );
+      const toGreen = calculateDistanceInYards(position, holeCoords.green);
+      const toTee = calculateDistanceInYards(position, holeCoords.tee);
 
       return { toGreen, toTee };
     } catch (error) {
