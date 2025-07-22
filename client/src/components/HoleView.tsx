@@ -61,7 +61,7 @@ export default function HoleView({
   userId
 }: HoleViewProps) {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'scoring' | 'map'>('scoring');
+  const [activeTab, setActiveTab] = useState<'scoring' | 'map'>('map');
   const [showFullScreenGPS, setShowFullScreenGPS] = useState(false);
   
   // Golf statistics state

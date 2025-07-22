@@ -6,6 +6,20 @@ import { useGPS } from '@/hooks/useGPS';
 import { getHoleCoordinates, calculateDistanceInYards } from '@shared/courseData';
 import { useState, useEffect, useRef } from 'react';
 
+// Calculate bearing between two points for map rotation
+const calculateBearing = (start: { latitude: number; longitude: number }, end: { latitude: number; longitude: number }): number => {
+  const startLat = start.latitude * Math.PI / 180;
+  const startLng = start.longitude * Math.PI / 180;
+  const endLat = end.latitude * Math.PI / 180;
+  const endLng = end.longitude * Math.PI / 180;
+
+  const dLng = endLng - startLng;
+  const y = Math.sin(dLng) * Math.cos(endLat);
+  const x = Math.cos(startLat) * Math.sin(endLat) - Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
+
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+};
+
 interface EnhancedGolfGPSProps {
   hole: number;
   par: number;
@@ -14,7 +28,7 @@ interface EnhancedGolfGPSProps {
 
 export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
   const { position, isLoading, error } = useGPS();
-  const [viewMode, setViewMode] = useState<'yardage' | 'map'>('yardage');
+  const [viewMode, setViewMode] = useState<'yardage' | 'map'>('map');
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<any>(null);
   const [targetMarker, setTargetMarker] = useState<{ lat: number; lng: number } | null>(null);
@@ -103,7 +117,7 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
       const holeCoords = getHoleCoordinates(hole);
       if (!holeCoords || !holeCoords.tee) return;
 
-      // Center map on tee box
+      // Create map with initial center
       const map = new (window as any).google.maps.Map(mapRef.current, {
         center: { lat: holeCoords.tee.latitude, lng: holeCoords.tee.longitude },
         zoom: 17,
@@ -114,6 +128,20 @@ export function EnhancedGolfGPS({ hole, par, handicap }: EnhancedGolfGPSProps) {
       });
 
       googleMapRef.current = map;
+      
+      // Calculate bounds to show entire hole and set proper orientation
+      if (holeCoords.tee && holeCoords.green) {
+        const bounds = new (window as any).google.maps.LatLngBounds();
+        bounds.extend({ lat: holeCoords.tee.latitude, lng: holeCoords.tee.longitude });
+        bounds.extend({ lat: holeCoords.green.latitude, lng: holeCoords.green.longitude });
+        
+        // Fit map to show entire hole with padding
+        map.fitBounds(bounds, { top: 50, bottom: 50, left: 50, right: 50 });
+        
+        // Calculate bearing from tee to green and rotate map so tee is at bottom
+        const bearing = calculateBearing(holeCoords.tee, holeCoords.green);
+        map.setHeading(bearing - 180); // Rotate so tee points down
+      }
       
       // Add click listener for placing target markers
       map.addListener('click', (event: any) => {
