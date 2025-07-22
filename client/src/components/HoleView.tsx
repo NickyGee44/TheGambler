@@ -22,9 +22,11 @@ import {
   Map,
   Trophy,
   CheckCircle,
-  XCircle
+  XCircle,
+  Maximize2
 } from "lucide-react";
 import { EnhancedGolfGPS } from "./EnhancedGolfGPS";
+import { FullScreenGPS } from "./FullScreenGPS";
 
 
 interface HoleViewProps {
@@ -60,6 +62,7 @@ export default function HoleView({
 }: HoleViewProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'scoring' | 'map'>('scoring');
+  const [showFullScreenGPS, setShowFullScreenGPS] = useState(false);
   
   // Golf statistics state
   const [fairwayInRegulation, setFairwayInRegulation] = useState<boolean | null>(null);
@@ -597,6 +600,18 @@ export default function HoleView({
         {/* GPS Map Tab */}
         {activeTab === 'map' && (
           <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-white">GPS Navigation</h3>
+              <Button
+                onClick={() => setShowFullScreenGPS(true)}
+                variant="outline"
+                size="sm"
+                className="text-white border-gray-600 hover:bg-gray-700"
+              >
+                <Maximize2 className="w-4 h-4 mr-2" />
+                Full Screen
+              </Button>
+            </div>
             <EnhancedGolfGPS 
               hole={hole.number} 
               par={hole.par}
@@ -635,6 +650,33 @@ export default function HoleView({
         </Card>
 
       </div>
+      
+      {/* Full Screen GPS Modal */}
+      {showFullScreenGPS && (
+        <FullScreenGPS
+          hole={hole.number}
+          par={hole.par}
+          handicap={hole.handicap}
+          round={round}
+          currentScore={currentScore}
+          onClose={() => setShowFullScreenGPS(false)}
+          onHoleChange={(newHole) => {
+            setShowFullScreenGPS(false);
+            // Simple navigation - close full screen and let parent handle hole changes
+            if (newHole > hole.number) {
+              onNextHole();
+            } else if (newHole < hole.number) {
+              onPreviousHole();
+            }
+          }}
+          onShowLeaderboard={() => {
+            setShowFullScreenGPS(false);
+            if (onShowLeaderboard) {
+              onShowLeaderboard();
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
