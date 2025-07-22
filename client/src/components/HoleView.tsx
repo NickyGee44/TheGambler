@@ -616,6 +616,7 @@ export default function HoleView({
               hole={hole.number} 
               par={hole.par}
               handicap={hole.handicap}
+              onOpenFullScreen={() => setShowFullScreenGPS(true)}
             />
           </div>
         )}
@@ -661,8 +662,7 @@ export default function HoleView({
           currentScore={currentScore}
           onClose={() => setShowFullScreenGPS(false)}
           onHoleChange={(newHole) => {
-            setShowFullScreenGPS(false);
-            // Simple navigation - close full screen and let parent handle hole changes
+            // Keep full screen GPS open when switching holes
             if (newHole > hole.number) {
               onNextHole();
             } else if (newHole < hole.number) {
