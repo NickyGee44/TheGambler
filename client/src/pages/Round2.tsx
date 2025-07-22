@@ -259,15 +259,18 @@ export default function Round2() {
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="flex -space-x-2">
-                              {entry.players.map((player, i) => (
-                                <ProfilePicture 
-                                  key={player.id}
-                                  firstName={player.firstName} 
-                                  lastName={player.lastName} 
-                                  size="md"
-                                  className="border-2 border-white"
-                                />
-                              ))}
+                              <ProfilePicture 
+                                firstName={entry.team.player1Name.split(' ')[0]} 
+                                lastName={entry.team.player1Name.split(' ')[1] || ''} 
+                                size="md"
+                                className="border-2 border-white"
+                              />
+                              <ProfilePicture 
+                                firstName={entry.team.player2Name.split(' ')[0]} 
+                                lastName={entry.team.player2Name.split(' ')[1] || ''} 
+                                size="md"
+                                className="border-2 border-white"
+                              />
                             </div>
                             <div>
                               <div className="font-semibold">
