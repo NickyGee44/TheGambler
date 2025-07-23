@@ -25,6 +25,14 @@ export function EnhancedGolfGPS({ hole, par, handicap, round, onOpenFullScreen }
       if (!position) return { toGreen: null, toTee: null };
       
       const holeCoords = getHoleCoordinates(hole, round);
+      
+      // Debug logging for Test Round
+      if (round === 99) {
+        console.log(`Test Round GPS Debug - Round: ${round}, Hole: ${hole}`);
+        console.log('Hole coordinates:', holeCoords);
+        console.log('User position:', position);
+      }
+      
       if (!holeCoords || !holeCoords.green || !holeCoords.tee) {
         return { toGreen: null, toTee: null };
       }
