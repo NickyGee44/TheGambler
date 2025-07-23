@@ -150,13 +150,20 @@ export const lionheadGPSCoordinates: HoleCoordinates[] = [
 
 // Get GPS coordinates based on round and hole
 export const getHoleCoordinates = (hole: number, round?: number): HoleCoordinates | null => {
-  // For test round (round 999), use Lionhead coordinates
-  if (round === 999) {
+  // For test round (round 99 or 999), use Lionhead coordinates
+  if (round === 99 || round === 999) {
     const holeData = lionheadGPSCoordinates.find(h => h.hole === hole);
     return holeData || null;
   }
   
-  // For rounds 1-3, use Deerhurst coordinates
+  // For Round 3, use Muskoka Bay coordinates (when available)
+  if (round === 3) {
+    // For now, using Deerhurst coordinates until Muskoka Bay coordinates are provided
+    const holeData = deerhurstGPSCoordinates.find(h => h.hole === hole);
+    return holeData || null;
+  }
+  
+  // For rounds 1-2, use Deerhurst coordinates
   const holeData = deerhurstGPSCoordinates.find(h => h.hole === hole);
   return holeData || null;
 };
@@ -189,7 +196,7 @@ export const calculateDistanceInYards = (
 // Get course data based on round
 export const getCourseForRound = (round: number): CourseData => {
   // Test Round uses Lionhead Golf Course
-  if (round === 999) {
+  if (round === 99 || round === 999) {
     return lionheadCourse;
   }
   

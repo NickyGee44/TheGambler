@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Target, Navigation, MapPin, Map } from 'lucide-react';
 import { useGPS } from '@/hooks/useGPS';
-import { getHoleCoordinates, calculateDistanceInYards } from '@shared/courseData';
+import { getHoleCoordinates, calculateDistanceInYards, getCourseForRound } from '@shared/courseData';
 
 interface EnhancedGolfGPSProps {
   hole: number;
@@ -15,6 +15,9 @@ interface EnhancedGolfGPSProps {
 
 export function EnhancedGolfGPS({ hole, par, handicap, round, onOpenFullScreen }: EnhancedGolfGPSProps) {
   const { position, isLoading, error } = useGPS();
+  
+  // Get course information
+  const course = getCourseForRound(round || 1);
 
   // Calculate yardages safely
   const getYardages = () => {
@@ -137,17 +140,26 @@ export function EnhancedGolfGPS({ hole, par, handicap, round, onOpenFullScreen }
         </CardContent>
       </Card>
 
-      {/* Course Tips */}
+      {/* Course Information & Tips */}
       <Card className="bg-gray-800 border-gray-700">
         <CardContent className="pt-6">
-          <div className="text-sm text-gray-400 space-y-2">
-            <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-golf-green-600" />
-              <span>Use course markers for precise yardages</span>
+          <div className="space-y-4">
+            {/* Course Name */}
+            <div className="text-center border-b border-gray-700 pb-3">
+              <div className="text-white font-medium">{course.name}</div>
+              <div className="text-sm text-gray-400">{course.location}</div>
             </div>
-            <div className="flex items-center gap-2">
-              <Navigation className="w-4 h-4 text-golf-sand-400" />
-              <span>GPS provides approximate distances</span>
+            
+            {/* GPS Tips */}
+            <div className="text-sm text-gray-400 space-y-2">
+              <div className="flex items-center gap-2">
+                <Target className="w-4 h-4 text-golf-green-600" />
+                <span>Use course markers for precise yardages</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Navigation className="w-4 h-4 text-golf-sand-400" />
+                <span>GPS provides approximate distances</span>
+              </div>
             </div>
           </div>
         </CardContent>
