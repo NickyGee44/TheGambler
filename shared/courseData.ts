@@ -126,33 +126,32 @@ export const deerhurstGPSCoordinates: HoleCoordinates[] = [
   { hole: 18, tee: { latitude: 45.34588458183412, longitude: -79.15103725364635 }, green: { latitude: 45.347380532587316, longitude: -79.14575116111246 } }
 ];
 
-// Placeholder for Lionhead GPS coordinates - to be updated when provided
+// Lionhead Golf Course GPS coordinates - Legends course from Gold tees (6934 yards)
 export const lionheadGPSCoordinates: HoleCoordinates[] = [
-  // Will be populated when GPS coordinates are provided
-  { hole: 1 },
-  { hole: 2 },
-  { hole: 3 },
-  { hole: 4 },
-  { hole: 5 },
-  { hole: 6 },
-  { hole: 7 },
-  { hole: 8 },
-  { hole: 9 },
-  { hole: 10 },
-  { hole: 11 },
-  { hole: 12 },
-  { hole: 13 },
-  { hole: 14 },
-  { hole: 15 },
-  { hole: 16 },
-  { hole: 17 },
-  { hole: 18 }
+  { hole: 1, tee: { latitude: 43.643807263240554, longitude: -79.78812587798268 }, green: { latitude: 43.64752711855521, longitude: -79.78763207431722 } },
+  { hole: 2, tee: { latitude: 43.648137604816874, longitude: -79.78612021851671 }, green: { latitude: 43.64877617278399, longitude: -79.7906737899568 } },
+  { hole: 3, tee: { latitude: 43.647936038281586, longitude: -79.79144132051347 }, green: { latitude: 43.649315148094814, longitude: -79.79241387534158 } },
+  { hole: 4, tee: { latitude: 43.64939402793037, longitude: -79.79370184145456 }, green: { latitude: 43.653545239464144, longitude: -79.79233181971891 } },
+  { hole: 5, tee: { latitude: 43.65348292385546, longitude: -79.7917699096181 }, green: { latitude: 43.65101365945271, longitude: -79.7894603397729 } },
+  { hole: 6, tee: { latitude: 43.65066346667803, longitude: -79.78953613571406 }, green: { latitude: 43.64941456406052, longitude: -79.79318784745074 } },
+  { hole: 7, tee: { latitude: 43.64931658304827, longitude: -79.79189634267264 }, green: { latitude: 43.64971123779534, longitude: -79.78561269998629 } },
+  { hole: 8, tee: { latitude: 43.6495061105831, longitude: -79.78510498205104 }, green: { latitude: 43.64855391514416, longitude: -79.78639040285583 } },
+  { hole: 9, tee: { latitude: 43.64815896327963, longitude: -79.786150872062 }, green: { latitude: 43.64480740282229, longitude: -79.78659679137404 } },
+  { hole: 10, tee: { latitude: 43.64469731535939, longitude: -79.78916468078182 }, green: { latitude: 43.647791157394614, longitude: -79.78907183813686 } },
+  { hole: 11, tee: { latitude: 43.64804642948019, longitude: -79.79046060583978 }, green: { latitude: 43.64514515363708, longitude: -79.79215810037931 } },
+  { hole: 12, tee: { latitude: 43.646266853972136, longitude: -79.79257904591302 }, green: { latitude: 43.64198567753386, longitude: -79.79397068136728 } },
+  { hole: 13, tee: { latitude: 43.64236353713944, longitude: -79.79466849219357 }, green: { latitude: 43.64328823139354, longitude: -79.79561251596557 } },
+  { hole: 14, tee: { latitude: 43.64357537081953, longitude: -79.7959016008091 }, green: { latitude: 43.64645321856575, longitude: -79.79328053884043 } },
+  { hole: 15, tee: { latitude: 43.64613978576738, longitude: -79.79401996158462 }, green: { latitude: 43.645441536490566, longitude: -79.79875854982124 } },
+  { hole: 16, tee: { latitude: 43.645414443510866, longitude: -79.79798160138806 }, green: { latitude: 43.64696104243232, longitude: -79.793365401257 } },
+  { hole: 17, tee: { latitude: 43.6466127083869, longitude: -79.79278434771403 }, green: { latitude: 43.64776302093006, longitude: -79.79186187988213 } },
+  { hole: 18, tee: { latitude: 43.64831101033453, longitude: -79.78997141156306 }, green: { latitude: 43.644622384197014, longitude: -79.7897668288719 } }
 ];
 
 // Get GPS coordinates based on round and hole
 export const getHoleCoordinates = (hole: number, round?: number): HoleCoordinates | null => {
-  // For test round or if specifically requested, use Lionhead coordinates
-  if (round === 999 || (typeof round === 'undefined' && lionheadGPSCoordinates.some(h => h.tee || h.green))) {
+  // For test round (round 999), use Lionhead coordinates
+  if (round === 999) {
     const holeData = lionheadGPSCoordinates.find(h => h.hole === hole);
     return holeData || null;
   }

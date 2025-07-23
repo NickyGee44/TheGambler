@@ -121,6 +121,18 @@ Preferred communication style: Simple, everyday language.
 
 ### Recent Changes: Latest modifications with dates
 
+**July 23, 2025:**
+- **Added Accurate Lionhead Golf Course GPS Coordinates:**
+  - Updated Test Round with real GPS coordinates for all 18 holes at Lionhead Golf Course Legends course
+  - Gold tees data with 6934 total yards for accurate yardage calculations during Test Round
+  - GPS functionality now shows real distances to green and tee for Test Round participants
+  - Enhanced GPS accuracy for Nick Grossi, Erik Boudreau, Connor Patterson, and Bailey Carlson test round
+- **Fixed All Round Leaderboard Display Issues:**
+  - Corrected Round 2 crash by fixing team data structure (removed problematic entry.players.map)
+  - Fixed Round 3 crash by using proper playerId access instead of entry.user.id
+  - All rounds (1, 2, 3, Test) now have stable leaderboard functionality
+  - Enhanced error handling for different leaderboard data structures across rounds
+
 **July 22, 2025:**
 - **Enhanced Full-Screen GPS with Unified Score Saving System:**
   - Integrated full-screen GPS scoring with main Score tab's exact saving mechanism using onScoreUpdate callback
