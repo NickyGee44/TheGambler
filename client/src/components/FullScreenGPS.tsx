@@ -62,15 +62,7 @@ export function FullScreenGPS({
       
       const coords = getHoleCoordinates(hole, round);
       
-      // Temporary debug for Test Round
-      if (round === 99) {
-        console.log('FullScreen GPS - Round:', round, 'Hole:', hole);
-        console.log('Coordinates returned:', coords);
-        if (coords) {
-          console.log('Tee lat/lng:', coords.tee?.latitude, coords.tee?.longitude);
-          console.log('Green lat/lng:', coords.green?.latitude, coords.green?.longitude);
-        }
-      }
+
       
       if (!coords) return { toGreen: null, toTee: null };
       

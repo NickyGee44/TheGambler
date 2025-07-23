@@ -122,6 +122,14 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 23, 2025:**
+- **Fixed GPS Round Parameter Passing and Coordinate Detection:**
+  - Fixed critical bug in FullScreenGPS and EnhancedGolfGPS components where round parameter wasn't being passed correctly
+  - Updated all GPS coordinate lookup calls to properly pass round number for accurate course detection
+  - Test Round (round 99) now correctly uses Lionhead Masters Course coordinates instead of Deerhurst
+  - Round 1-2 use Deerhurst coordinates, Round 3 uses Deerhurst temporarily until Muskoka Bay coordinates provided
+  - Fixed initializeMap and updateMapMarkers functions to use getHoleCoordinates(hole, round) consistently
+  - All round components (Round1, Round2, Round3, TestRound) properly pass round parameter to HoleView and GPS components
+  - Cleared all Test Round scores for fresh restart
 - **Updated Lionhead Golf Course GPS Coordinates:**
   - Updated Test Round with correct GPS coordinates for all 18 holes at Lionhead Golf Course Masters course
   - Corrected course from Legends to Masters course based on actual test round location
