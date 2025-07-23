@@ -122,9 +122,9 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 23, 2025:**
-- **Added Accurate Lionhead Golf Course GPS Coordinates:**
-  - Updated Test Round with real GPS coordinates for all 18 holes at Lionhead Golf Course Legends course
-  - Gold tees data with 6934 total yards for accurate yardage calculations during Test Round
+- **Updated Lionhead Golf Course GPS Coordinates:**
+  - Updated Test Round with correct GPS coordinates for all 18 holes at Lionhead Golf Course Masters course
+  - Corrected course from Legends to Masters course based on actual test round location
   - GPS functionality now shows real distances to green and tee for Test Round participants
   - Enhanced GPS accuracy for Nick Grossi, Erik Boudreau, Connor Patterson, and Bailey Carlson test round
 - **Fixed All Round Leaderboard Display Issues:**

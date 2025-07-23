@@ -48,8 +48,8 @@ export const deerhurstCourse: CourseData = {
 
 // Lionhead Golf Course data (Test Round)  
 export const lionheadCourse: CourseData = {
-  name: "Lionhead Golf Course",
-  location: "Mississauga, Ontario",
+  name: "Lionhead Golf Course - Masters Course",
+  location: "Richmond Hill, ON",
   holes: [
     { number: 1, par: 4, yardage: 350, handicap: 10 },
     { number: 2, par: 5, yardage: 500, handicap: 2 },
@@ -126,26 +126,26 @@ export const deerhurstGPSCoordinates: HoleCoordinates[] = [
   { hole: 18, tee: { latitude: 45.34588458183412, longitude: -79.15103725364635 }, green: { latitude: 45.347380532587316, longitude: -79.14575116111246 } }
 ];
 
-// Lionhead Golf Course GPS coordinates - Legends course from Gold tees (6934 yards)
+// Lionhead Golf Course GPS coordinates - Masters Course for Test Round
 export const lionheadGPSCoordinates: HoleCoordinates[] = [
-  { hole: 1, tee: { latitude: 43.643807263240554, longitude: -79.78812587798268 }, green: { latitude: 43.64752711855521, longitude: -79.78763207431722 } },
-  { hole: 2, tee: { latitude: 43.648137604816874, longitude: -79.78612021851671 }, green: { latitude: 43.64877617278399, longitude: -79.7906737899568 } },
-  { hole: 3, tee: { latitude: 43.647936038281586, longitude: -79.79144132051347 }, green: { latitude: 43.649315148094814, longitude: -79.79241387534158 } },
-  { hole: 4, tee: { latitude: 43.64939402793037, longitude: -79.79370184145456 }, green: { latitude: 43.653545239464144, longitude: -79.79233181971891 } },
-  { hole: 5, tee: { latitude: 43.65348292385546, longitude: -79.7917699096181 }, green: { latitude: 43.65101365945271, longitude: -79.7894603397729 } },
-  { hole: 6, tee: { latitude: 43.65066346667803, longitude: -79.78953613571406 }, green: { latitude: 43.64941456406052, longitude: -79.79318784745074 } },
-  { hole: 7, tee: { latitude: 43.64931658304827, longitude: -79.79189634267264 }, green: { latitude: 43.64971123779534, longitude: -79.78561269998629 } },
-  { hole: 8, tee: { latitude: 43.6495061105831, longitude: -79.78510498205104 }, green: { latitude: 43.64855391514416, longitude: -79.78639040285583 } },
-  { hole: 9, tee: { latitude: 43.64815896327963, longitude: -79.786150872062 }, green: { latitude: 43.64480740282229, longitude: -79.78659679137404 } },
-  { hole: 10, tee: { latitude: 43.64469731535939, longitude: -79.78916468078182 }, green: { latitude: 43.647791157394614, longitude: -79.78907183813686 } },
-  { hole: 11, tee: { latitude: 43.64804642948019, longitude: -79.79046060583978 }, green: { latitude: 43.64514515363708, longitude: -79.79215810037931 } },
-  { hole: 12, tee: { latitude: 43.646266853972136, longitude: -79.79257904591302 }, green: { latitude: 43.64198567753386, longitude: -79.79397068136728 } },
-  { hole: 13, tee: { latitude: 43.64236353713944, longitude: -79.79466849219357 }, green: { latitude: 43.64328823139354, longitude: -79.79561251596557 } },
-  { hole: 14, tee: { latitude: 43.64357537081953, longitude: -79.7959016008091 }, green: { latitude: 43.64645321856575, longitude: -79.79328053884043 } },
-  { hole: 15, tee: { latitude: 43.64613978576738, longitude: -79.79401996158462 }, green: { latitude: 43.645441536490566, longitude: -79.79875854982124 } },
-  { hole: 16, tee: { latitude: 43.645414443510866, longitude: -79.79798160138806 }, green: { latitude: 43.64696104243232, longitude: -79.793365401257 } },
-  { hole: 17, tee: { latitude: 43.6466127083869, longitude: -79.79278434771403 }, green: { latitude: 43.64776302093006, longitude: -79.79186187988213 } },
-  { hole: 18, tee: { latitude: 43.64831101033453, longitude: -79.78997141156306 }, green: { latitude: 43.644622384197014, longitude: -79.7897668288719 } }
+  { hole: 1, tee: { latitude: 43.64344696445238, longitude: -79.78661317150028 }, green: { latitude: 43.640525213221835, longitude: -79.78256513220342 } },
+  { hole: 2, tee: { latitude: 43.64007905641568, longitude: -79.7807523189224 }, green: { latitude: 43.642645276595076, longitude: -79.77809055531836 } },
+  { hole: 3, tee: { latitude: 43.64276487898611, longitude: -79.77752513398592 }, green: { latitude: 43.641929992805096, longitude: -79.77608454019368 } },
+  { hole: 4, tee: { latitude: 43.64177202108296, longitude: -79.77671181360114 }, green: { latitude: 43.63951593296756, longitude: -79.77339926300192 } },
+  { hole: 5, tee: { latitude: 43.639200987075945, longitude: -79.77316003423812 }, green: { latitude: 43.63674506342128, longitude: -79.7761471833646 } },
+  { hole: 6, tee: { latitude: 43.63721585557225, longitude: -79.77668225810463 }, green: { latitude: 43.64136605415411, longitude: -79.77687427745848 } },
+  { hole: 7, tee: { latitude: 43.64206037814169, longitude: -79.77724508608749 }, green: { latitude: 43.639763695026105, longitude: -79.78017875572975 } },
+  { hole: 8, tee: { latitude: 43.64012121173212, longitude: -79.78167684182064 }, green: { latitude: 43.63988281734902, longitude: -79.78356413583418 } },
+  { hole: 9, tee: { latitude: 43.64026073306613, longitude: -79.7832865607592 }, green: { latitude: 43.642598638164095, longitude: -79.78681207574576 } },
+  { hole: 10, tee: { latitude: 43.64381779295072, longitude: -79.78951583704001 }, green: { latitude: 43.639589702643306, longitude: -79.79047709659729 } },
+  { hole: 11, tee: { latitude: 43.63927505327513, longitude: -79.79150484769167 }, green: { latitude: 43.63867641827435, longitude: -79.78962442028009 } },
+  { hole: 12, tee: { latitude: 43.639246462609016, longitude: -79.78849533420457 }, green: { latitude: 43.63949408612411, longitude: -79.78399990258826 } },
+  { hole: 13, tee: { latitude: 43.639394930632484, longitude: -79.7805404407094 }, green: { latitude: 43.64093004075014, longitude: -79.77758491570131 } },
+  { hole: 14, tee: { latitude: 43.640765230604856, longitude: -79.7771560138232 }, green: { latitude: 43.637776121913646, longitude: -79.77694887052323 } },
+  { hole: 15, tee: { latitude: 43.63708735459223, longitude: -79.77699270028687 }, green: { latitude: 43.639102357092526, longitude: -79.77953690407861 } },
+  { hole: 16, tee: { latitude: 43.64008828808955, longitude: -79.78169065727015 }, green: { latitude: 43.63769584891643, longitude: -79.78651928083417 } },
+  { hole: 17, tee: { latitude: 43.63816396359141, longitude: -79.7861040859453 }, green: { latitude: 43.63887883070745, longitude: -79.78818949686932 } },
+  { hole: 18, tee: { latitude: 43.63937713092957, longitude: -79.78949134254711 }, green: { latitude: 43.64284847392642, longitude: -79.78869111008703 } }
 ];
 
 // Get GPS coordinates based on round and hole
