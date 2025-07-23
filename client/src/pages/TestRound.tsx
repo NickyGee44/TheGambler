@@ -23,15 +23,15 @@ export default function TestRound() {
   const canAccess = user && [1, 3, 6, 13].includes(user.id);
 
   // Get user's test round scores
-  const { data: myScores, refetch: refetchMyScores } = useQuery({
+  const { data: myScores = [], refetch: refetchMyScores } = useQuery({
     queryKey: ['/api/test-round/my-scores'],
-    enabled: !!user && canAccess,
+    enabled: !!user && !!canAccess,
   });
 
   // Get all test round scores for leaderboard
-  const { data: allScores } = useQuery({
+  const { data: allScores = [] } = useQuery({
     queryKey: ['/api/test-round/scores'],
-    enabled: !!user && canAccess,
+    enabled: !!user && !!canAccess,
   });
 
   // Handle score updates
@@ -77,7 +77,7 @@ export default function TestRound() {
 
   // Get current hole data
   const currentHoleData = course.holes.find(h => h.number === currentHole);
-  const currentScore = myScores?.find((s: any) => s.hole === currentHole)?.strokes;
+  const currentScore = Array.isArray(myScores) ? myScores.find((s: any) => s.hole === currentHole)?.strokes : undefined;
 
   if (!user) {
     return (
@@ -117,19 +117,38 @@ export default function TestRound() {
   // Show hole-by-hole scoring interface
   if (isPlaying && currentHoleData) {
     return (
-      <HoleView
-        hole={currentHoleData}
-        round={99} // Special round number for test round
-        currentScore={currentScore}
-        onScoreUpdate={handleScoreUpdate}
-        onPreviousHole={handlePreviousHole}
-        onNextHole={handleNextHole}
-        isFirstHole={currentHole === 1}
-        isLastHole={currentHole === 18}
-        isUpdating={false}
-        onShowLeaderboard={() => setShowLeaderboard(true)}
-        holeScores={myScores || []}
-      />
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        {/* Progress Bar */}
+        <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 relative z-40">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-white text-sm font-medium">Test Round Progress</div>
+            <div className="text-gray-400 text-sm">{currentHole}/18</div>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-2">
+            <div 
+              className="bg-golf-green-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentHole / 18) * 100}%` }}
+            />
+          </div>
+        </div>
+        
+        {/* Hole View with adjusted styling */}
+        <div className="relative">
+          <HoleView
+            hole={currentHoleData}
+            round={99} // Special round number for test round
+            currentScore={currentScore}
+            onScoreUpdate={handleScoreUpdate}
+            onPreviousHole={handlePreviousHole}
+            onNextHole={handleNextHole}
+            isFirstHole={currentHole === 1}
+            isLastHole={currentHole === 18}
+            isUpdating={false}
+            onShowLeaderboard={() => setShowLeaderboard(true)}
+            holeScores={Array.isArray(myScores) ? myScores : []}
+          />
+        </div>
+      </div>
     );
   }
 
@@ -156,7 +175,7 @@ export default function TestRound() {
             <CardContent>
               <div className="space-y-3">
                 {testRoundPlayers.map((player, index) => {
-                  const playerScores = allScores?.filter((s: any) => s.userId === player.id) || [];
+                  const playerScores = Array.isArray(allScores) ? allScores.filter((s: any) => s.userId === player.id) : [];
                   const totalStrokes = playerScores.reduce((sum: number, s: any) => sum + s.strokes, 0);
                   const holesPlayed = playerScores.length;
                   
