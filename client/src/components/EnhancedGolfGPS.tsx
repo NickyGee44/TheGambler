@@ -14,7 +14,7 @@ interface EnhancedGolfGPSProps {
 }
 
 export function EnhancedGolfGPS({ hole, par, handicap, round, onOpenFullScreen }: EnhancedGolfGPSProps) {
-  const { position, isLoading, error } = useGPS();
+  const { position, isLoading, error, requestLocation, accuracyStatus, isHighAccuracy } = useGPS();
   
   // Get course information
   const course = getCourseForRound(round || 1);
@@ -69,7 +69,10 @@ export function EnhancedGolfGPS({ hole, par, handicap, round, onOpenFullScreen }
             <div className="text-center py-4">
               <div className="flex items-center justify-center gap-2 text-golf-green-400">
                 <Navigation className="w-5 h-5 animate-pulse" />
-                <span>Getting GPS location...</span>
+                <span>Acquiring high-precision GPS...</span>
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                📍 Seeking accuracy within 7 yards for reliable yardage
               </div>
             </div>
           )}
@@ -78,21 +81,45 @@ export function EnhancedGolfGPS({ hole, par, handicap, round, onOpenFullScreen }
             <div className="text-center py-4">
               <div className="text-red-400 mb-2">GPS Error</div>
               <div className="text-sm text-gray-400 mb-4">{error}</div>
+              <Button 
+                onClick={requestLocation} 
+                variant="outline" 
+                size="sm"
+                className="mb-2"
+              >
+                <Navigation className="w-4 h-4 mr-2" />
+                Retry GPS
+              </Button>
               <div className="text-xs text-gray-500">
                 Tip: Open in new browser tab for better GPS access
               </div>
             </div>
           )}
 
-          {position && !isLoading && !error && (
+          {/* GPS Accuracy Status */}
+          {!error && (
+            <div className="text-center py-2">
+              <div className={`text-sm font-medium ${isHighAccuracy ? 'text-golf-green-400' : 'text-yellow-400'}`}>
+                {accuracyStatus}
+              </div>
+              {!isHighAccuracy && (
+                <div className="text-xs text-gray-500 mt-1">
+                  🎯 Seeking precision within 7 yards for accurate readings
+                </div>
+              )}
+            </div>
+          )}
+
+          {position && !isLoading && !error && isHighAccuracy && (
             <div className="space-y-4">
-              {/* Yardage Display */}
+              {/* High-Precision Yardage Display */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-golf-green-400">
                     {toGreen ? `${Math.round(toGreen)}` : '--'}
                   </div>
                   <div className="text-sm text-gray-400">yards to green</div>
+                  <div className="text-xs text-golf-green-500">HIGH PRECISION</div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-semibold text-golf-sand-400">
@@ -102,7 +129,7 @@ export function EnhancedGolfGPS({ hole, par, handicap, round, onOpenFullScreen }
                 </div>
               </div>
 
-              {/* GPS Coordinates */}
+              {/* GPS Coordinates with Accuracy */}
               <div className="text-center pt-2 border-t border-gray-700">
                 <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
                   <MapPin className="w-4 h-4" />
@@ -110,25 +137,23 @@ export function EnhancedGolfGPS({ hole, par, handicap, round, onOpenFullScreen }
                     {position.latitude.toFixed(6)}, {position.longitude.toFixed(6)}
                   </span>
                 </div>
-                {position.accuracy && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    Accuracy: ±{Math.round(position.accuracy)}m
-                  </div>
-                )}
-              </div>
-
-              {/* Full Screen Map Button */}
-              {onOpenFullScreen && (
-                <div className="pt-4">
-                  <Button
-                    onClick={onOpenFullScreen}
-                    className="w-full bg-golf-green-600 hover:bg-golf-green-700 text-white"
-                  >
-                    <Map className="w-4 h-4 mr-2" />
-                    Open Full Screen Map
-                  </Button>
+                <div className="text-xs text-golf-green-500 mt-1">
+                  ✓ Accuracy: ±{Math.round(position.accuracy)}m
                 </div>
-              )}
+              </div>
+            </div>
+          )}
+
+          {/* Full Screen Map Button */}
+          {onOpenFullScreen && (
+            <div className="pt-4">
+              <Button
+                onClick={onOpenFullScreen}
+                className="w-full bg-golf-green-600 hover:bg-golf-green-700 text-white"
+              >
+                <Map className="w-4 h-4 mr-2" />
+                Open Full Screen Map
+              </Button>
             </div>
           )}
 
