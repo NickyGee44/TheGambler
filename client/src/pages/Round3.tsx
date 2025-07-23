@@ -469,7 +469,7 @@ export default function Round3() {
                         </div>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
-                        <PlayerHoleScores playerId={entry.user.id} round={round} />
+                        <PlayerHoleScores playerId={entry.playerId || entry.user?.id || 0} round={round} />
                       </CollapsibleContent>
                     </Collapsible>
                   );
