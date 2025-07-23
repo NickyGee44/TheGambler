@@ -62,6 +62,16 @@ export function FullScreenGPS({
       
       const coords = getHoleCoordinates(hole, round);
       
+      // Temporary debug for Test Round
+      if (round === 99) {
+        console.log('FullScreen GPS - Round:', round, 'Hole:', hole);
+        console.log('Coordinates returned:', coords);
+        if (coords) {
+          console.log('Tee lat/lng:', coords.tee?.latitude, coords.tee?.longitude);
+          console.log('Green lat/lng:', coords.green?.latitude, coords.green?.longitude);
+        }
+      }
+      
       if (!coords) return { toGreen: null, toTee: null };
       
       const toGreen = coords.green ? 
@@ -126,7 +136,7 @@ export function FullScreenGPS({
 
       if (!mapRef.current) return;
 
-      const holeCoords = getHoleCoordinates(hole);
+      const holeCoords = getHoleCoordinates(hole, round);
       if (!holeCoords || !holeCoords.tee) return;
 
       // Create map with initial center
@@ -183,7 +193,7 @@ export function FullScreenGPS({
     if (!googleMapRef.current) return;
 
     try {
-      const holeCoords = getHoleCoordinates(hole);
+      const holeCoords = getHoleCoordinates(hole, round);
       if (!holeCoords) return;
 
       // Add tee marker
