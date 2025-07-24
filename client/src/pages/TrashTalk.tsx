@@ -31,12 +31,11 @@ export default function TrashTalk() {
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [newMessage, setNewMessage] = useState('');
-  const [taggedUsers, setTaggedUsers] = useState<number[]>([]);
   const [showTagSelector, setShowTagSelector] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch chat messages
-  const { data: messages = [], isLoading } = useQuery({
+  const { data: messages = [], isLoading } = useQuery<ChatMessage[]>({
     queryKey: ['/api/chat/messages'],
     refetchInterval: 5000, // Refresh every 5 seconds
   });
@@ -53,7 +52,6 @@ export default function TrashTalk() {
     },
     onSuccess: () => {
       setNewMessage('');
-      setTaggedUsers([]);
       setShowTagSelector(false);
       queryClient.invalidateQueries({ queryKey: ['/api/chat/messages'] });
     },
@@ -94,9 +92,25 @@ export default function TrashTalk() {
   const handleSendMessage = () => {
     if (!newMessage.trim() || !isAuthenticated) return;
 
+    // Extract tagged user IDs from the message content
+    const extractedTaggedIds: number[] = [];
+    players.forEach(player => {
+      const firstName = player.name.split(' ')[0];
+      const fullName = player.name;
+      
+      const firstNameRegex = new RegExp(`@${firstName}\\b`, 'i');
+      const fullNameRegex = new RegExp(`@${fullName.replace(/\s+/g, '\\s+')}\\b`, 'i');
+      
+      if (firstNameRegex.test(newMessage) || fullNameRegex.test(newMessage)) {
+        if (!extractedTaggedIds.includes(player.userId)) {
+          extractedTaggedIds.push(player.userId);
+        }
+      }
+    });
+
     sendMessageMutation.mutate({
       message: newMessage.trim(),
-      taggedUserIds: taggedUsers,
+      taggedUserIds: extractedTaggedIds,
     });
   };
 
@@ -107,28 +121,30 @@ export default function TrashTalk() {
     }
   };
 
-  const toggleUserTag = (userId: number) => {
-    setTaggedUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
-    );
-  };
+  // Remove the toggleUserTag function as it's no longer needed
 
-  const formatMessageWithTags = (message: string, taggedUserIds: number[]) => {
-    if (!taggedUserIds.length) return message;
+  const formatMessageWithTags = (message: string) => {
+    if (!players.length) return message;
 
     let formattedMessage = message;
-    taggedUserIds.forEach(userId => {
-      const player = players.find(p => p.userId === userId);
-      if (player) {
-        const tagRegex = new RegExp(`@${player.name}`, 'gi');
-        formattedMessage = formattedMessage.replace(
-          tagRegex, 
-          `<span class="bg-blue-500 text-white px-2 py-1 rounded text-sm">@${player.name}</span>`
-        );
-      }
+    
+    // Find all @mentions in the message and highlight them
+    players.forEach(player => {
+      const firstName = player.name.split(' ')[0];
+      const fullName = player.name;
+      
+      // Replace both @FirstName and @FullName patterns
+      const firstNameRegex = new RegExp(`@${firstName}\\b`, 'gi');
+      const fullNameRegex = new RegExp(`@${fullName.replace(/\s+/g, '\\s+')}\\b`, 'gi');
+      
+      formattedMessage = formattedMessage.replace(firstNameRegex, 
+        `<span class="bg-blue-600 text-white px-1 py-0.5 rounded font-bold">@${firstName}</span>`
+      );
+      formattedMessage = formattedMessage.replace(fullNameRegex, 
+        `<span class="bg-blue-600 text-white px-1 py-0.5 rounded font-bold">@${fullName}</span>`
+      );
     });
+    
     return formattedMessage;
   };
 
@@ -175,7 +191,8 @@ export default function TrashTalk() {
                   {messages.map((message: ChatMessage) => (
                     <div key={message.id} className="flex gap-3">
                       <ProfilePicture 
-                        playerName={`${message.user.firstName} ${message.user.lastName}`}
+                        firstName={message.user.firstName}
+                        lastName={message.user.lastName}
                         size="sm"
                       />
                       <div className="flex-1">
@@ -190,7 +207,7 @@ export default function TrashTalk() {
                         <div 
                           className="text-sm leading-relaxed"
                           dangerouslySetInnerHTML={{
-                            __html: formatMessageWithTags(message.message, message.taggedUserIds)
+                            __html: formatMessageWithTags(message.message)
                           }}
                         />
                       </div>
@@ -201,22 +218,25 @@ export default function TrashTalk() {
               )}
             </ScrollArea>
 
-            {/* Tag Selector */}
+            {/* Quick Tag Selector */}
             {showTagSelector && (
               <div className="p-4 border-t bg-muted/30">
-                <div className="text-sm font-medium mb-2">Tag Players:</div>
+                <div className="text-sm font-medium mb-2">Quick Tag Players (click to add to message):</div>
                 <div className="flex flex-wrap gap-2">
                   {players
                     .filter(player => player.userId !== user?.id)
                     .map(player => (
                     <Button
                       key={player.userId}
-                      variant={taggedUsers.includes(player.userId) ? "default" : "outline"}
+                      variant="outline"
                       size="sm"
-                      onClick={() => toggleUserTag(player.userId)}
+                      onClick={() => {
+                        const firstName = player.name.split(' ')[0];
+                        setNewMessage(prev => prev + `@${firstName} `);
+                      }}
                     >
                       <User className="h-3 w-3 mr-1" />
-                      {player.name}
+                      @{player.name.split(' ')[0]}
                     </Button>
                   ))}
                 </div>
@@ -231,11 +251,12 @@ export default function TrashTalk() {
                   size="sm"
                   onClick={() => setShowTagSelector(!showTagSelector)}
                   className="shrink-0"
+                  title="Quick tag players"
                 >
                   @
                 </Button>
                 <Input
-                  placeholder="Type your message..."
+                  placeholder="Type your message... Use @PlayerName to tag"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
@@ -251,27 +272,18 @@ export default function TrashTalk() {
                 </Button>
               </div>
               
-              {/* Tagged Users Preview */}
-              {taggedUsers.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  <span className="text-xs text-muted-foreground">Tagging:</span>
-                  {taggedUsers.map(userId => {
-                    const player = players.find(p => p.userId === userId);
-                    return player ? (
-                      <span
-                        key={userId}
-                        className="inline-flex items-center bg-blue-500 text-white px-2 py-1 rounded text-xs"
-                      >
-                        @{player.name}
-                        <button
-                          onClick={() => toggleUserTag(userId)}
-                          className="ml-1 hover:bg-blue-600 rounded"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ) : null;
-                  })}
+              {/* Message Preview with Tags */}
+              {newMessage && players.some(player => {
+                const firstName = player.name.split(' ')[0];
+                return newMessage.includes(`@${firstName}`) || newMessage.includes(`@${player.name}`);
+              }) && (
+                <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+                  <span className="text-muted-foreground">Preview: </span>
+                  <span 
+                    dangerouslySetInnerHTML={{
+                      __html: formatMessageWithTags(newMessage)
+                    }}
+                  />
                 </div>
               )}
             </div>
