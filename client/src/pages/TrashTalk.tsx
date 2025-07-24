@@ -48,15 +48,25 @@ export default function TrashTalk() {
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: { message: string; taggedUserIds: number[] }) => {
-      return await apiRequest('/api/chat/messages', 'POST', messageData);
+      console.log('Sending message:', messageData);
+      try {
+        const response = await apiRequest('POST', '/api/chat/messages', messageData);
+        const result = await response.json();
+        console.log('Message sent successfully:', result);
+        return result;
+      } catch (error) {
+        console.error('Error in mutationFn:', error);
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Message mutation onSuccess:', data);
       setNewMessage('');
       setShowTagSelector(false);
       queryClient.invalidateQueries({ queryKey: ['/api/chat/messages'] });
     },
     onError: (error) => {
-      console.error('Error sending message:', error);
+      console.error('Message mutation onError:', error);
     },
   });
 
@@ -90,7 +100,15 @@ export default function TrashTalk() {
   }, [queryClient]);
 
   const handleSendMessage = () => {
-    if (!newMessage.trim() || !isAuthenticated) return;
+    console.log('handleSendMessage called');
+    console.log('newMessage:', newMessage);
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('user:', user);
+    
+    if (!newMessage.trim() || !isAuthenticated) {
+      console.log('Preventing send - empty message or not authenticated');
+      return;
+    }
 
     // Extract tagged user IDs from the message content
     const extractedTaggedIds: number[] = [];
@@ -107,6 +125,9 @@ export default function TrashTalk() {
         }
       }
     });
+
+    console.log('Extracted tagged IDs:', extractedTaggedIds);
+    console.log('About to call sendMessageMutation.mutate');
 
     sendMessageMutation.mutate({
       message: newMessage.trim(),
