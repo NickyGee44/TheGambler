@@ -122,6 +122,17 @@ Preferred communication style: Simple, everyday language.
 ### Recent Changes: Latest modifications with dates
 
 **July 24, 2025:**
+- **Implemented "Trash Talk" Live Chat Room:**
+  - Created comprehensive live chat system with persistent messaging capabilities
+  - Added player tagging functionality with visual color distinction for tagged players
+  - Implemented real-time WebSocket broadcasting for instant message delivery
+  - Added chat_messages table to database schema with user references and tagged user tracking
+  - Created TrashTalk page component with message input, tag selector, and real-time updates
+  - Added MessageSquare icon navigation menu item for "Trash Talk" chat room access
+  - Messages display with user profile pictures, timestamps, and formatted tagged player names
+  - Auto-scroll functionality keeps newest messages visible at bottom of chat
+  - Chat room accessible to all authenticated users with seamless mobile experience
+  - All messages saved to database and viewable at all times for persistent conversation history
 - **Production Data Reset for Real Tournament:**
   - Cleared all hole scores from all rounds (1, 2, 3, and Test Round 99) - 871 records removed
   - Cleared all match play data - 24 records removed  

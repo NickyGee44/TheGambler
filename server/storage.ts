@@ -15,6 +15,7 @@ import {
   golfRelayMatches,
   testRoundHoleScores,
   testRoundConfig,
+  chatMessages,
   type User,
   type InsertUser,
   type Team,
@@ -47,6 +48,8 @@ import {
   type InsertGolfRelayMatch,
   type InsertTestRoundHoleScore,
   type InsertTestRoundConfig,
+  type ChatMessage,
+  type InsertChatMessage,
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, asc, or, sql } from "drizzle-orm";
@@ -1480,6 +1483,53 @@ export class DatabaseStorage implements IStorage {
     }
     
     return updatedBet;
+  }
+
+  // Chat Messages
+  async getChatMessages(): Promise<any[]> {
+    const messages = await db
+      .select({
+        id: chatMessages.id,
+        userId: chatMessages.userId,
+        message: chatMessages.message,
+        taggedUserIds: chatMessages.taggedUserIds,
+        createdAt: chatMessages.createdAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+        }
+      })
+      .from(chatMessages)
+      .leftJoin(users, eq(chatMessages.userId, users.id))
+      .orderBy(asc(chatMessages.createdAt));
+    
+    return messages;
+  }
+
+  async createChatMessage(messageData: InsertChatMessage): Promise<any> {
+    const [message] = await db
+      .insert(chatMessages)
+      .values(messageData)
+      .returning();
+    
+    // Get the complete message with user info
+    const [fullMessage] = await db
+      .select({
+        id: chatMessages.id,
+        userId: chatMessages.userId,
+        message: chatMessages.message,
+        taggedUserIds: chatMessages.taggedUserIds,
+        createdAt: chatMessages.createdAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+        }
+      })
+      .from(chatMessages)
+      .leftJoin(users, eq(chatMessages.userId, users.id))
+      .where(eq(chatMessages.id, message.id));
+    
+    return fullMessage;
   }
 
   async addWitnessVote(betId: number, witnessName: string, winnerName: string): Promise<SideBet> {

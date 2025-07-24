@@ -927,6 +927,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chat endpoints
+  app.get('/api/chat/messages', async (req, res) => {
+    try {
+      const messages = await storage.getChatMessages();
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching chat messages:', error);
+      res.status(500).json({ error: 'Failed to fetch chat messages' });
+    }
+  });
+
+  app.post('/api/chat/messages', requireAuth, async (req: any, res) => {
+    try {
+      const { message, taggedUserIds } = req.body;
+      const userId = req.user.id;
+
+      if (!message || message.trim() === '') {
+        return res.status(400).json({ error: 'Message cannot be empty' });
+      }
+
+      const messageData = {
+        userId,
+        message: message.trim(),
+        taggedUserIds: taggedUserIds || []
+      };
+
+      const newMessage = await storage.createChatMessage(messageData);
+      
+      // Broadcast new message to all clients
+      broadcast({
+        type: 'CHAT_MESSAGE',
+        data: newMessage
+      });
+
+      res.json(newMessage);
+    } catch (error) {
+      console.error('Error creating chat message:', error);
+      res.status(500).json({ error: 'Failed to send message' });
+    }
+  });
+
   // Round submission endpoint
   app.post('/api/submit-round', requireAuth, async (req: any, res) => {
     try {

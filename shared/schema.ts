@@ -298,6 +298,23 @@ export type InsertTestRoundHoleScore = z.infer<typeof insertTestRoundHoleScoreSc
 export type TestRoundConfig = typeof testRoundConfig.$inferSelect;
 export type InsertTestRoundConfig = z.infer<typeof insertTestRoundConfigSchema>;
 
+// Chat Messages for Trash Talk
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  message: text("message").notNull(),
+  taggedUserIds: jsonb("tagged_user_ids").default('[]'), // Array of user IDs that are tagged
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+
 // Boozelympics tables
 export const boozelympicsGames = pgTable("boozelympics_games", {
   id: serial("id").primaryKey(),

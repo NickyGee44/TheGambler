@@ -21,6 +21,7 @@ import Round2 from "@/pages/Round2";
 import Round3 from "@/pages/Round3";
 import Round3Matchups from "@/pages/Round3Matchups";
 import TestRound from "@/pages/TestRound";
+import TrashTalk from "@/pages/TrashTalk";
 import AuthPage from "@/pages/AuthPage";
 import PictureAssignment from "@/pages/PictureAssignment";
 import NotFound from "@/pages/not-found";
@@ -159,6 +160,7 @@ function Router() {
             <Route path="/tournament-management" component={TournamentManagement} />
             <Route path="/sidebets" component={SideBets} />
             <Route path="/boozelympics" component={Boozelympics} />
+            <Route path="/trash-talk" component={TrashTalk} />
             <Route path="/rules" component={Rules} />
     
             <Route path="/photos" component={Photos} />
