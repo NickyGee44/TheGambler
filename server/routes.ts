@@ -348,6 +348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sideBets = await storage.getSideBets();
       res.json(sideBets);
     } catch (error) {
+      console.error('Error fetching side bets:', error);
       res.status(500).json({ error: 'Failed to fetch side bets' });
     }
   });
