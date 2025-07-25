@@ -64,15 +64,29 @@ export default function TrashTalk() {
       setNewMessage('');
       setShowTagSelector(false);
       queryClient.invalidateQueries({ queryKey: ['/api/chat/messages'] });
+      
+      // Force scroll to bottom when user sends a message
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     },
     onError: (error) => {
       console.error('Message mutation onError:', error);
     },
   });
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom when new messages arrive, but only if user was near bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Only auto-scroll if user was near the bottom (within 100px)
+    const scrollArea = messagesEndRef.current?.parentElement?.parentElement;
+    if (scrollArea) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollArea;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      
+      if (isNearBottom) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   }, [messages]);
 
   // Handle WebSocket messages
@@ -200,16 +214,16 @@ export default function TrashTalk() {
           </CardHeader>
           <CardContent className="p-0">
             {/* Messages Area */}
-            <ScrollArea className="h-96 p-4">
-              {isLoading ? (
-                <div className="text-center text-muted-foreground">Loading messages...</div>
-              ) : messages.length === 0 ? (
-                <div className="text-center text-muted-foreground">
-                  No messages yet. Be the first to start the trash talk! 🗣️
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {messages.map((message: ChatMessage) => (
+            <ScrollArea className="h-[500px] p-4">
+              <div className="space-y-4">
+                {isLoading ? (
+                  <div className="text-center text-muted-foreground py-8">Loading messages...</div>
+                ) : messages.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    No messages yet. Be the first to start the trash talk! 🗣️
+                  </div>
+                ) : (
+                  messages.map((message: ChatMessage) => (
                     <div key={message.id} className="flex gap-3">
                       <ProfilePicture 
                         firstName={message.user.firstName}
@@ -233,10 +247,10 @@ export default function TrashTalk() {
                         />
                       </div>
                     </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-              )}
+                  ))
+                )}
+                <div ref={messagesEndRef} />
+              </div>
             </ScrollArea>
 
             {/* Quick Tag Selector */}
