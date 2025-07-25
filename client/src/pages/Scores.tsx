@@ -670,18 +670,19 @@ function ScrambleLeaderboard({ leaderboard }: { leaderboard: any[] }) {
     <Card className="shadow-lg">
       <CardContent className="p-6">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-golf-green-600 mb-2">Round 2: Scramble Format</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Teams play one ball from best position. Lowest total strokes wins.</p>
+          <h3 className="text-lg font-semibold text-golf-green-600 mb-2">Round 2: Scramble Format (Net)</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Teams play one ball from best position. Team handicap: 35% of lower + 15% of higher handicap. Highest Stableford points wins.</p>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[500px]">
+          <table className="w-full min-w-[700px]">
             <thead className="bg-golf-green-50 dark:bg-slate-700">
               <tr>
                 <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Pos</th>
                 <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Team</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Strokes</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Team Hcp</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Gross</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Net</th>
                 <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">To Par</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Holes</th>
                 <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Points</th>
               </tr>
             </thead>
@@ -692,19 +693,20 @@ function ScrambleLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                   <td className="px-2 sm:px-4 py-2 sm:py-3">
                     <div className="font-medium text-xs sm:text-sm">Team {entry.team?.teamNumber}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      <div>{entry.team?.player1Name}</div>
-                      <div className="sm:inline sm:before:content-['_&_'] ">{entry.team?.player2Name}</div>
+                      <div>{entry.team?.player1Name} ({entry.team?.player1Handicap})</div>
+                      <div className="sm:inline sm:before:content-['_&_'] ">{entry.team?.player2Name} ({entry.team?.player2Handicap})</div>
                     </div>
                   </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalStrokes || '-'}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.teamHandicap || '-'}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalGrossStrokes || '-'}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalNetStrokes || '-'}</td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm">
-                    <span className={entry.totalToPar > 0 ? 'text-red-600' : entry.totalToPar < 0 ? 'text-green-600' : 'text-gray-600'}>
-                      {entry.totalToPar > 0 ? '+' : ''}{entry.totalToPar || 'E'}
+                    <span className={entry.netToPar > 0 ? 'text-red-600' : entry.netToPar < 0 ? 'text-green-600' : 'text-gray-600'}>
+                      {entry.netToPar > 0 ? '+' : ''}{entry.netToPar || 'E'}
                     </span>
                   </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs text-gray-500">{entry.holes}/18</td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-bold text-golf-green-600 text-xs sm:text-sm">
-                    {entry.roundPoints || (11 - entry.position) || 0}
+                    {entry.totalPoints || 0}
                   </td>
                 </tr>
               ))}

@@ -121,6 +121,17 @@ Preferred communication style: Simple, everyday language.
 
 ### Recent Changes: Latest modifications with dates
 
+**July 25, 2025:**
+- **Implemented Proper Scramble Team Handicap Calculation:**
+  - Updated Round 2 scramble scoring to use correct team handicap formula: 35% of lower handicap + 15% of higher handicap
+  - Changed from gross stroke scoring to net scoring with proper Stableford points calculation
+  - Enhanced leaderboard display to show team handicaps, gross scores, net scores, and net to par
+  - Teams now ranked by highest Stableford points instead of lowest strokes for proper scramble format
+  - Added player handicaps display in team information with calculated team handicap shown
+  - Updated frontend table structure to display comprehensive scoring information for Round 2
+  - Modified database calculations to apply team handicaps to hole-by-hole scoring with proper stroke allocation
+  - Scramble format now correctly uses team net scores for competitive tournament ranking
+
 **July 24, 2025:**
 - **Implemented "Trash Talk" Live Chat Room:**
   - Created comprehensive live chat system with persistent messaging capabilities

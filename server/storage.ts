@@ -599,7 +599,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(holeScores.round, round));
 
     // Group by team and hole to get team scores
-    const teamHoleScores = new Map<string, { team: Team; hole: number; strokes: number; points: number; par: number }>();
+    const teamHoleScores = new Map<string, { team: Team; hole: number; strokes: number; points: number; par: number; handicap: number }>();
     const teamPlayers = new Map<number, User[]>();
     
     for (const score of scores) {
@@ -623,43 +623,96 @@ export class DatabaseStorage implements IStorage {
           strokes: score.holeScore.strokes,
           points: score.holeScore.points,
           par: score.holeScore.par,
+          handicap: score.holeScore.handicap,
         });
       }
     }
 
-    // Calculate team totals
-    const teamTotals = new Map<number, { team: Team; totalPoints: number; totalStrokes: number; totalToPar: number; holes: number; players: User[] }>();
+    // Calculate scramble team handicaps: 35% of lower + 15% of higher
+    const calculateScrambleTeamHandicap = (team: Team): number => {
+      const player1Hcp = team.player1Handicap || 0;
+      const player2Hcp = team.player2Handicap || 0;
+      
+      const lowerHcp = Math.min(player1Hcp, player2Hcp);
+      const higherHcp = Math.max(player1Hcp, player2Hcp);
+      
+      return Math.round((lowerHcp * 0.35) + (higherHcp * 0.15));
+    };
+
+    // Calculate how many strokes a team gets on each hole
+    const getStrokesOnHole = (teamHandicap: number, holeHandicap: number): number => {
+      if (teamHandicap >= holeHandicap) {
+        return 1;
+      }
+      return 0;
+    };
+
+    // Calculate team totals with net scoring
+    const teamTotals = new Map<number, { 
+      team: Team; 
+      totalPoints: number; 
+      totalGrossStrokes: number; 
+      totalNetStrokes: number; 
+      grossToPar: number; 
+      netToPar: number; 
+      holes: number; 
+      players: User[];
+      teamHandicap: number;
+    }>();
     
     for (const teamHole of Array.from(teamHoleScores.values())) {
       const teamId = teamHole.team.id;
       if (!teamTotals.has(teamId)) {
+        const teamHandicap = calculateScrambleTeamHandicap(teamHole.team);
         teamTotals.set(teamId, {
           team: teamHole.team,
           totalPoints: 0,
-          totalStrokes: 0,
-          totalToPar: 0,
+          totalGrossStrokes: 0,
+          totalNetStrokes: 0,
+          grossToPar: 0,
+          netToPar: 0,
           holes: 0,
           players: teamPlayers.get(teamId) || [],
+          teamHandicap: teamHandicap,
         });
       }
       const teamTotal = teamTotals.get(teamId)!;
-      teamTotal.totalPoints += teamHole.points;
-      teamTotal.totalStrokes += teamHole.strokes;
-      teamTotal.totalToPar += (teamHole.strokes - teamHole.par);
+      
+      // Calculate net score for this hole
+      const strokesReceived = getStrokesOnHole(teamTotal.teamHandicap, teamHole.handicap);
+      const netScore = teamHole.strokes - strokesReceived;
+      
+      // Calculate Stableford points based on net score
+      const netToPar = netScore - teamHole.par;
+      let stablefordPoints = 0;
+      if (netToPar <= -2) stablefordPoints = 4; // Eagle or better
+      else if (netToPar === -1) stablefordPoints = 3; // Birdie
+      else if (netToPar === 0) stablefordPoints = 2; // Par
+      else if (netToPar === 1) stablefordPoints = 1; // Bogey
+      // Double bogey or worse = 0 points
+      
+      teamTotal.totalPoints += stablefordPoints;
+      teamTotal.totalGrossStrokes += teamHole.strokes;
+      teamTotal.totalNetStrokes += netScore;
+      teamTotal.grossToPar += (teamHole.strokes - teamHole.par);
+      teamTotal.netToPar += netToPar;
       teamTotal.holes += 1;
     }
 
-    // Convert to leaderboard format and sort by total strokes (lowest wins for scramble)
+    // Convert to leaderboard format and sort by total points (highest wins for Stableford)
     const leaderboard = Array.from(teamTotals.values())
-      .sort((a, b) => a.totalStrokes - b.totalStrokes)
+      .sort((a, b) => b.totalPoints - a.totalPoints)
       .map((entry, index) => ({
         id: entry.team.id,
         team: entry.team,
         players: entry.players,
         totalPoints: entry.totalPoints,
-        totalStrokes: entry.totalStrokes,
-        totalToPar: entry.totalToPar,
+        totalGrossStrokes: entry.totalGrossStrokes,
+        totalNetStrokes: entry.totalNetStrokes,
+        grossToPar: entry.grossToPar,
+        netToPar: entry.netToPar,
         holes: entry.holes,
+        teamHandicap: entry.teamHandicap,
         position: index + 1,
         isTeamLeaderboard: true,
         isScramble: true,
