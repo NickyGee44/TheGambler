@@ -131,6 +131,9 @@ Preferred communication style: Simple, everyday language.
   - Updated frontend table structure to display comprehensive scoring information for Round 2
   - Modified database calculations to apply team handicaps to hole-by-hole scoring with proper stroke allocation
   - Scramble format now correctly uses team net scores for competitive tournament ranking
+- **Reset Test Round Data:**
+  - Cleared all hole scores for Test Round (round 99) from database
+  - Test Round now completely clean and ready for fresh scoring
 
 **July 24, 2025:**
 - **Implemented "Trash Talk" Live Chat Room:**
