@@ -37,13 +37,24 @@ export default function TestRound() {
   // Handle score updates
   const handleScoreUpdate = async (strokes: number) => {
     try {
+      console.log('Test Round: Saving score', { currentHole, strokes });
+      
       const response = await fetch(`/api/test-round/scores/${currentHole}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ strokes })
       });
       
-      if (!response.ok) throw new Error('Failed to save score');
+      console.log('Test Round: Response status', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Test Round: Save failed', errorText);
+        throw new Error(`Failed to save score: ${errorText}`);
+      }
+      
+      const result = await response.json();
+      console.log('Test Round: Save successful', result);
       
       // Refetch scores after update
       refetchMyScores();
@@ -54,9 +65,10 @@ export default function TestRound() {
         duration: 2000,
       });
     } catch (error) {
+      console.error('Test Round: Error saving score', error);
       toast({
         title: "Error",
-        description: "Failed to save score",
+        description: `Failed to save score: ${error.message}`,
         variant: "destructive",
       });
     }
