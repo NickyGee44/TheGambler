@@ -51,7 +51,7 @@ export const lionheadCourse: CourseData = {
   name: "Lionhead Golf Course - Masters Course",
   location: "Richmond Hill, ON",
   holes: [
-    { number: 1, par: 4, yardage: 350, handicap: 10 },
+    { number: 1, par: 5, yardage: 450, handicap: 10 },
     { number: 2, par: 5, yardage: 500, handicap: 2 },
     { number: 3, par: 3, yardage: 150, handicap: 18 },
     { number: 4, par: 4, yardage: 380, handicap: 6 },

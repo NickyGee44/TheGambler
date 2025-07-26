@@ -134,6 +134,9 @@ Preferred communication style: Simple, everyday language.
 - **Reset Test Round Data:**
   - Cleared all hole scores for Test Round (round 99) from database
   - Test Round now completely clean and ready for fresh scoring
+- **Updated Lionhead Masters Course for Test Round:**
+  - Changed Hole 1 from par 4 (350 yards) to par 5 (450 yards)
+  - Test Round now uses correct Masters course layout for Lionhead Golf Course
 
 **July 24, 2025:**
 - **Implemented "Trash Talk" Live Chat Room:**
