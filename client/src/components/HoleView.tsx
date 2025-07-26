@@ -82,12 +82,23 @@ export default function HoleView({
   // Statistics update mutation
   const updateStatsMutation = useMutation({
     mutationFn: async (statsData: any) => {
-      return await apiRequest('PATCH', `/api/hole-scores/${round}/${hole.number}/stats`, statsData);
+      // Use different API endpoint for Test Round (round 99)
+      const endpoint = round === 99 
+        ? `/api/test-round/scores/${hole.number}/stats`
+        : `/api/hole-scores/${round}/${hole.number}/stats`;
+      
+      return await apiRequest('PATCH', endpoint, statsData);
     },
     onSuccess: () => {
       setIsSavingStats(false);
-      queryClient.invalidateQueries({ queryKey: ["/api/hole-scores", round] });
-      queryClient.invalidateQueries({ queryKey: ["/api/player-stats"] });
+      // Use different cache keys for Test Round
+      if (round === 99) {
+        queryClient.invalidateQueries({ queryKey: ["/api/test-round/my-scores"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/test-round/scores"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["/api/hole-scores", round] });
+        queryClient.invalidateQueries({ queryKey: ["/api/player-stats"] });
+      }
     },
     onError: (error) => {
       setIsSavingStats(false);
