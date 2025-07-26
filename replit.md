@@ -121,6 +121,16 @@ Preferred communication style: Simple, everyday language.
 
 ### Recent Changes: Latest modifications with dates
 
+**July 26, 2025:**
+- **Fixed Lionhead Masters Course with Official Scorecard Data:**
+  - Updated Test Round to use accurate Lionhead Golf Course Masters course scorecard from official Kaneff Golf PDF
+  - Corrected all 18 holes with proper par, yardage, and handicap ratings from actual course
+  - Fixed course location from "Richmond Hill" to "Brampton, ON" (actual location)
+  - Key course corrections: Hole 2 changed from par 5 to par 4, Hole 7 from par 5 to par 4, Hole 8 from par 4 to par 3, etc.
+  - Course now totals proper par 72 (6 par 4s, 4 par 3s, 5 par 5s) matching real Masters course layout
+  - Cleared all test round database entries to reset for accurate course data
+  - Test Round participants can now play on authentic Lionhead Masters course with correct hole information
+
 **July 25, 2025:**
 - **Implemented Proper Scramble Team Handicap Calculation:**
   - Updated Round 2 scramble scoring to use correct team handicap formula: 35% of lower handicap + 15% of higher handicap
@@ -131,12 +141,6 @@ Preferred communication style: Simple, everyday language.
   - Updated frontend table structure to display comprehensive scoring information for Round 2
   - Modified database calculations to apply team handicaps to hole-by-hole scoring with proper stroke allocation
   - Scramble format now correctly uses team net scores for competitive tournament ranking
-- **Reset Test Round Data:**
-  - Cleared all hole scores for Test Round (round 99) from database
-  - Test Round now completely clean and ready for fresh scoring
-- **Updated Lionhead Masters Course for Test Round:**
-  - Changed Hole 1 from par 4 (350 yards) to par 5 (450 yards)
-  - Test Round now uses correct Masters course layout for Lionhead Golf Course
 
 **July 24, 2025:**
 - **Implemented "Trash Talk" Live Chat Room:**

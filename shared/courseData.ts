@@ -46,29 +46,29 @@ export const deerhurstCourse: CourseData = {
   ]
 };
 
-// Lionhead Golf Course data (Test Round)  
+// Lionhead Golf Course data (Test Round) - Accurate Masters Course Scorecard
 export const lionheadCourse: CourseData = {
   name: "Lionhead Golf Course - Masters Course",
-  location: "Richmond Hill, ON",
+  location: "Brampton, ON",
   holes: [
-    { number: 1, par: 5, yardage: 450, handicap: 10 },
-    { number: 2, par: 5, yardage: 500, handicap: 2 },
-    { number: 3, par: 3, yardage: 150, handicap: 18 },
-    { number: 4, par: 4, yardage: 380, handicap: 6 },
-    { number: 5, par: 4, yardage: 365, handicap: 14 },
-    { number: 6, par: 3, yardage: 175, handicap: 16 },
-    { number: 7, par: 5, yardage: 520, handicap: 4 },
-    { number: 8, par: 4, yardage: 390, handicap: 8 },
-    { number: 9, par: 4, yardage: 360, handicap: 12 },
-    { number: 10, par: 4, yardage: 370, handicap: 11 },
-    { number: 11, par: 3, yardage: 160, handicap: 17 },
-    { number: 12, par: 4, yardage: 400, handicap: 5 },
-    { number: 13, par: 5, yardage: 510, handicap: 3 },
-    { number: 14, par: 4, yardage: 345, handicap: 15 },
-    { number: 15, par: 4, yardage: 385, handicap: 9 },
-    { number: 16, par: 3, yardage: 140, handicap: 13 },
-    { number: 17, par: 4, yardage: 375, handicap: 7 },
-    { number: 18, par: 5, yardage: 530, handicap: 1 }
+    { number: 1, par: 5, yardage: 487, handicap: 11 },
+    { number: 2, par: 4, yardage: 376, handicap: 17 },
+    { number: 3, par: 3, yardage: 145, handicap: 13 },
+    { number: 4, par: 4, yardage: 411, handicap: 1 },
+    { number: 5, par: 4, yardage: 420, handicap: 3 },
+    { number: 6, par: 5, yardage: 537, handicap: 9 },
+    { number: 7, par: 4, yardage: 387, handicap: 7 },
+    { number: 8, par: 3, yardage: 159, handicap: 15 },
+    { number: 9, par: 4, yardage: 415, handicap: 5 },
+    { number: 10, par: 5, yardage: 516, handicap: 10 },
+    { number: 11, par: 3, yardage: 165, handicap: 18 },
+    { number: 12, par: 4, yardage: 415, handicap: 12 },
+    { number: 13, par: 4, yardage: 392, handicap: 8 },
+    { number: 14, par: 4, yardage: 404, handicap: 2 },
+    { number: 15, par: 4, yardage: 353, handicap: 16 },
+    { number: 16, par: 5, yardage: 560, handicap: 6 },
+    { number: 17, par: 3, yardage: 202, handicap: 14 },
+    { number: 18, par: 4, yardage: 427, handicap: 4 }
   ]
 };
 
