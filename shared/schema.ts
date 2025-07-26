@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb, index, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -256,7 +256,7 @@ export const testRoundHoleScores = pgTable("test_round_hole_scores", {
   par: integer("par").notNull().default(4),
   handicap: integer("handicap").notNull().default(0),
   netScore: integer("net_score").notNull(), // strokes - handicap (same as strokes for gross play)
-  points: integer("points").notNull().default(0), // Gross match play points
+  points: numeric("points", { precision: 3, scale: 1 }).notNull().default('0'), // Gross match play points (allows 0.5)
   // Golf statistics
   fairwayInRegulation: boolean("fairway_in_regulation"), // null for par 3s
   greenInRegulation: boolean("green_in_regulation").notNull().default(false),
