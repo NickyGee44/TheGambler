@@ -34,6 +34,15 @@ export default function TestRound() {
     enabled: !!user && !!canAccess,
   });
 
+  // Debug leaderboard state
+  console.log('TestRound component render:', {
+    showLeaderboard,
+    testRoundPlayers: testRoundPlayers.length,
+    allScores: allScores.length,
+    isPlaying,
+    canAccess
+  });
+
 
 
   // Handle score updates
@@ -128,45 +137,7 @@ export default function TestRound() {
     );
   }
 
-  // Show hole-by-hole scoring interface
-  if (isPlaying && currentHoleData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-        {/* Progress Bar */}
-        <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 relative z-40">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-white text-sm font-medium">Test Round Progress</div>
-            <div className="text-gray-400 text-sm">{currentHole}/18</div>
-          </div>
-          <div className="w-full bg-gray-700 rounded-full h-2">
-            <div 
-              className="bg-golf-green-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentHole / 18) * 100}%` }}
-            />
-          </div>
-        </div>
-        
-        {/* Hole View with adjusted styling */}
-        <div className="relative">
-          <HoleView
-            hole={currentHoleData}
-            round={99} // Special round number for test round
-            currentScore={currentScore}
-            onScoreUpdate={handleScoreUpdate}
-            onPreviousHole={handlePreviousHole}
-            onNextHole={handleNextHole}
-            isFirstHole={currentHole === 1}
-            isLastHole={currentHole === 18}
-            isUpdating={false}
-            onShowLeaderboard={() => setShowLeaderboard(true)}
-            holeScores={Array.isArray(myScores) ? myScores : []}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Show leaderboard overlay
+  // Show leaderboard overlay (check this BEFORE isPlaying)
   if (showLeaderboard) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -217,6 +188,47 @@ export default function TestRound() {
               </div>
             </CardContent>
           </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Show hole-by-hole scoring interface
+  if (isPlaying && currentHoleData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        {/* Progress Bar */}
+        <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 relative z-40">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-white text-sm font-medium">Test Round Progress</div>
+            <div className="text-gray-400 text-sm">{currentHole}/18</div>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-2">
+            <div 
+              className="bg-golf-green-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentHole / 18) * 100}%` }}
+            />
+          </div>
+        </div>
+        
+        {/* Hole View with adjusted styling */}
+        <div className="relative">
+          <HoleView
+            hole={currentHoleData}
+            round={99} // Special round number for test round
+            currentScore={currentScore}
+            onScoreUpdate={handleScoreUpdate}
+            onPreviousHole={handlePreviousHole}
+            onNextHole={handleNextHole}
+            isFirstHole={currentHole === 1}
+            isLastHole={currentHole === 18}
+            isUpdating={false}
+            onShowLeaderboard={() => {
+              console.log('Setting showLeaderboard to true');
+              setShowLeaderboard(true);
+            }}
+            holeScores={Array.isArray(myScores) ? myScores : []}
+          />
         </div>
       </div>
     );
