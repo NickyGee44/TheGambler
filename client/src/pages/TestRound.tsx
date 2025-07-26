@@ -17,13 +17,6 @@ export default function TestRound() {
   const [currentHole, setCurrentHole] = useState(1);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
-  // Debug leaderboard state changes
-  useEffect(() => {
-    console.log('TestRound: showLeaderboard state changed to:', showLeaderboard);
-    console.log('TestRound: testRoundPlayers:', testRoundPlayers);
-    console.log('TestRound: allScores:', allScores);
-  }, [showLeaderboard, allScores]);
-
   const course = getTestRoundCourse();
 
   // Check if user can access test round
@@ -40,6 +33,8 @@ export default function TestRound() {
     queryKey: ['/api/test-round/scores'],
     enabled: !!user && !!canAccess,
   });
+
+
 
   // Handle score updates
   const handleScoreUpdate = async (strokes: number) => {
