@@ -2038,37 +2038,57 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateTestRoundHoleScore(userId: number, hole: number, strokes: number): Promise<TestRoundHoleScore> {
-    // Get current hole data for par and handicap calculations
-    const lionheadCourse = await import('@shared/courseData');
-    const holeData = lionheadCourse.lionheadCourse.holes.find(h => h.number === hole);
-    const par = holeData?.par || 4;
-    const handicap = holeData?.handicap || 0;
+    console.log('=== STORAGE: updateTestRoundHoleScore ===');
+    console.log('Input:', { userId, hole, strokes });
     
-    // For test round, net score equals strokes (no handicap adjustments)
-    const netScore = strokes;
-    
-    // Calculate gross match play points (1 = win, 0.5 = tie, 0 = loss against par)
-    let points = 0;
-    if (strokes < par) points = 1;
-    else if (strokes === par) points = 0.5;
+    try {
+      // Get current hole data for par and handicap calculations
+      const lionheadCourse = await import('@shared/courseData');
+      const holeData = lionheadCourse.lionheadCourse.holes.find(h => h.number === hole);
+      const par = holeData?.par || 4;
+      const handicap = holeData?.handicap || 0;
+      
+      console.log('✅ Hole data found:', { par, handicap, holeNumber: hole });
+      
+      // For test round, net score equals strokes (no handicap adjustments)
+      const netScore = strokes;
+      
+      // Calculate gross match play points (1 = win, 0.5 = tie, 0 = loss against par)
+      let points = 0;
+      if (strokes < par) points = 1;
+      else if (strokes === par) points = 0.5;
 
-    // Check if record exists
-    const existing = await db.select().from(testRoundHoleScores)
-      .where(and(eq(testRoundHoleScores.userId, userId), eq(testRoundHoleScores.hole, hole)));
+      console.log('✅ Calculated scores:', { netScore, points });
 
-    if (existing.length > 0) {
-      // Update existing record
-      const [updated] = await db.update(testRoundHoleScores)
-        .set({ strokes, netScore, points, par, handicap, updatedAt: new Date() })
-        .where(and(eq(testRoundHoleScores.userId, userId), eq(testRoundHoleScores.hole, hole)))
-        .returning();
-      return updated;
-    } else {
-      // Create new record
-      const [created] = await db.insert(testRoundHoleScores)
-        .values({ userId, hole, strokes, par, handicap, netScore, points })
-        .returning();
-      return created;
+      // Check if record exists
+      console.log('🔍 Checking for existing record...');
+      const existing = await db.select().from(testRoundHoleScores)
+        .where(and(eq(testRoundHoleScores.userId, userId), eq(testRoundHoleScores.hole, hole)));
+
+      console.log('✅ Existing records found:', existing.length);
+
+      if (existing.length > 0) {
+        // Update existing record
+        console.log('📝 Updating existing record...');
+        const [updated] = await db.update(testRoundHoleScores)
+          .set({ strokes, netScore, points, par, handicap, updatedAt: new Date() })
+          .where(and(eq(testRoundHoleScores.userId, userId), eq(testRoundHoleScores.hole, hole)))
+          .returning();
+        console.log('✅ Record updated successfully:', updated);
+        return updated;
+      } else {
+        // Create new record
+        console.log('🆕 Creating new record...');
+        const [created] = await db.insert(testRoundHoleScores)
+          .values({ userId, hole, strokes, par, handicap, netScore, points })
+          .returning();
+        console.log('✅ Record created successfully:', created);
+        return created;
+      }
+    } catch (error) {
+      console.error('❌ Storage error in updateTestRoundHoleScore:', error);
+      console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+      throw error;
     }
   }
 

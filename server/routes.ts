@@ -300,8 +300,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error('Error generating mock data:', error);
-      console.error('Stack trace:', error.stack);
-      res.status(500).json({ error: `Failed to generate mock data: ${error.message}` });
+      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+      res.status(500).json({ error: `Failed to generate mock data: ${error instanceof Error ? error.message : 'Unknown error'}` });
     }
   });
 
@@ -1335,29 +1335,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/test-round/scores/:hole', requireAuth, async (req: any, res) => {
     try {
+      console.log('=== TEST ROUND SCORE SAVE ATTEMPT ===');
+      console.log('User ID:', req.user.id);
+      console.log('Hole:', req.params.hole);
+      console.log('Body:', req.body);
+      
       const user = await storage.getUser(req.user.id);
       if (!user) {
+        console.log('❌ User not found for ID:', req.user.id);
         return res.status(401).json({ error: 'User not found' });
       }
 
+      console.log('✅ User found:', `${user.firstName} ${user.lastName} (ID: ${user.id})`);
+
       // Check if user can access test round
       const canAccess = await storage.canAccessTestRound(user.id);
+      console.log('✅ Test Round access check result:', canAccess);
+      
       if (!canAccess) {
+        console.log('❌ Access denied to test round for user:', `${user.firstName} ${user.lastName} (ID: ${user.id})`);
         return res.status(403).json({ error: 'Access denied to test round' });
       }
 
       const hole = parseInt(req.params.hole);
       const { strokes } = req.body;
 
+      console.log('✅ Parsed data:', { hole, strokes });
+
       if (!hole || hole < 1 || hole > 18) {
+        console.log('❌ Invalid hole number:', hole);
         return res.status(400).json({ error: 'Invalid hole number' });
       }
 
       if (!strokes || strokes < 1 || strokes > 15) {
+        console.log('❌ Invalid strokes value:', strokes);
         return res.status(400).json({ error: 'Invalid strokes value' });
       }
 
+      console.log('✅ Validation passed, updating score...');
       const updatedScore = await storage.updateTestRoundHoleScore(user.id, hole, strokes);
+      console.log('✅ Score updated successfully:', updatedScore);
       
       // Broadcast test round score update
       broadcast({
@@ -1370,10 +1387,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
+      console.log('✅ Test Round score save completed successfully');
       res.json(updatedScore);
     } catch (error) {
-      console.error('Error updating test round score:', error);
-      res.status(500).json({ error: 'Failed to update test round score' });
+      console.error('❌ Error updating test round score:', error);
+      console.error('❌ Error details:', error instanceof Error ? error.message : error);
+      console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+      res.status(500).json({ error: 'Failed to update test round score', details: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
