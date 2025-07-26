@@ -316,11 +316,21 @@ export default function HoleView({
               variant="outline"
               size="lg"
               className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white border-yellow-400 shadow-lg"
-              onClick={onShowLeaderboard}
+              onClick={() => {
+                console.log('View Leaderboard button clicked');
+                onShowLeaderboard();
+              }}
             >
               <Trophy className="w-5 h-5 mr-2" />
               View Leaderboard
             </Button>
+          </div>
+        )}
+        
+        {/* Debug info - remove after testing */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mb-2 text-xs text-gray-500">
+            Debug: onShowLeaderboard = {onShowLeaderboard ? 'provided' : 'missing'}
           </div>
         )}
 

@@ -315,7 +315,7 @@ export default function Round1() {
                 </TabsContent>
                 
                 <TabsContent value="individual" className="space-y-2 mt-4">
-                  <IndividualScoresTable holeScores={allHoleScores || []} round={round} format="Better Ball" />
+                  <IndividualScoresTable holeScores={Array.isArray(allHoleScores) ? allHoleScores : []} round={round} format="Better Ball" />
                 </TabsContent>
               </Tabs>
             </CardContent>
