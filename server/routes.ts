@@ -619,18 +619,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { round, hole, strokes } = req.body;
       const userId = req.user.id;
       
-      console.log('Updating hole score:', { userId, round, hole, strokes });
+      console.log('=== REGULAR ROUND SCORE SAVE ATTEMPT ===');
+      console.log('User ID:', userId);
+      console.log('Round:', round);
+      console.log('Hole:', hole);
+      console.log('Strokes:', strokes);
       
       // Validate input
       if (!round || !hole || strokes === undefined) {
+        console.log('❌ Missing required fields:', { round, hole, strokes });
         return res.status(400).json({ error: 'Missing required fields: round, hole, strokes' });
       }
       
       if (strokes < 1 || strokes > 15) {
+        console.log('❌ Invalid strokes value:', strokes);
         return res.status(400).json({ error: 'Invalid strokes value' });
       }
       
+      console.log('✅ Validation passed, updating score...');
       const holeScore = await storage.updateHoleScore(userId, round, hole, strokes);
+      console.log('✅ Score updated successfully:', holeScore);
       
       // Check for birdie or better and broadcast notification
       const scoreDiff = strokes - holeScore.par;

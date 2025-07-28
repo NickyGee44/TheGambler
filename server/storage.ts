@@ -388,63 +388,89 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateHoleScore(userId: number, round: number, hole: number, strokes: number): Promise<HoleScore> {
-    // First check if hole score exists
-    const [existingScore] = await db.select().from(holeScores).where(
-      and(
-        eq(holeScores.userId, userId),
-        eq(holeScores.round, round),
-        eq(holeScores.hole, hole)
-      )
-    );
-
-    // Calculate net score and points (Stableford scoring with proper handicap)
-    const par = 4; // Default par, can be customized per hole
-    const handicap = await this.calculateHoleHandicap(userId, hole);
-    const netScore = strokes - handicap;
-    let points = 0;
+    console.log('=== STORAGE: updateHoleScore (Regular Rounds) ===');
+    console.log('Input:', { userId, round, hole, strokes });
     
-    if (netScore <= par - 2) points = 4;
-    else if (netScore === par - 1) points = 3;
-    else if (netScore === par) points = 2;
-    else if (netScore === par + 1) points = 1;
-    else points = 0;
+    try {
+      // First check if hole score exists
+      console.log('🔍 Checking for existing score...');
+      const [existingScore] = await db.select().from(holeScores).where(
+        and(
+          eq(holeScores.userId, userId),
+          eq(holeScores.round, round),
+          eq(holeScores.hole, hole)
+        )
+      );
+      console.log('✅ Existing scores found:', existingScore ? 1 : 0);
 
-    if (existingScore) {
-      // Update existing score
-      const [updatedScore] = await db
-        .update(holeScores)
-        .set({
-          strokes,
-          netScore,
-          points,
-          updatedAt: new Date(),
-        })
-        .where(eq(holeScores.id, existingScore.id))
-        .returning();
-      return updatedScore;
-    } else {
-      // Create new score
-      const user = await this.getUser(userId);
-      if (!user) throw new Error('User not found');
+      // Calculate net score and points (Stableford scoring with proper handicap)
+      const par = 4; // Default par, can be customized per hole
+      console.log('🏌️ Calculating handicap for hole...');
+      const handicap = await this.calculateHoleHandicap(userId, hole);
+      const netScore = strokes - handicap;
+      let points = 0;
       
-      const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
-      if (!playerInfo) throw new Error('Player not found in any team');
+      if (netScore <= par - 2) points = 4;
+      else if (netScore === par - 1) points = 3;
+      else if (netScore === par) points = 2;
+      else if (netScore === par + 1) points = 1;
+      else points = 0;
 
-      const [newScore] = await db
-        .insert(holeScores)
-        .values({
-          userId,
-          teamId: playerInfo.teamId,
-          round,
-          hole,
-          strokes,
-          par,
-          handicap,
-          netScore,
-          points,
-        })
-        .returning();
-      return newScore;
+      console.log('✅ Calculated scores:', { par, handicap, netScore, points });
+
+      if (existingScore) {
+        // Update existing score
+        console.log('📝 Updating existing score record...');
+        const [updatedScore] = await db
+          .update(holeScores)
+          .set({
+            strokes,
+            netScore,
+            points,
+            updatedAt: new Date(),
+          })
+          .where(eq(holeScores.id, existingScore.id))
+          .returning();
+        console.log('✅ Score updated successfully:', updatedScore);
+        return updatedScore;
+      } else {
+        // Create new score
+        console.log('🆕 Creating new score record...');
+        const user = await this.getUser(userId);
+        if (!user) {
+          console.log('❌ User not found for ID:', userId);
+          throw new Error('User not found');
+        }
+        console.log('✅ User found:', `${user.firstName} ${user.lastName}`);
+        
+        const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
+        if (!playerInfo) {
+          console.log('❌ Player not found in any team:', `${user.firstName} ${user.lastName}`);
+          throw new Error('Player not found in any team');
+        }
+        console.log('✅ Player team info found:', playerInfo);
+
+        const [newScore] = await db
+          .insert(holeScores)
+          .values({
+            userId,
+            teamId: playerInfo.teamId,
+            round,
+            hole,
+            strokes,
+            par,
+            handicap,
+            netScore,
+            points,
+          })
+          .returning();
+        console.log('✅ New score created successfully:', newScore);
+        return newScore;
+      }
+    } catch (error) {
+      console.error('❌ Storage error in updateHoleScore:', error);
+      console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+      throw error;
     }
   }
 
