@@ -345,6 +345,42 @@ export default function HoleView({
           </div>
         )}
 
+        {/* Round 3 Match Play Info */}
+        {round === 3 && currentMatch && (
+          <Card className="mb-6 bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-blue-500/50">
+            <CardContent className="p-4">
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Trophy className="w-4 h-4 text-yellow-400" />
+                  <span className="text-sm font-semibold text-white">Match Play</span>
+                </div>
+                
+                <div className="flex items-center justify-center gap-3 text-white">
+                  <span className="font-medium">You</span>
+                  <span className="text-yellow-400 font-bold">vs</span>
+                  <span className="font-medium">
+                    {currentMatch.player1Id === userId ? currentMatch.player2Name : currentMatch.player1Name}
+                  </span>
+                </div>
+                
+                <div className="text-xs text-gray-300 space-y-1">
+                  <div>Holes {currentMatch.holes} • {currentMatch.strokesGiven > 0 ? `${currentMatch.strokesGiven} strokes` : 'No strokes'}</div>
+                  {getStrokeRecipient() && (
+                    <div className="text-yellow-400">
+                      Stroke recipient: {getStrokeRecipient()}
+                    </div>
+                  )}
+                  {isStrokeHole() && (
+                    <div className="text-yellow-400 font-medium">
+                      This hole: +1 stroke advantage
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Tab Navigation */}
         <div className="flex mb-6 bg-gray-800 rounded-lg p-1 border border-gray-700 shadow-lg">
           <button
