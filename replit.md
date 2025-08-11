@@ -24,7 +24,7 @@ Preferred communication style: Simple, everyday language.
 - ✅ **LIVE LEADERBOARDS FOR ALL ROUNDS**: Completely removed restrictions requiring completed rounds for leaderboard display. All rounds now show live data as scores are recorded in real-time. Teams with partial progress are ranked by current performance and awarded live placement points (1st=10pts, 2nd=9pts, etc.) regardless of completion status. Teams that haven't started a round are ranked below teams with scores, sorted by their total tournament points from other rounds.
 - ✅ **CRITICAL DATA INTEGRITY FIX**: Added comprehensive hole number validation (1-18 only) to all scoring endpoints to prevent invalid holes like "19" or "0" from being saved. Cleaned existing invalid hole data from database.
 - ✅ **TEAM 7 ROSTER UPDATE**: Updated Team 7 to replace Austin Hassani with James Ogilvie, resolving "Team members not found" errors for Sye Ellard during team scoring operations.
-- ✅ **DEERHURST SCORECARD UPDATE**: Updated Deerhurst Highlands course data with official Gold tee yardages and handicaps from tournament scorecard. All 18 holes now reflect accurate course measurements for tournament play.
+- ✅ **DEERHURST SCORECARD UPDATE**: Updated Deerhurst Highlands course data with official Gold tee yardages and handicaps from tournament scorecard. Total yardage: 7,011 yards, Par 72. All 18 holes now reflect accurate course measurements for tournament play.
 - ✅ **MUSKOKA BAY COURSE DATA**: Added complete Muskoka Bay Club course data with official Championship tee yardages and handicaps for Round 3. Total yardage: 6,849 yards, Par 72. Round 3 now uses accurate Muskoka Bay course information instead of Deerhurst data.
 
 ## System Architecture
