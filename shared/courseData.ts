@@ -20,14 +20,14 @@ export interface CourseData {
   holes: HoleInfo[];
 }
 
-// Deerhurst Golf Course data (Rounds 1-3)
+// Deerhurst Golf Course data (Rounds 1-3) - Accurate Deerhurst Highlands Course
 export const deerhurstCourse: CourseData = {
   name: "Deerhurst Highlands Golf Course",
   location: "Huntsville, Ontario",
   holes: [
-    { number: 1, par: 4, yardage: 365, handicap: 11 },
-    { number: 2, par: 4, yardage: 310, handicap: 17 },
-    { number: 3, par: 3, yardage: 135, handicap: 15 },
+    { number: 1, par: 4, yardage: 374, handicap: 11 },
+    { number: 2, par: 4, yardage: 465, handicap: 17 },
+    { number: 3, par: 3, yardage: 201, handicap: 15 },
     { number: 4, par: 4, yardage: 370, handicap: 5 },
     { number: 5, par: 5, yardage: 510, handicap: 3 },
     { number: 6, par: 4, yardage: 340, handicap: 13 },
