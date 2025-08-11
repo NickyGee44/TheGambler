@@ -719,8 +719,34 @@ export class DatabaseStorage implements IStorage {
       });
       
       return sortedTeams;
+    } else if (round === 1) {
+      // Round 1: Better ball format - sort by lowest net strokes (lower is better)
+      const teamsWithScores = teamPlacementData.filter(team => team.holesCompleted > 0);
+      const teamsWithoutScores = teamPlacementData.filter(team => team.holesCompleted === 0);
+      
+      // Sort teams with scores by net strokes (lower = better)
+      teamsWithScores.sort((a, b) => a.netStrokes - b.netStrokes);
+      
+      // Sort teams without scores by total tournament points (from previous rounds + match play)
+      teamsWithoutScores.sort((a, b) => b.totalPoints - a.totalPoints);
+      
+      // Combine: teams with current round scores first, then teams without
+      const sortedTeams = [...teamsWithScores, ...teamsWithoutScores];
+      
+      // Assign positions and award Round 1 placement points (10, 9, 8, 7, 6, 5, 4, 3)
+      sortedTeams.forEach((team, index) => {
+        team.position = index + 1;
+        // Award placement points for Round 1 based on net stroke ranking
+        if (team.holesCompleted >= 18) {
+          const placementPoints = Math.max(11 - (index + 1), 1); // 10pts for 1st, 9pts for 2nd, etc.
+          team.roundPoints = placementPoints;
+          team.totalPoints = placementPoints + team.matchPlayPoints;
+        }
+      });
+      
+      return sortedTeams;
     } else {
-      // Round 1 and 3: Sort teams by total points (round + match play) - highest points = best placement
+      // Round 3: Sort teams by total points (round + match play) - highest points = best placement
       // Apply live scoring logic: teams with scores first, then teams without scores
       const teamsWithScores = teamPlacementData.filter(team => team.holesCompleted > 0);
       const teamsWithoutScores = teamPlacementData.filter(team => team.holesCompleted === 0);
