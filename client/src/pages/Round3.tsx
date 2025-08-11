@@ -489,8 +489,9 @@ export default function Round3() {
           {/* Hole view with top padding for progress bar */}
           <div className="pt-20">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-1">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="play">Play</TabsTrigger>
+                <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
               </TabsList>
               
               <TabsContent value="play" className="mt-4">
@@ -599,7 +600,7 @@ export default function Round3() {
                   isFirstHole={currentHole === 1}
                   isLastHole={currentHole === 18}
                   isUpdating={updateScoreMutation.isPending}
-                  onShowLeaderboard={() => {}}
+                  onShowLeaderboard={() => setActiveTab("leaderboard")}
                   holeScores={holeScores}
                   currentMatch={currentMatch}
                   userId={user?.id}
@@ -607,6 +608,19 @@ export default function Round3() {
                   strokeInfo={getStrokeInfoForHole(currentHole)}
                   currentOpponent={currentOpponent}
                 />
+              </TabsContent>
+              
+              <TabsContent value="leaderboard" className="mt-4">
+                <div className="text-center py-8">
+                  <Trophy className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+                  <h3 className="text-lg font-semibold mb-2">Round 3 Leaderboard</h3>
+                  <p className="text-muted-foreground mb-4">
+                    View complete tournament standings using the gold leaderboard button at the top of the page.
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Match play points are included in all tournament leaderboards.
+                  </p>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
