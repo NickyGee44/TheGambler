@@ -11,8 +11,9 @@ Preferred communication style: Simple, everyday language.
 - ✅ Fixed critical Round 2/3 API routing issues by adding missing POST endpoints for hole score submissions
 - ✅ Resolved authentication problems by setting all user passwords to "abc123" for comprehensive testing  
 - ✅ Successfully tested scoring functionality across all 3 rounds for multiple players (Nick Grossi, Erik Boudreau, Connor Patterson, Bailey Carlson)
-- ✅ Verified birdie notification system is working correctly during score submissions
+- ✅ Verified birdie notification system is working correctly during score submissions and broadcasting to all connected players
 - ✅ Confirmed proper scoring calculations including handicap adjustments, net scores, and point allocations across all rounds
+- ✅ **CRITICAL FIX**: Resolved hole-by-hole score saving issue where scores weren't persisting when navigating between holes quickly. Reduced auto-save delay from 2s to 1s and implemented immediate save-on-navigation to prevent data loss
 
 ## System Architecture
 

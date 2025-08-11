@@ -110,6 +110,14 @@ export default function HoleView({
     },
   });
 
+  // Track the current score locally for immediate UI updates
+  const [localScore, setLocalScore] = useState(currentScore);
+  
+  // Update local score when prop changes
+  useEffect(() => {
+    setLocalScore(currentScore);
+  }, [currentScore]);
+
   // Auto-save statistics with 1-second delay after user stops making changes
   const scheduleStatsSave = () => {
     if (statsTimeoutRef.current) {
@@ -132,7 +140,7 @@ export default function HoleView({
     }, 1000);
   };
 
-  // Auto-save score with 2-second delay after user stops clicking
+  // Auto-save score with 1-second delay after user stops clicking
   const scheduleScoreSave = (strokes: number) => {
     if (scoreTimeoutRef.current) {
       clearTimeout(scoreTimeoutRef.current);
@@ -143,20 +151,38 @@ export default function HoleView({
     scoreTimeoutRef.current = setTimeout(() => {
       setIsSavingScore(false);
       onScoreUpdate(strokes);
-    }, 2000);
+    }, 1000); // Reduced from 2 seconds to 1 second
   };
 
-  // Clean up timers on unmount
+  // Save any pending scores/stats when navigating away from hole
   useEffect(() => {
     return () => {
+      // Force save any pending score when leaving the hole
       if (scoreTimeoutRef.current) {
         clearTimeout(scoreTimeoutRef.current);
+        // Immediately save the current score if there's a pending save
+        if (isSavingScore && localScore > 0) {
+          onScoreUpdate(localScore);
+        }
       }
+      // Force save any pending stats when leaving the hole
       if (statsTimeoutRef.current) {
         clearTimeout(statsTimeoutRef.current);
+        // Immediately save the current stats if there's a pending save
+        if (isSavingStats) {
+          const stats = {
+            fairwayInRegulation: fairwayInRegulation,
+            greenInRegulation: greenInRegulation,
+            putts,
+            penalties,
+            sandSaves,
+            upAndDowns,
+          };
+          updateStatsMutation.mutate(stats);
+        }
       }
     };
-  }, []);
+  }, [localScore, isSavingScore, isSavingStats, fairwayInRegulation, greenInRegulation, putts, penalties, sandSaves, upAndDowns, onScoreUpdate, updateStatsMutation]);
 
   // Track if we're in initial load to prevent auto-save during load
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -231,19 +257,11 @@ export default function HoleView({
     return isPlayer1 ? currentMatch.player2Name : currentMatch.player1Name;
   };
 
-  // Track the current score locally for immediate UI updates
-  const [localScore, setLocalScore] = useState(currentScore);
-  
-  // Update local score when prop changes
-  useEffect(() => {
-    setLocalScore(currentScore);
-  }, [currentScore]);
-
   const updateScore = (strokes: number) => {
     if (strokes < 1) return;
     // Update the score immediately in UI
     setLocalScore(strokes);
-    // Schedule save after 2 seconds of inactivity
+    // Schedule save after 1 second of inactivity
     scheduleScoreSave(strokes);
   };
 
@@ -467,7 +485,7 @@ export default function HoleView({
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-golf-green-400 mx-auto mb-2"></div>
                     <p className="text-sm text-gray-300">
-                      {isSavingScore ? "Auto-saving in 2s..." : "Saving score..."}
+                      {isSavingScore ? "Auto-saving in 1s..." : "Saving score..."}
                     </p>
                   </div>
                 )}
