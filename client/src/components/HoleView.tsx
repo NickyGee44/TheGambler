@@ -113,10 +113,10 @@ export default function HoleView({
   // Track the current score locally for immediate UI updates
   const [localScore, setLocalScore] = useState(currentScore);
   
-  // Update local score when prop changes
+  // Update local score when prop changes OR when hole changes
   useEffect(() => {
     setLocalScore(currentScore);
-  }, [currentScore]);
+  }, [currentScore, hole.number]);
 
   // Auto-save statistics with 1-second delay after user stops making changes
   const scheduleStatsSave = () => {
@@ -227,6 +227,11 @@ export default function HoleView({
       setPenalties(currentHoleScore.penalties || 0);
       setSandSaves(currentHoleScore.sandSaves || 0);
       setUpAndDowns(currentHoleScore.upAndDowns || 0);
+      
+      // Ensure local score is synchronized with the actual hole data
+      if (currentHoleScore.strokes !== localScore) {
+        setLocalScore(currentHoleScore.strokes);
+      }
     } else {
       // No existing data, reset to defaults
       console.log('No existing stats for hole', hole.number, '- resetting to defaults');
@@ -237,11 +242,14 @@ export default function HoleView({
       setPenalties(0);
       setSandSaves(0);
       setUpAndDowns(0);
+      
+      // Reset local score to match currentScore prop (should be 0 for new holes)
+      setLocalScore(currentScore);
     }
     
     // Set initial load to false after a brief delay to allow state to settle
     setTimeout(() => setIsInitialLoad(false), 200);
-  }, [hole.number, holeScores]);
+  }, [hole.number, holeScores, currentScore, localScore]);
   
   // Get course data for GPS
   const courseData = getCourseForRound(round);
