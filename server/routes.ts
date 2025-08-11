@@ -677,6 +677,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Round-specific hole score endpoints (for frontend compatibility)
+  app.post('/api/hole-scores/:round/:hole', requireAuth, async (req: any, res) => {
+    try {
+      const round = parseInt(req.params.round);
+      const hole = parseInt(req.params.hole);
+      const { score } = req.body;
+      const userId = req.user.id;
+      
+      console.log('=== ROUND-SPECIFIC SCORE SAVE ATTEMPT ===');
+      console.log('User ID:', userId);
+      console.log('Round:', round);
+      console.log('Hole:', hole);
+      console.log('Score:', score);
+      
+      // Validate input
+      if (!round || !hole || score === undefined) {
+        console.log('❌ Missing required fields:', { round, hole, score });
+        return res.status(400).json({ error: 'Missing required fields: round, hole, score' });
+      }
+      
+      if (score < 1 || score > 15) {
+        console.log('❌ Invalid score value:', score);
+        return res.status(400).json({ error: 'Invalid score value' });
+      }
+      
+      console.log('✅ Validation passed, updating score...');
+      const holeScore = await storage.updateHoleScore(userId, round, hole, score);
+      console.log('✅ Score updated successfully:', holeScore);
+      
+      // Check for birdie or better and broadcast notification
+      const scoreDiff = score - holeScore.par;
+      if (scoreDiff <= -1) { // Birdie or better
+        const user = await storage.getUser(userId);
+        const playerName = user ? `${user.firstName} ${user.lastName}` : 'Unknown Player';
+        
+        let scoreName = 'Birdie';
+        if (scoreDiff <= -3) scoreName = 'Albatross';
+        else if (scoreDiff === -2) scoreName = 'Eagle';
+        
+        // Broadcast birdie notification to all clients
+        console.log(`🎯 BIRDIE ALERT: ${playerName} scored ${scoreName} on hole ${hole}!`);
+        broadcast({
+          type: 'BIRDIE_NOTIFICATION',
+          data: { 
+            playerName, 
+            holeNumber: hole, 
+            scoreName,
+            round
+          }
+        });
+      }
+      
+      // Broadcast hole score update to all clients
+      broadcast({
+        type: 'HOLE_SCORE_UPDATE',
+        data: { holeScore, userId, round, hole }
+      });
+
+      res.json(holeScore);
+    } catch (error) {
+      console.error('Error updating round-specific hole score:', error);
+      console.error('Error details:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Failed to update hole score', details: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
   // Update hole score statistics
   app.patch('/api/hole-scores/:round/:hole/stats', requireAuth, async (req: any, res) => {
     try {

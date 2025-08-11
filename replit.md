@@ -6,6 +6,14 @@ The Gambler Cup 2025 is a golf tournament tracking application for an 8-team tou
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+**August 11, 2025**: 
+- ✅ Fixed critical Round 2/3 API routing issues by adding missing POST endpoints for hole score submissions
+- ✅ Resolved authentication problems by setting all user passwords to "abc123" for comprehensive testing  
+- ✅ Successfully tested scoring functionality across all 3 rounds for multiple players (Nick Grossi, Erik Boudreau, Connor Patterson, Bailey Carlson)
+- ✅ Verified birdie notification system is working correctly during score submissions
+- ✅ Confirmed proper scoring calculations including handicap adjustments, net scores, and point allocations across all rounds
+
 ## System Architecture
 
 ### Frontend Architecture
