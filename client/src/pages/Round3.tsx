@@ -339,6 +339,14 @@ export default function Round3() {
        (m.player1 === opponentName && m.player2 === playerName))
     );
     
+    console.log('Matchup lookup:', {
+      playerName,
+      opponentName,
+      holeRange,
+      matchupFound: !!matchup,
+      matchupText: matchup?.strokes
+    });
+    
     if (!matchup) {
       return {
         strokeDifference: 0,
@@ -359,11 +367,40 @@ export default function Round3() {
       strokesGiven = parseInt(strokeMatch[1]);
     }
     
-    // Determine if current player gets strokes
-    if (strokesText.includes(playerName.toLowerCase().split(' ')[0].toLowerCase()) && 
-        (strokesText.includes('gets') || strokesText.includes('receives'))) {
+    // Get first names for comparison
+    const playerFirstName = playerName.toLowerCase().split(' ')[0];
+    const opponentFirstName = opponentName.toLowerCase().split(' ')[0];
+    
+    // Determine if current player gets strokes by parsing different patterns:
+    // "Nic gets 3 strokes from Will" - Nic gets strokes
+    // "Will gives Nic 3 strokes" - Nic gets strokes  
+    // "Nic gives Sye 1 stroke" - Sye gets strokes
+    // "Sye gets 1 stroke from Nic" - Sye gets strokes
+    // "Nick Cook gives Nick Grossi 1 stroke" - Nick Grossi gets strokes
+    // "Johnny gives Nick 2 strokes" - Nick gets strokes
+    
+    if (strokesText.includes('no strokes') || strokesGiven === 0) {
+      playerGetsStrokes = false;
+    } else if (strokesText.includes(`${playerFirstName} gets`)) {
       playerGetsStrokes = true;
+    } else if (strokesText.includes(`gives ${playerFirstName}`)) {
+      // Handles both "X gives PlayerFirstName" and "Full Name gives PlayerFirstName"
+      playerGetsStrokes = true;
+    } else if (strokesText.includes(`${playerFirstName} gives`)) {
+      // Player gives strokes to opponent
+      playerGetsStrokes = false;
+    } else if (strokesText.includes(`${opponentFirstName} gets`) && strokesText.includes(`from ${playerFirstName}`)) {
+      // Opponent gets strokes from player  
+      playerGetsStrokes = false;
     }
+    
+    console.log('Stroke parsing result:', {
+      strokesText,
+      playerFirstName,
+      opponentFirstName,
+      strokesGiven,
+      playerGetsStrokes
+    });
     
     // Get the holes for the current range
     const courseHoles = course.holes;
@@ -407,8 +444,7 @@ export default function Round3() {
     
     console.log('Stroke calculation debug:', {
       hole,
-      userHandicap,
-      opponentHandicap,
+      playerName: `${user.firstName} ${user.lastName}`,
       opponent: currentOpponent.opponent,
       holeRange: currentOpponent.holeRange
     });
