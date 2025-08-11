@@ -653,6 +653,10 @@ export class DatabaseStorage implements IStorage {
       const roundPoints = await this.calculateTeamRoundPoints(team.id, round);
       const stablefordPoints = await this.calculateTeamStablefordPoints(team.id, round);
       const holesCompleted = await this.getTeamHolesCompleted(team.id, round);
+      const matchPlayPoints = await this.calculateTeamMatchPlayPoints(team.id);
+      
+      // Total points include both round points + match play points for comprehensive tournament standings
+      const totalPoints = roundPoints + matchPlayPoints;
       
       teamPlacementData.push({
         id: team.id,
@@ -660,16 +664,17 @@ export class DatabaseStorage implements IStorage {
         roundPoints: roundPoints,
         stablefordPoints: stablefordPoints,
         holesCompleted: holesCompleted,
-        totalPoints: roundPoints, // Use tournament placement points as totalPoints
+        matchPlayPoints: matchPlayPoints,
+        totalPoints: totalPoints, // Include match play points in total
         isTeamLeaderboard: true,
         position: 0 // Will be set after sorting
       });
     }
     
-    // Sort teams by round points (descending) - highest points = best placement
-    teamPlacementData.sort((a, b) => b.roundPoints - a.roundPoints);
+    // Sort teams by total points (round + match play) - highest points = best placement
+    teamPlacementData.sort((a, b) => b.totalPoints - a.totalPoints);
     
-    // Assign positions based on tournament placement points
+    // Assign positions based on total tournament points
     teamPlacementData.forEach((team, index) => {
       team.position = index + 1;
     });
@@ -1228,6 +1233,7 @@ export class DatabaseStorage implements IStorage {
         round1Points: 0,
         round2Points: 0,
         round3Points: 0,
+        matchPlayPoints: 0,
         totalPoints: 0,
         rank: 8,
         updatedAt: new Date()

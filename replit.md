@@ -16,6 +16,7 @@ Preferred communication style: Simple, everyday language.
 - ✅ **CRITICAL FIX**: Resolved hole-by-hole score saving issue where scores weren't persisting when navigating between holes quickly. Reduced auto-save delay from 2s to 1s and implemented immediate save-on-navigation to prevent data loss
 - ✅ **CRITICAL CRASH BUG FIXED**: Resolved Sye Ellard scoring crash caused by race condition in auto-save mechanism that created duplicate API calls and infinite loops
 - ✅ **TEST ROUND REMOVAL**: Completely removed test round functionality including database tables, server routes, client components, and all related code since testing phase is complete
+- ✅ **COMPLETE SCORE SYNC INTEGRATION**: Fixed comprehensive scoring system synchronization across all leaderboards and scoring endpoints. Match play points now correctly integrate with stroke play points in all round leaderboards, main scores page, and tournament standings. Teams are ranked by combined stroke play + match play totals throughout the entire application.
 
 ## System Architecture
 
