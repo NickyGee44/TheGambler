@@ -11,7 +11,7 @@ import { Trophy, Users, Target, Edit3 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
-const matchupData = [
+export const ROUND3_MATCHUPS = [
   {
     foursome: "Foursome 1",
     matchup: "Jordan Kreller vs Christian Hauck",
@@ -341,13 +341,13 @@ export default function Round3Matchups() {
     return matchup.player1 === userFullName || matchup.player2 === userFullName;
   };
 
-  const groupedMatchups = matchupData.reduce((acc, matchup) => {
+  const groupedMatchups = ROUND3_MATCHUPS.reduce((acc, matchup) => {
     if (!acc[matchup.foursome]) {
       acc[matchup.foursome] = [];
     }
     acc[matchup.foursome].push(matchup);
     return acc;
-  }, {} as Record<string, typeof matchupData>);
+  }, {} as Record<string, typeof ROUND3_MATCHUPS>);
 
   if (isLoading) {
     return (
