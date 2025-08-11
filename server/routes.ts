@@ -998,6 +998,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const round = parseInt(req.params.round);
       const leaderboard = await storage.getScrambleLeaderboard(round);
+      console.log('🚀 API RESPONSE: team-scramble leaderboard being sent to frontend:');
+      leaderboard.forEach(entry => {
+        console.log(`   Team ${entry.team?.teamNumber}: totalNetStrokes=${entry.totalNetStrokes}, totalGrossStrokes=${entry.totalGrossStrokes}, teamHandicap=${entry.teamHandicap}`);
+      });
       res.json(leaderboard);
     } catch (error) {
       console.error('Error fetching team scramble leaderboard:', error);

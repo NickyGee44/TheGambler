@@ -770,6 +770,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getScrambleLeaderboard(round: number): Promise<any[]> {
+    console.log(`🔍 getScrambleLeaderboard called with round: ${round}`);
+    
     // For scramble, each team should have only one score per hole
     // Get unique team scores per hole (should be same for all team members)
     const scores = await db.select({
@@ -780,6 +782,8 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(users, eq(holeScores.userId, users.id))
       .innerJoin(teams, eq(holeScores.teamId, teams.id))
       .where(eq(holeScores.round, round));
+    
+    console.log(`📊 Found ${scores.length} hole scores for round ${round}`);
 
     // Group by team and hole to get team scores
     const teamHoleScores = new Map<string, { team: Team; hole: number; strokes: number; points: number; par: number; handicap: number }>();
