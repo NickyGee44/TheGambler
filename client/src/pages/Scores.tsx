@@ -410,11 +410,6 @@ export default function Scores() {
                         <td className="px-3 sm:px-6 py-3 sm:py-4 text-center font-medium text-sm sm:text-base">{score.round3Points || '-'}</td>
                         <td className="px-3 sm:px-6 py-3 sm:py-4 text-center">
                           <div className="font-bold text-golf-green-600 text-sm sm:text-base">{score.totalPoints}</div>
-                          {score.currentRoundPoints > 0 && (
-                            <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-1 sm:px-2 py-1 rounded mt-1">
-                              Current: {score.currentRoundPoints} pts (#{score.currentRoundStanding})
-                            </div>
-                          )}
                         </td>
                       </tr>
                     ))}

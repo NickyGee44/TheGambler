@@ -1371,10 +1371,11 @@ export class DatabaseStorage implements IStorage {
       const round2Points = await this.calculateTeamRoundPoints(team.id, 2);
       const round3Points = await this.calculateTeamRoundPoints(team.id, 3);
       
-      // Calculate match play points for this team
+      // Calculate match play points for this team (for display purposes)
       const matchPlayPoints = await this.calculateTeamMatchPlayPoints(team.id);
       
-      const totalPoints = round1Points + round2Points + round3Points + matchPlayPoints;
+      // Total points: round1 + round2 + round3 (round3 already includes match play points)
+      const totalPoints = round1Points + round2Points + round3Points;
       
       const scoreWithTeam = {
         id: team.id,
