@@ -250,7 +250,7 @@ export default function Round2() {
                 <Trophy className="w-5 h-5 text-golf-green-600" />
                 Live Leaderboard - Round 2
               </CardTitle>
-              <CardDescription>Updated in real-time as players submit scores</CardDescription>
+              <CardDescription>Team net scores and holes completed - updated in real-time</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -296,10 +296,10 @@ export default function Round2() {
                         </div>
                         <div className="text-right">
                           <div className="font-bold text-golf-green-600 text-lg">
-                            {entry.totalPoints} pts
+                            {entry.netScore || entry.totalStrokes || 0}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {entry.totalStrokes} strokes • {entry.holes} holes
+                            {entry.holesCompleted || entry.holes || 0}/18 holes
                           </div>
                         </div>
                       </div>
@@ -337,10 +337,10 @@ export default function Round2() {
                           <div className="flex items-center gap-2">
                             <div className="text-right">
                               <div className="font-bold text-golf-green-600 text-lg">
-                                {entry.totalPoints} pts
+                                {entry.netScore || entry.totalStrokes || 0}
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                {entry.totalStrokes} strokes • {entry.holes} holes
+                                {entry.holesCompleted || entry.holes || 0}/18 holes
                               </div>
                             </div>
                             {isExpanded ? (
