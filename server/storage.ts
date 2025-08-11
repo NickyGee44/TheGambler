@@ -669,6 +669,11 @@ export class DatabaseStorage implements IStorage {
       if (round === 1 || round === 2) {
         netStrokes = await this.calculateTeamNetStrokes(team.id, round);
         grossStrokes = await this.calculateTeamGrossStrokes(team.id, round);
+        
+        // Ensure consistency: if we have no gross strokes, net strokes should also be 0
+        if (grossStrokes === 0) {
+          netStrokes = 0;
+        }
       }
       
       // Total points include both round points + match play points for comprehensive tournament standings
@@ -682,7 +687,7 @@ export class DatabaseStorage implements IStorage {
         netStrokes: netStrokes, // Add net strokes for Rounds 1 and 2
         netScore: netStrokes, // Also add as netScore for frontend compatibility
         totalGrossStrokes: grossStrokes, // Add gross strokes for display
-        grossToPar: grossStrokes > 0 ? grossStrokes - 72 : 0, // Calculate to par (assuming par 72)
+        grossToPar: grossStrokes > 0 && holesCompleted >= 18 ? grossStrokes - 72 : 0, // Only calculate to par for completed rounds
         holesCompleted: holesCompleted,
         matchPlayPoints: matchPlayPoints,
         totalPoints: totalPoints, // Include match play points in total
@@ -1635,8 +1640,8 @@ export class DatabaseStorage implements IStorage {
       );
 
     if (teamHoleScores.length === 0) {
-      // No scores yet, return a high number so they rank last
-      return 999;
+      // No scores yet, return 0 for display purposes
+      return 0;
     }
 
     if (round === 1) {
@@ -1659,38 +1664,36 @@ export class DatabaseStorage implements IStorage {
       return totalNetStrokes;
     } else if (round === 2) {
       // Round 2: Scramble format - take one score per hole
-      // Net strokes = gross strokes - handicap strokes
-      const uniqueHoles = new Map<number, { strokes: number, netScore: number }>();
+      // Calculate gross strokes first, then apply team handicap
+      const uniqueHoles = new Map<number, number>();
       for (const holeScore of teamHoleScores) {
-        if (!uniqueHoles.has(holeScore.hole)) {
-          uniqueHoles.set(holeScore.hole, {
-            strokes: holeScore.strokes,
-            netScore: holeScore.netScore
-        });
+        // Only include holes with actual scores (not 0 which are placeholders)
+        if (!uniqueHoles.has(holeScore.hole) && holeScore.strokes > 0) {
+          uniqueHoles.set(holeScore.hole, holeScore.strokes);
         }
       }
       
-      // Sum up all net scores (which already have handicap adjustments applied)
-      let totalNetStrokes = 0;
-      for (const holeData of uniqueHoles.values()) {
-        totalNetStrokes += holeData.netScore;
+      // If no actual scores recorded, return 0
+      if (uniqueHoles.size === 0) {
+        return 0;
       }
       
-      // If incomplete round, project remaining holes at par to give fair comparison
+      // Sum up gross strokes
+      const totalGrossStrokes = Array.from(uniqueHoles.values()).reduce((total, strokes) => total + strokes, 0);
+      
+      // Apply team scramble handicap to get net strokes
+      const team = await this.getTeam(teamId);
+      const teamHandicap = team ? Math.round(team.totalHandicap * 0.35) : 0; // 35% of combined handicap
+      const totalNetStrokes = totalGrossStrokes - teamHandicap;
+      
       const holesCompleted = uniqueHoles.size;
-      if (holesCompleted < 18) {
-        // Add par for remaining holes (typically par 72, so 4 per hole average)
-        const remainingHoles = 18 - holesCompleted;
-        totalNetStrokes += remainingHoles * 4; // Assume par 4 for remaining holes
-      }
       
       // Add logging for Round 2 teams
-      const team = await this.getTeam(teamId);
-      console.log(`🏌️ Round 2 Net Strokes - Team ${team?.teamNumber}: ${totalNetStrokes} net strokes (${holesCompleted}/18 holes)`);
+      console.log(`🏌️ Round 2 Net Strokes - Team ${team?.teamNumber}: ${totalNetStrokes} net strokes (${totalGrossStrokes} gross - ${teamHandicap} handicap, ${holesCompleted}/18 holes)`);
       
       return totalNetStrokes;
     } else {
-      return 999; // Default high value for other rounds
+      return 0; // Default value for other rounds
     }
   }
 
@@ -1724,7 +1727,8 @@ export class DatabaseStorage implements IStorage {
       // Round 2: Scramble format - take one score per hole
       const uniqueHoles = new Map<number, number>();
       for (const holeScore of teamHoleScores) {
-        if (!uniqueHoles.has(holeScore.hole)) {
+        // Only include holes with actual scores (not 0 which are placeholders)
+        if (!uniqueHoles.has(holeScore.hole) && holeScore.strokes > 0) {
           uniqueHoles.set(holeScore.hole, holeScore.strokes);
         }
       }
