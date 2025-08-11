@@ -842,26 +842,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(401).json({ error: 'User not found' });
       }
+
+      // Get the team details
+      const team = await storage.getTeam(user.teamId);
+      if (!team) {
+        return res.status(404).json({ error: 'Team not found' });
+      }
+
+      console.log('✅ Validation passed, saving individual scores for both team members...');
       
-      console.log('✅ Validation passed, updating team score...');
-      const holeScore = await storage.updateTeamHoleScore(user.teamId, round, hole, strokes, userId);
-      console.log('✅ Team score updated successfully:', holeScore);
+      // Parse team member names and get users
+      const player1Parts = team.player1Name.split(' ');
+      const player2Parts = team.player2Name.split(' ');
+      
+      const player1FirstName = player1Parts[0];
+      const player1LastName = player1Parts.slice(1).join(' ');
+      const player2FirstName = player2Parts[0];
+      const player2LastName = player2Parts.slice(1).join(' ');
+
+      const player1 = await storage.getUserByName(player1FirstName, player1LastName);
+      const player2 = await storage.getUserByName(player2FirstName, player2LastName);
+
+      if (!player1 || !player2) {
+        console.log('❌ Could not find team members:', {
+          player1Name: team.player1Name,
+          player2Name: team.player2Name,
+          player1Found: !!player1,
+          player2Found: !!player2
+        });
+        return res.status(404).json({ error: 'Team members not found' });
+      }
+
+      // Save the same scramble score for both team members
+      const holeScore1 = await storage.updateHoleScore(player1.id, round, hole, strokes);
+      const holeScore2 = await storage.updateHoleScore(player2.id, round, hole, strokes);
+
+      console.log('✅ Individual scores saved for both team members');
+      console.log('Player 1 score:', holeScore1);
+      console.log('Player 2 score:', holeScore2);
+      
+      // Use the first player's hole score for birdie checking (both should be identical)
+      const holeScore = holeScore1;
       
       // Check for birdie or better and broadcast notification
       const scoreDiff = strokes - holeScore.par;
       if (scoreDiff <= -1) { // Birdie or better
-        const playerName = `${user.firstName} ${user.lastName}`;
+        const teamName = `Team ${team.teamNumber}`;
         
         let scoreName = 'Birdie';
         if (scoreDiff <= -3) scoreName = 'Albatross';
         else if (scoreDiff === -2) scoreName = 'Eagle';
         
         // Broadcast birdie notification to all clients
-        console.log(`🎯 TEAM BIRDIE ALERT: ${playerName} scored ${scoreName} on hole ${hole} for their team!`);
+        console.log(`🎯 TEAM BIRDIE ALERT: ${teamName} scored ${scoreName} on hole ${hole}!`);
         broadcast({
           type: 'BIRDIE_NOTIFICATION',
           data: { 
-            playerName, 
+            playerName: teamName, 
             holeNumber: hole, 
             scoreName,
             round,
