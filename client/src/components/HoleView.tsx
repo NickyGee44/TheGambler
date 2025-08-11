@@ -155,21 +155,25 @@ export default function HoleView({
     }, 1000);
   };
 
-  // Auto-save score with 1-second delay after user stops clicking
-  const scheduleScoreSave = (strokes: number) => {
-    // Prevent scheduling if the score hasn't actually changed
+  // Save score immediately when user clicks
+  const saveScoreImmediately = (strokes: number) => {
+    // Prevent saving if the score hasn't actually changed
     if (strokes === currentScore) return;
     
+    // Clear any pending saves
     if (scoreTimeoutRef.current) {
       clearTimeout(scoreTimeoutRef.current);
     }
     
     setIsSavingScore(true);
     
-    scoreTimeoutRef.current = setTimeout(() => {
+    // Save immediately without delay
+    onScoreUpdate(strokes);
+    
+    // Clear saving state after a short UI feedback delay
+    setTimeout(() => {
       setIsSavingScore(false);
-      onScoreUpdate(strokes);
-    }, 1000); // Reduced from 2 seconds to 1 second
+    }, 500);
   };
 
   // Save any pending scores/stats when navigating away from hole
@@ -290,10 +294,9 @@ export default function HoleView({
     // Prevent rapid-fire calls by checking if we're already saving this score
     if (isSavingScore && localScore === strokes) return;
     
-    // Update the score immediately in UI
+    // Update the score immediately in UI and save right away
     setLocalScore(strokes);
-    // Schedule save after 1 second of inactivity
-    scheduleScoreSave(strokes);
+    saveScoreImmediately(strokes);
   };
 
   const getScoreColor = (score: number, par: number) => {
@@ -517,7 +520,10 @@ export default function HoleView({
                         key={score}
                         variant="outline"
                         size="lg"
-                        onClick={() => updateScore(score)}
+                        onClick={() => {
+                          setLocalScore(score);
+                          saveScoreImmediately(score);
+                        }}
                         className={`w-12 h-12 rounded-full font-bold text-lg transition-all duration-200 ${
                           localScore === score 
                             ? (() => {
@@ -540,7 +546,11 @@ export default function HoleView({
                   <Button
                     variant="outline"
                     size="lg"
-                    onClick={() => updateScore(hole.par + 5)}
+                    onClick={() => {
+                      const youSuckScore = hole.par + 5;
+                      setLocalScore(youSuckScore);
+                      saveScoreImmediately(youSuckScore);
+                    }}
                     className={`w-full font-bold transition-all duration-200 ${
                       localScore === hole.par + 5 
                         ? 'bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-red-400' 
