@@ -373,9 +373,16 @@ export class DatabaseStorage implements IStorage {
   // Calculate match play points for a team
   async calculateTeamMatchPlayPoints(teamId: number): Promise<number> {
     try {
+      console.log(`=== CALCULATING MATCH PLAY POINTS FOR TEAM ${teamId} ===`);
+      
       // Get all players on this team
       const team = await this.getTeam(teamId);
-      if (!team) return 0;
+      if (!team) {
+        console.log('❌ Team not found');
+        return 0;
+      }
+
+      console.log(`🏌️ Team ${team.teamNumber}: ${team.player1Name} & ${team.player2Name}`);
 
       const player1 = await db.select()
         .from(users)
@@ -387,45 +394,50 @@ export class DatabaseStorage implements IStorage {
         .where(and(eq(users.firstName, team.player2Name.split(' ')[0]), eq(users.lastName, team.player2Name.split(' ')[1])))
         .limit(1);
 
-      let totalPoints = 0;
+      let totalTeamPoints = 0;
 
       // Calculate points for player 1
       if (player1.length > 0) {
+        console.log(`🔍 Checking matches for ${team.player1Name} (ID: ${player1[0].id})`);
         const player1Matches = await db.select()
           .from(matchPlayMatches)
           .where(or(eq(matchPlayMatches.player1Id, player1[0].id), eq(matchPlayMatches.player2Id, player1[0].id)));
 
+        let player1Points = 0;
         for (const match of player1Matches) {
           if (match.result && match.pointsAwarded) {
             const points = match.pointsAwarded as any;
-            if (match.player1Id === player1[0].id) {
-              totalPoints += points.player1 || 0;
-            } else {
-              totalPoints += points.player2 || 0;
-            }
+            const playerPoints = match.player1Id === player1[0].id ? (points.player1 || 0) : (points.player2 || 0);
+            player1Points += playerPoints;
+            console.log(`   Match ${match.holeSegment}: +${playerPoints} points (Total: ${player1Points})`);
           }
         }
+        totalTeamPoints += player1Points;
+        console.log(`✅ ${team.player1Name} total: ${player1Points} points`);
       }
 
       // Calculate points for player 2
       if (player2.length > 0) {
+        console.log(`🔍 Checking matches for ${team.player2Name} (ID: ${player2[0].id})`);
         const player2Matches = await db.select()
           .from(matchPlayMatches)
           .where(or(eq(matchPlayMatches.player1Id, player2[0].id), eq(matchPlayMatches.player2Id, player2[0].id)));
 
+        let player2Points = 0;
         for (const match of player2Matches) {
           if (match.result && match.pointsAwarded) {
             const points = match.pointsAwarded as any;
-            if (match.player1Id === player2[0].id) {
-              totalPoints += points.player1 || 0;
-            } else {
-              totalPoints += points.player2 || 0;
-            }
+            const playerPoints = match.player1Id === player2[0].id ? (points.player1 || 0) : (points.player2 || 0);
+            player2Points += playerPoints;
+            console.log(`   Match ${match.holeSegment}: +${playerPoints} points (Total: ${player2Points})`);
           }
         }
+        totalTeamPoints += player2Points;
+        console.log(`✅ ${team.player2Name} total: ${player2Points} points`);
       }
 
-      return totalPoints;
+      console.log(`🏆 TEAM ${team.teamNumber} MATCH PLAY TOTAL: ${totalTeamPoints} points`);
+      return totalTeamPoints;
     } catch (error) {
       console.error('Error calculating match play points for team:', teamId, error);
       return 0;
