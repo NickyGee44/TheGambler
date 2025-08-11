@@ -51,6 +51,7 @@ import {
 import { db, pool } from "./db";
 import { eq, and, asc, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
+import { deerhurstCourse } from "@shared/courseData";
 
 // Interface for storage operations
 export interface IStorage {
@@ -1645,22 +1646,92 @@ export class DatabaseStorage implements IStorage {
     }
 
     if (round === 1) {
-      // Round 1: Better ball format - take best net score per hole between team members
-      const holeMap = new Map<number, number>();
+      // Round 1: Better ball format - calculate proper net scores using handicap strokes per hole
+      const team = await this.getTeam(teamId);
+      if (!team) return 0;
+
+      // Get team members by matching first names
+      const player1FirstName = team.player1Name?.split(' ')[0] || '';
+      const player2FirstName = team.player2Name?.split(' ')[0] || '';
+      
+      console.log(`🔧 DEBUG: Calculating better ball for Team ${team.teamNumber} (${team.player1Name} & ${team.player2Name})`);
+      console.log(`🔧 DEBUG: Looking for players: ${player1FirstName} and ${player2FirstName}`);
+      
+      // Get team members more precisely by full name matching
+      const teamMembers = await db.select()
+        .from(users)
+        .where(
+          or(
+            and(
+              eq(users.firstName, player1FirstName),
+              eq(users.lastName, team.player1Name?.split(' ')[1] || '')
+            ),
+            and(
+              eq(users.firstName, player2FirstName),
+              eq(users.lastName, team.player2Name?.split(' ')[1] || '')
+            )
+          )
+        );
+
+      console.log(`🔧 DEBUG: Found ${teamMembers.length} team members:`, teamMembers.map(p => `${p.firstName} ${p.lastName} (${p.handicap} hcp)`));
+
+      if (teamMembers.length < 2) return 0;
+
+      // Use Deerhurst course data for Round 1
+      
+      // Group hole scores by hole number
+      const holeScoresByHole = new Map<number, any[]>();
       for (const holeScore of teamHoleScores) {
-        const hole = holeScore.hole;
-        const netScore = holeScore.netScore;
-        if (!holeMap.has(hole) || netScore < holeMap.get(hole)!) {
-          holeMap.set(hole, netScore);
+        if (holeScore.strokes > 0) { // Only include actual scores
+          if (!holeScoresByHole.has(holeScore.hole)) {
+            holeScoresByHole.set(holeScore.hole, []);
+          }
+          holeScoresByHole.get(holeScore.hole)!.push(holeScore);
+        }
+      }
+
+      let totalNetStrokes = 0;
+      let holesCompleted = 0;
+
+      // Calculate better ball net score for each hole
+      for (const [holeNumber, holeScores] of holeScoresByHole) {
+        const holeInfo = deerhurstCourse.holes.find(h => h.number === holeNumber);
+        if (!holeInfo) continue;
+
+        const netScores: number[] = [];
+
+        // Calculate net score for each player on this hole
+        for (const holeScore of holeScores) {
+          // Find the player
+          const player = teamMembers.find(p => p.id === holeScore.userId);
+          if (!player) continue;
+
+          // Use the correct team handicap, not the user database handicap
+          const isPlayer1 = player.firstName === team.player1Name?.split(' ')[0] && player.lastName === team.player1Name?.split(' ')[1];
+          const playerHandicap = isPlayer1 ? team.player1Handicap : team.player2Handicap;
+          
+          console.log(`🔧 HANDICAP DEBUG: ${player.firstName} ${player.lastName} - IsPlayer1: ${isPlayer1} - Team handicap: ${playerHandicap} - User DB handicap: ${player.handicap}`);
+          const grossScore = holeScore.strokes;
+
+          // Calculate strokes received on this hole based on handicap ranking
+          const strokesReceived = Math.floor(playerHandicap / 18) + 
+            (holeInfo.handicap <= (playerHandicap % 18) ? 1 : 0);
+
+          const netScore = grossScore - strokesReceived;
+          netScores.push(netScore);
+          
+          console.log(`🏌️ Player ${player.firstName} ${player.lastName} (${playerHandicap} hcp) - Hole ${holeNumber}: ${grossScore} gross - ${strokesReceived} strokes = ${netScore} net`);
+        }
+
+        // Take the better (lower) net score for the team
+        if (netScores.length > 0) {
+          const bestNetScore = Math.min(...netScores);
+          totalNetStrokes += bestNetScore;
+          holesCompleted++;
         }
       }
       
-      // Add logging for Round 1 teams
-      const team = await this.getTeam(teamId);
-      const totalNetStrokes = Array.from(holeMap.values()).reduce((total, netScore) => total + netScore, 0);
-      const holesCompleted = holeMap.size;
-      console.log(`🏌️ Round 1 Net Strokes - Team ${team?.teamNumber}: ${totalNetStrokes} net strokes (${holesCompleted}/18 holes)`);
-      
+      console.log(`🏌️ Round 1 Better Ball - Team ${team.teamNumber}: ${totalNetStrokes} net strokes (${holesCompleted}/18 holes)`);
       return totalNetStrokes;
     } else if (round === 2) {
       // Round 2: Scramble format - take one score per hole
