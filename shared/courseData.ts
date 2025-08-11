@@ -80,16 +80,8 @@ export const testRoundPlayers = [
   { id: 13, name: "Bailey Carlson", handicap: 16 }
 ];
 
-// Get course data for test round
-export const getTestRoundCourse = (): CourseData => {
-  return lionheadCourse;
-};
 
-// Check if user can access test round
-export const canAccessTestRound = (userId: number): boolean => {
-  const allowedIds = [1, 3, 6, 13]; // Nick, Erik, Connor, Bailey
-  return allowedIds.includes(userId);
-};
+
 
 // GPS coordinates placeholder (to be provided later)
 export interface GPSCoordinate {
@@ -168,11 +160,7 @@ export const getHoleCoordinates = (hole: number, round?: number): HoleCoordinate
   return holeData || null;
 };
 
-// Get GPS coordinates for test round hole specifically
-export const getTestRoundHoleCoordinates = (hole: number): HoleCoordinates | null => {
-  const holeData = lionheadGPSCoordinates.find(h => h.hole === hole);
-  return holeData || null;
-};
+
 
 // Haversine formula to calculate distance between two GPS points in yards
 export const calculateDistanceInYards = (

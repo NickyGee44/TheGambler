@@ -14,6 +14,8 @@ Preferred communication style: Simple, everyday language.
 - ✅ Verified birdie notification system is working correctly during score submissions and broadcasting to all connected players
 - ✅ Confirmed proper scoring calculations including handicap adjustments, net scores, and point allocations across all rounds
 - ✅ **CRITICAL FIX**: Resolved hole-by-hole score saving issue where scores weren't persisting when navigating between holes quickly. Reduced auto-save delay from 2s to 1s and implemented immediate save-on-navigation to prevent data loss
+- ✅ **CRITICAL CRASH BUG FIXED**: Resolved Sye Ellard scoring crash caused by race condition in auto-save mechanism that created duplicate API calls and infinite loops
+- ✅ **TEST ROUND REMOVAL**: Completely removed test round functionality including database tables, server routes, client components, and all related code since testing phase is complete
 
 ## System Architecture
 

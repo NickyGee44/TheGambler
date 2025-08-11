@@ -20,7 +20,7 @@ import Round1 from "@/pages/Round1";
 import Round2 from "@/pages/Round2";
 import Round3 from "@/pages/Round3";
 import Round3Matchups from "@/pages/Round3Matchups";
-import TestRound from "@/pages/TestRound";
+
 import TrashTalk from "@/pages/TrashTalk";
 import AuthPage from "@/pages/AuthPage";
 import PictureAssignment from "@/pages/PictureAssignment";
@@ -153,7 +153,7 @@ function Router() {
             <Route path="/round1" component={Round1} />
             <Route path="/round2" component={Round2} />
             <Route path="/round3" component={Round3} />
-            <Route path="/test-round" component={TestRound} />
+
             <Route path="/scores" component={Scores} />
             <Route path="/stats" component={Stats} />
             <Route path="/player/:userId" component={PlayerProfile} />

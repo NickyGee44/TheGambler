@@ -4,7 +4,7 @@ import {
   scores,
   sideBets,
   photos,
-  matchups,
+
   holeScores,
   tournaments,
   playerTournamentHistory,
@@ -13,8 +13,7 @@ import {
   boozelympicsGames,
   boozelympicsMatches,
   golfRelayMatches,
-  testRoundHoleScores,
-  testRoundConfig,
+
   chatMessages,
   type User,
   type InsertUser,
@@ -22,7 +21,7 @@ import {
   type Score,
   type SideBet,
   type Photo,
-  type Matchup,
+
   type HoleScore,
   type Tournament,
   type PlayerTournamentHistory,
@@ -31,13 +30,12 @@ import {
   type BoozelympicsGame,
   type BoozelympicsMatch,
   type GolfRelayMatch,
-  type TestRoundHoleScore,
-  type TestRoundConfig,
+
   type InsertTeam,
   type InsertScore,
   type InsertSideBet,
   type InsertPhoto,
-  type InsertMatchup,
+
   type InsertHoleScore,
   type InsertTournament,
   type InsertPlayerTournamentHistory,
@@ -46,8 +44,7 @@ import {
   type InsertBoozelympicsGame,
   type InsertBoozelympicsMatch,
   type InsertGolfRelayMatch,
-  type InsertTestRoundHoleScore,
-  type InsertTestRoundConfig,
+
   type ChatMessage,
   type InsertChatMessage,
 } from "@shared/schema";
@@ -143,13 +140,7 @@ export interface IStorage {
   createGolfRelayMatch(match: InsertGolfRelayMatch): Promise<GolfRelayMatch>;
   getGolfRelayLeaderboard(): Promise<any[]>;
   
-  // Test Round operations
-  getTestRoundHoleScores(userId?: number): Promise<TestRoundHoleScore[]>;
-  createTestRoundHoleScore(holeScore: InsertTestRoundHoleScore): Promise<TestRoundHoleScore>;
-  updateTestRoundHoleScore(userId: number, hole: number, strokes: number): Promise<TestRoundHoleScore>;
-  updateTestRoundHoleScoreStats(userId: number, hole: number, statsData: any): Promise<TestRoundHoleScore>;
-  getTestRoundConfig(): Promise<TestRoundConfig | null>;
-  canAccessTestRound(userId: number): Promise<boolean>;
+
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2047,106 +2038,7 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  // Test Round operations
-  async getTestRoundHoleScores(userId?: number): Promise<TestRoundHoleScore[]> {
-    const query = db.select().from(testRoundHoleScores).orderBy(asc(testRoundHoleScores.hole));
-    
-    if (userId) {
-      return await query.where(eq(testRoundHoleScores.userId, userId));
-    }
-    
-    return await query;
-  }
 
-  async createTestRoundHoleScore(holeScore: InsertTestRoundHoleScore): Promise<TestRoundHoleScore> {
-    const [newScore] = await db.insert(testRoundHoleScores).values(holeScore).returning();
-    return newScore;
-  }
-
-  async updateTestRoundHoleScore(userId: number, hole: number, strokes: number): Promise<TestRoundHoleScore> {
-    console.log('=== STORAGE: updateTestRoundHoleScore ===');
-    console.log('Input:', { userId, hole, strokes });
-    
-    try {
-      // Get current hole data for par and handicap calculations
-      const lionheadCourse = await import('@shared/courseData');
-      const holeData = lionheadCourse.lionheadCourse.holes.find(h => h.number === hole);
-      const par = holeData?.par || 4;
-      const handicap = holeData?.handicap || 0;
-      
-      console.log('✅ Hole data found:', { par, handicap, holeNumber: hole });
-      
-      // For test round, net score equals strokes (no handicap adjustments)
-      const netScore = strokes;
-      
-      // Calculate gross match play points (1 = win, 0.5 = tie, 0 = loss against par)
-      let points = 0;
-      if (strokes < par) points = 1;
-      else if (strokes === par) points = 0.5;
-
-      console.log('✅ Calculated scores:', { netScore, points });
-
-      // Check if record exists
-      console.log('🔍 Checking for existing record...');
-      const existing = await db.select().from(testRoundHoleScores)
-        .where(and(eq(testRoundHoleScores.userId, userId), eq(testRoundHoleScores.hole, hole)));
-
-      console.log('✅ Existing records found:', existing.length);
-
-      if (existing.length > 0) {
-        // Update existing record
-        console.log('📝 Updating existing record...');
-        const [updated] = await db.update(testRoundHoleScores)
-          .set({ strokes, netScore, points, par, handicap, updatedAt: new Date() })
-          .where(and(eq(testRoundHoleScores.userId, userId), eq(testRoundHoleScores.hole, hole)))
-          .returning();
-        console.log('✅ Record updated successfully:', updated);
-        return updated;
-      } else {
-        // Create new record
-        console.log('🆕 Creating new record...');
-        const [created] = await db.insert(testRoundHoleScores)
-          .values({ userId, hole, strokes, par, handicap, netScore, points })
-          .returning();
-        console.log('✅ Record created successfully:', created);
-        return created;
-      }
-    } catch (error) {
-      console.error('❌ Storage error in updateTestRoundHoleScore:', error);
-      console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
-      throw error;
-    }
-  }
-
-  async updateTestRoundHoleScoreStats(userId: number, hole: number, statsData: any): Promise<TestRoundHoleScore> {
-    const [updated] = await db.update(testRoundHoleScores)
-      .set({
-        fairwayInRegulation: statsData.fairwayInRegulation,
-        greenInRegulation: statsData.greenInRegulation,
-        driveDirection: statsData.driveDirection,
-        putts: statsData.putts,
-        penalties: statsData.penalties,
-        sandSaves: statsData.sandSaves,
-        upAndDowns: statsData.upAndDowns,
-        updatedAt: new Date()
-      })
-      .where(and(eq(testRoundHoleScores.userId, userId), eq(testRoundHoleScores.hole, hole)))
-      .returning();
-    return updated;
-  }
-
-  async getTestRoundConfig(): Promise<TestRoundConfig | null> {
-    const [config] = await db.select().from(testRoundConfig).where(eq(testRoundConfig.isActive, true));
-    return config || null;
-  }
-
-  async canAccessTestRound(userId: number): Promise<boolean> {
-    const config = await this.getTestRoundConfig();
-    if (!config) return false;
-    
-    const allowedIds = Array.isArray(config.allowedPlayerIds) ? config.allowedPlayerIds : [1, 3, 6, 13];
-    return allowedIds.includes(userId);
-  }
 }
 
 export const storage = new DatabaseStorage();
