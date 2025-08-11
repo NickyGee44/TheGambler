@@ -468,7 +468,7 @@ export default function HoleView({
                 </div>
                 
                 <div className="text-white text-sm">
-                  <div className="font-medium">vs {currentOpponent.name}</div>
+                  <div className="font-medium">vs {currentOpponent.opponent}</div>
                 </div>
                 
                 {strokeInfo && (
@@ -479,7 +479,7 @@ export default function HoleView({
                       </div>
                     ) : strokeInfo.opponentGetsStroke ? (
                       <div className="text-blue-400 font-medium">
-                        {currentOpponent.name} gets +1 stroke
+                        {currentOpponent.opponent} gets +1 stroke
                       </div>
                     ) : (
                       <div className="text-gray-400">
