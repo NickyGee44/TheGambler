@@ -82,95 +82,7 @@ function PlayerHoleScores({ playerId, round }: { playerId: number; round: number
   );
 }
 
-// Match Play Leaderboard Component
-function MatchPlayLeaderboard({ leaderboard, currentUser }: { 
-  leaderboard: MatchPlayLeaderboard[], 
-  currentUser: any 
-}) {
-  // Component receives leaderboard data from API
-  
-  if (!leaderboard || leaderboard.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-golf-green-600" />
-            Match Play Leaderboard
-          </CardTitle>
-          <CardDescription>No matches have been completed yet</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            <Target className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
-            <p>Match play results will appear here once matches are completed.</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-golf-green-600" />
-          Match Play Leaderboard
-        </CardTitle>
-        <CardDescription>6-hole match play results</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {leaderboard.map((entry, index) => (
-            <div
-              key={entry.playerId}
-              className={`flex items-center justify-between p-4 rounded-lg border-2 ${
-                entry.playerId === currentUser?.id 
-                  ? 'bg-golf-green-50 border-golf-green-200 dark:bg-golf-green-900/20 dark:border-golf-green-700' 
-                  : 'bg-background border-border'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                  index === 0 ? 'bg-yellow-500 text-white' : 
-                  index === 1 ? 'bg-gray-400 text-white' :
-                  index === 2 ? 'bg-amber-600 text-white' : 
-                  'bg-golf-green-600 text-white'
-                }`}>
-                  {index + 1}
-                </div>
-                <ProfilePicture 
-                  firstName={entry.playerName?.split(' ')[0] || 'Unknown'} 
-                  lastName={entry.playerName?.split(' ')[1] || ''} 
-                  size="md"
-                />
-                <div>
-                  <div className="font-semibold">
-                    {entry.playerName || 'Unknown Player'}
-                    {entry.playerId === currentUser?.id && (
-                      <span className="ml-2 text-xs text-golf-green-600 font-medium">(You)</span>
-                    )}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {entry.matchesPlayed} matches played
-                  </div>
-                </div>
-              </div>
-              
-              <div className="text-right">
-                <div className="font-bold text-lg text-golf-green-600">
-                  {entry.totalPoints} pts
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {entry.matchesWon}W - {entry.matchesTied}T - {entry.matchesLost}L
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 interface MatchPlayGroup {
   id: number;
@@ -209,15 +121,7 @@ interface MatchPlayMatch {
   createdAt: string;
 }
 
-interface MatchPlayLeaderboard {
-  playerId: number;
-  playerName: string;
-  totalPoints: number;
-  matchesPlayed: number;
-  matchesWon: number;
-  matchesTied: number;
-  matchesLost: number;
-}
+
 
 export default function Round3() {
   const { user } = useAuth();
@@ -274,11 +178,7 @@ export default function Round3() {
     refetchInterval: 10000, // Refresh every 10 seconds
   });
 
-  // Fetch match play leaderboard
-  const { data: matchPlayLeaderboard = [], isLoading: isLeaderboardLoading, error: leaderboardError } = useQuery<MatchPlayLeaderboard[]>({
-    queryKey: ["/api/match-play/leaderboard"],
-    refetchInterval: 10000, // Refresh every 10 seconds
-  });
+
 
   // Fetch all registered players to get handicap data for stroke calculations
   const { data: allPlayers = [] } = useQuery<any[]>({
@@ -589,9 +489,8 @@ export default function Round3() {
           {/* Hole view with top padding for progress bar */}
           <div className="pt-20">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-1">
                 <TabsTrigger value="play">Play</TabsTrigger>
-                <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
               </TabsList>
               
               <TabsContent value="play" className="mt-4">
@@ -707,13 +606,6 @@ export default function Round3() {
                   playerHandicap={user?.handicap || 0}
                   strokeInfo={getStrokeInfoForHole(currentHole)}
                   currentOpponent={currentOpponent}
-                />
-              </TabsContent>
-              
-              <TabsContent value="leaderboard" className="mt-4">
-                <MatchPlayLeaderboard
-                  leaderboard={matchPlayLeaderboard}
-                  currentUser={user}
                 />
               </TabsContent>
             </Tabs>

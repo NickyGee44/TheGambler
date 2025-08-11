@@ -33,7 +33,7 @@ export default function Navigation() {
     { href: "/round1", label: "Round 1", icon: Target },
     { href: "/round2", label: "Round 2", icon: Target },
     { href: "/round3", label: "Round 3", icon: Target },
-    ...(canAccessTestRound ? [{ href: "/test-round", label: "Test Round", icon: Target }] : []),
+
     { href: "/scores", label: "Scores", icon: Trophy },
     { href: "/stats", label: "Statistics", icon: BarChart3 },
     { href: "/sidebets", label: "Side Bets", icon: Coins },
