@@ -370,6 +370,68 @@ export class DatabaseStorage implements IStorage {
     }));
   }
 
+  // Calculate match play points for a team
+  async calculateTeamMatchPlayPoints(teamId: number): Promise<number> {
+    try {
+      // Get all players on this team
+      const team = await this.getTeam(teamId);
+      if (!team) return 0;
+
+      const player1 = await db.select()
+        .from(users)
+        .where(and(eq(users.firstName, team.player1Name.split(' ')[0]), eq(users.lastName, team.player1Name.split(' ')[1])))
+        .limit(1);
+        
+      const player2 = await db.select()
+        .from(users)
+        .where(and(eq(users.firstName, team.player2Name.split(' ')[0]), eq(users.lastName, team.player2Name.split(' ')[1])))
+        .limit(1);
+
+      let totalPoints = 0;
+
+      // Calculate points for player 1
+      if (player1.length > 0) {
+        const player1Matches = await db.select()
+          .from(matchPlayMatches)
+          .where(or(eq(matchPlayMatches.player1Id, player1[0].id), eq(matchPlayMatches.player2Id, player1[0].id)));
+
+        for (const match of player1Matches) {
+          if (match.result && match.pointsAwarded) {
+            const points = match.pointsAwarded as any;
+            if (match.player1Id === player1[0].id) {
+              totalPoints += points.player1 || 0;
+            } else {
+              totalPoints += points.player2 || 0;
+            }
+          }
+        }
+      }
+
+      // Calculate points for player 2
+      if (player2.length > 0) {
+        const player2Matches = await db.select()
+          .from(matchPlayMatches)
+          .where(or(eq(matchPlayMatches.player1Id, player2[0].id), eq(matchPlayMatches.player2Id, player2[0].id)));
+
+        for (const match of player2Matches) {
+          if (match.result && match.pointsAwarded) {
+            const points = match.pointsAwarded as any;
+            if (match.player1Id === player2[0].id) {
+              totalPoints += points.player1 || 0;
+            } else {
+              totalPoints += points.player2 || 0;
+            }
+          }
+        }
+      }
+
+      return totalPoints;
+    } catch (error) {
+      console.error('Error calculating match play points for team:', teamId, error);
+      return 0;
+    }
+  }
+
   async createHoleScore(holeScore: InsertHoleScore): Promise<HoleScore> {
     const [score] = await db
       .insert(holeScores)
@@ -1200,7 +1262,10 @@ export class DatabaseStorage implements IStorage {
       const round2Points = await this.calculateTeamRoundPoints(team.id, 2);
       const round3Points = await this.calculateTeamRoundPoints(team.id, 3);
       
-      const totalPoints = round1Points + round2Points + round3Points;
+      // Calculate match play points for this team
+      const matchPlayPoints = await this.calculateTeamMatchPlayPoints(team.id);
+      
+      const totalPoints = round1Points + round2Points + round3Points + matchPlayPoints;
       
       const scoreWithTeam = {
         id: team.id,
@@ -1208,6 +1273,7 @@ export class DatabaseStorage implements IStorage {
         round1Points,
         round2Points,
         round3Points,
+        matchPlayPoints,
         totalPoints,
         rank: 1, // Will be calculated after sorting
         updatedAt: new Date(),

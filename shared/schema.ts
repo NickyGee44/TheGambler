@@ -42,6 +42,7 @@ export const scores = pgTable("scores", {
   round1Points: integer("round1_points").default(0),
   round2Points: integer("round2_points").default(0),
   round3Points: integer("round3_points").default(0),
+  matchPlayPoints: integer("match_play_points").default(0),
   totalPoints: integer("total_points").default(0),
   rank: integer("rank").default(8),
   updatedAt: timestamp("updated_at").defaultNow(),

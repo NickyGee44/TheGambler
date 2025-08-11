@@ -20,7 +20,7 @@ import ScoreIndicator from "@/components/ScoreIndicator";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
 import { ROUND3_MATCHUPS } from "./Round3Matchups";
-import Round3MatchLeaderboard from "@/components/Round3MatchLeaderboard";
+
 
 interface HoleScore {
   id: number;
@@ -228,7 +228,7 @@ export default function Round3() {
   
   const [currentHole, setCurrentHole] = useState(1);
   const [isRoundStarted, setIsRoundStarted] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
+
   const [showRoundComplete, setShowRoundComplete] = useState(false);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("play");
@@ -562,107 +562,7 @@ export default function Round3() {
     );
   }
 
-  // Show leaderboard overlay
-  if (showLeaderboard) {
-    return (
-      <div className="min-h-screen bg-background p-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-3xl font-bold text-golf-green-600 flex items-center gap-2">
-                <Crown className="w-8 h-8 text-yellow-500" />
-                Round 3 Final
-              </h1>
-              <Button
-                variant="outline"
-                onClick={() => setShowLeaderboard(false)}
-              >
-                Back to Round
-              </Button>
-            </div>
-            <p className="text-muted-foreground">Final round leaderboard at Muskoka Bay Golf Club</p>
-          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-golf-green-600" />
-                Final Round Leaderboard
-              </CardTitle>
-              <CardDescription>Championship round at Muskoka Bay Golf Club</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {leaderboard.map((entry, index) => {
-                  const playerId = `${entry.playerId || entry.user?.firstName || 'player'}-${entry.user?.lastName || entry.playerName || index}`;
-                  const isExpanded = expandedPlayer === playerId;
-                  return (
-                    <Collapsible 
-                      key={playerId}
-                      open={isExpanded}
-                      onOpenChange={(open) => setExpandedPlayer(open ? playerId : null)}
-                    >
-                      <CollapsibleTrigger asChild>
-                        <div className="flex items-center justify-between p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-                              index === 0 ? 'bg-yellow-500 text-white' : 
-                              index === 1 ? 'bg-gray-400 text-white' :
-                              index === 2 ? 'bg-amber-600 text-white' : 
-                              'bg-golf-green-600 text-white'
-                            }`}>
-                              {index + 1}
-                            </div>
-                            <ProfilePicture 
-                              firstName={entry.playerName?.split(' ')[0] || entry.user?.firstName || 'Unknown'} 
-                              lastName={entry.playerName?.split(' ')[1] || entry.user?.lastName || 'Player'} 
-                              size="lg"
-                            />
-                            <div>
-                              <div className="font-semibold">
-                                {entry.playerName || `${entry.user?.firstName || 'Unknown'} ${entry.user?.lastName || 'Player'}`}
-                              </div>
-                              <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Users className="w-3 h-3" />
-                                Team {entry.team?.teamNumber || 'N/A'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="text-right">
-                              <div className="font-bold text-golf-green-600 text-lg">
-                                {entry.totalPoints} pts
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                {entry.totalStrokes} strokes • {entry.holes} holes
-                              </div>
-                            </div>
-                            {isExpanded ? (
-                              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                            ) : (
-                              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                            )}
-                          </div>
-                        </div>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <PlayerHoleScores playerId={entry.playerId || entry.user?.id || 0} round={round} />
-                      </CollapsibleContent>
-                    </Collapsible>
-                  );
-                })}
-                {leaderboard.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No scores submitted yet. Be the first to start the final round!
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   // Show hole view when round is started
   if (isRoundStarted) {
@@ -800,7 +700,7 @@ export default function Round3() {
                   isFirstHole={currentHole === 1}
                   isLastHole={currentHole === 18}
                   isUpdating={updateScoreMutation.isPending}
-                  onShowLeaderboard={() => setShowLeaderboard(true)}
+                  onShowLeaderboard={() => {}}
                   holeScores={holeScores}
                   currentMatch={currentMatch}
                   userId={user?.id}
@@ -811,17 +711,10 @@ export default function Round3() {
               </TabsContent>
               
               <TabsContent value="leaderboard" className="mt-4">
-                <Round3MatchLeaderboard 
-                  matchResults={matchPlayMatches} 
-                  allPlayers={allPlayers}
-                  currentUser={user} 
+                <MatchPlayLeaderboard
+                  leaderboard={matchPlayLeaderboard}
+                  currentUser={user}
                 />
-                <div className="mt-4">
-                  <MatchPlayLeaderboard
-                    leaderboard={matchPlayLeaderboard}
-                    currentUser={user}
-                  />
-                </div>
               </TabsContent>
             </Tabs>
           </div>
@@ -965,16 +858,6 @@ export default function Round3() {
               >
                 <Play className="w-5 h-5 mr-2" />
                 {holesPlayed > 0 ? "Continue Final Round" : "Start Final Round"}
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
-                onClick={() => setShowLeaderboard(true)}
-              >
-                <Trophy className="w-5 h-5 mr-2" />
-                View Leaderboard
               </Button>
             </div>
 
