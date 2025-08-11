@@ -391,6 +391,7 @@ export default function Round2() {
               isUpdating={updateScoreMutation.isPending}
               onShowLeaderboard={() => setShowLeaderboard(true)}
               holeScores={holeScores}
+              playerHandicap={user?.handicap || 0}
             />
           </div>
 

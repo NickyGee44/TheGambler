@@ -43,6 +43,7 @@ interface HoleViewProps {
   holeScores: any[];
   currentMatch?: any;
   userId?: number;
+  playerHandicap?: number;
 }
 
 export default function HoleView({
@@ -58,7 +59,8 @@ export default function HoleView({
   onShowLeaderboard,
   holeScores,
   currentMatch,
-  userId
+  userId,
+  playerHandicap = 0
 }: HoleViewProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'scoring' | 'map'>('scoring');
@@ -301,6 +303,23 @@ export default function HoleView({
     return "Triple Bogey+";
   };
 
+  // Determine if player gets a stroke on this hole based on handicap
+  const getStrokeOnHole = (playerHandicap: number, holeHandicap: number): boolean => {
+    if (playerHandicap <= 0) return false;
+    return playerHandicap >= holeHandicap;
+  };
+
+  // Calculate net score (gross score minus strokes)
+  const getNetScore = (grossScore: number, playerHandicap: number, holeHandicap: number): number => {
+    if (grossScore <= 0) return grossScore;
+    const strokesOnHole = getStrokeOnHole(playerHandicap, holeHandicap) ? 1 : 0;
+    return grossScore - strokesOnHole;
+  };
+
+  // Check if player receives a stroke on this hole
+  const receivesStroke = getStrokeOnHole(playerHandicap, hole.handicap);
+  const netScore = getNetScore(localScore, playerHandicap, hole.handicap);
+
   return (
     <div key={`hole-${hole.number}-${round}-v4-no-save-button`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Sticky Navigation Header */}
@@ -333,8 +352,11 @@ export default function HoleView({
                 <span>{hole.yardage}y</span>
                 <span>•</span>
                 <span>HCP {hole.handicap}</span>
+                {receivesStroke && (
+                  <span className="text-blue-400 font-medium">• You Get Stroke</span>
+                )}
                 {isStrokeHole() && (
-                  <span className="text-yellow-400 font-medium">• Stroke Hole</span>
+                  <span className="text-yellow-400 font-medium">• Match Play Stroke</span>
                 )}
               </div>
             </div>
@@ -493,13 +515,27 @@ export default function HoleView({
                   
                   {/* Current Score Display */}
                   {localScore > 0 && (
-                    <div className="text-center">
+                    <div className="text-center space-y-2">
                       <div className={`text-4xl font-bold ${getScoreColor(localScore, hole.par)}`}>
                         {localScore}
                       </div>
                       <div className="text-sm font-medium text-gray-300">
                         {getScoreName(localScore, hole.par)}
                       </div>
+                      {receivesStroke && playerHandicap > 0 && (
+                        <div className="bg-blue-600/20 border border-blue-500/50 rounded-lg p-3 space-y-1">
+                          <div className="text-blue-400 font-medium text-sm">Handicap Stroke</div>
+                          <div className="text-white">
+                            <span className="text-lg font-bold">Net Score: {netScore}</span>
+                            <span className="text-sm text-gray-300 ml-2">
+                              ({localScore} - 1 stroke)
+                            </span>
+                          </div>
+                          <div className="text-xs text-blue-300">
+                            Your {playerHandicap} handicap gives you a stroke on holes ranked {playerHandicap} or harder
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

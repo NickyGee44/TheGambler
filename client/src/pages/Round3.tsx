@@ -585,6 +585,7 @@ export default function Round3() {
                   holeScores={holeScores}
                   currentMatch={currentMatch}
                   userId={user?.id}
+                  playerHandicap={user?.handicap || 0}
                 />
               </TabsContent>
               
