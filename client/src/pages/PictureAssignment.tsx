@@ -25,7 +25,7 @@ import syeEllardImg from "@/assets/sye-ellard.jpeg";
 import willBibbingsImg from "@/assets/will-bibbings.jpeg";
 
 const playerNames = [
-  "Austin Hassani",
+  "James Ogilvie",
   "Bailey Carlson", 
   "Ben Braun",
   "Christian Hauck",
@@ -53,7 +53,7 @@ export default function PictureAssignment() {
   const { toast } = useToast();
   
   const [assignments, setAssignments] = useState<ImageAssignment[]>([
-    { filename: "austin-hassani.png", currentName: "Austin Hassani", image: austinHassaniImg },
+    { filename: "austin-hassani.png", currentName: "James Ogilvie", image: austinHassaniImg },
     { filename: "bailey-carlson.jpeg", currentName: "Bailey Carlson", image: baileyCarlsonImg },
     { filename: "ben-braun.jpeg", currentName: "Ben Braun", image: benBraunImg },
     { filename: "christian-hauck.png", currentName: "Christian Hauck", image: christianHauckImg },

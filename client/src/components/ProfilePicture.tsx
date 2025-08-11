@@ -35,7 +35,7 @@ export default function ProfilePicture({
     "Bailey Carlson": baileycarlsonImg,
     "Ben Braun": benbraunImg,
     "Christian Hauck": christianhauckImg,
-    "Austin Hassani": austinhassaniImg,
+    "James Ogilvie": austinhassaniImg,
     "Connor Patterson": connorpattersonImg,
     "Kevin Durco": kevindurcoImg,
     "Erik Boudreau": erikboudreauImg,

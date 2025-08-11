@@ -174,11 +174,11 @@ const matchupData = [
   },
   {
     foursome: "Foursome 4",
-    matchup: "Nick Grossi vs Austin Hassani",
+    matchup: "Nick Grossi vs James Ogilvie",
     holes: "13–18",
-    strokes: "Austin gives Nick 1 stroke",
+    strokes: "James gives Nick 1 stroke",
     player1: "Nick Grossi",
-    player2: "Austin Hassani"
+    player2: "James Ogilvie"
   },
   {
     foursome: "Foursome 4",
@@ -190,19 +190,19 @@ const matchupData = [
   },
   {
     foursome: "Foursome 4",
-    matchup: "Nick Cook vs Austin Hassani",
+    matchup: "Nick Cook vs James Ogilvie",
     holes: "7–12",
-    strokes: "Austin gets 2 strokes from Cook",
+    strokes: "James gets 2 strokes from Cook",
     player1: "Nick Cook",
-    player2: "Austin Hassani"
+    player2: "James Ogilvie"
   },
   {
     foursome: "Foursome 4",
-    matchup: "Johnny Magnatta vs Austin Hassani",
+    matchup: "Johnny Magnatta vs James Ogilvie",
     holes: "13–18",
-    strokes: "Austin gets 2 strokes from Johnny",
+    strokes: "James gets 2 strokes from Johnny",
     player1: "Johnny Magnatta",
-    player2: "Austin Hassani"
+    player2: "James Ogilvie"
   }
 ];
 

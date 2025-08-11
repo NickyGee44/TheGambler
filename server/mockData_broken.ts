@@ -108,7 +108,7 @@ async function generateMockMatchPlayData() {
     },
     {
       groupNumber: 4,
-      players: ["Nick Grossi", "Nick Cook", "Johnny Magnatta", "Austin Hassani"]
+      players: ["Nick Grossi", "Nick Cook", "Johnny Magnatta", "James Ogilvie"]
     }
   ];
   
