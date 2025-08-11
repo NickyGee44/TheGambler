@@ -19,6 +19,7 @@ import ProfilePicture from "@/components/ProfilePicture";
 import ScoreIndicator from "@/components/ScoreIndicator";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
+import { ROUND3_MATCHUPS } from "./Round3Matchups";
 
 interface HoleScore {
   id: number;
@@ -287,6 +288,41 @@ export default function Round3() {
     refetchInterval: 5000, // Refresh every 5 seconds during play
   });
 
+  // Function to determine opponent based on current hole and user name
+  const getCurrentOpponent = (currentHole: number, playerName: string) => {
+    if (!playerName) return null;
+    
+    // Determine hole range
+    let holeRange: string;
+    if (currentHole >= 1 && currentHole <= 6) {
+      holeRange = "1–6";
+    } else if (currentHole >= 7 && currentHole <= 12) {
+      holeRange = "7–12";
+    } else if (currentHole >= 13 && currentHole <= 18) {
+      holeRange = "13–18";
+    } else {
+      return null;
+    }
+
+    // Find the matchup for this player and hole range
+    const matchup = ROUND3_MATCHUPS.find(m => 
+      m.holes === holeRange && 
+      (m.player1 === playerName || m.player2 === playerName)
+    );
+
+    if (!matchup) return null;
+
+    return {
+      opponent: matchup.player1 === playerName ? matchup.player2 : matchup.player1,
+      holeRange: holeRange,
+      strokes: matchup.strokes,
+      foursome: matchup.foursome
+    };
+  };
+
+  // Get current opponent info
+  const currentOpponent = getCurrentOpponent(currentHole, `${user?.firstName} ${user?.lastName}`);
+
   const updateScoreMutation = useMutation({
     mutationFn: async ({ hole, strokes }: { hole: number; strokes: number }) => {
       const res = await apiRequest("POST", "/api/hole-scores", {
@@ -518,8 +554,50 @@ export default function Round3() {
               </TabsList>
               
               <TabsContent value="play" className="mt-4">
-                {/* Match Play Information Card */}
-                {currentMatch && (
+                {/* Debug: Show when no opponent found */}
+                {!currentOpponent && user && isRoundStarted && (
+                  <div className="mb-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-3">
+                    <div className="text-sm text-orange-700 dark:text-orange-300">
+                      <div className="font-medium mb-1">No match found for:</div>
+                      <div>Player: {user.firstName} {user.lastName}</div>
+                      <div>Current Hole: {currentHole}</div>
+                      <div>Expected to find in ROUND3_MATCHUPS</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Current Match Opponent Card */}
+                {currentOpponent && (
+                  <div className="mb-6 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                        <Target className="w-5 h-5" />
+                        Current Match - Holes {currentOpponent.holeRange}
+                      </h3>
+                      <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
+                        {currentOpponent.foursome}
+                      </Badge>
+                    </div>
+                    
+                    <div className="text-center mb-3">
+                      <div className="text-xl font-bold text-blue-800 dark:text-blue-200 mb-1">
+                        Playing Against: {currentOpponent.opponent}
+                      </div>
+                      <div className="text-sm text-blue-600 dark:text-blue-300">
+                        {currentOpponent.strokes}
+                      </div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="text-xs text-blue-600 dark:text-blue-400">
+                        You'll play different opponents for each 6-hole segment
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Legacy Match Play Information Card - fallback */}
+                {!currentOpponent && currentMatch && (
                   <div className="mb-6 bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
