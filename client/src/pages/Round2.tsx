@@ -250,7 +250,7 @@ export default function Round2() {
                 <Trophy className="w-5 h-5 text-golf-green-600" />
                 Live Leaderboard - Round 2
               </CardTitle>
-              <CardDescription>Team net scores and holes completed - updated in real-time</CardDescription>
+              <CardDescription>Net stroke play format - lowest net score wins, updated in real-time</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
