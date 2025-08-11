@@ -456,12 +456,19 @@ export default function HoleView({
                     {Array.from({ length: hole.par + 4 }, (_, i) => i + 1).map((score) => (
                       <Button
                         key={score}
-                        variant={localScore === score ? "default" : "outline"}
+                        variant="outline"
                         size="lg"
                         onClick={() => updateScore(score)}
                         className={`w-12 h-12 rounded-full font-bold text-lg transition-all duration-200 ${
                           localScore === score 
-                            ? `${getScoreColor(score, hole.par).replace('text-', 'bg-').replace('-600', '-600')} text-white font-extrabold shadow-lg transform scale-105 border-2 border-white` 
+                            ? (() => {
+                                const diff = score - hole.par;
+                                if (diff <= -2) return 'bg-blue-600 hover:bg-blue-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-blue-400'; // Eagle
+                                if (diff === -1) return 'bg-green-600 hover:bg-green-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-green-400'; // Birdie
+                                if (diff === 0) return 'bg-gray-600 hover:bg-gray-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-gray-400'; // Par
+                                if (diff === 1) return 'bg-yellow-600 hover:bg-yellow-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-yellow-400'; // Bogey
+                                return 'bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-red-400'; // Double+
+                              })()
                             : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 hover:scale-102'
                         }`}
                       >
@@ -472,12 +479,12 @@ export default function HoleView({
                   
                   {/* You Suck Button */}
                   <Button
-                    variant={localScore === hole.par + 5 ? "default" : "outline"}
+                    variant="outline"
                     size="lg"
                     onClick={() => updateScore(hole.par + 5)}
                     className={`w-full font-bold transition-all duration-200 ${
                       localScore === hole.par + 5 
-                        ? 'bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-white' 
+                        ? 'bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-red-400' 
                         : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 hover:scale-102'
                     }`}
                   >
