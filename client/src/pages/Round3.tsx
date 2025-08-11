@@ -20,6 +20,7 @@ import ScoreIndicator from "@/components/ScoreIndicator";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
 import { ROUND3_MATCHUPS } from "./Round3Matchups";
+import Round3MatchLeaderboard from "@/components/Round3MatchLeaderboard";
 
 interface HoleScore {
   id: number;
@@ -736,10 +737,17 @@ export default function Round3() {
               </TabsContent>
               
               <TabsContent value="leaderboard" className="mt-4">
-                <MatchPlayLeaderboard
-                  leaderboard={matchPlayLeaderboard}
-                  currentUser={user}
+                <Round3MatchLeaderboard 
+                  matchResults={matchPlayMatches} 
+                  allPlayers={allPlayers}
+                  currentUser={user} 
                 />
+                <div className="mt-4">
+                  <MatchPlayLeaderboard
+                    leaderboard={matchPlayLeaderboard}
+                    currentUser={user}
+                  />
+                </div>
               </TabsContent>
             </Tabs>
           </div>
