@@ -263,7 +263,9 @@ export default function Round1() {
                 </TabsList>
                 
                 <TabsContent value="team" className="space-y-2 mt-4">
-                  {teamLeaderboard.map((entry, index) => (
+                  {teamLeaderboard
+                    .sort((a, b) => (a.totalNetStrokes || a.netStrokes || 999) - (b.totalNetStrokes || b.netStrokes || 999))
+                    .map((entry, index) => (
                     <div
                       key={`team-${entry.team.id}`}
                       className="flex items-center justify-between p-4 bg-muted rounded-lg"
