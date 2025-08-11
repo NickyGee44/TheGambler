@@ -299,10 +299,10 @@ export default function Round1() {
                       </div>
                       <div className="text-right">
                         <div className="font-bold text-golf-green-600 text-lg">
-                          {entry.totalPoints} pts
+                          {entry.totalNetStrokes || entry.netStrokes || 0} net
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {entry.totalNetStrokes} net • {entry.holes} holes
+                          {entry.holes || entry.holesCompleted || 0}/18 holes
                         </div>
                       </div>
                     </div>
