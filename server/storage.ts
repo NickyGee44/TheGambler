@@ -78,6 +78,14 @@ export interface IStorage {
   getLeaderboard(round: number): Promise<(HoleScore & { user: User; team: Team })[]>;
   getScrambleLeaderboard(round: number): Promise<any[]>;
   
+  // Team Hole Scores (for scramble)
+  getTeamHoleScores(teamId: number, round: number): Promise<HoleScore[]>;
+  updateTeamHoleScore(teamId: number, round: number, hole: number, strokes: number, userId: number): Promise<HoleScore>;
+  
+  // Team Hole Scores (for scramble)
+  getTeamHoleScores(teamId: number, round: number): Promise<HoleScore[]>;
+  updateTeamHoleScore(teamId: number, round: number, hole: number, strokes: number, userId: number): Promise<HoleScore>;
+  
   // Player Statistics
   getPlayerStatistics(): Promise<any[]>;
   
@@ -2120,6 +2128,133 @@ export class DatabaseStorage implements IStorage {
       if (!b.bestTime) return -1;
       return a.bestTime - b.bestTime;
     });
+  }
+
+  // Team Hole Scores (for scramble format)
+  async getTeamHoleScores(teamId: number, round: number): Promise<HoleScore[]> {
+    // For scramble, we store one score per hole per team
+    // We'll use the first player from the team as the "owner" of the score
+    const team = await db.select().from(teams).where(eq(teams.id, teamId)).limit(1);
+    if (!team.length) {
+      return [];
+    }
+
+    // Get any team member who has scores for this round
+    const teamMembers = await db.select()
+      .from(users)
+      .where(eq(users.teamId, teamId));
+
+    if (!teamMembers.length) {
+      return [];
+    }
+
+    // Try to get scores from any team member (they should all have the same scores for scramble)
+    for (const member of teamMembers) {
+      const scores = await db.select()
+        .from(holeScores)
+        .where(and(eq(holeScores.userId, member.id), eq(holeScores.round, round)))
+        .orderBy(asc(holeScores.hole));
+      
+      if (scores.length > 0) {
+        return scores;
+      }
+    }
+
+    return [];
+  }
+
+  async updateTeamHoleScore(teamId: number, round: number, hole: number, strokes: number, userId: number): Promise<HoleScore> {
+    // For scramble format, we need to update scores for ALL team members
+    // This ensures both teammates see the same scorecard
+    
+    const team = await db.select().from(teams).where(eq(teams.id, teamId)).limit(1);
+    if (!team.length) {
+      throw new Error('Team not found');
+    }
+
+    // Get all team members
+    const teamMembers = await db.select()
+      .from(users)
+      .where(eq(users.teamId, teamId));
+
+    if (!teamMembers.length) {
+      throw new Error('No team members found');
+    }
+
+    // Get course data for par and handicap info
+    const { getCourseForRound } = await import('@shared/courseData');
+    const course = getCourseForRound(round);
+    const holeData = course.holes.find(h => h.number === hole);
+    
+    if (!holeData) {
+      throw new Error(`Hole ${hole} not found for round ${round}`);
+    }
+
+    // Calculate team handicap for stroke allocation
+    const lowerHcp = Math.min(team[0].player1Handicap || 0, team[0].player2Handicap || 0);
+    const higherHcp = Math.max(team[0].player1Handicap || 0, team[0].player2Handicap || 0);
+    const teamHandicap = Math.round((lowerHcp * 0.35) + (higherHcp * 0.15));
+
+    // Determine if team gets a stroke on this hole
+    const strokesReceived = teamHandicap >= holeData.handicap ? 1 : 0;
+    const netScore = strokes - strokesReceived;
+
+    // Calculate Stableford points based on net score
+    const netToPar = netScore - holeData.par;
+    let stablefordPoints = 0;
+    if (netToPar <= -2) stablefordPoints = 4; // Eagle or better
+    else if (netToPar === -1) stablefordPoints = 3; // Birdie
+    else if (netToPar === 0) stablefordPoints = 2; // Par
+    else if (netToPar === 1) stablefordPoints = 1; // Bogey
+    // Double bogey or worse = 0 points
+
+    let returnHoleScore: HoleScore;
+
+    // Update or create hole score for each team member
+    for (const member of teamMembers) {
+      const existingScore = await db.select()
+        .from(holeScores)
+        .where(and(
+          eq(holeScores.userId, member.id),
+          eq(holeScores.round, round),
+          eq(holeScores.hole, hole)
+        ))
+        .limit(1);
+
+      if (existingScore.length > 0) {
+        // Update existing score
+        const [updatedScore] = await db.update(holeScores)
+          .set({
+            strokes,
+            points: stablefordPoints,
+            netScore,
+            updatedAt: new Date()
+          })
+          .where(eq(holeScores.id, existingScore[0].id))
+          .returning();
+        returnHoleScore = updatedScore;
+      } else {
+        // Create new score
+        const [newScore] = await db.insert(holeScores)
+          .values({
+            userId: member.id,
+            teamId: teamId,
+            round,
+            hole,
+            strokes,
+            par: holeData.par,
+            handicap: holeData.handicap,
+            points: stablefordPoints,
+            netScore,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning();
+        returnHoleScore = newScore;
+      }
+    }
+
+    return returnHoleScore!;
   }
 
 

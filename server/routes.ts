@@ -774,6 +774,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Team scramble hole scores for Round 2
+  app.get('/api/team-hole-scores/:round', requireAuth, async (req: any, res) => {
+    try {
+      const round = parseInt(req.params.round);
+      const userId = req.user.id;
+      
+      // Get user's team
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+      
+      // Get team hole scores for scramble format
+      const teamHoleScores = await storage.getTeamHoleScores(user.teamId, round);
+      res.json(teamHoleScores);
+    } catch (error) {
+      console.error('Error fetching team hole scores:', error);
+      res.status(500).json({ error: 'Failed to fetch team hole scores' });
+    }
+  });
+
+  app.post('/api/team-hole-scores', requireAuth, async (req: any, res) => {
+    try {
+      const { round, hole, strokes } = req.body;
+      const userId = req.user.id;
+      
+      console.log('=== TEAM SCRAMBLE SCORE SAVE ATTEMPT ===');
+      console.log('User ID:', userId);
+      console.log('Round:', round);
+      console.log('Hole:', hole);
+      console.log('Strokes:', strokes);
+      
+      // Validate input
+      if (!round || !hole || strokes === undefined) {
+        console.log('❌ Missing required fields:', { round, hole, strokes });
+        return res.status(400).json({ error: 'Missing required fields: round, hole, strokes' });
+      }
+      
+      if (strokes < 1 || strokes > 15) {
+        console.log('❌ Invalid strokes value:', strokes);
+        return res.status(400).json({ error: 'Invalid strokes value' });
+      }
+      
+      // Get user's team
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+      
+      console.log('✅ Validation passed, updating team score...');
+      const holeScore = await storage.updateTeamHoleScore(user.teamId, round, hole, strokes, userId);
+      console.log('✅ Team score updated successfully:', holeScore);
+      
+      // Check for birdie or better and broadcast notification
+      const scoreDiff = strokes - holeScore.par;
+      if (scoreDiff <= -1) { // Birdie or better
+        const playerName = `${user.firstName} ${user.lastName}`;
+        
+        let scoreName = 'Birdie';
+        if (scoreDiff <= -3) scoreName = 'Albatross';
+        else if (scoreDiff === -2) scoreName = 'Eagle';
+        
+        // Broadcast birdie notification to all clients
+        console.log(`🎯 TEAM BIRDIE ALERT: ${playerName} scored ${scoreName} on hole ${hole} for their team!`);
+        broadcast({
+          type: 'BIRDIE_NOTIFICATION',
+          data: { 
+            playerName, 
+            holeNumber: hole, 
+            scoreName,
+            round,
+            isTeamScore: true
+          }
+        });
+      }
+      
+      // Broadcast team hole score update to all clients
+      broadcast({
+        type: 'TEAM_HOLE_SCORE_UPDATE',
+        data: { holeScore, teamId: user.teamId, userId, round, hole }
+      });
+
+      res.json(holeScore);
+    } catch (error) {
+      console.error('Error updating team hole score:', error);
+      console.error('Error details:', error instanceof Error ? error.message : error);
+      res.status(500).json({ error: 'Failed to update team hole score', details: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
   app.get('/api/leaderboard/:round', async (req, res) => {
     try {
       const round = parseInt(req.params.round);

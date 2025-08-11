@@ -82,8 +82,20 @@ export default function Round2() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [location, navigate] = useLocation();
+  
+  // Fetch team data for scramble format
+  const { data: teamData } = useQuery<Team>({
+    queryKey: [`/api/teams/${user?.teamId}`],
+    enabled: !!user?.teamId,
+  });
   const round = 2;
   const course = getCourseForRound(round);
+  
+  // Calculate team handicap for scramble (35% lower + 15% higher)
+  const teamHandicap = teamData ? Math.round(
+    (Math.min(teamData.player1Handicap || 0, teamData.player2Handicap || 0) * 0.35) +
+    (Math.max(teamData.player1Handicap || 0, teamData.player2Handicap || 0) * 0.15)
+  ) : 0;
   
   const [currentHole, setCurrentHole] = useState(1);
   const [isRoundStarted, setIsRoundStarted] = useState(false);
@@ -104,9 +116,9 @@ export default function Round2() {
     },
   });
 
-  // Fetch user's hole scores for round 2
+  // Fetch team's hole scores for round 2 scramble
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({
-    queryKey: [`/api/hole-scores/${round}`],
+    queryKey: [`/api/team-hole-scores/${round}`],
     enabled: !!user,
   });
 
@@ -118,7 +130,7 @@ export default function Round2() {
 
   const updateScoreMutation = useMutation({
     mutationFn: async ({ hole, strokes }: { hole: number; strokes: number }) => {
-      const res = await apiRequest("POST", "/api/hole-scores", {
+      const res = await apiRequest("POST", "/api/team-hole-scores", {
         round,
         hole,
         strokes,
@@ -126,11 +138,11 @@ export default function Round2() {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
       toast({
-        title: "Score saved",
-        description: "Your score has been updated.",
+        title: "Team score saved",
+        description: "Your team's score has been updated.",
       });
     },
     onError: (error: Error) => {
@@ -392,6 +404,16 @@ export default function Round2() {
               onShowLeaderboard={() => setShowLeaderboard(true)}
               holeScores={holeScores}
               playerHandicap={user?.handicap || 0}
+              teamHandicap={teamHandicap}
+              isScrambleMode={true}
+              teamInfo={user ? {
+                teamNumber: user.teamId,
+                player1Name: teamData?.player1Name,
+                player2Name: teamData?.player2Name,
+                player1Handicap: teamData?.player1Handicap,
+                player2Handicap: teamData?.player2Handicap,
+                teamHandicap: teamHandicap
+              } : null}
             />
           </div>
 

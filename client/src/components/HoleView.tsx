@@ -44,6 +44,16 @@ interface HoleViewProps {
   currentMatch?: any;
   userId?: number;
   playerHandicap?: number;
+  teamHandicap?: number;
+  isScrambleMode?: boolean;
+  teamInfo?: {
+    teamNumber: number;
+    player1Name: string;
+    player2Name: string;
+    player1Handicap: number;
+    player2Handicap: number;
+    teamHandicap: number;
+  } | null;
   strokeInfo?: {
     playerGetsStroke: boolean;
     opponentGetsStroke: boolean;
@@ -72,6 +82,9 @@ export default function HoleView({
   currentMatch,
   userId,
   playerHandicap = 0,
+  teamHandicap = 0,
+  isScrambleMode = false,
+  teamInfo,
   strokeInfo,
   currentOpponent
 }: HoleViewProps) {
@@ -326,15 +339,16 @@ export default function HoleView({
   };
 
   // Calculate net score (gross score minus strokes)
-  const getNetScore = (grossScore: number, playerHandicap: number, holeHandicap: number): number => {
+  const getNetScore = (grossScore: number, effectiveHandicap: number, holeHandicap: number): number => {
     if (grossScore <= 0) return grossScore;
-    const strokesOnHole = getStrokeOnHole(playerHandicap, holeHandicap) ? 1 : 0;
+    const strokesOnHole = getStrokeOnHole(effectiveHandicap, holeHandicap) ? 1 : 0;
     return grossScore - strokesOnHole;
   };
 
-  // Check if player receives a stroke on this hole
-  const receivesStroke = getStrokeOnHole(playerHandicap, hole.handicap);
-  const netScore = getNetScore(localScore, playerHandicap, hole.handicap);
+  // Check if player/team receives a stroke on this hole
+  const effectiveHandicap = isScrambleMode ? teamHandicap : playerHandicap;
+  const receivesStroke = getStrokeOnHole(effectiveHandicap, hole.handicap);
+  const netScore = getNetScore(localScore, effectiveHandicap, hole.handicap);
 
   return (
     <div key={`hole-${hole.number}-${round}-v4-no-save-button`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -441,6 +455,41 @@ export default function HoleView({
           </div>
         )}
 
+        {/* Round 2 Scramble Team Info */}
+        {isScrambleMode && teamInfo && (
+          <Card className="mb-6 bg-gradient-to-r from-golf-green-900/50 to-golf-sand-900/50 border-golf-green-500/50">
+            <CardContent className="p-4">
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Trophy className="w-4 h-4 text-golf-green-400" />
+                  <span className="text-sm font-semibold text-white">Team Scramble</span>
+                </div>
+                
+                <div className="text-white">
+                  <div className="font-medium mb-1">Team {teamInfo.teamNumber}</div>
+                  <div className="text-sm space-y-1">
+                    <div>{teamInfo.player1Name} (HCP {teamInfo.player1Handicap})</div>
+                    <div>{teamInfo.player2Name} (HCP {teamInfo.player2Handicap})</div>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-gray-300 space-y-1">
+                  <div>Team Handicap: {teamHandicap}</div>
+                  <div className="text-golf-green-400 font-medium">
+                    {teamHandicap >= hole.handicap ? 
+                      "✓ Team gets stroke on this hole" : 
+                      "Team gets no stroke on this hole"
+                    }
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    Strokes on holes ranked {teamHandicap} or easier
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Round 3 Match Play Info */}
         {round === 3 && currentMatch && (
           <Card className="mb-6 bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-blue-500/50">
@@ -509,7 +558,9 @@ export default function HoleView({
             {/* Central Score Input */}
             <Card className="bg-gray-800 border-2 border-gray-700 shadow-xl">
               <CardHeader className="pb-4">
-                <CardTitle className="text-center text-white">Your Score</CardTitle>
+                <CardTitle className="text-center text-white">
+                  {isScrambleMode ? 'Team Score' : 'Your Score'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4 mb-4">
@@ -569,9 +620,11 @@ export default function HoleView({
                       <div className="text-sm font-medium text-gray-300">
                         {getScoreName(localScore, hole.par)}
                       </div>
-                      {receivesStroke && playerHandicap > 0 && (
+                      {receivesStroke && (isScrambleMode ? teamHandicap : playerHandicap) > 0 && (
                         <div className="bg-blue-600/20 border border-blue-500/50 rounded-lg p-3 space-y-1">
-                          <div className="text-blue-400 font-medium text-sm">Handicap Stroke</div>
+                          <div className="text-blue-400 font-medium text-sm">
+                            {isScrambleMode ? 'Team Handicap Stroke' : 'Handicap Stroke'}
+                          </div>
                           <div className="text-white">
                             <span className="text-lg font-bold">Net Score: {netScore}</span>
                             <span className="text-sm text-gray-300 ml-2">
@@ -579,7 +632,11 @@ export default function HoleView({
                             </span>
                           </div>
                           <div className="text-xs text-blue-300">
-                            Your {playerHandicap} handicap gives you a stroke on holes ranked {playerHandicap} or harder
+                            {isScrambleMode ? (
+                              `Team handicap ${teamHandicap} gives a stroke on holes ranked ${teamHandicap} or easier`
+                            ) : (
+                              `Your ${playerHandicap} handicap gives you a stroke on holes ranked ${playerHandicap} or harder`
+                            )}
                           </div>
                         </div>
                       )}
