@@ -826,11 +826,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMatchPlayLeaderboard(): Promise<any[]> {
-    // Round 3: Get match play results and calculate points
-    const matches = await db.select().from(matchPlayMatches);
-    
-    // Calculate points for each player based on match results
-    const playerPoints = new Map<number, { user: User; team: Team; matchPoints: number; matchesPlayed: number; matchesWon: number }>();
+    console.log('🏆 Getting match play leaderboard with new per-hole calculation');
     
     // Get all users and their teams for initialization
     const allUsers = await db.select({
@@ -839,58 +835,100 @@ export class DatabaseStorage implements IStorage {
     }).from(users)
       .innerJoin(teams, eq(users.teamId, teams.id));
     
-    // Initialize all players
+    // Calculate points for each player using new per-hole system
+    const playerStats = [];
+    
     for (const userTeam of allUsers) {
-      playerPoints.set(userTeam.user.id, {
+      const matchPoints = await this.calculatePlayerMatchPlayPoints(userTeam.user.id);
+      
+      // Count matches played and segments won
+      const matches = await db.select()
+        .from(matchPlayMatches)
+        .where(
+          or(
+            eq(matchPlayMatches.player1Id, userTeam.user.id),
+            eq(matchPlayMatches.player2Id, userTeam.user.id)
+          )
+        );
+
+      let segmentsWon = 0;
+      let segmentsPlayed = matches.length;
+
+      // For each match, determine if player won the segment (simplified for now)
+      for (const match of matches) {
+        // Get player's Round 3 scores for this segment
+        const playerHoleScores = await db.select()
+          .from(holeScores)
+          .where(
+            and(
+              eq(holeScores.userId, userTeam.user.id),
+              eq(holeScores.round, 3)
+            )
+          );
+
+        const opponentId = match.player1Id === userTeam.user.id ? match.player2Id : match.player1Id;
+        const opponentHoleScores = await db.select()
+          .from(holeScores)
+          .where(
+            and(
+              eq(holeScores.userId, opponentId),
+              eq(holeScores.round, 3)
+            )
+          );
+
+        // Determine hole ranges for this segment
+        const holeRanges = {
+          '1-6': [1, 2, 3, 4, 5, 6],
+          '7-12': [7, 8, 9, 10, 11, 12],
+          '13-18': [13, 14, 15, 16, 17, 18]
+        };
+
+        const segmentHoles = holeRanges[match.holeSegment as keyof typeof holeRanges] || [];
+        let playerHolesWon = 0;
+        let opponentHolesWon = 0;
+
+        for (const hole of segmentHoles) {
+          const playerScore = playerHoleScores.find(s => s.hole === hole);
+          const opponentScore = opponentHoleScores.find(s => s.hole === hole);
+
+          if (playerScore && opponentScore) {
+            if (playerScore.netScore < opponentScore.netScore) {
+              playerHolesWon++;
+            } else if (opponentScore.netScore < playerScore.netScore) {
+              opponentHolesWon++;
+            }
+          }
+        }
+
+        // Player wins segment if they won more holes
+        if (playerHolesWon > opponentHolesWon) {
+          segmentsWon++;
+        }
+      }
+
+      playerStats.push({
+        ...userTeam.user,
         user: userTeam.user,
         team: userTeam.team,
-        matchPoints: 0,
-        matchesPlayed: 0,
-        matchesWon: 0,
-      });
-    }
-    
-    // Calculate points from matches
-    for (const match of matches) {
-      const player1Stats = playerPoints.get(match.player1Id);
-      const player2Stats = playerPoints.get(match.player2Id);
-      
-      if (player1Stats) {
-        player1Stats.matchesPlayed += 1;
-        if (match.winnerId === match.player1Id) {
-          player1Stats.matchPoints += 1;
-          player1Stats.matchesWon += 1;
-        } else if (match.winnerId === null) {
-          player1Stats.matchPoints += 0.5; // Tie
-        }
-      }
-      
-      if (player2Stats) {
-        player2Stats.matchesPlayed += 1;
-        if (match.winnerId === match.player2Id) {
-          player2Stats.matchPoints += 1;
-          player2Stats.matchesWon += 1;
-        } else if (match.winnerId === null) {
-          player2Stats.matchPoints += 0.5; // Tie
-        }
-      }
-    }
-
-    // Convert to leaderboard format and sort by match points
-    const leaderboard = Array.from(playerPoints.values())
-      .sort((a, b) => b.matchPoints - a.matchPoints)
-      .map((entry, index) => ({
-        ...entry.user,
-        user: entry.user,
-        team: entry.team,
-        totalPoints: entry.matchPoints,
-        matchesPlayed: entry.matchesPlayed,
-        matchesWon: entry.matchesWon,
-        position: index + 1,
+        totalPoints: matchPoints,
+        matchPoints: matchPoints,
+        segmentsPlayed: segmentsPlayed,
+        segmentsWon: segmentsWon,
+        position: 0, // Will be set after sorting
         isTeamLeaderboard: false,
         isMatchPlay: true,
+      });
+    }
+
+    // Sort by match points and assign positions
+    const leaderboard = playerStats
+      .sort((a, b) => b.matchPoints - a.matchPoints)
+      .map((entry, index) => ({
+        ...entry,
+        position: index + 1,
       }));
 
+    console.log(`📊 Match play leaderboard calculated for ${leaderboard.length} players`);
     return leaderboard;
   }
 
@@ -1545,7 +1583,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   private async calculatePlayerMatchPlayPoints(playerId: number): Promise<number> {
-    // Get all match results for this player
+    console.log(`🔍 Calculating match play points for player ${playerId}`);
+    
+    // Get all hole scores for this player in Round 3
+    const playerHoleScores = await db.select()
+      .from(holeScores)
+      .where(
+        and(
+          eq(holeScores.userId, playerId),
+          eq(holeScores.round, 3)
+        )
+      );
+
+    if (playerHoleScores.length === 0) {
+      console.log(`❌ No Round 3 scores found for player ${playerId}`);
+      return 0;
+    }
+
+    // Get all matches for this player to find opponents
     const matches = await db.select()
       .from(matchPlayMatches)
       .where(
@@ -1556,18 +1611,82 @@ export class DatabaseStorage implements IStorage {
       );
 
     let totalPoints = 0;
-    
+    console.log(`📊 Processing ${matches.length} matches for player ${playerId}`);
+
     for (const match of matches) {
-      if (match.winnerId === playerId) {
-        // Player won the match - award 2 points
-        totalPoints += 2;
-      } else if (match.result === 'tie') {
-        // Match was tied - award 1 point
-        totalPoints += 1;
+      console.log(`🎯 Processing match: ${match.holeSegment}`);
+      
+      // Determine opponent
+      const opponentId = match.player1Id === playerId ? match.player2Id : match.player1Id;
+      const playerIsPlayer1 = match.player1Id === playerId;
+      
+      // Get opponent's hole scores for this segment
+      const opponentHoleScores = await db.select()
+        .from(holeScores)
+        .where(
+          and(
+            eq(holeScores.userId, opponentId),
+            eq(holeScores.round, 3)
+          )
+        );
+
+      // Define hole ranges for each segment
+      const holeRanges = {
+        '1-6': [1, 2, 3, 4, 5, 6],
+        '7-12': [7, 8, 9, 10, 11, 12],
+        '13-18': [13, 14, 15, 16, 17, 18]
+      };
+
+      const segmentHoles = holeRanges[match.holeSegment as keyof typeof holeRanges] || [];
+      let playerHolesWon = 0;
+      let opponentHolesWon = 0;
+      let holesPlayed = 0;
+      let segmentPoints = 0;
+
+      for (const hole of segmentHoles) {
+        const playerScore = playerHoleScores.find(s => s.hole === hole);
+        const opponentScore = opponentHoleScores.find(s => s.hole === hole);
+
+        if (playerScore && opponentScore) {
+          holesPlayed++;
+          
+          // Calculate net scores with handicap strokes
+          const playerNetScore = playerScore.netScore;
+          const opponentNetScore = opponentScore.netScore;
+
+          console.log(`   Hole ${hole}: Player ${playerNetScore} vs Opponent ${opponentNetScore}`);
+
+          // Award hole points (0.5 for win, 0.25 for tie, 0 for loss)
+          if (playerNetScore < opponentNetScore) {
+            segmentPoints += 0.5;
+            playerHolesWon++;
+            console.log(`   → Player wins hole ${hole} (+0.5 points)`);
+          } else if (playerNetScore === opponentNetScore) {
+            segmentPoints += 0.25;
+            console.log(`   → Hole ${hole} tied (+0.25 points)`);
+          } else {
+            opponentHolesWon++;
+            console.log(`   → Opponent wins hole ${hole} (+0 points)`);
+          }
+        }
       }
-      // No points for losing a match
+
+      // Award segment bonus points (2 for winning segment, 1 for tying)
+      if (playerHolesWon > opponentHolesWon) {
+        segmentPoints += 2;
+        console.log(`   🏆 Player wins segment ${match.holeSegment} (+2 bonus points)`);
+      } else if (playerHolesWon === opponentHolesWon && holesPlayed > 0) {
+        segmentPoints += 1;
+        console.log(`   🤝 Segment ${match.holeSegment} tied (+1 bonus point)`);
+      } else {
+        console.log(`   💔 Player loses segment ${match.holeSegment} (+0 bonus points)`);
+      }
+
+      totalPoints += segmentPoints;
+      console.log(`   📈 Segment ${match.holeSegment} total: ${segmentPoints} points (Running total: ${totalPoints})`);
     }
 
+    console.log(`🏁 Player ${playerId} total match play points: ${totalPoints}`);
     return totalPoints;
   }
 
