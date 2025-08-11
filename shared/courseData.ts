@@ -46,6 +46,32 @@ export const deerhurstCourse: CourseData = {
   ]
 };
 
+// Muskoka Bay Club data (Round 3) - Official Championship Tee Scorecard
+export const muskokaBayCourse: CourseData = {
+  name: "Muskoka Bay Club",
+  location: "Gravenhurst, Ontario",
+  holes: [
+    { number: 1, par: 4, yardage: 392, handicap: 9 },
+    { number: 2, par: 3, yardage: 181, handicap: 15 },
+    { number: 3, par: 4, yardage: 399, handicap: 5 },
+    { number: 4, par: 4, yardage: 319, handicap: 13 },
+    { number: 5, par: 5, yardage: 516, handicap: 1 },
+    { number: 6, par: 3, yardage: 203, handicap: 17 },
+    { number: 7, par: 4, yardage: 409, handicap: 11 },
+    { number: 8, par: 5, yardage: 494, handicap: 3 },
+    { number: 9, par: 4, yardage: 390, handicap: 7 },
+    { number: 10, par: 4, yardage: 408, handicap: 8 },
+    { number: 11, par: 3, yardage: 173, handicap: 18 },
+    { number: 12, par: 5, yardage: 539, handicap: 4 },
+    { number: 13, par: 4, yardage: 370, handicap: 16 },
+    { number: 14, par: 5, yardage: 560, handicap: 2 },
+    { number: 15, par: 4, yardage: 445, handicap: 6 },
+    { number: 16, par: 4, yardage: 440, handicap: 12 },
+    { number: 17, par: 3, yardage: 182, handicap: 14 },
+    { number: 18, par: 4, yardage: 429, handicap: 10 }
+  ]
+};
+
 // Lionhead Golf Course data (Test Round) - Accurate Masters Course Scorecard
 export const lionheadCourse: CourseData = {
   name: "Lionhead Golf Course - Masters Course",
@@ -148,9 +174,9 @@ export const getHoleCoordinates = (hole: number, round?: number): HoleCoordinate
     return holeData || null;
   }
   
-  // For Round 3, use Muskoka Bay coordinates (when available)
+  // For Round 3, use Muskoka Bay coordinates (using Deerhurst coordinates until Muskoka Bay GPS data is provided)
   if (round === 3) {
-    // For now, using Deerhurst coordinates until Muskoka Bay coordinates are provided
+    // TODO: Replace with actual Muskoka Bay GPS coordinates when available
     const holeData = deerhurstGPSCoordinates.find(h => h.hole === hole);
     return holeData || null;
   }
@@ -188,6 +214,11 @@ export const getCourseForRound = (round: number): CourseData => {
     return lionheadCourse;
   }
   
-  // Rounds 1-3 use Deerhurst Golf Course
+  // Round 3 uses Muskoka Bay Club
+  if (round === 3) {
+    return muskokaBayCourse;
+  }
+  
+  // Rounds 1-2 use Deerhurst Golf Course
   return deerhurstCourse;
 };

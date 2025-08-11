@@ -25,6 +25,7 @@ Preferred communication style: Simple, everyday language.
 - ✅ **CRITICAL DATA INTEGRITY FIX**: Added comprehensive hole number validation (1-18 only) to all scoring endpoints to prevent invalid holes like "19" or "0" from being saved. Cleaned existing invalid hole data from database.
 - ✅ **TEAM 7 ROSTER UPDATE**: Updated Team 7 to replace Austin Hassani with James Ogilvie, resolving "Team members not found" errors for Sye Ellard during team scoring operations.
 - ✅ **DEERHURST SCORECARD UPDATE**: Updated Deerhurst Highlands course data with official Gold tee yardages and handicaps from tournament scorecard. All 18 holes now reflect accurate course measurements for tournament play.
+- ✅ **MUSKOKA BAY COURSE DATA**: Added complete Muskoka Bay Club course data with official Championship tee yardages and handicaps for Round 3. Total yardage: 6,849 yards, Par 72. Round 3 now uses accurate Muskoka Bay course information instead of Deerhurst data.
 
 ## System Architecture
 
