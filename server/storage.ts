@@ -1780,7 +1780,15 @@ export class DatabaseStorage implements IStorage {
       
       // Apply team scramble handicap to get net strokes
       const team = await this.getTeam(teamId);
-      const teamHandicap = team ? Math.round(team.totalHandicap * 0.35) : 0; // 35% of combined handicap
+      if (!team) return 0;
+      
+      // Calculate scramble team handicap: 35% of lower + 15% of higher
+      const player1Hcp = team.player1Handicap || 0;
+      const player2Hcp = team.player2Handicap || 0;
+      const lowerHcp = Math.min(player1Hcp, player2Hcp);
+      const higherHcp = Math.max(player1Hcp, player2Hcp);
+      const teamHandicap = Math.round((lowerHcp * 0.35) + (higherHcp * 0.15));
+      
       const totalNetStrokes = totalGrossStrokes - teamHandicap;
       
       const holesCompleted = uniqueHoles.size;
