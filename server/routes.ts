@@ -728,6 +728,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Invalid score value' });
       }
       
+      // Validate hole number (1-18 only)
+      if (hole < 1 || hole > 18) {
+        console.log('❌ Invalid hole number:', hole);
+        return res.status(400).json({ error: 'Invalid hole number. Must be between 1 and 18.' });
+      }
+      
       console.log('✅ Validation passed, updating score...');
       const holeScore = await storage.updateHoleScore(userId, round, hole, score);
       console.log('✅ Score updated successfully:', holeScore);
@@ -782,6 +788,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate input
       if (!round || !hole) {
         return res.status(400).json({ error: 'Missing required fields: round, hole' });
+      }
+      
+      // Validate hole number (1-18 only)
+      if (hole < 1 || hole > 18) {
+        console.log('❌ Invalid hole number:', hole);
+        return res.status(400).json({ error: 'Invalid hole number. Must be between 1 and 18.' });
       }
       
       const holeScore = await storage.updateHoleScoreStats(userId, round, hole, statsData);

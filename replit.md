@@ -22,6 +22,8 @@ Preferred communication style: Simple, everyday language.
 - ✅ **ROUND 2 SCORE BUTTON HIGHLIGHTING**: Fixed score button highlighting issue in Round 2 by reverting getScoreForHole function to return 0 instead of null, matching behavior of Rounds 1 and 3. Score buttons now properly highlight when selected across all rounds.
 - ✅ **ROUND 2 LIVE PLACEMENT POINTS**: Fixed critical placement point calculation for Round 2 where teams with partial progress (like Nick Grossi/Connor Patterson with 11/18 holes) were showing 0 roundPoints despite leading. Modified calculateTournamentPlacementPoints to award temporary placement points during play: 1st=8pts, 2nd=6pts, etc. Teams now receive proper placement points based on current standings during Round 2 play, not just after completing all 18 holes.
 - ✅ **LIVE LEADERBOARDS FOR ALL ROUNDS**: Completely removed restrictions requiring completed rounds for leaderboard display. All rounds now show live data as scores are recorded in real-time. Teams with partial progress are ranked by current performance and awarded live placement points (1st=10pts, 2nd=9pts, etc.) regardless of completion status. Teams that haven't started a round are ranked below teams with scores, sorted by their total tournament points from other rounds.
+- ✅ **CRITICAL DATA INTEGRITY FIX**: Added comprehensive hole number validation (1-18 only) to all scoring endpoints to prevent invalid holes like "19" or "0" from being saved. Cleaned existing invalid hole data from database.
+- ✅ **TEAM 7 ROSTER UPDATE**: Updated Team 7 to replace Austin Hassani with James Ogilvie, resolving "Team members not found" errors for Sye Ellard during team scoring operations.
 
 ## System Architecture
 
