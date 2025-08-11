@@ -60,6 +60,23 @@ const matchupData = [
     player1: "Connor Patterson",
     player2: "Ben Braun"
   },
+  // Missing matchups to complete the round-robin for Foursome 1
+  {
+    foursome: "Foursome 1",
+    matchup: "Christian Hauck vs Connor Patterson",
+    holes: "13–18",
+    strokes: "No strokes given",
+    player1: "Christian Hauck",
+    player2: "Connor Patterson"
+  },
+  {
+    foursome: "Foursome 1",
+    matchup: "Ben Braun vs Jordan Kreller",
+    holes: "1–6",
+    strokes: "No strokes given",
+    player1: "Ben Braun",
+    player2: "Jordan Kreller"
+  },
   {
     foursome: "Foursome 2",
     matchup: "Spencer Reid vs Jeffrey Reiner",
@@ -107,6 +124,23 @@ const matchupData = [
     strokes: "Erik gives Kevin 2 strokes",
     player1: "Kevin Durco",
     player2: "Erik Boudreau"
+  },
+  // Missing matchups to complete the round-robin for Foursome 2
+  {
+    foursome: "Foursome 2",
+    matchup: "Jeffrey Reiner vs Kevin Durco",
+    holes: "13–18",
+    strokes: "No strokes given",
+    player1: "Jeffrey Reiner",
+    player2: "Kevin Durco"
+  },
+  {
+    foursome: "Foursome 2",
+    matchup: "Erik Boudreau vs Spencer Reid",
+    holes: "1–6",
+    strokes: "Erik gives Spencer 2 strokes",
+    player1: "Erik Boudreau",
+    player2: "Spencer Reid"
   },
   {
     foursome: "Foursome 3",
@@ -156,6 +190,23 @@ const matchupData = [
     player1: "Nic Huxley",
     player2: "Bailey Carlson"
   },
+  // Missing matchups to complete the round-robin for Foursome 3
+  {
+    foursome: "Foursome 3",
+    matchup: "Will Bibbings vs Nic Huxley",
+    holes: "13–18",
+    strokes: "Nic gets 3 strokes from Will",
+    player1: "Will Bibbings",
+    player2: "Nic Huxley"
+  },
+  {
+    foursome: "Foursome 3",
+    matchup: "Bailey Carlson vs Sye Ellard",
+    holes: "1–6",
+    strokes: "No strokes given",
+    player1: "Bailey Carlson",
+    player2: "Sye Ellard"
+  },
   {
     foursome: "Foursome 4",
     matchup: "Nick Grossi vs Nick Cook",
@@ -203,6 +254,23 @@ const matchupData = [
     strokes: "James gets 2 strokes from Johnny",
     player1: "Johnny Magnatta",
     player2: "James Ogilvie"
+  },
+  // Missing matchups to complete the round-robin for Foursome 4
+  {
+    foursome: "Foursome 4",
+    matchup: "Nick Cook vs Johnny Magnatta",
+    holes: "13–18",
+    strokes: "No strokes given",
+    player1: "Nick Cook",
+    player2: "Johnny Magnatta"
+  },
+  {
+    foursome: "Foursome 4",
+    matchup: "James Ogilvie vs Nick Grossi",
+    holes: "1–6",
+    strokes: "James gives Nick 1 stroke",
+    player1: "James Ogilvie",
+    player2: "Nick Grossi"
   }
 ];
 
