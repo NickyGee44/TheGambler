@@ -142,6 +142,9 @@ export default function HoleView({
 
   // Auto-save score with 1-second delay after user stops clicking
   const scheduleScoreSave = (strokes: number) => {
+    // Prevent scheduling if the score hasn't actually changed
+    if (strokes === currentScore) return;
+    
     if (scoreTimeoutRef.current) {
       clearTimeout(scoreTimeoutRef.current);
     }
@@ -160,15 +163,17 @@ export default function HoleView({
       // Force save any pending score when leaving the hole
       if (scoreTimeoutRef.current) {
         clearTimeout(scoreTimeoutRef.current);
-        // Immediately save the current score if there's a pending save
-        if (isSavingScore && localScore > 0) {
+        scoreTimeoutRef.current = null;
+        // Immediately save the current score if there's a pending save and it's a valid score
+        if (isSavingScore && localScore > 0 && localScore !== currentScore) {
           onScoreUpdate(localScore);
         }
       }
       // Force save any pending stats when leaving the hole
       if (statsTimeoutRef.current) {
         clearTimeout(statsTimeoutRef.current);
-        // Immediately save the current stats if there's a pending save
+        statsTimeoutRef.current = null;
+        // Only save stats if they've actually changed and are valid
         if (isSavingStats) {
           const stats = {
             fairwayInRegulation: fairwayInRegulation,
@@ -182,7 +187,7 @@ export default function HoleView({
         }
       }
     };
-  }, [localScore, isSavingScore, isSavingStats, fairwayInRegulation, greenInRegulation, putts, penalties, sandSaves, upAndDowns, onScoreUpdate, updateStatsMutation]);
+  }, [hole.number]); // Only depend on hole.number to prevent loops
 
   // Track if we're in initial load to prevent auto-save during load
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -259,6 +264,9 @@ export default function HoleView({
 
   const updateScore = (strokes: number) => {
     if (strokes < 1) return;
+    // Prevent rapid-fire calls by checking if we're already saving this score
+    if (isSavingScore && localScore === strokes) return;
+    
     // Update the score immediately in UI
     setLocalScore(strokes);
     // Schedule save after 1 second of inactivity
