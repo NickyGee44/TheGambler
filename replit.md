@@ -17,6 +17,8 @@ Preferred communication style: Simple, everyday language.
 - ✅ **CRITICAL CRASH BUG FIXED**: Resolved Sye Ellard scoring crash caused by race condition in auto-save mechanism that created duplicate API calls and infinite loops
 - ✅ **TEST ROUND REMOVAL**: Completely removed test round functionality including database tables, server routes, client components, and all related code since testing phase is complete
 - ✅ **COMPLETE SCORE SYNC INTEGRATION**: Fixed comprehensive scoring system synchronization across all leaderboards and scoring endpoints. Match play points now correctly integrate with stroke play points in all round leaderboards, main scores page, and tournament standings. Teams are ranked by combined stroke play + match play totals throughout the entire application.
+- ✅ **ROUND 2 TEAM SCORE BUG FIXED**: Resolved Nick Grossi's "404 team not found" error in Round 2 by fixing team lookup mechanism. Updated database methods to properly find user teams by name instead of missing teamId foreign key.
+- ✅ **ROUND 3 MATCH PLAY INFO**: Added compact match play info section under hole information showing current opponent and stroke status for each hole in Round 3 with gold/yellow theme.
 
 ## System Architecture
 

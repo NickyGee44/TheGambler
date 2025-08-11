@@ -843,11 +843,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'User not found' });
       }
 
-      // Get the team details
-      const team = await storage.getTeam(user.teamId);
+      // Find the team by looking for the user's name in team player names
+      const userFullName = `${user.firstName} ${user.lastName}`;
+      console.log('Looking for team containing user:', userFullName);
+      
+      const teams = await storage.getTeams();
+      const team = teams.find(t => 
+        t.player1Name === userFullName || t.player2Name === userFullName
+      );
+      
       if (!team) {
+        console.log('❌ No team found for user:', userFullName);
+        console.log('Available teams:', teams.map(t => ({ id: t.id, player1: t.player1Name, player2: t.player2Name })));
         return res.status(404).json({ error: 'Team not found' });
       }
+      
+      console.log('✅ Found team:', { id: team.id, teamNumber: team.teamNumber, player1: team.player1Name, player2: team.player2Name });
 
       console.log('✅ Validation passed, saving individual scores for both team members...');
       

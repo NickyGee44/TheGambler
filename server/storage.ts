@@ -1251,11 +1251,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTeams(): Promise<Team[]> {
-    return Array.from(this.teams.values()).sort((a, b) => a.teamNumber - b.teamNumber);
+    const teamsFromDb = await db.select().from(teams).orderBy(asc(teams.teamNumber));
+    return teamsFromDb;
   }
 
   async getTeam(teamId: number): Promise<Team | undefined> {
-    return this.teams.get(teamId);
+    const [team] = await db.select().from(teams).where(eq(teams.id, teamId));
+    return team;
   }
 
   async createTeam(insertTeam: InsertTeam): Promise<Team> {
