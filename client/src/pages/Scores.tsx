@@ -62,7 +62,7 @@ export default function Scores() {
   });
 
   const { data: round2Leaderboard = [], isLoading: round2Loading } = useQuery({
-    queryKey: ['/api/leaderboard', 2],
+    queryKey: ['/api/team-scramble', 2],
     refetchInterval: 10000,
   });
 
@@ -668,7 +668,7 @@ function ScrambleLeaderboard({ leaderboard }: { leaderboard: any[] }) {
       <CardContent className="p-6">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-golf-green-600 mb-2">Round 2: Scramble Format (Net)</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Teams play one ball from best position. Team handicap: 35% of lower + 15% of higher handicap. Highest Stableford points wins.</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Teams play one ball from best position. Team handicap: 35% of lower + 15% of higher handicap. Teams ranked by lowest net strokes.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px]">
@@ -684,9 +684,11 @@ function ScrambleLeaderboard({ leaderboard }: { leaderboard: any[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
-              {leaderboard.map((entry: any, index: number) => (
+              {leaderboard
+                .sort((a: any, b: any) => (a.totalNetStrokes || 999) - (b.totalNetStrokes || 999))
+                .map((entry: any, index: number) => (
                 <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
-                  <td className="px-2 sm:px-4 py-2 sm:py-3">{getRankBadge(entry.position || index + 1)}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3">{getRankBadge(index + 1)}</td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3">
                     <div className="font-medium text-xs sm:text-sm">Team {entry.team?.teamNumber}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -696,7 +698,7 @@ function ScrambleLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                   </td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.teamHandicap || '-'}</td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalGrossStrokes || '-'}</td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalNetStrokes || '-'}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-bold text-golf-green-600 text-xs sm:text-sm">{entry.totalNetStrokes || '-'}</td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm">
                     <span className={entry.netToPar > 0 ? 'text-red-600' : entry.netToPar < 0 ? 'text-green-600' : 'text-gray-600'}>
                       {entry.netToPar > 0 ? '+' : ''}{entry.netToPar || 'E'}
