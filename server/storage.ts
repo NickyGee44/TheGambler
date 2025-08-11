@@ -1475,8 +1475,6 @@ export class DatabaseStorage implements IStorage {
       const teamStablefordPoints = await this.calculateTeamStablefordPoints(team.id, round);
       const holesCompleted = await this.getTeamHolesCompleted(team.id, round);
       
-
-      
       return {
         teamId: team.id,
         stablefordPoints: teamStablefordPoints,
@@ -1484,29 +1482,45 @@ export class DatabaseStorage implements IStorage {
       };
     }));
 
-    // Only include teams that have completed the round (18 holes)
+    // First, check if any teams have completed all 18 holes
     const completedTeams = teamPerformances.filter(team => team.holesCompleted === 18);
     
-    // If the round isn't complete, return 0 points
-    if (completedTeams.length === 0) {
-      return 0;
+    if (completedTeams.length > 0) {
+      // Some teams have finished - award final placement points only to completed teams
+      completedTeams.sort((a, b) => b.stablefordPoints - a.stablefordPoints);
+      
+      const teamPosition = completedTeams.findIndex(team => team.teamId === teamId) + 1;
+      
+      if (teamPosition === 0) {
+        // This team hasn't completed the round yet, but others have - no points yet
+        return 0;
+      }
+      
+      // Award final placement points: 1st = 10, 2nd = 9, ..., 8th = 3
+      const pointsMap = [10, 9, 8, 7, 6, 5, 4, 3];
+      return teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 1;
+    } else {
+      // No teams have completed the round yet - award temporary points based on current standings
+      const teamsInPlay = teamPerformances.filter(team => team.holesCompleted > 0);
+      
+      if (teamsInPlay.length === 0) {
+        return 0; // No one has started yet
+      }
+      
+      // Sort by current stableford points
+      teamsInPlay.sort((a, b) => b.stablefordPoints - a.stablefordPoints);
+      
+      const teamPosition = teamsInPlay.findIndex(team => team.teamId === teamId) + 1;
+      
+      if (teamPosition === 0) {
+        // This team hasn't started yet
+        return 0;
+      }
+      
+      // Award temporary placement points based on current standing: 1st = 8, 2nd = 6, etc.
+      const tempPointsMap = [8, 6, 5, 4, 3, 2, 1, 1];
+      return teamPosition <= tempPointsMap.length ? tempPointsMap[teamPosition - 1] : 1;
     }
-
-    // Sort teams by Stableford points (descending - highest points = best performance)
-    completedTeams.sort((a, b) => b.stablefordPoints - a.stablefordPoints);
-
-    // Find team's position and award placement points (1st = 10 points, 2nd = 9 points, etc.)
-    const teamPosition = completedTeams.findIndex(team => team.teamId === teamId) + 1;
-    
-    if (teamPosition === 0) {
-      // Team hasn't completed the round yet
-      return 0;
-    }
-
-    // Award points: 1st=10pts, 2nd=8pts, 3rd=6pts, 4th=5pts, 5th=4pts, 6th=3pts, 7th=2pts, 8th=1pt
-    const pointsMap = [10, 8, 6, 5, 4, 3, 2, 1]; // Index 0 = 1st place, Index 1 = 2nd place, etc.
-    const placementPoints = teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 1;
-    return placementPoints;
   }
 
   private async calculateTeamStablefordPoints(teamId: number, round: number): Promise<number> {
