@@ -457,7 +457,41 @@ export default function HoleView({
           </Card>
         )}
 
-
+        {/* Round 3 Match Play Info */}
+        {round === 3 && currentMatch && currentOpponent && (
+          <Card className="mb-6 bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border-yellow-500/50">
+            <CardContent className="p-3">
+              <div className="text-center space-y-1">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Target className="w-4 h-4 text-yellow-400" />
+                  <span className="text-sm font-semibold text-white">Match Play</span>
+                </div>
+                
+                <div className="text-white text-sm">
+                  <div className="font-medium">vs {currentOpponent.name}</div>
+                </div>
+                
+                {strokeInfo && (
+                  <div className="text-xs">
+                    {strokeInfo.playerGetsStroke ? (
+                      <div className="text-yellow-400 font-medium">
+                        +1 stroke on this hole
+                      </div>
+                    ) : strokeInfo.opponentGetsStroke ? (
+                      <div className="text-blue-400 font-medium">
+                        {currentOpponent.name} gets +1 stroke
+                      </div>
+                    ) : (
+                      <div className="text-gray-400">
+                        No strokes on this hole
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Tab Navigation */}
         <div className="flex mb-6 bg-gray-800 rounded-lg p-1 border border-gray-700 shadow-lg">
