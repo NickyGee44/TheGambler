@@ -1925,6 +1925,13 @@ export class DatabaseStorage implements IStorage {
       let holesPlayed = 0;
       let segmentPoints = 0;
 
+      // Track carryover points (when holes are tied)
+      let carryoverPoints = 1; // Each hole starts worth 1 point
+      let playerSegmentPoints = 0;
+      let opponentSegmentPoints = 0;
+
+      console.log(`   🎯 Match ${match.holeSegment}: Starting 6-hole segment`);
+
       for (const hole of segmentHoles) {
         const playerScore = playerHoleScores.find(s => s.hole === hole);
         const opponentScore = opponentHoleScores.find(s => s.hole === hole);
@@ -1936,32 +1943,34 @@ export class DatabaseStorage implements IStorage {
           const playerNetScore = playerScore.netScore;
           const opponentNetScore = opponentScore.netScore;
 
-          console.log(`   Hole ${hole}: Player ${playerNetScore} vs Opponent ${opponentNetScore}`);
+          console.log(`   Hole ${hole}: Player ${playerNetScore} vs Opponent ${opponentNetScore} (${carryoverPoints} pts available)`);
 
-          // Award hole points (0.5 for win, 0.25 for tie, 0 for loss)
+          // Award carryover points
           if (playerNetScore < opponentNetScore) {
-            segmentPoints += 0.5;
-            playerHolesWon++;
-            console.log(`   → Player wins hole ${hole} (+0.5 points)`);
+            playerSegmentPoints += carryoverPoints;
+            console.log(`   → Player wins hole ${hole} (+${carryoverPoints} points, Player total: ${playerSegmentPoints})`);
+            carryoverPoints = 1; // Reset for next hole
           } else if (playerNetScore === opponentNetScore) {
-            segmentPoints += 0.25;
-            console.log(`   → Hole ${hole} tied (+0.25 points)`);
+            carryoverPoints += 1; // Carry points to next hole
+            console.log(`   → Hole ${hole} tied, carrying ${carryoverPoints} points to next hole`);
           } else {
-            opponentHolesWon++;
-            console.log(`   → Opponent wins hole ${hole} (+0 points)`);
+            opponentSegmentPoints += carryoverPoints;
+            console.log(`   → Opponent wins hole ${hole} (+${carryoverPoints} points, Opponent total: ${opponentSegmentPoints})`);
+            carryoverPoints = 1; // Reset for next hole
           }
         }
       }
 
-      // Award segment bonus points (2 for winning segment, 1 for tying)
-      if (playerHolesWon > opponentHolesWon) {
-        segmentPoints += 2;
-        console.log(`   🏆 Player wins segment ${match.holeSegment} (+2 bonus points)`);
-      } else if (playerHolesWon === opponentHolesWon && holesPlayed > 0) {
-        segmentPoints += 1;
-        console.log(`   🤝 Segment ${match.holeSegment} tied (+1 bonus point)`);
+      // Determine segment result: Win=2pts, Tie=1pt, Loss=0pts  
+      if (playerSegmentPoints > opponentSegmentPoints) {
+        segmentPoints = 2; // Win = 2 points
+        console.log(`   🏆 Player wins segment ${match.holeSegment} (${playerSegmentPoints} vs ${opponentSegmentPoints}) = 2 points`);
+      } else if (playerSegmentPoints === opponentSegmentPoints) {
+        segmentPoints = 1; // Tie = 1 point  
+        console.log(`   🤝 Segment ${match.holeSegment} tied (${playerSegmentPoints} vs ${opponentSegmentPoints}) = 1 point`);
       } else {
-        console.log(`   💔 Player loses segment ${match.holeSegment} (+0 bonus points)`);
+        segmentPoints = 0; // Loss = 0 points
+        console.log(`   💔 Player loses segment ${match.holeSegment} (${playerSegmentPoints} vs ${opponentSegmentPoints}) = 0 points`);
       }
 
       totalPoints += segmentPoints;
