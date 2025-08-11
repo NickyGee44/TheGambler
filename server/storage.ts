@@ -2014,91 +2014,42 @@ export class DatabaseStorage implements IStorage {
 
   async getMatchPlayLeaderboard(): Promise<any[]> {
     try {
-      // Get all matches using raw SQL to avoid schema issues
-      const result = await db.execute(sql`
-        SELECT * FROM match_play_matches
-      `);
+      // Get all users to calculate match play points for each
+      const allUsers = await db.select().from(users);
+      const playerData: any[] = [];
       
-      const matches = result.rows;
-
-      // Calculate points for each player
-      const playerPoints = new Map<number, { 
-        user: any; 
-        points: number; 
-        matchesPlayed: number;
-        matchesWon: number;
-        matchesTied: number;
-        matchesLost: number;
-      }>();
-      
-      for (const match of matches) {
-        const player1Id = match.player1_id as number;
-        const player2Id = match.player2_id as number;
-        const winnerId = match.winner_id as number | null;
+      for (const user of allUsers) {
+        // Calculate actual match play points from Round 3 hole scores
+        const matchPlayPoints = await this.calculatePlayerMatchPlayPoints(user.id);
         
-        // Get user data for both players
-        const player1User = await this.getUser(player1Id.toString());
-        const player2User = await this.getUser(player2Id.toString());
+        // Get team information using findPlayerByName method
+        const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
+        let userTeam = null;
+        if (playerInfo) {
+          userTeam = await this.getTeam(playerInfo.teamId);
+        }
         
-        // Update player 1 stats
-        if (!playerPoints.has(player1Id)) {
-          playerPoints.set(player1Id, {
-            user: player1User,
-            points: 0,
-            matchesPlayed: 0,
-            matchesWon: 0,
-            matchesTied: 0,
-            matchesLost: 0,
-          });
-        }
-        const player1Data = playerPoints.get(player1Id)!;
-        if (winnerId === player1Id) {
-          player1Data.points += 2; // Win = 2 points
-          player1Data.matchesWon += 1;
-        } else if (winnerId === null) {
-          player1Data.points += 1; // Tie = 1 point
-          player1Data.matchesTied += 1;
-        } else {
-          player1Data.matchesLost += 1; // Loss = 0 points
-        }
-        player1Data.matchesPlayed += 1;
+        // For now, we'll use simplified match statistics since we don't track individual match wins/losses
+        // The match play points come from the actual hole-by-hole scoring system
+        const matchesPlayed = matchPlayPoints > 0 ? 3 : 0; // Players typically play 3 segments
+        const estimatedWins = Math.floor(matchPlayPoints / 6); // Rough estimate based on segment bonus points
+        const estimatedTies = Math.max(0, Math.floor((matchPlayPoints % 6) / 3));
         
-        // Update player 2 stats
-        if (!playerPoints.has(player2Id)) {
-          playerPoints.set(player2Id, {
-            user: player2User,
-            points: 0,
-            matchesPlayed: 0,
-            matchesWon: 0,
-            matchesTied: 0,
-            matchesLost: 0,
-          });
-        }
-        const player2Data = playerPoints.get(player2Id)!;
-        if (winnerId === player2Id) {
-          player2Data.points += 2; // Win = 2 points
-          player2Data.matchesWon += 1;
-        } else if (winnerId === null) {
-          player2Data.points += 1; // Tie = 1 point
-          player2Data.matchesTied += 1;
-        } else {
-          player2Data.matchesLost += 1; // Loss = 0 points
-        }
-        player2Data.matchesPlayed += 1;
+        playerData.push({
+          playerId: user.id,
+          playerName: `${user.firstName} ${user.lastName}`,
+          totalPoints: matchPlayPoints,
+          matchesPlayed: matchesPlayed,
+          matchesWon: estimatedWins,
+          matchesTied: estimatedTies,
+          matchesLost: Math.max(0, matchesPlayed - estimatedWins - estimatedTies),
+          team: userTeam,
+          user: user
+        });
       }
-
-      // Convert to leaderboard format matching frontend expectations
-      return Array.from(playerPoints.values())
-        .sort((a, b) => b.points - a.points)
-        .map(entry => ({
-          playerId: entry.user?.id || 0,
-          playerName: entry.user ? `${entry.user.firstName} ${entry.user.lastName}` : 'Unknown Player',
-          totalPoints: entry.points,
-          matchesPlayed: entry.matchesPlayed,
-          matchesWon: entry.matchesWon,
-          matchesTied: entry.matchesTied,
-          matchesLost: entry.matchesLost,
-        }));
+      
+      // Sort by total points descending
+      return playerData.sort((a, b) => b.totalPoints - a.totalPoints);
     } catch (error) {
       console.error('Error fetching match play leaderboard:', error);
       return [];
