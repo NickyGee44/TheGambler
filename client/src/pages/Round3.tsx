@@ -528,15 +528,159 @@ export default function Round3() {
               </TabsContent>
               
               <TabsContent value="leaderboard" className="mt-4">
-                <div className="text-center py-8">
-                  <Trophy className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <h3 className="text-lg font-semibold mb-2">Round 3 Leaderboard</h3>
-                  <p className="text-muted-foreground mb-4">
-                    View complete tournament standings using the gold leaderboard button at the top of the page.
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Match play points are included in all tournament leaderboards.
-                  </p>
+                <div className="space-y-6">
+                  {/* Match Play Leaderboard Header */}
+                  <div className="text-center">
+                    <Trophy className="w-8 h-8 mx-auto mb-2 text-yellow-500" />
+                    <h3 className="text-xl font-semibold mb-1">Round 3 Match Play</h3>
+                    <p className="text-sm text-muted-foreground">Live standings with match points and scores</p>
+                  </div>
+
+                  {/* Match Play Results */}
+                  {matchPlayMatches.length > 0 ? (
+                    <div className="space-y-4">
+                      {/* Group matches by hole segments */}
+                      {["1–6", "7–12", "13–18"].map((segment) => {
+                        const segmentMatches = matchPlayMatches.filter(match => match.holes === segment);
+                        if (segmentMatches.length === 0) return null;
+
+                        return (
+                          <Card key={segment} className="bg-gray-800 border-gray-700">
+                            <CardHeader className="pb-3">
+                              <CardTitle className="text-lg text-center text-yellow-400">
+                                Holes {segment}
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              {segmentMatches.map((match, index) => (
+                                <div key={index} className="bg-gray-700 rounded-lg p-3">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <div className="text-sm font-medium text-gray-300">
+                                      {match.player1Name} vs {match.player2Name}
+                                    </div>
+                                    <Badge 
+                                      variant={match.result ? "default" : "outline"}
+                                      className={match.result ? "bg-yellow-600" : ""}
+                                    >
+                                      {match.result || 'In Progress'}
+                                    </Badge>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div className="text-center">
+                                      <div className="font-medium text-white">{match.player1Name}</div>
+                                      <div className="text-yellow-400 font-bold">
+                                        {match.player1Points || 0} pts
+                                      </div>
+                                      <div className="text-xs text-gray-400">HCP: {match.player1Handicap}</div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="font-medium text-white">{match.player2Name}</div>
+                                      <div className="text-yellow-400 font-bold">
+                                        {match.player2Points || 0} pts
+                                      </div>
+                                      <div className="text-xs text-gray-400">HCP: {match.player2Handicap}</div>
+                                    </div>
+                                  </div>
+
+                                  {match.strokesGiven > 0 && (
+                                    <div className="mt-2 text-center">
+                                      <div className="text-xs text-blue-400">
+                                        {match.strokeRecipientId === match.player1Id ? match.player1Name : match.player2Name} receives {match.strokesGiven} stroke{match.strokesGiven > 1 ? 's' : ''}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+
+                      {/* Individual Player Match Play Points Summary */}
+                      <Card className="bg-gradient-to-r from-yellow-900/20 to-yellow-800/20 border-yellow-700">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-lg text-center text-yellow-400">
+                            Match Play Points Summary
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            {allPlayers
+                              .filter(player => {
+                                // Calculate total points for each player from match play matches
+                                const playerMatches = matchPlayMatches.filter(match => 
+                                  match.player1Name === `${player.firstName} ${player.lastName}` || 
+                                  match.player2Name === `${player.firstName} ${player.lastName}`
+                                );
+                                const totalPoints = playerMatches.reduce((sum, match) => {
+                                  if (match.player1Name === `${player.firstName} ${player.lastName}`) {
+                                    return sum + (match.player1Points || 0);
+                                  } else if (match.player2Name === `${player.firstName} ${player.lastName}`) {
+                                    return sum + (match.player2Points || 0);
+                                  }
+                                  return sum;
+                                }, 0);
+                                return totalPoints > 0; // Only show players with points
+                              })
+                              .sort((a, b) => {
+                                // Sort by total match play points
+                                const aPoints = matchPlayMatches.reduce((sum, match) => {
+                                  if (match.player1Name === `${a.firstName} ${a.lastName}`) {
+                                    return sum + (match.player1Points || 0);
+                                  } else if (match.player2Name === `${a.firstName} ${a.lastName}`) {
+                                    return sum + (match.player2Points || 0);
+                                  }
+                                  return sum;
+                                }, 0);
+                                const bPoints = matchPlayMatches.reduce((sum, match) => {
+                                  if (match.player1Name === `${b.firstName} ${b.lastName}`) {
+                                    return sum + (match.player1Points || 0);
+                                  } else if (match.player2Name === `${b.firstName} ${b.lastName}`) {
+                                    return sum + (match.player2Points || 0);
+                                  }
+                                  return sum;
+                                }, 0);
+                                return bPoints - aPoints;
+                              })
+                              .map((player, index) => {
+                                const totalPoints = matchPlayMatches.reduce((sum, match) => {
+                                  if (match.player1Name === `${player.firstName} ${player.lastName}`) {
+                                    return sum + (match.player1Points || 0);
+                                  } else if (match.player2Name === `${player.firstName} ${player.lastName}`) {
+                                    return sum + (match.player2Points || 0);
+                                  }
+                                  return sum;
+                                }, 0);
+
+                                return (
+                                  <div key={player.id} className="flex justify-between items-center p-2 bg-gray-800 rounded">
+                                    <div className="flex items-center gap-2">
+                                      <Badge variant="outline" className="w-6 h-6 rounded-full p-0 flex items-center justify-center text-xs">
+                                        {index + 1}
+                                      </Badge>
+                                      <span className="font-medium text-white">
+                                        {player.firstName} {player.lastName}
+                                      </span>
+                                    </div>
+                                    <div className="font-bold text-yellow-400">
+                                      {totalPoints} pts
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Flag className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+                      <p className="text-muted-foreground">
+                        Match play results will appear here as matches are completed.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
