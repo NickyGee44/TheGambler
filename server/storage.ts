@@ -663,10 +663,12 @@ export class DatabaseStorage implements IStorage {
       const holesCompleted = await this.getTeamHolesCompleted(team.id, round);
       const matchPlayPoints = await this.calculateTeamMatchPlayPoints(team.id);
       
-      // For Round 2, also get net strokes for display and ranking
+      // For Rounds 1 and 2, get net strokes and gross strokes for display and ranking
       let netStrokes = 0;
-      if (round === 2) {
+      let grossStrokes = 0;
+      if (round === 1 || round === 2) {
         netStrokes = await this.calculateTeamNetStrokes(team.id, round);
+        grossStrokes = await this.calculateTeamGrossStrokes(team.id, round);
       }
       
       // Total points include both round points + match play points for comprehensive tournament standings
@@ -677,8 +679,10 @@ export class DatabaseStorage implements IStorage {
         team: team,
         roundPoints: roundPoints,
         stablefordPoints: stablefordPoints,
-        netStrokes: netStrokes, // Add net strokes for Round 2
+        netStrokes: netStrokes, // Add net strokes for Rounds 1 and 2
         netScore: netStrokes, // Also add as netScore for frontend compatibility
+        totalGrossStrokes: grossStrokes, // Add gross strokes for display
+        grossToPar: grossStrokes > 0 ? grossStrokes - 72 : 0, // Calculate to par (assuming par 72)
         holesCompleted: holesCompleted,
         matchPlayPoints: matchPlayPoints,
         totalPoints: totalPoints, // Include match play points in total
@@ -1520,8 +1524,8 @@ export class DatabaseStorage implements IStorage {
       const holesCompleted = await this.getTeamHolesCompleted(team.id, round);
       
       if (round === 1) {
-        // Round 1: Better ball format - use Stableford points (higher is better)
-        teamScore = await this.calculateTeamStablefordPoints(team.id, round);
+        // Round 1: Better ball format - use net strokes (lower is better)
+        teamScore = await this.calculateTeamNetStrokes(team.id, round);
       } else if (round === 2) {
         // Round 2: Net stroke play - use net strokes (lower is better)
         teamScore = await this.calculateTeamNetStrokes(team.id, round);
@@ -1533,7 +1537,7 @@ export class DatabaseStorage implements IStorage {
         teamId: team.id,
         teamScore: teamScore,
         holesCompleted: holesCompleted,
-        isStrokePlay: round === 2  // Flag to indicate stroke play vs points
+        isStrokePlay: round === 1 || round === 2  // Flag to indicate stroke play vs points
       };
     }));
 
@@ -1547,10 +1551,10 @@ export class DatabaseStorage implements IStorage {
     
     // Sort by current performance
     if (round === 1) {
-      // Round 1: Sort by Stableford points (higher is better)
-      teamsInPlay.sort((a, b) => b.teamScore - a.teamScore);
+      // Round 1: Better ball net strokes (lower is better)
+      teamsInPlay.sort((a, b) => a.teamScore - b.teamScore);
     } else if (round === 2) {
-      // Round 2: Sort by net strokes (lower is better)
+      // Round 2: Scramble net strokes (lower is better)
       teamsInPlay.sort((a, b) => a.teamScore - b.teamScore);
     }
     
@@ -1620,7 +1624,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   private async calculateTeamNetStrokes(teamId: number, round: number): Promise<number> {
-    // Round 2: Net stroke play - calculate total net strokes for the team
+    // Calculate total net strokes for the team based on format
     const teamHoleScores = await db.select()
       .from(holeScores)
       .where(
@@ -1635,39 +1639,99 @@ export class DatabaseStorage implements IStorage {
       return 999;
     }
 
-    // For scramble format in Round 2, take one score per hole
-    // Net strokes = gross strokes - handicap strokes
-    const uniqueHoles = new Map<number, { strokes: number, netScore: number }>();
-    for (const holeScore of teamHoleScores) {
-      if (!uniqueHoles.has(holeScore.hole)) {
-        uniqueHoles.set(holeScore.hole, {
-          strokes: holeScore.strokes,
-          netScore: holeScore.netScore
-        });
+    if (round === 1) {
+      // Round 1: Better ball format - take best net score per hole between team members
+      const holeMap = new Map<number, number>();
+      for (const holeScore of teamHoleScores) {
+        const hole = holeScore.hole;
+        const netScore = holeScore.netScore;
+        if (!holeMap.has(hole) || netScore < holeMap.get(hole)!) {
+          holeMap.set(hole, netScore);
+        }
       }
-    }
-    
-    // Sum up all net scores (which already have handicap adjustments applied)
-    let totalNetStrokes = 0;
-    for (const holeData of uniqueHoles.values()) {
-      totalNetStrokes += holeData.netScore;
-    }
-    
-    // If incomplete round, project remaining holes at par to give fair comparison
-    const holesCompleted = uniqueHoles.size;
-    if (holesCompleted < 18) {
-      // Add par for remaining holes (typically par 72, so 4 per hole average)
-      const remainingHoles = 18 - holesCompleted;
-      totalNetStrokes += remainingHoles * 4; // Assume par 4 for remaining holes
-    }
-    
-    // Add logging for Round 2 teams
-    if (round === 2 && teamHoleScores.length > 0) {
+      
+      // Add logging for Round 1 teams
+      const team = await this.getTeam(teamId);
+      const totalNetStrokes = Array.from(holeMap.values()).reduce((total, netScore) => total + netScore, 0);
+      const holesCompleted = holeMap.size;
+      console.log(`🏌️ Round 1 Net Strokes - Team ${team?.teamNumber}: ${totalNetStrokes} net strokes (${holesCompleted}/18 holes)`);
+      
+      return totalNetStrokes;
+    } else if (round === 2) {
+      // Round 2: Scramble format - take one score per hole
+      // Net strokes = gross strokes - handicap strokes
+      const uniqueHoles = new Map<number, { strokes: number, netScore: number }>();
+      for (const holeScore of teamHoleScores) {
+        if (!uniqueHoles.has(holeScore.hole)) {
+          uniqueHoles.set(holeScore.hole, {
+            strokes: holeScore.strokes,
+            netScore: holeScore.netScore
+        });
+        }
+      }
+      
+      // Sum up all net scores (which already have handicap adjustments applied)
+      let totalNetStrokes = 0;
+      for (const holeData of uniqueHoles.values()) {
+        totalNetStrokes += holeData.netScore;
+      }
+      
+      // If incomplete round, project remaining holes at par to give fair comparison
+      const holesCompleted = uniqueHoles.size;
+      if (holesCompleted < 18) {
+        // Add par for remaining holes (typically par 72, so 4 per hole average)
+        const remainingHoles = 18 - holesCompleted;
+        totalNetStrokes += remainingHoles * 4; // Assume par 4 for remaining holes
+      }
+      
+      // Add logging for Round 2 teams
       const team = await this.getTeam(teamId);
       console.log(`🏌️ Round 2 Net Strokes - Team ${team?.teamNumber}: ${totalNetStrokes} net strokes (${holesCompleted}/18 holes)`);
+      
+      return totalNetStrokes;
+    } else {
+      return 999; // Default high value for other rounds
     }
-    
-    return totalNetStrokes;
+  }
+
+  private async calculateTeamGrossStrokes(teamId: number, round: number): Promise<number> {
+    // Calculate total gross strokes for the team based on format
+    const teamHoleScores = await db.select()
+      .from(holeScores)
+      .where(
+        and(
+          eq(holeScores.teamId, teamId),
+          eq(holeScores.round, round)
+        )
+      );
+
+    if (teamHoleScores.length === 0) {
+      return 0; // No scores yet
+    }
+
+    if (round === 1) {
+      // Round 1: Better ball format - take best gross score per hole between team members
+      const holeMap = new Map<number, number>();
+      for (const holeScore of teamHoleScores) {
+        const hole = holeScore.hole;
+        const strokes = holeScore.strokes;
+        if (!holeMap.has(hole) || strokes < holeMap.get(hole)!) {
+          holeMap.set(hole, strokes);
+        }
+      }
+      return Array.from(holeMap.values()).reduce((total, strokes) => total + strokes, 0);
+    } else if (round === 2) {
+      // Round 2: Scramble format - take one score per hole
+      const uniqueHoles = new Map<number, number>();
+      for (const holeScore of teamHoleScores) {
+        if (!uniqueHoles.has(holeScore.hole)) {
+          uniqueHoles.set(holeScore.hole, holeScore.strokes);
+        }
+      }
+      return Array.from(uniqueHoles.values()).reduce((total, strokes) => total + strokes, 0);
+    } else {
+      return 0;
+    }
   }
 
   private async calculateMatchPlayPoints(teamId: number, round: number): Promise<number> {
