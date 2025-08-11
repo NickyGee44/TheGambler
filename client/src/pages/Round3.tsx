@@ -279,6 +279,12 @@ export default function Round3() {
     refetchInterval: 10000, // Refresh every 10 seconds
   });
 
+  // Fetch all registered players to get handicap data for stroke calculations
+  const { data: allPlayers = [] } = useQuery<any[]>({
+    queryKey: ["/api/registered-players"],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
   // Match play leaderboard data fetched above
 
   // Get current match for the player and hole
@@ -322,6 +328,66 @@ export default function Round3() {
 
   // Get current opponent info
   const currentOpponent = getCurrentOpponent(currentHole, `${user?.firstName} ${user?.lastName}`);
+
+  // Function to calculate stroke allocation based on handicap difference
+  const calculateStrokeAllocation = (playerHandicap: number, opponentHandicap: number, holeRange: string) => {
+    const strokeDifference = Math.abs(playerHandicap - opponentHandicap);
+    const playerGetsStrokes = playerHandicap > opponentHandicap;
+    
+    // Get the holes for the current range
+    const courseHoles = course.holes;
+    let rangeHoles: typeof courseHoles = [];
+    
+    if (holeRange === "1–6") {
+      rangeHoles = courseHoles.slice(0, 6);
+    } else if (holeRange === "7–12") {
+      rangeHoles = courseHoles.slice(6, 12);
+    } else if (holeRange === "13–18") {
+      rangeHoles = courseHoles.slice(12, 18);
+    }
+    
+    // Sort holes by handicap rating (1 = hardest, 18 = easiest)
+    const sortedHoles = [...rangeHoles].sort((a, b) => a.handicap - b.handicap);
+    
+    // Calculate how many strokes are allocated in this 6-hole range
+    const strokesInRange = Math.min(strokeDifference, 6);
+    
+    // Get the holes where strokes are allocated (hardest holes first)
+    const strokeHoles = sortedHoles.slice(0, strokesInRange).map(h => h.number);
+    
+    return {
+      strokeDifference,
+      playerGetsStrokes,
+      strokesInRange,
+      strokeHoles
+    };
+  };
+
+  // Get stroke allocation for current matchup
+  const getStrokeInfoForHole = (hole: number) => {
+    if (!currentOpponent || !user) return null;
+    
+    // Get user handicap from authenticated user data
+    const userHandicap = user.handicap || 20; // Default to 20 if not set
+    
+    // Find opponent handicap from registered players
+    const opponentPlayer = allPlayers.find(player => 
+      `${player.firstName} ${player.lastName}` === currentOpponent.opponent
+    );
+    const opponentHandicap = opponentPlayer?.handicap || 20; // Default to 20 if not found
+    
+    const strokeAllocation = calculateStrokeAllocation(userHandicap, opponentHandicap, currentOpponent.holeRange);
+    
+    const holeGetsStroke = strokeAllocation.strokeHoles.includes(hole);
+    
+    if (!holeGetsStroke) return null;
+    
+    return {
+      playerGetsStroke: strokeAllocation.playerGetsStrokes,
+      opponentGetsStroke: !strokeAllocation.playerGetsStrokes,
+      strokeDifference: strokeAllocation.strokeDifference
+    };
+  };
 
   const updateScoreMutation = useMutation({
     mutationFn: async ({ hole, strokes }: { hole: number; strokes: number }) => {
@@ -664,6 +730,8 @@ export default function Round3() {
                   currentMatch={currentMatch}
                   userId={user?.id}
                   playerHandicap={user?.handicap || 0}
+                  strokeInfo={getStrokeInfoForHole(currentHole)}
+                  currentOpponent={currentOpponent}
                 />
               </TabsContent>
               

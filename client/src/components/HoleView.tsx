@@ -44,6 +44,17 @@ interface HoleViewProps {
   currentMatch?: any;
   userId?: number;
   playerHandicap?: number;
+  strokeInfo?: {
+    playerGetsStroke: boolean;
+    opponentGetsStroke: boolean;
+    strokeDifference: number;
+  } | null;
+  currentOpponent?: {
+    opponent: string;
+    holeRange: string;
+    strokes: string;
+    foursome: string;
+  } | null;
 }
 
 export default function HoleView({
@@ -60,7 +71,9 @@ export default function HoleView({
   holeScores,
   currentMatch,
   userId,
-  playerHandicap = 0
+  playerHandicap = 0,
+  strokeInfo,
+  currentOpponent
 }: HoleViewProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'scoring' | 'map'>('scoring');
@@ -352,13 +365,37 @@ export default function HoleView({
                 <span>{hole.yardage}y</span>
                 <span>•</span>
                 <span>HCP {hole.handicap}</span>
-                {receivesStroke && (
-                  <span className="text-blue-400 font-medium">• You Get Stroke</span>
-                )}
-                {isStrokeHole() && (
-                  <span className="text-yellow-400 font-medium">• Match Play Stroke</span>
-                )}
               </div>
+              
+              {/* Stroke Information for Round 3 Match Play */}
+              {currentOpponent && strokeInfo && (
+                <div className="mt-2 p-2 bg-golf-green-900/30 border border-golf-green-600/30 rounded-lg">
+                  <div className="text-xs text-center">
+                    <div className="text-golf-green-400 font-medium mb-1">
+                      vs {currentOpponent.opponent} • Holes {currentOpponent.holeRange}
+                    </div>
+                    {strokeInfo.playerGetsStroke ? (
+                      <div className="text-yellow-400 font-medium">
+                        ⬇️ You get 1 stroke on this hole
+                      </div>
+                    ) : strokeInfo.opponentGetsStroke ? (
+                      <div className="text-blue-400 font-medium">
+                        ⬆️ {currentOpponent.opponent.split(' ')[0]} gets 1 stroke on this hole
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              )}
+              
+              {/* No stroke information for current matchup */}
+              {currentOpponent && !strokeInfo && (
+                <div className="mt-2 p-2 bg-gray-800/50 border border-gray-600/30 rounded-lg">
+                  <div className="text-xs text-center text-gray-400">
+                    vs {currentOpponent.opponent} • Holes {currentOpponent.holeRange}
+                    <div className="text-gray-500">No strokes on this hole</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           
