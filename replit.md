@@ -19,6 +19,7 @@ Preferred communication style: Simple, everyday language.
 - ✅ **COMPLETE SCORE SYNC INTEGRATION**: Fixed comprehensive scoring system synchronization across all leaderboards and scoring endpoints. Match play points now correctly integrate with stroke play points in all round leaderboards, main scores page, and tournament standings. Teams are ranked by combined stroke play + match play totals throughout the entire application.
 - ✅ **ROUND 2 TEAM SCORE BUG FIXED**: Resolved Nick Grossi's "404 team not found" error in Round 2 by fixing team lookup mechanism. Updated database methods to properly find user teams by name instead of missing teamId foreign key.
 - ✅ **ROUND 3 MATCH PLAY INFO**: Added compact match play info section under hole information showing current opponent and stroke status for each hole in Round 3 with gold/yellow theme.
+- ✅ **ROUND 2 SCORE BUTTON HIGHLIGHTING**: Fixed score button highlighting issue in Round 2 by reverting getScoreForHole function to return 0 instead of null, matching behavior of Rounds 1 and 3. Score buttons now properly highlight when selected across all rounds.
 
 ## System Architecture
 

@@ -182,7 +182,7 @@ export default function Round2() {
 
   const getScoreForHole = (hole: number) => {
     const score = holeScores.find(s => s.hole === hole);
-    return score?.strokes || null;
+    return score?.strokes || 0;
   };
 
   const updateScore = (strokes: number) => {
