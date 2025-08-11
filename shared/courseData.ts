@@ -20,29 +20,29 @@ export interface CourseData {
   holes: HoleInfo[];
 }
 
-// Deerhurst Golf Course data (Rounds 1-3) - Accurate Deerhurst Highlands Course
+// Deerhurst Highlands Golf Course data (Rounds 1-3) - Official Gold Tee Scorecard
 export const deerhurstCourse: CourseData = {
   name: "Deerhurst Highlands Golf Course",
   location: "Huntsville, Ontario",
   holes: [
-    { number: 1, par: 4, yardage: 374, handicap: 13 },
-    { number: 2, par: 4, yardage: 465, handicap: 1 },
-    { number: 3, par: 3, yardage: 201, handicap: 15 },
-    { number: 4, par: 4, yardage: 370, handicap: 17 },
-    { number: 5, par: 5, yardage: 510, handicap: 3 },
-    { number: 6, par: 4, yardage: 340, handicap: 7 },
-    { number: 7, par: 3, yardage: 165, handicap: 9 },
-    { number: 8, par: 4, yardage: 395, handicap: 11 },
-    { number: 9, par: 5, yardage: 485, handicap: 5 },
+    { number: 1, par: 4, yardage: 392, handicap: 13 },
+    { number: 2, par: 4, yardage: 435, handicap: 1 },
+    { number: 3, par: 3, yardage: 177, handicap: 15 },
+    { number: 4, par: 4, yardage: 399, handicap: 17 },
+    { number: 5, par: 5, yardage: 371, handicap: 3 },
+    { number: 6, par: 4, yardage: 309, handicap: 7 },
+    { number: 7, par: 3, yardage: 164, handicap: 9 },
+    { number: 8, par: 4, yardage: 383, handicap: 11 },
+    { number: 9, par: 5, yardage: 475, handicap: 5 },
     { number: 10, par: 4, yardage: 335, handicap: 2 },
-    { number: 11, par: 4, yardage: 380, handicap: 4 },
-    { number: 12, par: 3, yardage: 155, handicap: 16 },
-    { number: 13, par: 5, yardage: 500, handicap: 14 },
-    { number: 14, par: 4, yardage: 320, handicap: 12 },
-    { number: 15, par: 4, yardage: 390, handicap: 8 },
-    { number: 16, par: 3, yardage: 140, handicap: 10 },
-    { number: 17, par: 4, yardage: 360, handicap: 6 },
-    { number: 18, par: 5, yardage: 520, handicap: 18 }
+    { number: 11, par: 4, yardage: 349, handicap: 4 },
+    { number: 12, par: 3, yardage: 140, handicap: 16 },
+    { number: 13, par: 5, yardage: 471, handicap: 14 },
+    { number: 14, par: 4, yardage: 307, handicap: 12 },
+    { number: 15, par: 4, yardage: 341, handicap: 8 },
+    { number: 16, par: 3, yardage: 104, handicap: 10 },
+    { number: 17, par: 4, yardage: 315, handicap: 6 },
+    { number: 18, par: 5, yardage: 523, handicap: 18 }
   ]
 };
 
