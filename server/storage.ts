@@ -885,21 +885,24 @@ export class DatabaseStorage implements IStorage {
     // Convert to leaderboard format and sort by total points (highest wins for Stableford)
     const leaderboard = Array.from(teamTotals.values())
       .sort((a, b) => b.totalPoints - a.totalPoints)
-      .map((entry, index) => ({
-        id: entry.team.id,
-        team: entry.team,
-        players: entry.players,
-        totalPoints: entry.totalPoints,
-        totalGrossStrokes: entry.totalGrossStrokes,
-        totalNetStrokes: entry.totalNetStrokes,
-        grossToPar: entry.grossToPar,
-        netToPar: entry.netToPar,
-        holes: entry.holes,
-        teamHandicap: entry.teamHandicap,
-        position: index + 1,
-        isTeamLeaderboard: true,
-        isScramble: true,
-      }));
+      .map((entry, index) => {
+        console.log(`🏌️ Round 2 Scramble - Team ${entry.team.teamNumber}: ${entry.totalNetStrokes} net strokes (${entry.totalGrossStrokes} gross - ${entry.teamHandicap} handicap, ${entry.holes}/18 holes)`);
+        return {
+          id: entry.team.id,
+          team: entry.team,
+          players: entry.players,
+          totalPoints: entry.totalPoints,
+          totalGrossStrokes: entry.totalGrossStrokes,
+          totalNetStrokes: entry.totalNetStrokes,
+          grossToPar: entry.grossToPar,
+          netToPar: entry.netToPar,
+          holes: entry.holes,
+          teamHandicap: entry.teamHandicap,
+          position: index + 1,
+          isTeamLeaderboard: true,
+          isScramble: true,
+        };
+      });
 
     return leaderboard;
   }
