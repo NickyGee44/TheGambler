@@ -597,9 +597,11 @@ function BetterBallLeaderboard({ leaderboard }: { leaderboard: any[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
-              {leaderboard.map((entry: any, index: number) => (
+              {leaderboard
+                .sort((a: any, b: any) => (a.netStrokes || a.totalNetStrokes || 999) - (b.netStrokes || b.totalNetStrokes || 999))
+                .map((entry: any, index: number) => (
                 <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
-                  <td className="px-2 sm:px-4 py-2 sm:py-3">{getRankBadge(entry.position || index + 1)}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3">{getRankBadge(index + 1)}</td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3">
                     <div className="font-medium text-xs sm:text-sm">Team {entry.team?.teamNumber}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
