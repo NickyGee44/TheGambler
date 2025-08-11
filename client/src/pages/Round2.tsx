@@ -83,10 +83,10 @@ export default function Round2() {
   const { toast } = useToast();
   const [location, navigate] = useLocation();
   
-  // Fetch team data for scramble format
-  const { data: teamData } = useQuery<Team>({
-    queryKey: [`/api/teams/${user?.teamId}`],
-    enabled: !!user?.teamId,
+  // Fetch team data for scramble format by player name
+  const { data: teamData } = useQuery({
+    queryKey: [`/api/team/by-player/${user?.firstName} ${user?.lastName}`],
+    enabled: !!user,
   });
   const round = 2;
   const course = getCourseForRound(round);
@@ -406,12 +406,12 @@ export default function Round2() {
               playerHandicap={user?.handicap || 0}
               teamHandicap={teamHandicap}
               isScrambleMode={true}
-              teamInfo={user ? {
-                teamNumber: user.teamId,
-                player1Name: teamData?.player1Name,
-                player2Name: teamData?.player2Name,
-                player1Handicap: teamData?.player1Handicap,
-                player2Handicap: teamData?.player2Handicap,
+              teamInfo={teamData ? {
+                teamNumber: teamData.teamNumber,
+                player1Name: teamData.player1Name,
+                player2Name: teamData.player2Name,
+                player1Handicap: teamData.player1Handicap,
+                player2Handicap: teamData.player2Handicap,
                 teamHandicap: teamHandicap
               } : null}
             />

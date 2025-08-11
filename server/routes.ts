@@ -239,6 +239,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get team by player name
+  app.get('/api/team/by-player/:playerName', async (req, res) => {
+    try {
+      const { playerName } = req.params;
+      const teams = await storage.getTeams();
+      
+      const team = teams.find(t => 
+        t.player1Name === playerName || t.player2Name === playerName
+      );
+      
+      if (!team) {
+        return res.status(404).json({ error: 'Team not found for player' });
+      }
+      
+      res.json(team);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch team' });
+    }
+  });
+
   // Player statistics endpoint (removed duplicate)
 
   // Scores endpoints - now calculated from hole scores

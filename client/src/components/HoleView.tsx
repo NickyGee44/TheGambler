@@ -370,11 +370,6 @@ export default function HoleView({
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Target className="w-5 h-5 text-golf-green-400" />
                 <h1 className="text-xl font-bold text-white">Hole {hole.number}</h1>
-                {isStrokeHole() && (
-                  <Badge variant="secondary" className="bg-yellow-500 text-white text-xs px-2 py-1">
-                    +1 Stroke
-                  </Badge>
-                )}
               </div>
               <div className="flex items-center justify-center gap-2 text-xs text-gray-300">
                 <span>Par {hole.par}</span>
@@ -384,35 +379,7 @@ export default function HoleView({
                 <span>HCP {hole.handicap}</span>
               </div>
               
-              {/* Stroke Information for Round 3 Match Play */}
-              {currentOpponent && strokeInfo && (
-                <div className="mt-2 p-2 bg-golf-green-900/30 border border-golf-green-600/30 rounded-lg">
-                  <div className="text-xs text-center">
-                    <div className="text-golf-green-400 font-medium mb-1">
-                      vs {currentOpponent.opponent} • Holes {currentOpponent.holeRange}
-                    </div>
-                    {strokeInfo.playerGetsStroke ? (
-                      <div className="text-yellow-400 font-medium">
-                        ⬇️ You get 1 stroke on this hole
-                      </div>
-                    ) : strokeInfo.opponentGetsStroke ? (
-                      <div className="text-blue-400 font-medium">
-                        ⬆️ {currentOpponent.opponent.split(' ')[0]} gets 1 stroke on this hole
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              )}
-              
-              {/* No stroke information for current matchup */}
-              {currentOpponent && !strokeInfo && (
-                <div className="mt-2 p-2 bg-gray-800/50 border border-gray-600/30 rounded-lg">
-                  <div className="text-xs text-center text-gray-400">
-                    vs {currentOpponent.opponent} • Holes {currentOpponent.holeRange}
-                    <div className="text-gray-500">No strokes on this hole</div>
-                  </div>
-                </div>
-              )}
+
             </div>
           </div>
           
@@ -490,41 +457,7 @@ export default function HoleView({
           </Card>
         )}
 
-        {/* Round 3 Match Play Info */}
-        {round === 3 && currentMatch && (
-          <Card className="mb-6 bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-blue-500/50">
-            <CardContent className="p-4">
-              <div className="text-center space-y-2">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Trophy className="w-4 h-4 text-yellow-400" />
-                  <span className="text-sm font-semibold text-white">Match Play</span>
-                </div>
-                
-                <div className="flex items-center justify-center gap-3 text-white">
-                  <span className="font-medium">You</span>
-                  <span className="text-yellow-400 font-bold">vs</span>
-                  <span className="font-medium">
-                    {currentMatch.player1Id === userId ? currentMatch.player2Name : currentMatch.player1Name}
-                  </span>
-                </div>
-                
-                <div className="text-xs text-gray-300 space-y-1">
-                  <div>Holes {currentMatch.holes} • {currentMatch.strokesGiven > 0 ? `${currentMatch.strokesGiven} strokes` : 'No strokes'}</div>
-                  {getStrokeRecipient() && (
-                    <div className="text-yellow-400">
-                      Stroke recipient: {getStrokeRecipient()}
-                    </div>
-                  )}
-                  {isStrokeHole() && (
-                    <div className="text-yellow-400 font-medium">
-                      This hole: +1 stroke advantage
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
 
         {/* Tab Navigation */}
         <div className="flex mb-6 bg-gray-800 rounded-lg p-1 border border-gray-700 shadow-lg">
@@ -655,8 +588,10 @@ export default function HoleView({
               </CardContent>
             </Card>
 
-            {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Quick Stats Grid - Hidden for Round 2 Scramble */}
+            {round !== 2 && (
+              <div>
+                <div className="grid grid-cols-2 gap-4">
               {/* Fairway & Green */}
               <Card className="bg-gray-800 border border-gray-700">
                 <CardContent className="p-4">
@@ -830,6 +765,8 @@ export default function HoleView({
                 <p className="text-sm text-gray-300">
                   {isSavingStats ? "Auto-saving stats in 1s..." : "Saving statistics..."}
                 </p>
+              </div>
+            )}
               </div>
             )}
           </div>
