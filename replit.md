@@ -21,6 +21,7 @@ Preferred communication style: Simple, everyday language.
 - ✅ **ROUND 3 MATCH PLAY INFO**: Added compact match play info section under hole information showing current opponent and stroke status for each hole in Round 3 with gold/yellow theme.
 - ✅ **ROUND 2 SCORE BUTTON HIGHLIGHTING**: Fixed score button highlighting issue in Round 2 by reverting getScoreForHole function to return 0 instead of null, matching behavior of Rounds 1 and 3. Score buttons now properly highlight when selected across all rounds.
 - ✅ **ROUND 2 LIVE PLACEMENT POINTS**: Fixed critical placement point calculation for Round 2 where teams with partial progress (like Nick Grossi/Connor Patterson with 11/18 holes) were showing 0 roundPoints despite leading. Modified calculateTournamentPlacementPoints to award temporary placement points during play: 1st=8pts, 2nd=6pts, etc. Teams now receive proper placement points based on current standings during Round 2 play, not just after completing all 18 holes.
+- ✅ **LIVE LEADERBOARDS FOR ALL ROUNDS**: Completely removed restrictions requiring completed rounds for leaderboard display. All rounds now show live data as scores are recorded in real-time. Teams with partial progress are ranked by current performance and awarded live placement points (1st=10pts, 2nd=9pts, etc.) regardless of completion status. Teams that haven't started a round are ranked below teams with scores, sorted by their total tournament points from other rounds.
 
 ## System Architecture
 

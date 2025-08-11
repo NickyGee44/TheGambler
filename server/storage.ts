@@ -711,14 +711,25 @@ export class DatabaseStorage implements IStorage {
       return sortedTeams;
     } else {
       // Round 1 and 3: Sort teams by total points (round + match play) - highest points = best placement
-      teamPlacementData.sort((a, b) => b.totalPoints - a.totalPoints);
+      // Apply live scoring logic: teams with scores first, then teams without scores
+      const teamsWithScores = teamPlacementData.filter(team => team.holesCompleted > 0);
+      const teamsWithoutScores = teamPlacementData.filter(team => team.holesCompleted === 0);
       
-      // Assign positions based on total tournament points
-      teamPlacementData.forEach((team, index) => {
+      // Sort teams with scores by total points (higher = better)
+      teamsWithScores.sort((a, b) => b.totalPoints - a.totalPoints);
+      
+      // Sort teams without scores by total tournament points (from previous rounds + match play)
+      teamsWithoutScores.sort((a, b) => b.totalPoints - a.totalPoints);
+      
+      // Combine: teams with current round scores first, then teams without
+      const sortedTeams = [...teamsWithScores, ...teamsWithoutScores];
+      
+      // Assign positions
+      sortedTeams.forEach((team, index) => {
         team.position = index + 1;
       });
       
-      return teamPlacementData;
+      return sortedTeams;
     }
   }
 
@@ -1525,57 +1536,33 @@ export class DatabaseStorage implements IStorage {
       };
     }));
 
-    // First, check if any teams have completed all 18 holes
-    const completedTeams = teamPerformances.filter(team => team.holesCompleted === 18);
+    // Award live placement points based on current standings regardless of completion status
+    // Filter teams that have started this round
+    const teamsInPlay = teamPerformances.filter(team => team.holesCompleted > 0);
     
-    if (completedTeams.length > 0) {
-      // Some teams have finished - award final placement points only to completed teams
-      if (round === 1) {
-        // Round 1: Sort by Stableford points (higher is better)
-        completedTeams.sort((a, b) => b.teamScore - a.teamScore);
-      } else if (round === 2) {
-        // Round 2: Sort by net strokes (lower is better)
-        completedTeams.sort((a, b) => a.teamScore - b.teamScore);
-      }
-      
-      const teamPosition = completedTeams.findIndex(team => team.teamId === teamId) + 1;
-      
-      if (teamPosition === 0) {
-        // This team hasn't completed the round yet, but others have - no points yet
-        return 0;
-      }
-      
-      // Award final placement points: 1st = 10, 2nd = 9, ..., 8th = 3
-      const pointsMap = [10, 9, 8, 7, 6, 5, 4, 3];
-      return teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 1;
-    } else {
-      // No teams have completed the round yet - award temporary points based on current standings
-      const teamsInPlay = teamPerformances.filter(team => team.holesCompleted > 0);
-      
-      if (teamsInPlay.length === 0) {
-        return 0; // No one has started yet
-      }
-      
-      // Sort by current performance
-      if (round === 1) {
-        // Round 1: Sort by Stableford points (higher is better)
-        teamsInPlay.sort((a, b) => b.teamScore - a.teamScore);
-      } else if (round === 2) {
-        // Round 2: Sort by net strokes (lower is better)
-        teamsInPlay.sort((a, b) => a.teamScore - b.teamScore);
-      }
-      
-      const teamPosition = teamsInPlay.findIndex(team => team.teamId === teamId) + 1;
-      
-      if (teamPosition === 0) {
-        // This team hasn't started yet
-        return 0;
-      }
-      
-      // Award temporary placement points based on current standing: 1st = 8, 2nd = 6, etc.
-      const tempPointsMap = [8, 6, 5, 4, 3, 2, 1, 1];
-      return teamPosition <= tempPointsMap.length ? tempPointsMap[teamPosition - 1] : 1;
+    if (teamsInPlay.length === 0) {
+      return 0; // No one has started yet
     }
+    
+    // Sort by current performance
+    if (round === 1) {
+      // Round 1: Sort by Stableford points (higher is better)
+      teamsInPlay.sort((a, b) => b.teamScore - a.teamScore);
+    } else if (round === 2) {
+      // Round 2: Sort by net strokes (lower is better)
+      teamsInPlay.sort((a, b) => a.teamScore - b.teamScore);
+    }
+    
+    const teamPosition = teamsInPlay.findIndex(team => team.teamId === teamId) + 1;
+    
+    if (teamPosition === 0) {
+      // This team hasn't started yet
+      return 0;
+    }
+    
+    // Award live placement points based on current standing: 1st = 10, 2nd = 9, etc.
+    const pointsMap = [10, 9, 8, 7, 6, 5, 4, 3];
+    return teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 1;
   }
 
   private async calculateTeamStablefordPoints(teamId: number, round: number): Promise<number> {
