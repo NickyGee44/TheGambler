@@ -1734,20 +1734,20 @@ export class DatabaseStorage implements IStorage {
     try {
       // Use raw SQL to avoid schema mismatch issues - return manual structure
       const result = groupNumber 
-        ? await db.execute(sql`SELECT * FROM match_play_matches WHERE group_id = ${groupNumber}`)
+        ? await db.execute(sql`SELECT * FROM match_play_matches WHERE group_number = ${groupNumber}`)
         : await db.execute(sql`SELECT * FROM match_play_matches`);
       
       // Convert database rows to proper match objects
       return result.rows.map((row: any) => ({
         id: row.id,
-        groupId: row.group_id,
+        groupId: row.group_number,
         player1Id: row.player1_id,
         player2Id: row.player2_id,
         player1Name: row.player1_name,
         player2Name: row.player2_name,
         player1Handicap: row.player1_handicap,
         player2Handicap: row.player2_handicap,
-        holes: row.holes,
+        holes: row.hole_segment,
         strokesGiven: row.strokes_given,
         strokeRecipientId: row.stroke_recipient_id,
         strokeHoles: row.stroke_holes,
@@ -1895,7 +1895,7 @@ export class DatabaseStorage implements IStorage {
       // Use direct SQL query to avoid schema issues
       const result = await db.execute(sql`
         SELECT * FROM match_play_matches 
-        WHERE holes = ${holeSegment} 
+        WHERE hole_segment = ${holeSegment} 
         AND (player1_id = ${playerId} OR player2_id = ${playerId})
       `);
       
@@ -1909,14 +1909,14 @@ export class DatabaseStorage implements IStorage {
       // Convert database row to match object
       return {
         id: match.id,
-        groupId: match.group_id,
+        groupId: match.group_number,
         player1Id: match.player1_id,
         player2Id: match.player2_id,
         player1Name: match.player1_name,
         player2Name: match.player2_name,
         player1Handicap: match.player1_handicap,
         player2Handicap: match.player2_handicap,
-        holes: match.holes,
+        holes: match.hole_segment,
         strokesGiven: match.strokes_given,
         strokeRecipientId: match.stroke_recipient_id,
         strokeHoles: match.stroke_holes,

@@ -330,10 +330,40 @@ export default function Round3() {
   // Get current opponent info
   const currentOpponent = getCurrentOpponent(currentHole, `${user?.firstName} ${user?.lastName}`);
 
-  // Function to calculate stroke allocation based on handicap difference
-  const calculateStrokeAllocation = (playerHandicap: number, opponentHandicap: number, holeRange: string) => {
-    const strokeDifference = Math.abs(playerHandicap - opponentHandicap);
-    const playerGetsStrokes = playerHandicap > opponentHandicap;
+  // Function to calculate stroke allocation based on matchup data
+  const calculateStrokeAllocation = (playerName: string, opponentName: string, holeRange: string) => {
+    // Find the specific matchup in ROUND3_MATCHUPS to get exact stroke allocation
+    const matchup = ROUND3_MATCHUPS.find(m => 
+      m.holes === holeRange && 
+      ((m.player1 === playerName && m.player2 === opponentName) || 
+       (m.player1 === opponentName && m.player2 === playerName))
+    );
+    
+    if (!matchup) {
+      return {
+        strokeDifference: 0,
+        playerGetsStrokes: false,
+        strokesInRange: 0,
+        strokeHoles: []
+      };
+    }
+    
+    // Parse the strokes text to determine who gets strokes and how many
+    const strokesText = matchup.strokes.toLowerCase();
+    let strokesGiven = 0;
+    let playerGetsStrokes = false;
+    
+    // Extract number of strokes from text
+    const strokeMatch = strokesText.match(/(\d+)\s*stroke/);
+    if (strokeMatch) {
+      strokesGiven = parseInt(strokeMatch[1]);
+    }
+    
+    // Determine if current player gets strokes
+    if (strokesText.includes(playerName.toLowerCase().split(' ')[0].toLowerCase()) && 
+        (strokesText.includes('gets') || strokesText.includes('receives'))) {
+      playerGetsStrokes = true;
+    }
     
     // Get the holes for the current range
     const courseHoles = course.holes;
@@ -350,16 +380,14 @@ export default function Round3() {
     // Sort holes by handicap rating (1 = hardest, 18 = easiest)
     const sortedHoles = [...rangeHoles].sort((a, b) => a.handicap - b.handicap);
     
-    // Calculate how many strokes are allocated in this 6-hole range
-    const strokesInRange = Math.min(strokeDifference, 6);
-    
     // Get the holes where strokes are allocated (hardest holes first)
-    const strokeHoles = sortedHoles.slice(0, strokesInRange).map(h => h.number);
+    const strokeHoles = playerGetsStrokes ? 
+      sortedHoles.slice(0, strokesGiven).map(h => h.number) : [];
     
     return {
-      strokeDifference,
+      strokeDifference: strokesGiven,
       playerGetsStrokes,
-      strokesInRange,
+      strokesInRange: strokesGiven,
       strokeHoles
     };
   };
@@ -377,7 +405,17 @@ export default function Round3() {
     );
     const opponentHandicap = opponentPlayer?.handicap || 20; // Default to 20 if not found
     
-    const strokeAllocation = calculateStrokeAllocation(userHandicap, opponentHandicap, currentOpponent.holeRange);
+    console.log('Stroke calculation debug:', {
+      hole,
+      userHandicap,
+      opponentHandicap,
+      opponent: currentOpponent.opponent,
+      holeRange: currentOpponent.holeRange
+    });
+    
+    const strokeAllocation = calculateStrokeAllocation(`${user.firstName} ${user.lastName}`, currentOpponent.opponent, currentOpponent.holeRange);
+    
+    console.log('Stroke allocation result:', strokeAllocation);
     
     const holeGetsStroke = strokeAllocation.strokeHoles.includes(hole);
     
