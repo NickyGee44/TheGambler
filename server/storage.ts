@@ -890,16 +890,20 @@ export class DatabaseStorage implements IStorage {
     const leaderboard = Array.from(teamTotals.values())
       .sort((a, b) => b.totalPoints - a.totalPoints)
       .map((entry, index) => {
-        console.log(`🏌️ Round 2 Scramble - Team ${entry.team.teamNumber}: ${entry.totalNetStrokes} net strokes (${entry.totalGrossStrokes} gross - ${entry.teamHandicap} handicap, ${entry.holes}/18 holes)`);
+        // Fix total net strokes calculation: Total Gross - Team Handicap
+        const correctedTotalNetStrokes = entry.totalGrossStrokes - entry.teamHandicap;
+        const correctedNetToPar = correctedTotalNetStrokes - 72; // Par 72
+        
+        console.log(`🏌️ Round 2 Scramble - Team ${entry.team.teamNumber}: ${correctedTotalNetStrokes} net strokes (${entry.totalGrossStrokes} gross - ${entry.teamHandicap} handicap, ${entry.holes}/18 holes)`);
         return {
           id: entry.team.id,
           team: entry.team,
           players: entry.players,
           totalPoints: entry.totalPoints,
           totalGrossStrokes: entry.totalGrossStrokes,
-          totalNetStrokes: entry.totalNetStrokes,
+          totalNetStrokes: correctedTotalNetStrokes,
           grossToPar: entry.grossToPar,
-          netToPar: entry.netToPar,
+          netToPar: correctedNetToPar,
           holes: entry.holes,
           teamHandicap: entry.teamHandicap,
           position: index + 1,

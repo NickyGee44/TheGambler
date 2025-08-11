@@ -997,6 +997,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/team-scramble/:round', async (req, res) => {
     try {
       const round = parseInt(req.params.round);
+      console.log(`🚀 API CALLED: /api/team-scramble/${round}`);
       const leaderboard = await storage.getScrambleLeaderboard(round);
       console.log('🚀 API RESPONSE: team-scramble leaderboard being sent to frontend:');
       leaderboard.forEach(entry => {
