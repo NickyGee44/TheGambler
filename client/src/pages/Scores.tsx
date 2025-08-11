@@ -581,8 +581,8 @@ function BetterBallLeaderboard({ leaderboard }: { leaderboard: any[] }) {
     <Card className="shadow-lg">
       <CardContent className="p-6">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-golf-green-600 mb-2">Round 1: Better Ball Format</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Teams use best net score between partners on each hole. Lower net strokes wins. Rankings based on tournament placement points (1st=10pts, 2nd=9pts, etc).</p>
+          <h3 className="text-lg font-semibold text-golf-green-600 mb-2">Round 1: Net Better Ball Format</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Teams use best net score between partners on each hole. Lower net strokes wins. Teams ranked by net strokes completed during live play.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[500px]">
@@ -591,9 +591,9 @@ function BetterBallLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                 <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Pos</th>
                 <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Team</th>
                 <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Gross</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Net</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Net Strokes</th>
                 <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">To Par</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Tournament Pts</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-golf-green-600 dark:text-golf-green-400">Holes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
@@ -608,14 +608,14 @@ function BetterBallLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                     </div>
                   </td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalGrossStrokes || '-'}</td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalNetStrokes || '-'}</td>
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-bold text-golf-green-600 text-xs sm:text-sm">{entry.netStrokes || entry.totalNetStrokes || '-'}</td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm">
                     <span className={entry.grossToPar > 0 ? 'text-red-600' : entry.grossToPar < 0 ? 'text-green-600' : 'text-gray-600'}>
                       {entry.grossToPar > 0 ? '+' : ''}{entry.grossToPar || 'E'}
                     </span>
                   </td>
-                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-bold text-golf-green-600 text-xs sm:text-sm">
-                    {entry.roundPoints || (11 - entry.position) || 0}
+                  <td className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                    {entry.holesCompleted || 0}/18
                   </td>
                 </tr>
               ))}
