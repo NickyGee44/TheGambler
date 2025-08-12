@@ -553,11 +553,14 @@ export default function HoleView({
                           localScore > 0 && localScore === score 
                             ? (() => {
                                 const diff = score - hole.par;
-                                if (diff <= -2) return 'bg-blue-600 hover:bg-blue-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-blue-400'; // Eagle
-                                if (diff === -1) return 'bg-green-600 hover:bg-green-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-green-400'; // Birdie
-                                if (diff === 0) return 'bg-gray-600 hover:bg-gray-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-gray-400'; // Par
-                                if (diff === 1) return 'bg-yellow-600 hover:bg-yellow-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-yellow-400'; // Bogey
-                                return 'bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-red-400'; // Double+
+                                if (diff <= -3) return 'bg-yellow-500 hover:bg-yellow-600 text-white font-extrabold shadow-lg transform scale-105 border-2 border-yellow-400'; // Albatross or better - Gold
+                                if (diff === -2) return 'bg-yellow-500 hover:bg-yellow-600 text-white font-extrabold shadow-lg transform scale-105 border-2 border-yellow-400'; // Eagle - Gold
+                                if (diff === -1) return 'bg-green-500 hover:bg-green-600 text-white font-extrabold shadow-lg transform scale-105 border-2 border-green-400'; // Birdie - Green
+                                if (diff === 0) return 'bg-blue-500 hover:bg-blue-600 text-white font-extrabold shadow-lg transform scale-105 border-2 border-blue-400'; // Par - Blue
+                                if (diff === 1) return 'bg-red-500 hover:bg-red-600 text-white font-extrabold shadow-lg transform scale-105 border-2 border-red-400'; // Bogey - Red
+                                if (diff === 2) return 'bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-red-500'; // Double Bogey - Darker Red
+                                if (diff === 3) return 'bg-red-700 hover:bg-red-800 text-white font-extrabold shadow-lg transform scale-105 border-2 border-red-600'; // Triple Bogey - Even Darker Red
+                                return 'bg-red-800 hover:bg-red-900 text-white font-extrabold shadow-lg transform scale-105 border-2 border-red-700'; // Worse - Darkest Red
                               })()
                             : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 hover:scale-102'
                         }`}
@@ -578,7 +581,7 @@ export default function HoleView({
                     }}
                     className={`w-full font-bold transition-all duration-200 ${
                       localScore > 0 && localScore === hole.par + 5 
-                        ? 'bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-red-400' 
+                        ? 'bg-purple-600 hover:bg-purple-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-purple-400' 
                         : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 hover:scale-102'
                     }`}
                   >
