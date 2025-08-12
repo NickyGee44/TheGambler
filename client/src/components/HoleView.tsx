@@ -179,9 +179,6 @@ export default function HoleView({
 
   // Save score immediately when user clicks
   const saveScoreImmediately = (strokes: number) => {
-    // Prevent saving if the score hasn't actually changed
-    if (strokes === currentScore) return;
-    
     // Clear any pending saves
     if (scoreTimeoutRef.current) {
       clearTimeout(scoreTimeoutRef.current);
@@ -189,7 +186,7 @@ export default function HoleView({
     
     setIsSavingScore(true);
     
-    // Save immediately without delay
+    // Save immediately without delay - allow updates even if same score
     onScoreUpdate(strokes);
     
     // Clear saving state after a short UI feedback delay
