@@ -142,18 +142,12 @@ export default function HoleView({
   const [localScore, setLocalScore] = useState(currentScore || 0);
   const [justClicked, setJustClicked] = useState<number | null>(null);
   
-  // Update local score when prop changes OR when hole changes
+  // Update local score when hole changes, but NOT when score updates from server
   useEffect(() => {
-    // Update local score when we get data from server or change holes
-    if (currentScore && currentScore > 0) {
-      setLocalScore(currentScore);
-      setJustClicked(null); // Clear any temporary highlight
-    } else if (!currentScore || currentScore === 0) {
-      // When switching holes or no score exists, reset
-      setLocalScore(0);
-      setJustClicked(null);
-    }
-  }, [currentScore, hole.number]);
+    // Only update local score when changing holes, not when score updates from server
+    setLocalScore(currentScore || 0);
+    setJustClicked(null);
+  }, [hole.number]); // Only depend on hole number, not currentScore
 
   // Auto-save statistics with 1-second delay after user stops making changes
   const scheduleStatsSave = () => {
