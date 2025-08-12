@@ -139,11 +139,18 @@ export default function HoleView({
   });
 
   // Track the current score locally for immediate UI updates
-  const [localScore, setLocalScore] = useState(currentScore);
+  const [localScore, setLocalScore] = useState(currentScore || 0);
   
   // Update local score when prop changes OR when hole changes
   useEffect(() => {
-    setLocalScore(currentScore);
+    // Only update localScore if there's actually a saved score
+    // If currentScore is null/0, keep the current localScore to maintain UI state
+    if (currentScore && currentScore > 0) {
+      setLocalScore(currentScore);
+    } else if (currentScore === null || currentScore === 0) {
+      // When switching holes, reset localScore if no saved score exists
+      setLocalScore(0);
+    }
   }, [currentScore, hole.number]);
 
   // Auto-save statistics with 1-second delay after user stops making changes
@@ -543,7 +550,7 @@ export default function HoleView({
                           saveScoreImmediately(score);
                         }}
                         className={`w-12 h-12 rounded-full font-bold text-lg transition-all duration-200 ${
-                          localScore === score 
+                          localScore > 0 && localScore === score 
                             ? (() => {
                                 const diff = score - hole.par;
                                 if (diff <= -2) return 'bg-blue-600 hover:bg-blue-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-blue-400'; // Eagle
@@ -570,7 +577,7 @@ export default function HoleView({
                       saveScoreImmediately(youSuckScore);
                     }}
                     className={`w-full font-bold transition-all duration-200 ${
-                      localScore === hole.par + 5 
+                      localScore > 0 && localScore === hole.par + 5 
                         ? 'bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-red-400' 
                         : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 hover:scale-102'
                     }`}
