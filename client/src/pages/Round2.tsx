@@ -311,10 +311,10 @@ export default function Round2() {
                         </div>
                         <div className="text-right">
                           <div className="font-bold text-golf-green-600 text-lg">
-                            {entry.netScore || entry.totalStrokes || 0}
+                            {entry.totalNetStrokes || entry.netScore || entry.totalStrokes || 0}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {entry.holesCompleted || entry.holes || 0}/18 holes
+                            {entry.holesCompleted || entry.holes || 18}/18 holes
                           </div>
                         </div>
                       </div>
@@ -352,10 +352,10 @@ export default function Round2() {
                           <div className="flex items-center gap-2">
                             <div className="text-right">
                               <div className="font-bold text-golf-green-600 text-lg">
-                                {entry.netScore || entry.totalStrokes || 0}
+                                {entry.totalNetStrokes || entry.netScore || entry.totalStrokes || 0}
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                {entry.holesCompleted || entry.holes || 0}/18 holes
+                                {entry.holesCompleted || entry.holes || 18}/18 holes
                               </div>
                             </div>
                             {isExpanded ? (
