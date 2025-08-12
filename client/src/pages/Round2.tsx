@@ -28,10 +28,25 @@ interface HoleScore {
 }
 
 interface LeaderboardEntry {
-  user: { firstName: string; lastName: string; id: number };
-  team: { teamNumber: number };
+  id: number;
+  user?: { firstName: string; lastName: string; id: number };
+  team: { 
+    id: number;
+    teamNumber: number; 
+    player1Name: string;
+    player2Name: string;
+    player1Handicap: number;
+    player2Handicap: number;
+  };
   totalPoints: number;
-  holes: number;
+  totalNetStrokes?: number;
+  totalGrossStrokes?: number;
+  netScore?: number;
+  totalStrokes?: number;
+  holes?: number;
+  holesCompleted?: number;
+  isTeamLeaderboard?: boolean;
+  position?: number;
 }
 
 // PlayerHoleScores Component
@@ -122,9 +137,9 @@ export default function Round2() {
     enabled: !!user,
   });
 
-  // Fetch leaderboard for round 2
+  // Fetch scramble leaderboard for round 2
   const { data: leaderboard = [] } = useQuery<LeaderboardEntry[]>({
-    queryKey: [`/api/leaderboard/${round}`],
+    queryKey: [`/api/team-scramble/${round}`],
     refetchInterval: 10000, // Refresh every 10 seconds
   });
 
@@ -139,7 +154,7 @@ export default function Round2() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`] });
       toast({
         title: "Team score saved",
         description: "Your team's score has been updated.",
