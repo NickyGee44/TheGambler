@@ -548,12 +548,18 @@ export default function HoleView({
                         variant="outline"
                         size="lg"
                         onClick={() => {
+                          // Clear any previous highlighting and set new score
                           setJustClicked(score);
                           setLocalScore(score);
                           saveScoreImmediately(score);
+                          
+                          // Clear temporary highlight after a short delay
+                          setTimeout(() => {
+                            setJustClicked(null);
+                          }, 500);
                         }}
                         className={`w-12 h-12 rounded-full font-bold text-lg transition-all duration-200 ${
-                          ((localScore > 0 && localScore === score) || justClicked === score)
+                          (justClicked === score || (localScore > 0 && localScore === score && justClicked === null))
                             ? (() => {
                                 const diff = score - hole.par;
                                 if (diff <= -3) return 'bg-yellow-500 hover:bg-yellow-600 text-white font-extrabold shadow-lg transform scale-105 border-2 border-yellow-400'; // Albatross or better - Gold
@@ -582,9 +588,14 @@ export default function HoleView({
                       setJustClicked(youSuckScore);
                       setLocalScore(youSuckScore);
                       saveScoreImmediately(youSuckScore);
+                      
+                      // Clear temporary highlight after a short delay
+                      setTimeout(() => {
+                        setJustClicked(null);
+                      }, 500);
                     }}
                     className={`w-full font-bold transition-all duration-200 ${
-                      ((localScore > 0 && localScore === hole.par + 5) || justClicked === hole.par + 5)
+                      (justClicked === hole.par + 5 || (localScore > 0 && localScore === hole.par + 5 && justClicked === null))
                         ? 'bg-purple-600 hover:bg-purple-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-purple-400' 
                         : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 hover:scale-102'
                     }`}
