@@ -109,20 +109,18 @@ export default function Round1() {
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({
     queryKey: [`/api/my-hole-scores/${round}`],
     enabled: !!user,
-    onSuccess: (data) => {
+  });
+
+  // Log hole scores data whenever it changes
+  useEffect(() => {
+    if (holeScores && holeScores.length >= 0) {
       console.log(`📡 [ROUND1] HOLE SCORES LOADED:`, {
-        count: data.length,
-        scores: data.map(s => ({ hole: s.hole, strokes: s.strokes })),
-        timestamp: new Date().toISOString()
-      });
-    },
-    onError: (error) => {
-      console.error(`📡 [ROUND1] HOLE SCORES ERROR:`, {
-        error: error.message,
+        count: holeScores.length,
+        scores: holeScores.map(s => ({ hole: s.hole, strokes: s.strokes })),
         timestamp: new Date().toISOString()
       });
     }
-  });
+  }, [holeScores]);
 
   // Fetch individual leaderboard for round 1
   const { data: individualLeaderboard = [] } = useQuery<LeaderboardEntry[]>({
