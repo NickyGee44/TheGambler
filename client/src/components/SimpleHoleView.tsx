@@ -45,53 +45,54 @@ export function SimpleHoleView({
 }: SimpleHoleViewProps) {
   const { toast } = useToast();
   
-  // Get the current score for this specific hole
-  const { data: currentScore, refetch: refetchScore } = useQuery({
-    queryKey: [`/api/hole-score/${round}/${hole.number}`],
-    queryFn: async (): Promise<number> => {
-      const endpoint = isScrambleMode 
-        ? `/api/team-hole-score/${round}/${hole.number}`
-        : `/api/hole-score/${round}/${hole.number}`;
-      
-      const response = await fetch(endpoint, {
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        return 0; // No score yet
-      }
-      
-      const data = await response.json();
-      return data.strokes || 0;
-    },
+  // Local state for immediate UI response
+  const [localScore, setLocalScore] = useState<number>(0);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Get all hole scores for this user and extract the current hole
+  const { data: allHoleScores, refetch: refetchScore } = useQuery<HoleScore[]>({
+    queryKey: [`/api/my-hole-scores/${round}`],
     enabled: !!userId,
     staleTime: 0 // Always refetch
   });
 
+  // Extract score for current hole
+  const serverScore = allHoleScores?.find(score => score.hole === hole.number)?.strokes || 0;
+
+  // Sync local score with server score when it changes
+  useEffect(() => {
+    if (serverScore !== undefined && !isSaving) {
+      setLocalScore(serverScore);
+    }
+  }, [serverScore, isSaving]);
+
+  // Use local score for immediate UI response, fallback to server score
+  const currentScore = isSaving ? localScore : (serverScore || 0);
+
   // Mutation to save score
   const saveScoreMutation = useMutation({
     mutationFn: async (strokes: number) => {
-      const endpoint = isScrambleMode 
-        ? "/api/team-hole-scores"
-        : "/api/hole-scores";
-      
       const payload = {
         round,
         hole: hole.number,
         strokes
       };
       
-      const response = await apiRequest("POST", endpoint, payload);
+      console.log(`🚀 [SIMPLE] Saving score:`, { endpoint: "/api/hole-scores", payload });
+      const response = await apiRequest("POST", "/api/hole-scores", payload);
       return response.json();
     },
     onSuccess: async (data, strokes) => {
+      console.log(`✅ [SIMPLE] Score saved successfully:`, { hole: hole.number, strokes, data });
+      setIsSaving(false);
+      
       // Immediately refetch this hole's score
       await refetchScore();
       
       // Invalidate related queries
-      queryClient.invalidateQueries({ 
-        queryKey: [isScrambleMode ? `/api/team-hole-scores/${round}` : `/api/my-hole-scores/${round}`] 
-      });
+      queryClient.invalidateQueries({ queryKey: [`/api/my-hole-scores/${round}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
       
       toast({
         title: "Score saved",
@@ -99,6 +100,11 @@ export function SimpleHoleView({
       });
     },
     onError: (error: Error) => {
+      console.error(`❌ [SIMPLE] Score save failed:`, { hole: hole.number, error: error.message });
+      setIsSaving(false);
+      // Revert local score on error
+      setLocalScore(serverScore || 0);
+      
       toast({
         title: "Error saving score",
         description: error.message,
@@ -109,6 +115,13 @@ export function SimpleHoleView({
 
   const handleScoreClick = (strokes: number) => {
     if (strokes < 1) return;
+    console.log(`👆 [SIMPLE] Score button clicked:`, { hole: hole.number, strokes, currentScore });
+    
+    // Immediately update local state for instant feedback
+    setLocalScore(strokes);
+    setIsSaving(true);
+    
+    // Save to server
     saveScoreMutation.mutate(strokes);
   };
 
