@@ -164,15 +164,19 @@ export default function Round1() {
         timestamp: new Date().toISOString()
       });
       
-      // Delay cache invalidation to prevent UI reversion during user interaction
+      // Immediately invalidate the user's hole scores to refresh UI
+      console.log(`🔄 [ROUND1] INVALIDATING USER HOLE SCORES IMMEDIATELY`);
+      queryClient.invalidateQueries({ queryKey: [`/api/my-hole-scores/${round}`] });
+      
+      // Delay other cache invalidations to prevent UI reversion during user interaction
       setTimeout(() => {
-        console.log(`🔄 [ROUND1] INVALIDATING QUERIES after 2s delay:`, {
+        console.log(`🔄 [ROUND1] INVALIDATING OTHER QUERIES after 1s delay:`, {
           queries: [`/api/hole-scores/${round}`, `/api/leaderboard/${round}`, `/api/team-better-ball/${round}`]
         });
         queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
         queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
         queryClient.invalidateQueries({ queryKey: [`/api/team-better-ball/${round}`] });
-      }, 2000); // 2 second delay to allow UI stability
+      }, 1000); // Reduced to 1 second delay
       
       toast({
         title: "Score saved",

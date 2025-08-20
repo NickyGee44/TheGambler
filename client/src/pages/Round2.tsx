@@ -153,11 +153,13 @@ export default function Round2() {
       return await res.json();
     },
     onSuccess: () => {
-      // Delay cache invalidation to prevent UI reversion during user interaction
+      // Immediately invalidate team hole scores to refresh UI
+      queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
+      
+      // Delay leaderboard cache invalidation to prevent UI reversion during user interaction
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
         queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`] });
-      }, 2000); // 2 second delay to allow UI stability
+      }, 1000); // Reduced to 1 second delay
       
       toast({
         title: "Team score saved",
@@ -201,7 +203,7 @@ export default function Round2() {
 
   const getScoreForHole = (hole: number) => {
     const score = holeScores.find(s => s.hole === hole);
-    return score?.strokes || null;
+    return score?.strokes || 0;
   };
 
   const updateScore = (strokes: number) => {

@@ -118,6 +118,8 @@ interface MatchPlayMatch {
   winnerId?: number;
   result?: string;
   pointsAwarded?: number;
+  player1Points?: number;
+  player2Points?: number;
   createdAt: string;
 }
 
@@ -374,11 +376,15 @@ export default function Round3() {
       return await res.json();
     },
     onSuccess: () => {
-      // Delay cache invalidation to prevent UI reversion during user interaction
+      // Immediately invalidate hole scores to refresh UI
+      queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
+      
+      // Delay other cache invalidations to prevent UI reversion during user interaction
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
         queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
-      }, 2000); // 2 second delay to allow UI stability
+        queryClient.invalidateQueries({ queryKey: ["/api/match-play/matches"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/match-play/leaderboard"] });
+      }, 1000); // Reduced to 1 second delay
       
       toast({
         title: "Score saved",
