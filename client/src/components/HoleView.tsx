@@ -34,6 +34,7 @@ interface HoleViewProps {
   round: number;
   currentScore: number;
   onScoreUpdate: (strokes: number) => void;
+  onScoreUpdatedSuccess?: (hole: number, strokes: number) => void;
   onPreviousHole: () => void;
   onNextHole: () => void;
   isFirstHole: boolean;
@@ -180,17 +181,18 @@ export default function HoleView({
     }
   }, [hole.number]);
   
-  // Only sync with server data if user is not actively interacting
+  // Sync with server data when not actively saving or interacting
   useEffect(() => {
-    const shouldSync = !isUserInteracting.current && pendingSave.current === null && hole.number === lastHoleNumber.current;
+    const shouldSync = !isUserInteracting.current && !isSavingScore && hole.number === lastHoleNumber.current;
     
     console.log(`🔄 [HOLE ${hole.number}] SERVER DATA SYNC CHECK:`, {
       currentScore,
       localScore,
       shouldSync,
+      isSavingScore,
       reasons: {
         isUserInteracting: isUserInteracting.current,
-        hasPendingSave: pendingSave.current !== null,
+        isSavingScore,
         sameHole: hole.number === lastHoleNumber.current
       }
     });
@@ -199,11 +201,11 @@ export default function HoleView({
       console.log(`📝 [HOLE ${hole.number}] SYNCING FROM SERVER:`, {
         from: localScore,
         to: currentScore || 0,
-        reason: 'server data changed while not interacting'
+        reason: 'server data changed while not saving/interacting'
       });
       setLocalScore(currentScore || 0);
     }
-  }, [currentScore, hole.number, localScore]);
+  }, [currentScore, hole.number, localScore, isSavingScore]);
 
   // Auto-save statistics with 1-second delay after user stops making changes
   const scheduleStatsSave = () => {
@@ -251,6 +253,24 @@ export default function HoleView({
     // Use the onScoreUpdate callback to trigger the mutation
     onScoreUpdate(strokes);
   };
+
+  // Effect to clear saving state when currentScore prop updates (indicating successful save)
+  useEffect(() => {
+    if (pendingSave.current !== null && currentScore === pendingSave.current && isSavingScore) {
+      console.log(`✅ [HOLE ${hole.number}] CONFIRMED SCORE SAVE:`, {
+        pendingScore: pendingSave.current,
+        currentScore,
+        clearingSavingState: true
+      });
+      
+      // Clear the saving state since the score has been confirmed
+      pendingSave.current = null;
+      setIsSavingScore(false);
+      
+      // Ensure local score is synced with confirmed server score
+      setLocalScore(currentScore);
+    }
+  }, [currentScore, hole.number, isSavingScore]);
 
   // Save any pending scores/stats when navigating away from hole
   useEffect(() => {
