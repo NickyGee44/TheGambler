@@ -7,6 +7,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema, insertHoleScoreSchema, User } from "@shared/schema";
 import { z } from "zod";
+import { simpleRouter } from "./routes_simple";
 
 // Middleware to check authentication
 async function requireAuth(req: any, res: any, next: any) {
@@ -42,6 +43,10 @@ async function requireAuth(req: any, res: any, next: any) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   setupAuth(app);
+  
+  // Add simple routes
+  app.use('/api', simpleRouter);
+  
   const httpServer = createServer(app);
 
   // Configure multer for file uploads

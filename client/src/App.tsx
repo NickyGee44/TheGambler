@@ -19,6 +19,7 @@ import Photos from "@/pages/Photos";
 import Round1 from "@/pages/Round1";
 import Round2 from "@/pages/Round2";
 import Round3 from "@/pages/Round3";
+import { SimpleRound1 } from "@/pages/SimpleRound1";
 import Round3Matchups from "@/pages/Round3Matchups";
 
 import TrashTalk from "@/pages/TrashTalk";
@@ -151,6 +152,7 @@ function Router() {
             <Route path="/" component={Home} />
             <Route path="/teams" component={Teams} />
             <Route path="/round1" component={Round1} />
+            <Route path="/simple1" component={SimpleRound1} />
             <Route path="/round2" component={Round2} />
             <Route path="/round3" component={Round3} />
 
