@@ -138,17 +138,26 @@ export default function HoleView({
     },
   });
 
-  // Track the current score locally for immediate UI updates
+  // Track the current score locally for immediate UI updates with optimistic locking
   const [localScore, setLocalScore] = useState(currentScore || 0);
   const [justClicked, setJustClicked] = useState<number | null>(null);
   const isUserInteracting = useRef(false);
+  const lastHoleNumber = useRef(hole.number);
+  const lastSavedScore = useRef(currentScore || 0);
   
-  // Update local score when hole changes or when server data changes (but not during user interaction)
+  // Update local score when hole changes OR when server data changes legitimately
   useEffect(() => {
-    // Only update if user is not actively clicking buttons
-    if (!isUserInteracting.current) {
+    // Always update when hole changes (user navigated to different hole)
+    if (hole.number !== lastHoleNumber.current) {
       setLocalScore(currentScore || 0);
       setJustClicked(null);
+      lastHoleNumber.current = hole.number;
+      lastSavedScore.current = currentScore || 0;
+      isUserInteracting.current = false;
+    } else if (!isUserInteracting.current && currentScore !== lastSavedScore.current) {
+      // Only update from server if user is not interacting AND it's a legitimate change
+      setLocalScore(currentScore || 0);
+      lastSavedScore.current = currentScore || 0;
     }
   }, [hole.number, currentScore]);
 
@@ -548,13 +557,14 @@ export default function HoleView({
                           // Clear any previous highlighting and set new score
                           setJustClicked(score);
                           setLocalScore(score);
+                          lastSavedScore.current = score; // Update expected score
                           saveScoreImmediately(score);
                           
                           // Clear temporary highlight and interaction flag after a delay
                           setTimeout(() => {
                             setJustClicked(null);
                             isUserInteracting.current = false;
-                          }, 1500); // Extended delay to allow server response
+                          }, 2500); // Extended delay to allow server response and cache updates
                         }}
                         className={`w-12 h-12 rounded-full font-bold text-lg transition-all duration-200 ${
                           (justClicked === score || (localScore > 0 && localScore === score && justClicked === null))
@@ -589,13 +599,14 @@ export default function HoleView({
                       
                       setJustClicked(youSuckScore);
                       setLocalScore(youSuckScore);
+                      lastSavedScore.current = youSuckScore; // Update expected score
                       saveScoreImmediately(youSuckScore);
                       
                       // Clear temporary highlight and interaction flag after a delay
                       setTimeout(() => {
                         setJustClicked(null);
                         isUserInteracting.current = false;
-                      }, 1500); // Extended delay to allow server response
+                      }, 2500); // Extended delay to allow server response and cache updates
                     }}
                     className={`w-full font-bold transition-all duration-200 ${
                       (justClicked === hole.par + 5 || (localScore > 0 && localScore === hole.par + 5 && justClicked === null))
