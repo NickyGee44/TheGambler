@@ -145,24 +145,65 @@ export default function HoleView({
   const lastHoleNumber = useRef(hole.number);
   const pendingSave = useRef<number | null>(null);
   
+  // Add comprehensive logging for score changes
+  console.log(`🔍 [HOLE ${hole.number}] Score State Check:`, {
+    localScore,
+    currentScore,
+    justClicked,
+    isUserInteracting: isUserInteracting.current,
+    pendingSave: pendingSave.current,
+    timestamp: new Date().toISOString()
+  });
+  
   // Initialize local score only when hole changes or on first load
   useEffect(() => {
     if (hole.number !== lastHoleNumber.current) {
+      console.log(`🔄 [HOLE ${hole.number}] HOLE CHANGE DETECTED:`, {
+        fromHole: lastHoleNumber.current,
+        toHole: hole.number,
+        currentScore,
+        previousLocalScore: localScore,
+        action: 'resetting to server data'
+      });
+      
       // New hole - reset everything and use server data
       setLocalScore(currentScore || 0);
       setJustClicked(null);
       lastHoleNumber.current = hole.number;
       isUserInteracting.current = false;
       pendingSave.current = null;
+      
+      console.log(`✅ [HOLE ${hole.number}] HOLE RESET COMPLETE:`, {
+        newLocalScore: currentScore || 0,
+        cleared: { justClicked: null, isUserInteracting: false, pendingSave: null }
+      });
     }
   }, [hole.number]);
   
   // Only sync with server data if user is not actively interacting
   useEffect(() => {
-    if (!isUserInteracting.current && pendingSave.current === null && hole.number === lastHoleNumber.current) {
+    const shouldSync = !isUserInteracting.current && pendingSave.current === null && hole.number === lastHoleNumber.current;
+    
+    console.log(`🔄 [HOLE ${hole.number}] SERVER DATA SYNC CHECK:`, {
+      currentScore,
+      localScore,
+      shouldSync,
+      reasons: {
+        isUserInteracting: isUserInteracting.current,
+        hasPendingSave: pendingSave.current !== null,
+        sameHole: hole.number === lastHoleNumber.current
+      }
+    });
+    
+    if (shouldSync && (currentScore || 0) !== localScore) {
+      console.log(`📝 [HOLE ${hole.number}] SYNCING FROM SERVER:`, {
+        from: localScore,
+        to: currentScore || 0,
+        reason: 'server data changed while not interacting'
+      });
       setLocalScore(currentScore || 0);
     }
-  }, [currentScore, hole.number]);
+  }, [currentScore, hole.number, localScore]);
 
   // Auto-save statistics with 1-second delay after user stops making changes
   const scheduleStatsSave = () => {
@@ -188,14 +229,24 @@ export default function HoleView({
 
   // Save score immediately when user clicks with optimistic updates
   const saveScoreImmediately = (strokes: number) => {
+    console.log(`💾 [HOLE ${hole.number}] SAVE SCORE INITIATED:`, {
+      strokes,
+      previousScore: localScore,
+      wasAlreadyPending: pendingSave.current !== null,
+      timestamp: new Date().toISOString()
+    });
+    
     // Clear any pending saves
     if (scoreTimeoutRef.current) {
       clearTimeout(scoreTimeoutRef.current);
+      console.log(`🚫 [HOLE ${hole.number}] CLEARED PENDING TIMEOUT`);
     }
     
     // Mark this score as pending save
     pendingSave.current = strokes;
     setIsSavingScore(true);
+    
+    console.log(`🚀 [HOLE ${hole.number}] CALLING onScoreUpdate:`, { strokes });
     
     // Use the onScoreUpdate callback to trigger the mutation
     onScoreUpdate(strokes);
@@ -551,23 +602,38 @@ export default function HoleView({
                         variant="outline"
                         size="lg"
                         onClick={() => {
+                          console.log(`🎯 [HOLE ${hole.number}] USER CLICKED SCORE BUTTON:`, {
+                            clickedScore: score,
+                            previousLocalScore: localScore,
+                            currentScore,
+                            wasAlreadySelected: localScore === score,
+                            timestamp: new Date().toISOString()
+                          });
+                          
                           // Mark user as interacting to prevent state updates
                           isUserInteracting.current = true;
+                          console.log(`🔒 [HOLE ${hole.number}] USER INTERACTION LOCKED`);
                           
                           // Immediately update local state - this is the source of truth
                           setJustClicked(score);
                           setLocalScore(score);
+                          console.log(`✅ [HOLE ${hole.number}] LOCAL STATE UPDATED:`, {
+                            justClicked: score,
+                            localScore: score
+                          });
                           
                           // Save to server
                           saveScoreImmediately(score);
                           
                           // Clear temporary highlight after short delay but keep interaction lock longer
                           setTimeout(() => {
+                            console.log(`🎨 [HOLE ${hole.number}] CLEARING HIGHLIGHT`);
                             setJustClicked(null);
                           }, 1000);
                           
                           // Release interaction lock after longer delay to prevent cache override
                           setTimeout(() => {
+                            console.log(`🔓 [HOLE ${hole.number}] RELEASING INTERACTION LOCK`);
                             isUserInteracting.current = false;
                           }, 3000);
                         }}

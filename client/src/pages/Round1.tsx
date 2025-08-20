@@ -109,6 +109,19 @@ export default function Round1() {
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({
     queryKey: [`/api/my-hole-scores/${round}`],
     enabled: !!user,
+    onSuccess: (data) => {
+      console.log(`📡 [ROUND1] HOLE SCORES LOADED:`, {
+        count: data.length,
+        scores: data.map(s => ({ hole: s.hole, strokes: s.strokes })),
+        timestamp: new Date().toISOString()
+      });
+    },
+    onError: (error) => {
+      console.error(`📡 [ROUND1] HOLE SCORES ERROR:`, {
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
   });
 
   // Fetch individual leaderboard for round 1
@@ -132,6 +145,12 @@ export default function Round1() {
 
   const updateScoreMutation = useMutation({
     mutationFn: async ({ hole, strokes }: { hole: number; strokes: number }) => {
+      console.log(`🌐 [ROUND1] MUTATION START:`, {
+        endpoint: "/api/hole-scores",
+        payload: { round, hole, strokes },
+        timestamp: new Date().toISOString()
+      });
+      
       const res = await apiRequest("POST", "/api/hole-scores", {
         round,
         hole,
@@ -139,9 +158,19 @@ export default function Round1() {
       });
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      console.log(`✅ [ROUND1] MUTATION SUCCESS:`, {
+        hole: variables.hole,
+        strokes: variables.strokes,
+        responseData: data,
+        timestamp: new Date().toISOString()
+      });
+      
       // Delay cache invalidation to prevent UI reversion during user interaction
       setTimeout(() => {
+        console.log(`🔄 [ROUND1] INVALIDATING QUERIES after 2s delay:`, {
+          queries: [`/api/hole-scores/${round}`, `/api/leaderboard/${round}`, `/api/team-better-ball/${round}`]
+        });
         queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
         queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
         queryClient.invalidateQueries({ queryKey: [`/api/team-better-ball/${round}`] });
@@ -152,7 +181,14 @@ export default function Round1() {
         description: "Your score has been updated.",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: Error, variables) => {
+      console.error(`❌ [ROUND1] MUTATION ERROR:`, {
+        hole: variables.hole,
+        strokes: variables.strokes,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+      
       toast({
         title: "Error",
         description: error.message,
@@ -189,10 +225,21 @@ export default function Round1() {
 
   const getScoreForHole = (hole: number) => {
     const score = holeScores.find(s => s.hole === hole);
-    return score?.strokes || 0;
+    const result = score?.strokes || 0;
+    console.log(`📊 [ROUND1] getScoreForHole(${hole}):`, {
+      foundScore: !!score,
+      strokes: result,
+      allHoleScores: holeScores.map(s => ({ hole: s.hole, strokes: s.strokes }))
+    });
+    return result;
   };
 
   const updateScore = (strokes: number) => {
+    console.log(`🚀 [ROUND1] updateScore called:`, {
+      hole: currentHole,
+      strokes,
+      timestamp: new Date().toISOString()
+    });
     updateScoreMutation.mutate({ hole: currentHole, strokes });
   };
 
@@ -342,6 +389,14 @@ export default function Round1() {
       handicap: currentHole
     };
     const currentScore = getScoreForHole(currentHole);
+    
+    console.log(`🏌️ [ROUND1] HOLE VIEW RENDER:`, {
+      currentHole,
+      currentScore,
+      holeScores: holeScores.length,
+      isUpdating: updateScoreMutation.isPending,
+      timestamp: new Date().toISOString()
+    });
     
     return (
       <Layout>
