@@ -374,8 +374,12 @@ export default function Round3() {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
+      // Delay cache invalidation to prevent UI reversion during user interaction
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
+      }, 2000); // 2 second delay to allow UI stability
+      
       toast({
         title: "Score saved",
         description: "Your score has been updated.",

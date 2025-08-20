@@ -153,8 +153,12 @@ export default function Round2() {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`] });
+      // Delay cache invalidation to prevent UI reversion during user interaction
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`] });
+      }, 2000); // 2 second delay to allow UI stability
+      
       toast({
         title: "Team score saved",
         description: "Your team's score has been updated.",
