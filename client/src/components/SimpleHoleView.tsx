@@ -45,29 +45,26 @@ export function SimpleHoleView({
 }: SimpleHoleViewProps) {
   const { toast } = useToast();
   
-  // Local state for immediate UI response
-  const [localScore, setLocalScore] = useState<number>(0);
-  const [isSaving, setIsSaving] = useState(false);
+  // Single source of truth for current score - NEVER reverts once set by user
+  const [currentScore, setCurrentScore] = useState<number>(0);
+  const [hasBeenSet, setHasBeenSet] = useState(false);
   
   // Get all hole scores for this user and extract the current hole
-  const { data: allHoleScores, refetch: refetchScore } = useQuery<HoleScore[]>({
+  const { data: allHoleScores } = useQuery<HoleScore[]>({
     queryKey: [`/api/my-hole-scores/${round}`],
     enabled: !!userId,
-    staleTime: 0 // Always refetch
+    staleTime: 0
   });
 
-  // Extract score for current hole
+  // Extract score for current hole from server
   const serverScore = allHoleScores?.find(score => score.hole === hole.number)?.strokes || 0;
 
-  // Sync local score with server score when it changes
+  // Initialize current score from server only if user hasn't set it yet
   useEffect(() => {
-    if (serverScore !== undefined && !isSaving) {
-      setLocalScore(serverScore);
+    if (serverScore > 0 && !hasBeenSet) {
+      setCurrentScore(serverScore);
     }
-  }, [serverScore, isSaving]);
-
-  // Use local score for immediate UI response, fallback to server score
-  const currentScore = isSaving ? localScore : (serverScore || 0);
+  }, [serverScore, hasBeenSet]);
 
   // Mutation to save score
   const saveScoreMutation = useMutation({
@@ -84,15 +81,13 @@ export function SimpleHoleView({
     },
     onSuccess: async (data, strokes) => {
       console.log(`✅ [SIMPLE] Score saved successfully:`, { hole: hole.number, strokes, data });
-      setIsSaving(false);
       
-      // Immediately refetch this hole's score
-      await refetchScore();
-      
-      // Invalidate related queries
-      queryClient.invalidateQueries({ queryKey: [`/api/my-hole-scores/${round}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
+      // Invalidate queries in background - UI stays consistent
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: [`/api/my-hole-scores/${round}`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
+      }, 100);
       
       toast({
         title: "Score saved",
@@ -101,15 +96,13 @@ export function SimpleHoleView({
     },
     onError: (error: Error) => {
       console.error(`❌ [SIMPLE] Score save failed:`, { hole: hole.number, error: error.message });
-      setIsSaving(false);
-      // Revert local score on error
-      setLocalScore(serverScore || 0);
       
       toast({
         title: "Error saving score",
         description: error.message,
         variant: "destructive",
       });
+      // Note: We do NOT revert the currentScore - user's choice remains visible
     },
   });
 
@@ -117,11 +110,11 @@ export function SimpleHoleView({
     if (strokes < 1) return;
     console.log(`👆 [SIMPLE] Score button clicked:`, { hole: hole.number, strokes, currentScore });
     
-    // Immediately update local state for instant feedback
-    setLocalScore(strokes);
-    setIsSaving(true);
+    // IMMEDIATELY set the score and mark as user-set - this never reverts
+    setCurrentScore(strokes);
+    setHasBeenSet(true);
     
-    // Save to server
+    // Save to server in background
     saveScoreMutation.mutate(strokes);
   };
 
