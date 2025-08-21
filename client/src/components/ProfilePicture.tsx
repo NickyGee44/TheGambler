@@ -3,7 +3,7 @@ import jeffreyreinerImg from "@/assets/jeffrey-reiner.jpeg";
 import baileycarlsonImg from "@/assets/bailey-carlson.jpeg";
 import benbraunImg from "@/assets/ben-braun.jpeg";
 import christianhauckImg from "@/assets/christian-hauck.jpeg";
-import austinhassaniImg from "@/assets/austin-hassani.jpeg";
+import jamesogilvieImg from "@/assets/james-ogilvie.jpeg";
 import connorpattersonImg from "@/assets/connor-patterson.jpeg";
 import kevindurcoImg from "@/assets/kevin-durco.jpeg";
 import erikboudreauImg from "/assets/erik-boudreau.jpeg";
@@ -35,7 +35,7 @@ export default function ProfilePicture({
     "Bailey Carlson": baileycarlsonImg,
     "Ben Braun": benbraunImg,
     "Christian Hauck": christianhauckImg,
-    "James Ogilvie": austinhassaniImg,
+    "James Ogilvie": jamesogilvieImg,
     "Connor Patterson": connorpattersonImg,
     "Kevin Durco": kevindurcoImg,
     "Erik Boudreau": erikboudreauImg,
