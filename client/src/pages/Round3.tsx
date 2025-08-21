@@ -428,6 +428,12 @@ export default function Round3() {
 
   const getScoreForHole = (hole: number) => {
     const score = holeScores.find(s => s.hole === hole);
+    console.log(`📊 [ROUND3] getScoreForHole(${hole}):`, { 
+      foundScore: !!score, 
+      strokes: score?.strokes, 
+      allHoleScores: holeScores.length,
+      holeScoresData: holeScores.map(s => ({ hole: s.hole, strokes: s.strokes }))
+    });
     return score?.strokes || 0;
   };
 
@@ -478,6 +484,14 @@ export default function Round3() {
   if (isRoundStarted) {
     const currentHoleData = course.holes[currentHole - 1];
     const currentScore = getScoreForHole(currentHole);
+    
+    console.log(`🏌️ [ROUND3] HOLE VIEW RENDER:`, {
+      currentHole,
+      currentScore,
+      holeScores: holeScores.length,
+      isUpdating: updateScoreMutation.isPending,
+      timestamp: new Date().toISOString()
+    });
     
     return (
       <Layout>
