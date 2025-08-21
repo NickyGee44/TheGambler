@@ -138,9 +138,9 @@ export default function Round2() {
     },
   });
 
-  // Fetch team's hole scores for round 2 scramble
+  // Fetch individual hole scores for round 2 (scramble saves individual scores)
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({
-    queryKey: [`/api/team-hole-scores/${round}`],
+    queryKey: [`/api/hole-scores/${round}`],
     enabled: !!user,
   });
 
@@ -160,8 +160,8 @@ export default function Round2() {
       return await res.json();
     },
     onSuccess: () => {
-      // Immediately invalidate team hole scores to refresh UI
-      queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
+      // Immediately invalidate individual hole scores to refresh UI
+      queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
       
       // Delay leaderboard cache invalidation to prevent UI reversion during user interaction
       setTimeout(() => {
