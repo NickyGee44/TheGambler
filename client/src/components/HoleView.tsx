@@ -139,73 +139,28 @@ export default function HoleView({
     },
   });
 
-  // Complete optimistic state management - local state is the source of truth during user interaction
-  const [localScore, setLocalScore] = useState(currentScore || 0);
-  const [justClicked, setJustClicked] = useState<number | null>(null);
-  const isUserInteracting = useRef(false);
+  // BULLETPROOF SCORING - Single source of truth that NEVER reverts once user sets it
+  const [userScore, setUserScore] = useState<number>(0);
+  const [hasUserSetScore, setHasUserSetScore] = useState(false);
   const lastHoleNumber = useRef(hole.number);
-  const pendingSave = useRef<number | null>(null);
   
-  // Add comprehensive logging for score changes
-  console.log(`🔍 [HOLE ${hole.number}] Score State Check:`, {
-    localScore,
-    currentScore,
-    justClicked,
-    isUserInteracting: isUserInteracting.current,
-    pendingSave: pendingSave.current,
-    timestamp: new Date().toISOString()
-  });
-  
-  // Initialize local score only when hole changes or on first load
+  // Initialize score from server only if user hasn't set it yet and hole hasn't changed
   useEffect(() => {
     if (hole.number !== lastHoleNumber.current) {
-      console.log(`🔄 [HOLE ${hole.number}] HOLE CHANGE DETECTED:`, {
-        fromHole: lastHoleNumber.current,
-        toHole: hole.number,
-        currentScore,
-        previousLocalScore: localScore,
-        action: 'resetting to server data'
-      });
-      
-      // New hole - reset everything and use server data
-      setLocalScore(currentScore || 0);
-      setJustClicked(null);
+      // New hole - reset user interaction state
+      setHasUserSetScore(false);
+      setUserScore(currentScore || 0);
       lastHoleNumber.current = hole.number;
-      isUserInteracting.current = false;
-      pendingSave.current = null;
-      
-      console.log(`✅ [HOLE ${hole.number}] HOLE RESET COMPLETE:`, {
-        newLocalScore: currentScore || 0,
-        cleared: { justClicked: null, isUserInteracting: false, pendingSave: null }
-      });
+      console.log(`🔄 [HOLE ${hole.number}] HOLE CHANGED - Reset user score to:`, currentScore || 0);
+    } else if ((currentScore || 0) > 0 && !hasUserSetScore) {
+      // Same hole, server has score, user hasn't overridden - use server score
+      setUserScore(currentScore || 0);
+      console.log(`📡 [HOLE ${hole.number}] Server score loaded:`, currentScore);
     }
-  }, [hole.number]);
+  }, [hole.number, currentScore, hasUserSetScore]);
   
-  // Sync with server data when not actively saving or interacting
-  useEffect(() => {
-    const shouldSync = !isUserInteracting.current && !isSavingScore && hole.number === lastHoleNumber.current;
-    
-    console.log(`🔄 [HOLE ${hole.number}] SERVER DATA SYNC CHECK:`, {
-      currentScore,
-      localScore,
-      shouldSync,
-      isSavingScore,
-      reasons: {
-        isUserInteracting: isUserInteracting.current,
-        isSavingScore,
-        sameHole: hole.number === lastHoleNumber.current
-      }
-    });
-    
-    if (shouldSync && (currentScore || 0) !== localScore) {
-      console.log(`📝 [HOLE ${hole.number}] SYNCING FROM SERVER:`, {
-        from: localScore,
-        to: currentScore || 0,
-        reason: 'server data changed while not saving/interacting'
-      });
-      setLocalScore(currentScore || 0);
-    }
-  }, [currentScore, hole.number, localScore, isSavingScore]);
+  // Display score - user choice always wins
+  const displayScore = hasUserSetScore ? userScore : (currentScore || 0);
 
   // Auto-save statistics with 1-second delay after user stops making changes
   const scheduleStatsSave = () => {
@@ -229,80 +184,33 @@ export default function HoleView({
     }, 1000);
   };
 
-  // Save score immediately when user clicks with optimistic updates
-  const saveScoreImmediately = (strokes: number) => {
-    console.log(`💾 [HOLE ${hole.number}] SAVE SCORE INITIATED:`, {
-      strokes,
-      previousScore: localScore,
-      wasAlreadyPending: pendingSave.current !== null,
-      timestamp: new Date().toISOString()
-    });
+  // BULLETPROOF SCORE HANDLER - Immediate UI response, background save
+  const handleScoreClick = (strokes: number) => {
+    if (strokes < 1) return;
     
-    // Clear any pending saves
-    if (scoreTimeoutRef.current) {
-      clearTimeout(scoreTimeoutRef.current);
-      console.log(`🚫 [HOLE ${hole.number}] CLEARED PENDING TIMEOUT`);
-    }
+    console.log(`👆 [HOLE ${hole.number}] SCORE CLICK:`, { strokes, previous: displayScore });
     
-    // Mark this score as pending save
-    pendingSave.current = strokes;
-    setIsSavingScore(true);
+    // IMMEDIATELY set user score and mark as user-set - this NEVER changes
+    setUserScore(strokes);
+    setHasUserSetScore(true);
     
-    console.log(`🚀 [HOLE ${hole.number}] CALLING onScoreUpdate:`, { strokes });
-    
-    // Use the onScoreUpdate callback to trigger the mutation
+    // Save in background - UI doesn't depend on this
     onScoreUpdate(strokes);
   };
 
-  // Effect to clear saving state when currentScore prop updates (indicating successful save)
-  useEffect(() => {
-    if (pendingSave.current !== null && currentScore === pendingSave.current && isSavingScore) {
-      console.log(`✅ [HOLE ${hole.number}] CONFIRMED SCORE SAVE:`, {
-        pendingScore: pendingSave.current,
-        currentScore,
-        clearingSavingState: true
-      });
-      
-      // Clear the saving state since the score has been confirmed
-      pendingSave.current = null;
-      setIsSavingScore(false);
-      
-      // Ensure local score is synced with confirmed server score
-      setLocalScore(currentScore);
-    }
-  }, [currentScore, hole.number, isSavingScore]);
-
-  // Save any pending scores/stats when navigating away from hole
+  // Clean up timers when hole changes
   useEffect(() => {
     return () => {
-      // Force save any pending score when leaving the hole
       if (scoreTimeoutRef.current) {
         clearTimeout(scoreTimeoutRef.current);
         scoreTimeoutRef.current = null;
-        // Immediately save the current score if there's a pending save and it's a valid score
-        if (isSavingScore && localScore > 0 && localScore !== currentScore) {
-          onScoreUpdate(localScore);
-        }
       }
-      // Force save any pending stats when leaving the hole
       if (statsTimeoutRef.current) {
         clearTimeout(statsTimeoutRef.current);
         statsTimeoutRef.current = null;
-        // Only save stats if they've actually changed and are valid
-        if (isSavingStats) {
-          const stats = {
-            fairwayInRegulation: fairwayInRegulation,
-            greenInRegulation: greenInRegulation,
-            putts,
-            penalties,
-            sandSaves,
-            upAndDowns,
-          };
-          updateStatsMutation.mutate(stats);
-        }
       }
     };
-  }, [hole.number]); // Only depend on hole.number to prevent loops
+  }, [hole.number]);
 
   // Track if we're in initial load to prevent auto-save during load
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -343,9 +251,9 @@ export default function HoleView({
       setSandSaves(currentHoleScore.sandSaves || 0);
       setUpAndDowns(currentHoleScore.upAndDowns || 0);
       
-      // Ensure local score is synchronized with the actual hole data
-      if (currentHoleScore.strokes !== localScore) {
-        setLocalScore(currentHoleScore.strokes);
+      // Ensure user score is synchronized with the actual hole data if user hasn't set it
+      if (!hasUserSetScore && currentHoleScore.strokes !== userScore) {
+        setUserScore(currentHoleScore.strokes);
       }
     } else {
       // No existing data, reset to defaults
@@ -358,13 +266,13 @@ export default function HoleView({
       setSandSaves(0);
       setUpAndDowns(0);
       
-      // Reset local score to match currentScore prop (should be 0 for new holes)
-      setLocalScore(currentScore);
+      // Reset user score to match currentScore prop (should be 0 for new holes)
+      setUserScore(currentScore || 0);
     }
     
     // Set initial load to false after a brief delay to allow state to settle
     setTimeout(() => setIsInitialLoad(false), 200);
-  }, [hole.number, holeScores, currentScore, localScore]);
+  }, [hole.number, holeScores, currentScore, userScore]);
   
   // Get course data for GPS
   const courseData = getCourseForRound(round);
@@ -387,12 +295,7 @@ export default function HoleView({
 
   const updateScore = (strokes: number) => {
     if (strokes < 1) return;
-    // Prevent rapid-fire calls by checking if we're already saving this score
-    if (isSavingScore && localScore === strokes) return;
-    
-    // Update the score immediately in UI and save right away
-    setLocalScore(strokes);
-    saveScoreImmediately(strokes);
+    handleScoreClick(strokes);
   };
 
   const getScoreColor = (score: number, par: number) => {
@@ -431,7 +334,7 @@ export default function HoleView({
   // Check if player/team receives a stroke on this hole
   const effectiveHandicap = isScrambleMode ? teamHandicap : playerHandicap;
   const receivesStroke = getStrokeOnHole(effectiveHandicap, hole.handicap);
-  const netScore = getNetScore(localScore, effectiveHandicap, hole.handicap);
+  const netScore = getNetScore(displayScore, effectiveHandicap, hole.handicap);
 
   return (
     <div key={`hole-${hole.number}-${round}-v4-no-save-button`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -621,44 +524,9 @@ export default function HoleView({
                         key={score}
                         variant="outline"
                         size="lg"
-                        onClick={() => {
-                          console.log(`🎯 [HOLE ${hole.number}] USER CLICKED SCORE BUTTON:`, {
-                            clickedScore: score,
-                            previousLocalScore: localScore,
-                            currentScore,
-                            wasAlreadySelected: localScore === score,
-                            timestamp: new Date().toISOString()
-                          });
-                          
-                          // Mark user as interacting to prevent state updates
-                          isUserInteracting.current = true;
-                          console.log(`🔒 [HOLE ${hole.number}] USER INTERACTION LOCKED`);
-                          
-                          // Immediately update local state - this is the source of truth
-                          setJustClicked(score);
-                          setLocalScore(score);
-                          console.log(`✅ [HOLE ${hole.number}] LOCAL STATE UPDATED:`, {
-                            justClicked: score,
-                            localScore: score
-                          });
-                          
-                          // Save to server
-                          saveScoreImmediately(score);
-                          
-                          // Clear temporary highlight after short delay but keep interaction lock longer
-                          setTimeout(() => {
-                            console.log(`🎨 [HOLE ${hole.number}] CLEARING HIGHLIGHT`);
-                            setJustClicked(null);
-                          }, 1000);
-                          
-                          // Release interaction lock after longer delay to prevent cache override
-                          setTimeout(() => {
-                            console.log(`🔓 [HOLE ${hole.number}] RELEASING INTERACTION LOCK`);
-                            isUserInteracting.current = false;
-                          }, 3000);
-                        }}
+                        onClick={() => handleScoreClick(score)}
                         className={`w-12 h-12 rounded-full font-bold text-lg transition-all duration-200 ${
-                          (justClicked === score || (localScore > 0 && localScore === score && justClicked === null))
+                          displayScore === score
                             ? (() => {
                                 const diff = score - hole.par;
                                 if (diff <= -3) return 'bg-yellow-500 hover:bg-yellow-600 text-white font-extrabold shadow-lg transform scale-105 border-2 border-yellow-400'; // Albatross or better - Gold
@@ -682,31 +550,9 @@ export default function HoleView({
                   <Button
                     variant="outline"
                     size="lg"
-                    onClick={() => {
-                      const youSuckScore = hole.par + 5;
-                      
-                      // Mark user as interacting to prevent state updates
-                      isUserInteracting.current = true;
-                      
-                      // Immediately update local state - this is the source of truth
-                      setJustClicked(youSuckScore);
-                      setLocalScore(youSuckScore);
-                      
-                      // Save to server
-                      saveScoreImmediately(youSuckScore);
-                      
-                      // Clear temporary highlight after short delay but keep interaction lock longer
-                      setTimeout(() => {
-                        setJustClicked(null);
-                      }, 1000);
-                      
-                      // Release interaction lock after longer delay to prevent cache override
-                      setTimeout(() => {
-                        isUserInteracting.current = false;
-                      }, 3000);
-                    }}
+                    onClick={() => handleScoreClick(hole.par + 5)}
                     className={`w-full font-bold transition-all duration-200 ${
-                      (justClicked === hole.par + 5 || (localScore > 0 && localScore === hole.par + 5 && justClicked === null))
+                      displayScore === hole.par + 5
                         ? 'bg-purple-600 hover:bg-purple-700 text-white font-extrabold shadow-lg transform scale-105 border-2 border-purple-400' 
                         : 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 hover:scale-102'
                     }`}
@@ -715,13 +561,13 @@ export default function HoleView({
                   </Button>
                   
                   {/* Current Score Display */}
-                  {localScore > 0 && (
+                  {displayScore > 0 && (
                     <div className="text-center space-y-2">
-                      <div className={`text-4xl font-bold ${getScoreColor(localScore, hole.par)}`}>
-                        {localScore}
+                      <div className={`text-4xl font-bold ${getScoreColor(displayScore, hole.par)}`}>
+                        {displayScore}
                       </div>
                       <div className="text-sm font-medium text-gray-300">
-                        {getScoreName(localScore, hole.par)}
+                        {getScoreName(displayScore, hole.par)}
                       </div>
                       {receivesStroke && (isScrambleMode ? teamHandicap : playerHandicap) > 0 && (
                         <div className="bg-blue-600/20 border border-blue-500/50 rounded-lg p-3 space-y-1">
@@ -731,7 +577,7 @@ export default function HoleView({
                           <div className="text-white">
                             <span className="text-lg font-bold">Net Score: {netScore}</span>
                             <span className="text-sm text-gray-300 ml-2">
-                              ({localScore} - 1 stroke)
+                              ({displayScore} - 1 stroke)
                             </span>
                           </div>
                           <div className="text-xs text-blue-300">
@@ -1005,7 +851,7 @@ export default function HoleView({
           par={hole.par}
           handicap={hole.handicap}
           round={round}
-          currentScore={localScore}
+          currentScore={displayScore}
           onScoreUpdate={updateScore}
           onClose={() => setShowFullScreenGPS(false)}
           onHoleChange={(newHole) => {
