@@ -210,12 +210,6 @@ export default function Round2() {
 
   const getScoreForHole = (hole: number) => {
     const score = holeScores.find(s => s.hole === hole);
-    console.log(`📊 [ROUND2] getScoreForHole(${hole}):`, { 
-      foundScore: !!score, 
-      strokes: score?.strokes, 
-      allHoleScores: holeScores.length,
-      holeScoresData: holeScores.map(s => ({ hole: s.hole, strokes: s.strokes }))
-    });
     return score?.strokes || 0;
   };
 
@@ -408,14 +402,6 @@ export default function Round2() {
   if (isRoundStarted) {
     const currentHoleData = course.holes[currentHole - 1];
     const currentScore = getScoreForHole(currentHole);
-    
-    console.log(`🏌️ [ROUND2] HOLE VIEW RENDER:`, {
-      currentHole,
-      currentScore,
-      holeScores: holeScores.length,
-      isUpdating: updateScoreMutation.isPending,
-      timestamp: new Date().toISOString()
-    });
     
     return (
       <Layout>
