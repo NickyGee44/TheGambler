@@ -99,7 +99,14 @@ export default function Round2() {
   const [location, navigate] = useLocation();
   
   // Fetch team data for scramble format by player name
-  const { data: teamData } = useQuery({
+  const { data: teamData } = useQuery<{
+    id: number;
+    teamNumber: number;
+    player1Name: string;
+    player2Name: string;
+    player1Handicap: number;
+    player2Handicap: number;
+  }>({
     queryKey: [`/api/team/by-player/${user?.firstName} ${user?.lastName}`],
     enabled: !!user,
   });
@@ -276,7 +283,7 @@ export default function Round2() {
             <CardContent>
               <div className="space-y-2">
                 {leaderboard.map((entry, index) => {
-                  const entryKey = entry.isTeamLeaderboard ? `team-${entry.team.id}` : `${entry.user.firstName}-${entry.user.lastName}`;
+                  const entryKey = entry.isTeamLeaderboard ? `team-${entry.team.id}` : `${entry.user?.firstName}-${entry.user?.lastName}`;
                   const isExpanded = expandedPlayer === entryKey;
                   
                   // If it's a team entry, render normally without dropdown
@@ -341,13 +348,13 @@ export default function Round2() {
                               {index + 1}
                             </div>
                             <ProfilePicture 
-                              firstName={entry.user.firstName} 
-                              lastName={entry.user.lastName} 
+                              firstName={entry.user?.firstName || ''} 
+                              lastName={entry.user?.lastName || ''} 
                               size="lg"
                             />
                             <div>
                               <div className="font-semibold">
-                                {entry.user.firstName} {entry.user.lastName}
+                                {entry.user?.firstName} {entry.user?.lastName}
                               </div>
                               <div className="text-sm text-muted-foreground flex items-center gap-1">
                                 <Users className="w-3 h-3" />
@@ -373,7 +380,7 @@ export default function Round2() {
                         </div>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
-                        <PlayerHoleScores playerId={entry.user.id} round={round} />
+                        <PlayerHoleScores playerId={entry.user?.id || 0} round={round} />
                       </CollapsibleContent>
                     </Collapsible>
                   );
@@ -539,15 +546,15 @@ export default function Round2() {
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
                   <div className="font-medium text-gray-300">Par</div>
-                  <div className="text-golf-green-400">{course.par}</div>
+                  <div className="text-golf-green-400">{course.totalPar}</div>
                 </div>
                 <div>
                   <div className="font-medium text-gray-300">Yardage</div>
-                  <div className="text-golf-green-400">{course.yardage}</div>
+                  <div className="text-golf-green-400">{course.totalYardage}</div>
                 </div>
                 <div>
                   <div className="font-medium text-gray-300">Rating</div>
-                  <div className="text-golf-green-400">{course.rating}</div>
+                  <div className="text-golf-green-400">{course.courseRating}</div>
                 </div>
               </div>
             </div>
