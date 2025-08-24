@@ -264,6 +264,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all users for lookups
+  app.get('/api/users', async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Failed to fetch users' });
+    }
+  });
+
   // Player statistics endpoint (removed duplicate)
 
   // Scores endpoints - now calculated from hole scores
