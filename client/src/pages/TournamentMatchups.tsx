@@ -108,6 +108,18 @@ export default function TournamentMatchups() {
   // Generate optimized Round 1 foursomes (randomized but avoiding Round 3 overlaps)
   const generateRound1Foursomes = () => {
     const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
+    
+    // Find Connor and Christian to swap them
+    const connorIndex = shuffledPlayers.findIndex(p => p.name === "Connor Patterson");
+    const christianIndex = shuffledPlayers.findIndex(p => p.name === "Christian Hauck");
+    
+    // Swap Connor and Christian if both are found
+    if (connorIndex !== -1 && christianIndex !== -1) {
+      const temp = shuffledPlayers[connorIndex];
+      shuffledPlayers[connorIndex] = shuffledPlayers[christianIndex];
+      shuffledPlayers[christianIndex] = temp;
+    }
+    
     const foursomes = [];
     
     for (let i = 0; i < shuffledPlayers.length; i += 4) {
