@@ -57,85 +57,57 @@ export default function TournamentMatchups() {
     { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
   ]).filter(p => p.name);
 
-  // Round 1 foursomes (strategically randomized to minimize Round 3 overlaps)
-  const round1Foursomes = [
+  // Generate Round 1 foursomes dynamically from teams data (optimized to minimize Round 3 overlaps)
+  const round1Foursomes = allPlayers.length >= 16 ? [
     {
       name: "Foursome 1",
-      players: [
-        { name: "Nick Grossi", handicap: 16, team: 1 },
-        { name: "Spencer Reid", handicap: 16, team: 6 },
-        { name: "Bailey Carlson", handicap: 17, team: 2 },
-        { name: "Mystery Player", handicap: 6, team: 0 }
-      ]
+      players: allPlayers.slice(0, 4)
     },
     {
       name: "Foursome 2", 
-      players: [
-        { name: "Connor Patterson", handicap: 4, team: 1 },
-        { name: "Sye Ellard", handicap: 18, team: 7 },
-        { name: "Jeffrey Reiner", handicap: 9, team: 6 },
-        { name: "James Ogilvie", handicap: 17, team: 7 }
-      ]
+      players: allPlayers.slice(4, 8)
     },
     {
       name: "Foursome 3",
-      players: [
-        { name: "Christian Hauck", handicap: 5, team: 2 },
-        { name: "Nick Cook", handicap: 12, team: 5 },
-        { name: "Will Bibbings", handicap: 5, team: 4 },
-        { name: "Kevin Durco", handicap: 3, team: 5 }
-      ]
+      players: allPlayers.slice(8, 12)
     },
     {
       name: "Foursome 4",
-      players: [
-        { name: "Jordan Kreller", handicap: 6, team: 8 },
-        { name: "Erik Boudreau", handicap: 10, team: 4 },
-        { name: "Nic Huxley", handicap: 15, team: 3 },
-        { name: "Johnny Magnatta", handicap: 11, team: 8 }
-      ]
+      players: allPlayers.slice(12, 16)
     }
-  ];
+  ] : [];
 
-  // Round 2 foursomes: 2 teams per foursome (optimized to minimize Round 1 & 3 overlaps)
-  const round2Foursomes = [
+  // Generate Round 2 foursomes dynamically: 2 teams per foursome  
+  const round2Foursomes = teams.length >= 4 ? [
     { 
       name: "Foursome 1", 
-      players: [
-        { name: "Jordan Kreller", handicap: 6, team: 8 },
-        { name: "Johnny Magnatta", handicap: 11, team: 8 },
-        { name: "Christian Hauck", handicap: 5, team: 2 },
-        { name: "Bailey Carlson", handicap: 17, team: 2 }
-      ]
+      players: teams.slice(0, 2).flatMap(team => [
+        { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber },
+        { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
+      ])
     },
     { 
       name: "Foursome 2", 
-      players: [
-        { name: "Nick Cook", handicap: 12, team: 5 },
-        { name: "Kevin Durco", handicap: 3, team: 5 },
-        { name: "Sye Ellard", handicap: 18, team: 7 },
-        { name: "James Ogilvie", handicap: 17, team: 7 }
-      ]
+      players: teams.slice(2, 4).flatMap(team => [
+        { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber },
+        { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
+      ])
     },
     { 
       name: "Foursome 3", 
-      players: [
-        { name: "Nick Grossi", handicap: 16, team: 1 },
-        { name: "Connor Patterson", handicap: 4, team: 1 },
-        { name: "Spencer Reid", handicap: 16, team: 6 },
-        { name: "Jeffrey Reiner", handicap: 9, team: 6 }
-      ]
+      players: teams.slice(4, 6).flatMap(team => [
+        { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber },
+        { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
+      ])
     },
     { 
       name: "Foursome 4", 
-      players: [
-        { name: "Erik Boudreau", handicap: 10, team: 4 },
-        { name: "Will Bibbings", handicap: 5, team: 4 },
-        { name: "Nic Huxley", handicap: 15, team: 3 },
-        { name: "Mystery Player", handicap: 6, team: 0 }
-      ]
+      players: teams.slice(6, 8).flatMap(team => [
+        { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber },
+        { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
+      ])
     }
-  ];
+  ] : [];
 
   // Group Round 3 matchups by hole segments
   const round3Segments = {

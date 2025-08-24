@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Volleyball, Trophy, Beer } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { TOURNAMENT_CONFIG, getTournamentStartDate } from "@shared/tournamentConfig";
 
 export default function Home() {
   const [timeLeft, setTimeLeft] = useState({
@@ -23,7 +24,7 @@ export default function Home() {
   const isAdmin = user?.firstName === "Nick" && user?.lastName === "Grossi";
 
   useEffect(() => {
-    const targetDate = new Date('2025-08-29T08:00:00').getTime();
+    const targetDate = getTournamentStartDate().getTime();
     
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -58,17 +59,17 @@ export default function Home() {
               className="w-24 h-24 md:w-32 md:h-32 rounded-full shadow-2xl"
             />
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">The Gambler Cup 2025</h1>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">{TOURNAMENT_CONFIG.name}</h1>
           <p className="text-xl md:text-2xl mb-8 font-light">Where Bogeys Buy Beers and Birdies Win Cash</p>
           <div className="flex flex-wrap justify-center gap-4">
             <Badge className="bg-golf-gold-500 text-white px-4 py-2 text-sm font-semibold">
               Annual Championship
             </Badge>
             <Badge variant="outline" className="bg-white/20 text-white border-white/30 px-4 py-2 text-sm font-semibold">
-              8 Teams
+              {TOURNAMENT_CONFIG.teams.count} Teams
             </Badge>
             <Badge variant="outline" className="bg-white/20 text-white border-white/30 px-4 py-2 text-sm font-semibold">
-              3 Rounds
+              {TOURNAMENT_CONFIG.rounds.count} Rounds
             </Badge>
           </div>
         </div>
@@ -79,11 +80,11 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-golf-green-600 mb-2">Tournament Countdown</h2>
-            <p className="text-gray-600 dark:text-gray-400">August 29-31, 2025</p>
+            <p className="text-gray-600 dark:text-gray-400">{TOURNAMENT_CONFIG.dates.display}</p>
             <div className="mt-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">
-              <p><strong>Friday Aug 29:</strong> 1:10 PM first tee - Deerhurst Golf Course</p>
-              <p><strong>Saturday Aug 30:</strong> 11:20 AM first tee - Deerhurst Golf Course</p>
-              <p><strong>Sunday Aug 31:</strong> 11:40 AM first tee - Muskoka Bay Golf Club</p>
+              <p><strong>{TOURNAMENT_CONFIG.schedule.round1.date}:</strong> {TOURNAMENT_CONFIG.schedule.round1.time} - {TOURNAMENT_CONFIG.schedule.round1.course}</p>
+              <p><strong>{TOURNAMENT_CONFIG.schedule.round2.date}:</strong> {TOURNAMENT_CONFIG.schedule.round2.time} - {TOURNAMENT_CONFIG.schedule.round2.course}</p>
+              <p><strong>{TOURNAMENT_CONFIG.schedule.round3.date}:</strong> {TOURNAMENT_CONFIG.schedule.round3.time} - {TOURNAMENT_CONFIG.schedule.round3.course}</p>
               <p><strong>Awards Dinner:</strong> 4:00 PM Sunday ($235 pp + tax, pay for own food)</p>
             </div>
           </div>

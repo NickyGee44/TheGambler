@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useQuery } from "@tanstack/react-query";
 import jeffreyreinerImg from "@/assets/jeffrey-reiner.jpeg";
 import baileycarlsonImg from "@/assets/bailey-carlson.jpeg";
 import mysteryPlayerImg from "@/assets/mystery-player.svg";
@@ -19,16 +20,23 @@ import willbibbingsImg from "@/assets/will-bibbings.jpeg";
 interface ProfilePictureProps {
   firstName: string;
   lastName: string;
+  userId?: number; // Optional user ID to fetch dynamic profile picture
   size?: "sm" | "md" | "lg" | "xl" | "2xl";
   className?: string;
 }
 
 export default function ProfilePicture({ 
   firstName, 
-  lastName, 
+  lastName,
+  userId,
   size = "md", 
   className = "" 
 }: ProfilePictureProps) {
+  // Fetch user data if userId provided to get dynamic profile picture
+  const { data: user } = useQuery<{profilePicture?: string}>({
+    queryKey: [`/api/users/${userId}`],
+    enabled: !!userId,
+  });
   // Define profile picture mappings with consistent names
   const profilePictures: Record<string, string> = {
     "Jeffrey Reiner": jeffreyreinerImg,
@@ -54,7 +62,9 @@ export default function ProfilePicture({
   };
 
   const fullName = `${firstName || ''} ${lastName || ''}`.trim();
-  const profilePicture = profilePictures[fullName];
+  
+  // Priority: user.profilePicture > hardcoded mapping > fallback to initials
+  const profilePicture = user?.profilePicture || profilePictures[fullName];
   
   const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`;
   

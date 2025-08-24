@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
 // Import all the current images
@@ -24,24 +24,7 @@ import spencerReidImg from "@/assets/spencer-reid.jpeg";
 import syeEllardImg from "@/assets/sye-ellard.jpeg";
 import willBibbingsImg from "@/assets/will-bibbings.jpeg";
 
-const playerNames = [
-  "James Ogilvie",
-  "Bailey Carlson", 
-  "Mystery Player",
-  "Christian Hauck",
-  "Connor Patterson",
-  "Erik Boudreau", 
-  "Jeffrey Reiner",
-  "Johnny Magnatta",
-  "Jordan Kreller",
-  "Kevin Durco",
-  "Nic Huxley",
-  "Nick Cook",
-  "Nick Grossi",
-  "Spencer Reid",
-  "Sye Ellard",
-  "Will Bibbings"
-];
+// Dynamic player names will be fetched from database
 
 interface ImageAssignment {
   filename: string;
@@ -51,6 +34,23 @@ interface ImageAssignment {
 
 export default function PictureAssignment() {
   const { toast } = useToast();
+  
+  // Fetch all users from database for dynamic player names
+  const { data: users = [] } = useQuery<Array<{firstName: string; lastName: string}>>({
+    queryKey: ['/api/users'],
+  });
+  
+  // Fetch teams for additional player names
+  const { data: teams = [] } = useQuery<Array<{player1Name: string; player2Name: string}>>({
+    queryKey: ['/api/teams'],
+  });
+  
+  // Create dynamic player list from database
+  const playerNames = [
+    ...users.map(user => `${user.firstName} ${user.lastName}`),
+    // Add team player names that might not be in users table
+    ...teams.flatMap(team => [team.player1Name, team.player2Name])
+  ].filter((name, index, array) => array.indexOf(name) === index).sort(); // Remove duplicates and sort
   
   const [assignments, setAssignments] = useState<ImageAssignment[]>([
     { filename: "austin-hassani.png", currentName: "James Ogilvie", image: austinHassaniImg },
