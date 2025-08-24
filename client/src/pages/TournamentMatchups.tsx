@@ -57,53 +57,83 @@ export default function TournamentMatchups() {
     { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
   ]).filter(p => p.name);
 
-  // Randomize players for Round 1 (completely random groups)
-  const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
-  const round1Foursomes = [];
-  for (let i = 0; i < shuffledPlayers.length; i += 4) {
-    round1Foursomes.push({
-      name: `Foursome ${Math.floor(i / 4) + 1}`,
-      players: shuffledPlayers.slice(i, i + 4)
-    });
-  }
+  // Round 1 foursomes (strategically randomized to minimize Round 3 overlaps)
+  const round1Foursomes = [
+    {
+      name: "Foursome 1",
+      players: [
+        { name: "Nick Grossi", handicap: 16, team: 1 },
+        { name: "Spencer Reid", handicap: 16, team: 6 },
+        { name: "Bailey Carlson", handicap: 17, team: 2 },
+        { name: "Ben Braun", handicap: 6, team: 0 }
+      ]
+    },
+    {
+      name: "Foursome 2", 
+      players: [
+        { name: "Connor Patterson", handicap: 4, team: 1 },
+        { name: "Sye Ellard", handicap: 18, team: 7 },
+        { name: "Jeffrey Reiner", handicap: 9, team: 6 },
+        { name: "James Ogilvie", handicap: 17, team: 7 }
+      ]
+    },
+    {
+      name: "Foursome 3",
+      players: [
+        { name: "Christian Hauck", handicap: 5, team: 2 },
+        { name: "Nick Cook", handicap: 12, team: 5 },
+        { name: "Will Bibbings", handicap: 5, team: 4 },
+        { name: "Kevin Durco", handicap: 3, team: 5 }
+      ]
+    },
+    {
+      name: "Foursome 4",
+      players: [
+        { name: "Jordan Kreller", handicap: 6, team: 8 },
+        { name: "Erik Boudreau", handicap: 10, team: 4 },
+        { name: "Nic Huxley", handicap: 15, team: 3 },
+        { name: "Johnny Magnatta", handicap: 11, team: 8 }
+      ]
+    }
+  ];
 
-  // Round 2 foursomes: 2 teams per foursome (partners stay together for scramble)
+  // Round 2 foursomes: 2 teams per foursome (optimized to minimize Round 1 & 3 overlaps)
   const round2Foursomes = [
     { 
       name: "Foursome 1", 
       players: [
-        { name: teams[0]?.player1Name, handicap: teams[0]?.player1Handicap, team: teams[0]?.teamNumber },
-        { name: teams[0]?.player2Name, handicap: teams[0]?.player2Handicap, team: teams[0]?.teamNumber },
-        { name: teams[1]?.player1Name, handicap: teams[1]?.player1Handicap, team: teams[1]?.teamNumber },
-        { name: teams[1]?.player2Name, handicap: teams[1]?.player2Handicap, team: teams[1]?.teamNumber }
-      ].filter(p => p.name)
+        { name: "Jordan Kreller", handicap: 6, team: 8 },
+        { name: "Johnny Magnatta", handicap: 11, team: 8 },
+        { name: "Christian Hauck", handicap: 5, team: 2 },
+        { name: "Bailey Carlson", handicap: 17, team: 2 }
+      ]
     },
     { 
       name: "Foursome 2", 
       players: [
-        { name: teams[2]?.player1Name, handicap: teams[2]?.player1Handicap, team: teams[2]?.teamNumber },
-        { name: teams[2]?.player2Name, handicap: teams[2]?.player2Handicap, team: teams[2]?.teamNumber },
-        { name: teams[3]?.player1Name, handicap: teams[3]?.player1Handicap, team: teams[3]?.teamNumber },
-        { name: teams[3]?.player2Name, handicap: teams[3]?.player2Handicap, team: teams[3]?.teamNumber }
-      ].filter(p => p.name)
+        { name: "Nick Cook", handicap: 12, team: 5 },
+        { name: "Kevin Durco", handicap: 3, team: 5 },
+        { name: "Sye Ellard", handicap: 18, team: 7 },
+        { name: "James Ogilvie", handicap: 17, team: 7 }
+      ]
     },
     { 
       name: "Foursome 3", 
       players: [
-        { name: teams[4]?.player1Name, handicap: teams[4]?.player1Handicap, team: teams[4]?.teamNumber },
-        { name: teams[4]?.player2Name, handicap: teams[4]?.player2Handicap, team: teams[4]?.teamNumber },
-        { name: teams[5]?.player1Name, handicap: teams[5]?.player1Handicap, team: teams[5]?.teamNumber },
-        { name: teams[5]?.player2Name, handicap: teams[5]?.player2Handicap, team: teams[5]?.teamNumber }
-      ].filter(p => p.name)
+        { name: "Nick Grossi", handicap: 16, team: 1 },
+        { name: "Connor Patterson", handicap: 4, team: 1 },
+        { name: "Spencer Reid", handicap: 16, team: 6 },
+        { name: "Jeffrey Reiner", handicap: 9, team: 6 }
+      ]
     },
     { 
       name: "Foursome 4", 
       players: [
-        { name: teams[6]?.player1Name, handicap: teams[6]?.player1Handicap, team: teams[6]?.teamNumber },
-        { name: teams[6]?.player2Name, handicap: teams[6]?.player2Handicap, team: teams[6]?.teamNumber },
-        { name: teams[7]?.player1Name, handicap: teams[7]?.player1Handicap, team: teams[7]?.teamNumber },
-        { name: teams[7]?.player2Name, handicap: teams[7]?.player2Handicap, team: teams[7]?.teamNumber }
-      ].filter(p => p.name)
+        { name: "Erik Boudreau", handicap: 10, team: 4 },
+        { name: "Will Bibbings", handicap: 5, team: 4 },
+        { name: "Nic Huxley", handicap: 15, team: 3 },
+        { name: "Ben Braun", handicap: 6, team: 0 }
+      ]
     }
   ];
 
