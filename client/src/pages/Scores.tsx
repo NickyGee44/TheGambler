@@ -3,10 +3,6 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,18 +10,12 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { RefreshCw, Edit, Trophy, Medal, Award, Wifi, WifiOff, Target, Flag, Users } from "lucide-react";
+import { RefreshCw, Trophy, Medal, Award, Wifi, WifiOff, Target, Flag, Users } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
-import MockDataGenerator from "@/components/MockDataGenerator";
 import LoadingPage from "@/components/LoadingPage";
 import IndividualScoresTable from "@/components/IndividualScoresTable";
 
 export default function Scores() {
-  const [selectedTeam, setSelectedTeam] = useState<string>("");
-  const [selectedRound, setSelectedRound] = useState<string>("");
-  const [scoreValue, setScoreValue] = useState<string>("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [userTeamId, setUserTeamId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState("overall");
   const { toast } = useToast();
   const { isOnline } = useOfflineStorage();
@@ -123,58 +113,6 @@ export default function Scores() {
     }
   });
 
-  const updateScoreMutation = useMutation({
-    mutationFn: async ({ teamId, round, score }: { teamId: number; round: number; score: number }) => {
-      return await apiRequest('POST', '/api/scores', { teamId, round, score });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/scores'] });
-      toast({
-        title: "Score Updated",
-        description: "The score has been successfully updated",
-      });
-      setIsDialogOpen(false);
-      setSelectedTeam("");
-      setSelectedRound("");
-      setScoreValue("");
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update score. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedTeam || !selectedRound || !scoreValue) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    updateScoreMutation.mutate({
-      teamId: parseInt(selectedTeam),
-      round: parseInt(selectedRound),
-      score: parseInt(scoreValue),
-    });
-  };
 
   const getRankBadge = (rank: number) => {
     const baseClasses = "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium";
@@ -243,102 +181,27 @@ export default function Scores() {
               )}
             </div>
             <Button
-              onClick={() => refetch()}
+              onClick={() => {
+                // Invalidate all queries to ensure fresh data
+                queryClient.invalidateQueries({ queryKey: ['/api/live-scores'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/scores'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/teams'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/leaderboard'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/team-scramble'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/team-better-ball'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/hole-scores'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/player-stats'] });
+                refetch();
+              }}
               variant="outline"
               className="bg-golf-green-600 hover:bg-golf-green-700 text-white border-golf-green-500"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
-            {/* Only show edit button for Nick Grossi and Connor Patterson */}
-            {user && ((user.firstName === 'Nick' && user.lastName === 'Grossi') || (user.firstName === 'Connor' && user.lastName === 'Patterson')) && (
-              <>
-                <MockDataGenerator />
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-golf-gold-500 hover:bg-golf-gold-600 text-white border-golf-gold-400">
-                      <Edit className="w-4 h-4 mr-2" />
-                      Update Scores
-                    </Button>
-                  </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-golf-green-600">Update Score</DialogTitle>
-                  </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="team">Team</Label>
-                  <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select team" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {teams.map((team: any) => (
-                        <SelectItem key={team.id} value={team.id.toString()}>
-                          Team {team.teamNumber} ({team.player1Name} & {team.player2Name})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="round">Round</Label>
-                  <Select value={selectedRound} onValueChange={setSelectedRound}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select round" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Round 1</SelectItem>
-                      <SelectItem value="2">Round 2</SelectItem>
-                      <SelectItem value="3">Round 3</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="score">Score</Label>
-                  <Input
-                    id="score"
-                    type="number"
-                    value={scoreValue}
-                    onChange={(e) => setScoreValue(e.target.value)}
-                    placeholder="72"
-                    className="focus:ring-golf-green-500 focus:border-golf-green-500"
-                  />
-                </div>
-                
-                <div className="flex space-x-3 pt-4">
-                  <Button 
-                    type="submit" 
-                    className="flex-1 bg-golf-green-600 hover:bg-golf-green-700 text-white"
-                    disabled={updateScoreMutation.isPending}
-                  >
-                    {updateScoreMutation.isPending ? 'Updating...' : 'Update Score'}
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
-              </>
-            )}
           </div>
         </div>
       
-      <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-        <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
-          <strong>Note:</strong> Scores are automatically calculated from hole-by-hole rounds played by each team. 
-          Only Nick Grossi and Connor Patterson can manually adjust scores if needed.
-        </p>
-      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4 mb-4 sm:mb-6 h-auto overflow-hidden">
