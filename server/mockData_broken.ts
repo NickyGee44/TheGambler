@@ -192,10 +192,17 @@ async function generateMockMatchPlayData() {
             holeSegment,
             startHole,
             endHole,
-            handicapDifference: Math.floor(Math.random() * 5), // 0-4 handicap difference
-            strokesGiven: Math.floor(Math.random() * 3), // 0-2 strokes
-            strokeRecipientId: Math.random() > 0.5 ? player1Id : player2Id,
-            strokeHoles: [startHole, startHole + 2, startHole + 4], // Example stroke holes
+            handicapDifference: Math.abs((playerData.find(p => p.id === player1Id)?.handicap || 15) - (playerData.find(p => p.id === player2Id)?.handicap || 15)),
+            strokesGiven: Math.min(Math.floor(Math.abs((playerData.find(p => p.id === player1Id)?.handicap || 15) - (playerData.find(p => p.id === player2Id)?.handicap || 15)) / 3), 6),
+            strokeRecipientId: (playerData.find(p => p.id === player1Id)?.handicap || 15) > (playerData.find(p => p.id === player2Id)?.handicap || 15) ? player1Id : 
+                              (playerData.find(p => p.id === player2Id)?.handicap || 15) > (playerData.find(p => p.id === player1Id)?.handicap || 15) ? player2Id : null,
+            strokeHoles: (() => {
+              const strokes = Math.min(Math.floor(Math.abs((playerData.find(p => p.id === player1Id)?.handicap || 15) - (playerData.find(p => p.id === player2Id)?.handicap || 15)) / 3), 6);
+              const segmentStrokeHoles = holeSegment === '1-6' ? [4, 2, 6, 1, 3, 5] : 
+                                       holeSegment === '7-12' ? [10, 8, 12, 7, 9, 11] : 
+                                       [14, 16, 18, 13, 15, 17];
+              return segmentStrokeHoles.slice(0, strokes);
+            })(),
             player1NetScore: 20 + Math.floor(Math.random() * 8), // 20-27 for 6 holes
             player2NetScore: 20 + Math.floor(Math.random() * 8),
             winnerId,
