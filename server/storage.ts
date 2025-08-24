@@ -2194,8 +2194,23 @@ export class DatabaseStorage implements IStorage {
     return photo;
   }
 
-  async getMatchups(): Promise<Matchup[]> {
-    return Array.from(this.matchups.values());
+  async getMatchups(): Promise<any[]> {
+    // Query the actual database match_play_matches table with corrected stroke allocations
+    const matches = await db.execute(sql`
+      SELECT 
+        id, 
+        player1_id, 
+        player2_id, 
+        hole_segment,
+        handicap_difference,
+        strokes_given,
+        stroke_recipient_id,
+        stroke_holes,
+        created_at
+      FROM match_play_matches 
+      ORDER BY id
+    `);
+    return matches.rows as any[];
   }
 
   async createMatchup(insertMatchup: InsertMatchup): Promise<Matchup> {
