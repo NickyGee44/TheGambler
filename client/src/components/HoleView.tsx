@@ -66,6 +66,7 @@ interface HoleViewProps {
     strokes: string;
     foursome: string;
   } | null;
+  playerName?: string;
 }
 
 export default function HoleView({
@@ -87,7 +88,8 @@ export default function HoleView({
   isScrambleMode = false,
   teamInfo,
   strokeInfo,
-  currentOpponent
+  currentOpponent,
+  playerName
 }: HoleViewProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'scoring' | 'map'>('scoring');
@@ -461,7 +463,7 @@ export default function HoleView({
                   <div className="text-xs">
                     {strokeInfo.playerGetsStroke ? (
                       <div className="text-yellow-400 font-medium">
-                        +1 stroke on this hole
+                        {playerName} gets +1 stroke
                       </div>
                     ) : strokeInfo.opponentGetsStroke ? (
                       <div className="text-blue-400 font-medium">

@@ -534,6 +534,7 @@ export default function Round3() {
                   playerHandicap={user?.handicap || 0}
                   strokeInfo={getStrokeInfoForHole(currentHole)}
                   currentOpponent={currentOpponent}
+                  playerName={user ? `${user.firstName} ${user.lastName}` : undefined}
                 />
               </TabsContent>
               
