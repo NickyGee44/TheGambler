@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import jeffreyreinerImg from "@/assets/jeffrey-reiner.jpeg";
 import baileycarlsonImg from "@/assets/bailey-carlson.jpeg";
-import benbraunImg from "@/assets/ben-braun.jpeg";
+import mysteryPlayerImg from "@/assets/mystery-player.svg";
 import christianhauckImg from "@/assets/christian-hauck.jpeg";
 import jamesogilvieImg from "@/assets/james-ogilvie.jpeg";
 import connorpattersonImg from "@/assets/connor-patterson.jpeg";
@@ -33,7 +33,7 @@ export default function ProfilePicture({
   const profilePictures: Record<string, string> = {
     "Jeffrey Reiner": jeffreyreinerImg,
     "Bailey Carlson": baileycarlsonImg,
-    "Ben Braun": benbraunImg,
+    "Mystery Player": mysteryPlayerImg,
     "Christian Hauck": christianhauckImg,
     "James Ogilvie": jamesogilvieImg,
     "Connor Patterson": connorpattersonImg,
