@@ -51,29 +51,56 @@ export default function TournamentMatchups() {
     return acc;
   }, {} as Record<number, User>);
 
-  // Create all players list for randomization
-  const allPlayers = teams.flatMap(team => [
-    { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber },
-    { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
-  ]).filter(p => p.name);
+  // Create player lists separated by team member position for better mixing
+  const player1s = teams.map(team => ({
+    name: team.player1Name, 
+    handicap: team.player1Handicap, 
+    team: team.teamNumber
+  })).filter(p => p.name);
+  
+  const player2s = teams.map(team => ({
+    name: team.player2Name, 
+    handicap: team.player2Handicap, 
+    team: team.teamNumber
+  })).filter(p => p.name);
 
-  // Generate Round 1 foursomes dynamically from teams data (optimized to minimize Round 3 overlaps)
-  const round1Foursomes = allPlayers.length >= 16 ? [
+  // Generate Round 1 foursomes with mixed players (avoid teammates in same foursome)
+  const round1Foursomes = (player1s.length >= 4 && player2s.length >= 4) ? [
     {
       name: "Foursome 1",
-      players: allPlayers.slice(0, 4)
+      players: [
+        player1s[0], // Team 1 player 1
+        player2s[1], // Team 2 player 2  
+        player1s[2], // Team 3 player 1
+        player2s[3]  // Team 4 player 2
+      ].filter(p => p)
     },
     {
       name: "Foursome 2", 
-      players: allPlayers.slice(4, 8)
+      players: [
+        player2s[0], // Team 1 player 2
+        player1s[1], // Team 2 player 1
+        player2s[2], // Team 3 player 2
+        player1s[3]  // Team 4 player 1
+      ].filter(p => p)
     },
     {
       name: "Foursome 3",
-      players: allPlayers.slice(8, 12)
+      players: [
+        player1s[4], // Team 5 player 1
+        player2s[5], // Team 6 player 2
+        player1s[6], // Team 7 player 1
+        player2s[7]  // Team 8 player 2
+      ].filter(p => p)
     },
     {
       name: "Foursome 4",
-      players: allPlayers.slice(12, 16)
+      players: [
+        player2s[4], // Team 5 player 2
+        player1s[5], // Team 6 player 1
+        player2s[6], // Team 7 player 2
+        player1s[7]  // Team 8 player 1
+      ].filter(p => p)
     }
   ] : [];
 
