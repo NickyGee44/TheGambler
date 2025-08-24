@@ -2,7 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CalendarDays, Users, Trophy, Target } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CalendarDays, Users, Trophy, Target, Shuffle } from "lucide-react";
+import { useState } from "react";
 
 interface Team {
   id: number;
@@ -33,6 +35,8 @@ interface User {
 }
 
 export default function TournamentMatchups() {
+  const [randomSeed, setRandomSeed] = useState(0); // State to force re-randomization
+  
   const { data: teams = [], isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ['/api/teams'],
   });
@@ -43,6 +47,10 @@ export default function TournamentMatchups() {
 
   const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ['/api/users'],
+  });
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['/api/user'],
   });
 
   // Create user lookup map
@@ -107,7 +115,8 @@ export default function TournamentMatchups() {
 
   // Generate optimized Round 1 foursomes (randomized but avoiding Round 3 overlaps)
   const generateRound1Foursomes = () => {
-    const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
+    // Use randomSeed to make shuffling deterministic for the current seed
+    const shuffledPlayers = [...allPlayers].sort(() => (Math.sin(randomSeed + Math.random()) - 0.5));
     
     // Find Connor and Christian to swap them
     const connorIndex = shuffledPlayers.findIndex(p => p.name === "Connor Patterson");
@@ -244,6 +253,16 @@ export default function TournamentMatchups() {
     return playerIdToHandicapMap[userId] || 0;
   };
 
+  // Check if current user is Nick Grossi
+  const isNickGrossi = currentUser && 
+    currentUser.firstName === "Nick" && 
+    currentUser.lastName === "Grossi";
+
+  // Function to randomize matchups
+  const handleRandomizeMatchups = () => {
+    setRandomSeed(Math.random() * 1000);
+  };
+
   if (teamsLoading || matchupsLoading || usersLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -259,6 +278,24 @@ export default function TournamentMatchups() {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-primary mb-2">Tournament Matchups & Groupings</h1>
         <p className="text-muted-foreground">Complete tournament schedule and pairings for all three rounds</p>
+        
+        {/* Randomize Button - Only for Nick Grossi */}
+        <div className="mt-4">
+          <Button
+            onClick={handleRandomizeMatchups}
+            disabled={!isNickGrossi}
+            variant={isNickGrossi ? "default" : "secondary"}
+            className={`${!isNickGrossi ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <Shuffle className="h-4 w-4 mr-2" />
+            Randomize Round 1 & 3 Matchups
+          </Button>
+          {!isNickGrossi && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Only Nick Grossi can randomize matchups
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Round 1 - Better Ball */}
