@@ -51,16 +51,47 @@ export default function TournamentMatchups() {
     return acc;
   }, {} as Record<number, User>);
 
-  // Group teams into foursomes for Rounds 1 & 2 (based on team numbers)
+  // Group teams into proper foursomes for Rounds 1 & 2 (4 players each)
   const round1Foursomes = [
-    { teams: teams.filter(t => [1, 2, 3, 4].includes(t.teamNumber)) },
-    { teams: teams.filter(t => [5, 6, 7, 8].includes(t.teamNumber)) }
+    { 
+      name: "Foursome 1", 
+      players: [
+        { name: teams[0]?.player1Name, handicap: teams[0]?.player1Handicap, team: teams[0]?.teamNumber },
+        { name: teams[0]?.player2Name, handicap: teams[0]?.player2Handicap, team: teams[0]?.teamNumber },
+        { name: teams[1]?.player1Name, handicap: teams[1]?.player1Handicap, team: teams[1]?.teamNumber },
+        { name: teams[1]?.player2Name, handicap: teams[1]?.player2Handicap, team: teams[1]?.teamNumber }
+      ].filter(p => p.name)
+    },
+    { 
+      name: "Foursome 2", 
+      players: [
+        { name: teams[2]?.player1Name, handicap: teams[2]?.player1Handicap, team: teams[2]?.teamNumber },
+        { name: teams[2]?.player2Name, handicap: teams[2]?.player2Handicap, team: teams[2]?.teamNumber },
+        { name: teams[3]?.player1Name, handicap: teams[3]?.player1Handicap, team: teams[3]?.teamNumber },
+        { name: teams[3]?.player2Name, handicap: teams[3]?.player2Handicap, team: teams[3]?.teamNumber }
+      ].filter(p => p.name)
+    },
+    { 
+      name: "Foursome 3", 
+      players: [
+        { name: teams[4]?.player1Name, handicap: teams[4]?.player1Handicap, team: teams[4]?.teamNumber },
+        { name: teams[4]?.player2Name, handicap: teams[4]?.player2Handicap, team: teams[4]?.teamNumber },
+        { name: teams[5]?.player1Name, handicap: teams[5]?.player1Handicap, team: teams[5]?.teamNumber },
+        { name: teams[5]?.player2Name, handicap: teams[5]?.player2Handicap, team: teams[5]?.teamNumber }
+      ].filter(p => p.name)
+    },
+    { 
+      name: "Foursome 4", 
+      players: [
+        { name: teams[6]?.player1Name, handicap: teams[6]?.player1Handicap, team: teams[6]?.teamNumber },
+        { name: teams[6]?.player2Name, handicap: teams[6]?.player2Handicap, team: teams[6]?.teamNumber },
+        { name: teams[7]?.player1Name, handicap: teams[7]?.player1Handicap, team: teams[7]?.teamNumber },
+        { name: teams[7]?.player2Name, handicap: teams[7]?.player2Handicap, team: teams[7]?.teamNumber }
+      ].filter(p => p.name)
+    }
   ];
 
-  const round2Foursomes = [
-    { teams: teams.filter(t => [1, 2, 3, 4].includes(t.teamNumber)) },
-    { teams: teams.filter(t => [5, 6, 7, 8].includes(t.teamNumber)) }
-  ];
+  const round2Foursomes = round1Foursomes; // Same groupings for Round 2
 
   // Group Round 3 matchups by hole segments
   const round3Segments = {
@@ -113,23 +144,20 @@ export default function TournamentMatchups() {
             <div key={index}>
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                Foursome {index + 1}
+                {foursome.name}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {foursome.teams.map((team) => (
-                  <div key={team.id} className="border rounded-lg p-4 bg-green-50 dark:bg-green-950">
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                        Team {team.teamNumber}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">Combined Hcp: {team.totalHandicap}</span>
+              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-950">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {foursome.players.map((player, playerIndex) => (
+                    <div key={playerIndex} className="flex items-center justify-between p-2 bg-white dark:bg-green-900 rounded">
+                      <span className="font-medium">{player.name}</span>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">Team {player.team}</Badge>
+                        <span className="text-sm text-muted-foreground">({player.handicap} hcp)</span>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <div className="font-medium">{team.player1Name} ({team.player1Handicap} hcp)</div>
-                      <div className="font-medium">{team.player2Name} ({team.player2Handicap} hcp)</div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
               {index < round1Foursomes.length - 1 && <Separator className="mt-6" />}
             </div>
@@ -154,23 +182,20 @@ export default function TournamentMatchups() {
             <div key={index}>
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                Foursome {index + 1}
+                {foursome.name}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {foursome.teams.map((team) => (
-                  <div key={team.id} className="border rounded-lg p-4 bg-blue-50 dark:bg-blue-950">
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        Team {team.teamNumber}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">Team Hcp: {Math.round(team.totalHandicap * 0.6)}</span>
+              <div className="border rounded-lg p-4 bg-blue-50 dark:bg-blue-950">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {foursome.players.map((player, playerIndex) => (
+                    <div key={playerIndex} className="flex items-center justify-between p-2 bg-white dark:bg-blue-900 rounded">
+                      <span className="font-medium">{player.name}</span>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">Team {player.team}</Badge>
+                        <span className="text-sm text-muted-foreground">({player.handicap} hcp)</span>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <div className="font-medium">{team.player1Name} ({team.player1Handicap} hcp)</div>
-                      <div className="font-medium">{team.player2Name} ({team.player2Handicap} hcp)</div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
               {index < round2Foursomes.length - 1 && <Separator className="mt-6" />}
             </div>
