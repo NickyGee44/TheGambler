@@ -248,26 +248,60 @@ export default function TournamentMatchups() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {round2Foursomes.map((foursome, index) => (
+          {[
+            {
+              name: "Group 1",
+              players: [
+                { name: "Jordan Kreller", handicap: 6 },
+                { name: "Christian Hauck", handicap: 5 }, 
+                { name: "Connor Patterson", handicap: 4 },
+                { name: "Ben Braun", handicap: 6 }
+              ]
+            },
+            {
+              name: "Group 2", 
+              players: [
+                { name: "Spencer Reid", handicap: 16 },
+                { name: "Jeffrey Reiner", handicap: 9 },
+                { name: "Kevin Durco", handicap: 3 },
+                { name: "Erik Boudreau", handicap: 10 }
+              ]
+            },
+            {
+              name: "Group 3",
+              players: [
+                { name: "Sye Ellard", handicap: 18 },
+                { name: "Will Bibbings", handicap: 5 },
+                { name: "Nic Huxley", handicap: 15 },
+                { name: "Bailey Carlson", handicap: 17 }
+              ]
+            },
+            {
+              name: "Group 4",
+              players: [
+                { name: "Nick Grossi", handicap: 16 },
+                { name: "Nick Cook", handicap: 12 },
+                { name: "Johnny Magnatta", handicap: 11 },
+                { name: "James Ogilvie", handicap: 17 }
+              ]
+            }
+          ].map((group, index) => (
             <div key={index}>
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                {foursome.name}
+                {group.name}
               </h3>
               <div className="border rounded-lg p-4 bg-amber-50 dark:bg-amber-950">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {foursome.players.map((player, playerIndex) => (
+                  {group.players.map((player, playerIndex) => (
                     <div key={playerIndex} className="flex items-center justify-between p-2 bg-white dark:bg-amber-900 rounded">
                       <span className="font-medium">{player.name}</span>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">Team {player.team}</Badge>
-                        <span className="text-sm text-muted-foreground">({player.handicap} hcp)</span>
-                      </div>
+                      <span className="text-sm text-muted-foreground">({player.handicap} hcp)</span>
                     </div>
                   ))}
                 </div>
               </div>
-              {index < round2Foursomes.length - 1 && <Separator className="mt-6" />}
+              {index < 3 && <Separator className="mt-6" />}
             </div>
           ))}
         </CardContent>
