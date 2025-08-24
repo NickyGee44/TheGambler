@@ -67,7 +67,45 @@ export default function TournamentMatchups() {
     });
   }
 
-  const round2Foursomes = round1Foursomes; // Same groupings for Round 2
+  // Round 2 foursomes: 2 teams per foursome (partners stay together for scramble)
+  const round2Foursomes = [
+    { 
+      name: "Foursome 1", 
+      players: [
+        { name: teams[0]?.player1Name, handicap: teams[0]?.player1Handicap, team: teams[0]?.teamNumber },
+        { name: teams[0]?.player2Name, handicap: teams[0]?.player2Handicap, team: teams[0]?.teamNumber },
+        { name: teams[1]?.player1Name, handicap: teams[1]?.player1Handicap, team: teams[1]?.teamNumber },
+        { name: teams[1]?.player2Name, handicap: teams[1]?.player2Handicap, team: teams[1]?.teamNumber }
+      ].filter(p => p.name)
+    },
+    { 
+      name: "Foursome 2", 
+      players: [
+        { name: teams[2]?.player1Name, handicap: teams[2]?.player1Handicap, team: teams[2]?.teamNumber },
+        { name: teams[2]?.player2Name, handicap: teams[2]?.player2Handicap, team: teams[2]?.teamNumber },
+        { name: teams[3]?.player1Name, handicap: teams[3]?.player1Handicap, team: teams[3]?.teamNumber },
+        { name: teams[3]?.player2Name, handicap: teams[3]?.player2Handicap, team: teams[3]?.teamNumber }
+      ].filter(p => p.name)
+    },
+    { 
+      name: "Foursome 3", 
+      players: [
+        { name: teams[4]?.player1Name, handicap: teams[4]?.player1Handicap, team: teams[4]?.teamNumber },
+        { name: teams[4]?.player2Name, handicap: teams[4]?.player2Handicap, team: teams[4]?.teamNumber },
+        { name: teams[5]?.player1Name, handicap: teams[5]?.player1Handicap, team: teams[5]?.teamNumber },
+        { name: teams[5]?.player2Name, handicap: teams[5]?.player2Handicap, team: teams[5]?.teamNumber }
+      ].filter(p => p.name)
+    },
+    { 
+      name: "Foursome 4", 
+      players: [
+        { name: teams[6]?.player1Name, handicap: teams[6]?.player1Handicap, team: teams[6]?.teamNumber },
+        { name: teams[6]?.player2Name, handicap: teams[6]?.player2Handicap, team: teams[6]?.teamNumber },
+        { name: teams[7]?.player1Name, handicap: teams[7]?.player1Handicap, team: teams[7]?.teamNumber },
+        { name: teams[7]?.player2Name, handicap: teams[7]?.player2Handicap, team: teams[7]?.teamNumber }
+      ].filter(p => p.name)
+    }
+  ];
 
   // Group Round 3 matchups by hole segments
   const round3Segments = {
