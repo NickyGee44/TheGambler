@@ -57,6 +57,30 @@ export default function TournamentMatchups() {
     { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber, id: `${team.teamNumber}-2` }
   ]).filter(p => p.name);
 
+  // Create player ID to name mapping from teams data first
+  const playerIdToNameMap: Record<number, string> = {};
+  const playerIdToHandicapMap: Record<number, number> = {};
+  
+  // Map known user IDs to names from teams
+  teams.forEach(team => {
+    // Find users for this team by matching names
+    const player1User = users.find(u => `${u.firstName} ${u.lastName}` === team.player1Name);
+    const player2User = users.find(u => `${u.firstName} ${u.lastName}` === team.player2Name);
+    
+    if (player1User) {
+      playerIdToNameMap[player1User.id] = team.player1Name;
+      playerIdToHandicapMap[player1User.id] = team.player1Handicap;
+    }
+    if (player2User) {
+      playerIdToNameMap[player2User.id] = team.player2Name;
+      playerIdToHandicapMap[player2User.id] = team.player2Handicap;
+    }
+  });
+
+  const getPlayerName = (userId: number) => {
+    return playerIdToNameMap[userId] || `Player ${userId}`;
+  };
+
   // Track Round 3 pairings to avoid conflicts
   const round3Pairings = new Set<string>();
   matchups.forEach(match => {
@@ -202,30 +226,6 @@ export default function TournamentMatchups() {
     '1-6': matchups.filter(m => m.hole_segment === '1-6'),
     '7-12': matchups.filter(m => m.hole_segment === '7-12'),
     '13-18': matchups.filter(m => m.hole_segment === '13-18')
-  };
-
-  // Create player ID to name mapping from teams data
-  const playerIdToNameMap: Record<number, string> = {};
-  const playerIdToHandicapMap: Record<number, number> = {};
-  
-  // Map known user IDs to names
-  teams.forEach(team => {
-    // Find users for this team
-    const player1User = users.find(u => `${u.firstName} ${u.lastName}` === team.player1Name);
-    const player2User = users.find(u => `${u.firstName} ${u.lastName}` === team.player2Name);
-    
-    if (player1User) {
-      playerIdToNameMap[player1User.id] = team.player1Name;
-      playerIdToHandicapMap[player1User.id] = team.player1Handicap;
-    }
-    if (player2User) {
-      playerIdToNameMap[player2User.id] = team.player2Name;
-      playerIdToHandicapMap[player2User.id] = team.player2Handicap;
-    }
-  });
-
-  const getPlayerName = (userId: number) => {
-    return playerIdToNameMap[userId] || `Player ${userId}`;
   };
 
   const getPlayerHandicap = (userId: number) => {
