@@ -227,7 +227,7 @@ export const ROUND3_MATCHUPS = [
     foursome: "Foursome 4",
     matchup: "Nick Grossi vs James Ogilvie",
     holes: "13–18",
-    strokes: "James gives Nick 1 stroke",
+    strokes: "No strokes given",
     player1: "Nick Grossi",
     player2: "James Ogilvie"
   },
@@ -268,7 +268,7 @@ export const ROUND3_MATCHUPS = [
     foursome: "Foursome 4",
     matchup: "James Ogilvie vs Nick Grossi",
     holes: "1–6",
-    strokes: "James gives Nick 1 stroke",
+    strokes: "No strokes given",
     player1: "James Ogilvie",
     player2: "Nick Grossi"
   }
