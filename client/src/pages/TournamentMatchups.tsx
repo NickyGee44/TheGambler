@@ -213,8 +213,8 @@ export default function TournamentMatchups() {
           {round2Foursomes.map((foursome, index) => (
             <div key={index}>
               <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <Target className="h-4 w-4 text-amber-600" />
-                {foursome.name} - Head-to-Head Matches
+                <Users className="h-4 w-4" />
+                {foursome.name}
               </h3>
               <div className="border rounded-lg p-4 bg-amber-50 dark:bg-amber-950">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -228,9 +228,6 @@ export default function TournamentMatchups() {
                     </div>
                   ))}
                 </div>
-                <div className="mt-3 text-center text-sm text-amber-700 dark:text-amber-300">
-                  6-hole matches with stroke play handicap allocations
-                </div>
               </div>
               {index < round2Foursomes.length - 1 && <Separator className="mt-6" />}
             </div>
@@ -238,9 +235,6 @@ export default function TournamentMatchups() {
         </CardContent>
       </Card>
 
-      <div className="text-center text-sm text-muted-foreground mt-8">
-        <p>Stroke allocations calculated using 6-hole match play formula: (Player Handicap ÷ 3)</p>
-      </div>
     </div>
   );
 }
