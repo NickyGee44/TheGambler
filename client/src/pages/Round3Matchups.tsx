@@ -30,11 +30,11 @@ export const ROUND3_MATCHUPS = [
   },
   {
     foursome: "Foursome 1",
-    matchup: "Jordan Kreller vs Ben Braun",
+    matchup: "Jordan Kreller vs Mystery Player",
     holes: "13–18",
     strokes: "No strokes given",
     player1: "Jordan Kreller",
-    player2: "Ben Braun"
+    player2: "Mystery Player"
   },
   {
     foursome: "Foursome 1",
@@ -46,19 +46,19 @@ export const ROUND3_MATCHUPS = [
   },
   {
     foursome: "Foursome 1",
-    matchup: "Christian Hauck vs Ben Braun",
+    matchup: "Christian Hauck vs Mystery Player",
     holes: "7–12",
     strokes: "No strokes given",
     player1: "Christian Hauck",
-    player2: "Ben Braun"
+    player2: "Mystery Player"
   },
   {
     foursome: "Foursome 1",
-    matchup: "Connor Patterson vs Ben Braun",
+    matchup: "Connor Patterson vs Mystery Player",
     holes: "13–18",
-    strokes: "Ben gives Connor 1 stroke",
+    strokes: "Mystery Player gives Connor 1 stroke",
     player1: "Connor Patterson",
-    player2: "Ben Braun"
+    player2: "Mystery Player"
   },
   // Missing matchups to complete the round-robin for Foursome 1
   {
@@ -71,10 +71,10 @@ export const ROUND3_MATCHUPS = [
   },
   {
     foursome: "Foursome 1",
-    matchup: "Ben Braun vs Jordan Kreller",
+    matchup: "Mystery Player vs Jordan Kreller",
     holes: "1–6",
     strokes: "No strokes given",
-    player1: "Ben Braun",
+    player1: "Mystery Player",
     player2: "Jordan Kreller"
   },
   {

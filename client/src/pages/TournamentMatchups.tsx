@@ -65,7 +65,7 @@ export default function TournamentMatchups() {
         { name: "Nick Grossi", handicap: 16, team: 1 },
         { name: "Spencer Reid", handicap: 16, team: 6 },
         { name: "Bailey Carlson", handicap: 17, team: 2 },
-        { name: "Ben Braun", handicap: 6, team: 0 }
+        { name: "Mystery Player", handicap: 6, team: 0 }
       ]
     },
     {
@@ -132,7 +132,7 @@ export default function TournamentMatchups() {
         { name: "Erik Boudreau", handicap: 10, team: 4 },
         { name: "Will Bibbings", handicap: 5, team: 4 },
         { name: "Nic Huxley", handicap: 15, team: 3 },
-        { name: "Ben Braun", handicap: 6, team: 0 }
+        { name: "Mystery Player", handicap: 6, team: 0 }
       ]
     }
   ];
@@ -285,7 +285,7 @@ export default function TournamentMatchups() {
                 { name: "Jordan Kreller", handicap: 6 },
                 { name: "Christian Hauck", handicap: 5 }, 
                 { name: "Connor Patterson", handicap: 4 },
-                { name: "Ben Braun", handicap: 6 }
+                { name: "Mystery Player", handicap: 6 }
               ]
             },
             {

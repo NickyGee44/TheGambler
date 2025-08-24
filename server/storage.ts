@@ -1345,7 +1345,7 @@ export class DatabaseStorage implements IStorage {
     const teamData = [
       { teamNumber: 1, player1Name: "Nick Grossi", player1Handicap: 15, player2Name: "Connor Patterson", player2Handicap: 3 },
       { teamNumber: 2, player1Name: "Christian Hauck", player1Handicap: 5, player2Name: "Bailey Carlson", player2Handicap: 16 },
-      { teamNumber: 3, player1Name: "Ben Braun", player1Handicap: 6, player2Name: "Nic Huxley", player2Handicap: 15 },
+      { teamNumber: 3, player1Name: "Mystery Player", player1Handicap: 6, player2Name: "Nic Huxley", player2Handicap: 15 },
       { teamNumber: 4, player1Name: "Erik Boudreau", player1Handicap: 10, player2Name: "Will Bibi", player2Handicap: 5 },
       { teamNumber: 5, player1Name: "Nick Cook", player1Handicap: 12, player2Name: "Kevin Durco", player2Handicap: 3 },
       { teamNumber: 6, player1Name: "Spencer Reid", player1Handicap: 16, player2Name: "Jeff Reiner", player2Handicap: 9 },

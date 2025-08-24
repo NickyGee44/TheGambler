@@ -27,7 +27,7 @@ import willBibbingsImg from "@/assets/will-bibbings.jpeg";
 const playerNames = [
   "James Ogilvie",
   "Bailey Carlson", 
-  "Ben Braun",
+  "Mystery Player",
   "Christian Hauck",
   "Connor Patterson",
   "Erik Boudreau", 
@@ -55,7 +55,7 @@ export default function PictureAssignment() {
   const [assignments, setAssignments] = useState<ImageAssignment[]>([
     { filename: "austin-hassani.png", currentName: "James Ogilvie", image: austinHassaniImg },
     { filename: "bailey-carlson.jpeg", currentName: "Bailey Carlson", image: baileyCarlsonImg },
-    { filename: "ben-braun.jpeg", currentName: "Ben Braun", image: benBraunImg },
+    { filename: "ben-braun.jpeg", currentName: "Mystery Player", image: benBraunImg },
     { filename: "christian-hauck.png", currentName: "Christian Hauck", image: christianHauckImg },
     { filename: "connor-patterson.jpeg", currentName: "Connor Patterson", image: connorPattersonImg },
     { filename: "erik-boudreau.jpeg", currentName: "Erik Boudreau", image: erikBoudreauImg },

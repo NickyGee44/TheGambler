@@ -96,7 +96,7 @@ async function generateMockMatchPlayData() {
   const round3Groups = [
     {
       groupNumber: 1,
-      players: ["Jordan Kreller", "Christian Hauck", "Connor Patterson", "Ben Braun"]
+      players: ["Jordan Kreller", "Christian Hauck", "Connor Patterson", "Mystery Player"]
     },
     {
       groupNumber: 2,
