@@ -51,90 +51,151 @@ export default function TournamentMatchups() {
     return acc;
   }, {} as Record<number, User>);
 
-  // Create player lists separated by team member position for better mixing
-  const player1s = teams.map(team => ({
-    name: team.player1Name, 
-    handicap: team.player1Handicap, 
-    team: team.teamNumber
-  })).filter(p => p.name);
-  
-  const player2s = teams.map(team => ({
-    name: team.player2Name, 
-    handicap: team.player2Handicap, 
-    team: team.teamNumber
-  })).filter(p => p.name);
+  // Create full player list for optimized grouping
+  const allPlayers = teams.flatMap(team => [
+    { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber, id: `${team.teamNumber}-1` },
+    { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber, id: `${team.teamNumber}-2` }
+  ]).filter(p => p.name);
 
-  // Generate Round 1 foursomes with mixed players (avoid teammates in same foursome)
-  const round1Foursomes = (player1s.length >= 4 && player2s.length >= 4) ? [
-    {
-      name: "Foursome 1",
-      players: [
-        player1s[0], // Team 1 player 1
-        player2s[1], // Team 2 player 2  
-        player1s[2], // Team 3 player 1
-        player2s[3]  // Team 4 player 2
-      ].filter(p => p)
-    },
-    {
-      name: "Foursome 2", 
-      players: [
-        player2s[0], // Team 1 player 2
-        player1s[1], // Team 2 player 1
-        player2s[2], // Team 3 player 2
-        player1s[3]  // Team 4 player 1
-      ].filter(p => p)
-    },
-    {
-      name: "Foursome 3",
-      players: [
-        player1s[4], // Team 5 player 1
-        player2s[5], // Team 6 player 2
-        player1s[6], // Team 7 player 1
-        player2s[7]  // Team 8 player 2
-      ].filter(p => p)
-    },
-    {
-      name: "Foursome 4",
-      players: [
-        player2s[4], // Team 5 player 2
-        player1s[5], // Team 6 player 1
-        player2s[6], // Team 7 player 2
-        player1s[7]  // Team 8 player 1
-      ].filter(p => p)
+  // Track Round 3 pairings to avoid conflicts
+  const round3Pairings = new Set<string>();
+  matchups.forEach(match => {
+    const player1Name = getPlayerName(match.player1_id);
+    const player2Name = getPlayerName(match.player2_id);
+    if (player1Name && player2Name) {
+      const pair = [player1Name, player2Name].sort().join('|');
+      round3Pairings.add(pair);
     }
-  ] : [];
+  });
 
-  // Generate Round 2 foursomes dynamically: 2 teams per foursome  
-  const round2Foursomes = teams.length >= 4 ? [
-    { 
-      name: "Foursome 1", 
-      players: teams.slice(0, 2).flatMap(team => [
-        { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber },
-        { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
-      ])
-    },
-    { 
-      name: "Foursome 2", 
-      players: teams.slice(2, 4).flatMap(team => [
-        { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber },
-        { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
-      ])
-    },
-    { 
-      name: "Foursome 3", 
-      players: teams.slice(4, 6).flatMap(team => [
-        { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber },
-        { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
-      ])
-    },
-    { 
-      name: "Foursome 4", 
-      players: teams.slice(6, 8).flatMap(team => [
-        { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber },
-        { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
-      ])
+  // Helper function to check if two players are paired in Round 3
+  const areInRound3Together = (name1: string, name2: string) => {
+    const pair = [name1, name2].sort().join('|');
+    return round3Pairings.has(pair);
+  };
+
+  // Helper function to check if two players are teammates
+  const areTeammates = (name1: string, name2: string) => {
+    const player1Team = allPlayers.find(p => p.name === name1)?.team;
+    const player2Team = allPlayers.find(p => p.name === name2)?.team;
+    return player1Team === player2Team;
+  };
+
+  // Generate optimized Round 1 foursomes (randomized but avoiding Round 3 overlaps)
+  const generateRound1Foursomes = () => {
+    const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
+    const foursomes = [];
+    
+    for (let i = 0; i < shuffledPlayers.length; i += 4) {
+      const foursome = shuffledPlayers.slice(i, i + 4);
+      if (foursome.length === 4) {
+        // Check for Round 3 conflicts and teammate conflicts
+        let hasConflict = false;
+        for (let j = 0; j < foursome.length; j++) {
+          for (let k = j + 1; k < foursome.length; k++) {
+            if (areTeammates(foursome[j].name, foursome[k].name) || 
+                areInRound3Together(foursome[j].name, foursome[k].name)) {
+              hasConflict = true;
+              break;
+            }
+          }
+          if (hasConflict) break;
+        }
+        
+        foursomes.push({
+          name: `Foursome ${foursomes.length + 1}`,
+          players: foursome,
+          conflicts: hasConflict
+        });
+      }
     }
-  ] : [];
+    return foursomes;
+  };
+
+  const round1Foursomes = allPlayers.length >= 16 ? generateRound1Foursomes() : [];
+
+  // Track Round 1 pairings to avoid conflicts in Round 2
+  const round1Pairings = new Set<string>();
+  round1Foursomes.forEach(foursome => {
+    for (let i = 0; i < foursome.players.length; i++) {
+      for (let j = i + 1; j < foursome.players.length; j++) {
+        const pair = [foursome.players[i].name, foursome.players[j].name].sort().join('|');
+        round1Pairings.add(pair);
+      }
+    }
+  });
+
+  // Helper function to check if two players played together in Round 1
+  const areInRound1Together = (name1: string, name2: string) => {
+    const pair = [name1, name2].sort().join('|');
+    return round1Pairings.has(pair);
+  };
+
+  // Generate optimized Round 2 foursomes (minimize overlaps with Round 1 and 3)
+  const generateRound2Foursomes = () => {
+    const teamPairs = [];
+    const usedTeams = new Set<number>();
+    
+    // Generate all possible team pairings
+    for (let i = 0; i < teams.length; i++) {
+      for (let j = i + 1; j < teams.length; j++) {
+        teamPairs.push([teams[i], teams[j]]);
+      }
+    }
+    
+    // Score each team pairing based on conflicts
+    const scoredPairings = teamPairs.map(([team1, team2]) => {
+      const players = [
+        { name: team1.player1Name, handicap: team1.player1Handicap, team: team1.teamNumber },
+        { name: team1.player2Name, handicap: team1.player2Handicap, team: team1.teamNumber },
+        { name: team2.player1Name, handicap: team2.player1Handicap, team: team2.teamNumber },
+        { name: team2.player2Name, handicap: team2.player2Handicap, team: team2.teamNumber }
+      ];
+      
+      let conflicts = 0;
+      
+      // Check all player pair combinations in this foursome
+      for (let i = 0; i < players.length; i++) {
+        for (let j = i + 1; j < players.length; j++) {
+          if (areInRound1Together(players[i].name, players[j].name)) conflicts += 2;
+          if (areInRound3Together(players[i].name, players[j].name)) conflicts += 2;
+          if (areTeammates(players[i].name, players[j].name)) conflicts += 0; // Teams supposed to play together in Round 2
+        }
+      }
+      
+      return {
+        teams: [team1, team2],
+        players,
+        conflicts,
+        teamIds: [team1.teamNumber, team2.teamNumber].sort()
+      };
+    });
+    
+    // Sort by conflicts (fewer conflicts = better)
+    scoredPairings.sort((a, b) => a.conflicts - b.conflicts);
+    
+    const foursomes = [];
+    const usedTeamNumbers = new Set<number>();
+    
+    // Select non-overlapping team pairings with minimum conflicts
+    for (const pairing of scoredPairings) {
+      const [team1, team2] = pairing.teams;
+      if (!usedTeamNumbers.has(team1.teamNumber) && !usedTeamNumbers.has(team2.teamNumber)) {
+        foursomes.push({
+          name: `Foursome ${foursomes.length + 1}`,
+          players: pairing.players,
+          conflicts: pairing.conflicts,
+          teams: `Team ${team1.teamNumber} vs Team ${team2.teamNumber}`
+        });
+        usedTeamNumbers.add(team1.teamNumber);
+        usedTeamNumbers.add(team2.teamNumber);
+      }
+    }
+    
+    return foursomes;
+  };
+
+  const round2Foursomes = teams.length >= 4 ? generateRound2Foursomes() : [];
 
   // Group Round 3 matchups by hole segments
   const round3Segments = {
@@ -244,6 +305,14 @@ export default function TournamentMatchups() {
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 {foursome.name}
+                {foursome.conflicts !== undefined && (
+                  <Badge variant={foursome.conflicts > 0 ? "destructive" : "secondary"} className="ml-2 text-xs">
+                    {foursome.conflicts === 0 ? "Optimized" : `${foursome.conflicts} Conflicts`}
+                  </Badge>
+                )}
+                {foursome.teams && (
+                  <span className="text-xs text-muted-foreground ml-2">({foursome.teams})</span>
+                )}
               </h3>
               <div className="border rounded-lg p-4 bg-blue-50 dark:bg-blue-950">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
