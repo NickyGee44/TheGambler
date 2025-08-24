@@ -51,45 +51,21 @@ export default function TournamentMatchups() {
     return acc;
   }, {} as Record<number, User>);
 
-  // Group teams into proper foursomes for Rounds 1 & 2 (4 players each)
-  const round1Foursomes = [
-    { 
-      name: "Foursome 1", 
-      players: [
-        { name: teams[0]?.player1Name, handicap: teams[0]?.player1Handicap, team: teams[0]?.teamNumber },
-        { name: teams[0]?.player2Name, handicap: teams[0]?.player2Handicap, team: teams[0]?.teamNumber },
-        { name: teams[1]?.player1Name, handicap: teams[1]?.player1Handicap, team: teams[1]?.teamNumber },
-        { name: teams[1]?.player2Name, handicap: teams[1]?.player2Handicap, team: teams[1]?.teamNumber }
-      ].filter(p => p.name)
-    },
-    { 
-      name: "Foursome 2", 
-      players: [
-        { name: teams[2]?.player1Name, handicap: teams[2]?.player1Handicap, team: teams[2]?.teamNumber },
-        { name: teams[2]?.player2Name, handicap: teams[2]?.player2Handicap, team: teams[2]?.teamNumber },
-        { name: teams[3]?.player1Name, handicap: teams[3]?.player1Handicap, team: teams[3]?.teamNumber },
-        { name: teams[3]?.player2Name, handicap: teams[3]?.player2Handicap, team: teams[3]?.teamNumber }
-      ].filter(p => p.name)
-    },
-    { 
-      name: "Foursome 3", 
-      players: [
-        { name: teams[4]?.player1Name, handicap: teams[4]?.player1Handicap, team: teams[4]?.teamNumber },
-        { name: teams[4]?.player2Name, handicap: teams[4]?.player2Handicap, team: teams[4]?.teamNumber },
-        { name: teams[5]?.player1Name, handicap: teams[5]?.player1Handicap, team: teams[5]?.teamNumber },
-        { name: teams[5]?.player2Name, handicap: teams[5]?.player2Handicap, team: teams[5]?.teamNumber }
-      ].filter(p => p.name)
-    },
-    { 
-      name: "Foursome 4", 
-      players: [
-        { name: teams[6]?.player1Name, handicap: teams[6]?.player1Handicap, team: teams[6]?.teamNumber },
-        { name: teams[6]?.player2Name, handicap: teams[6]?.player2Handicap, team: teams[6]?.teamNumber },
-        { name: teams[7]?.player1Name, handicap: teams[7]?.player1Handicap, team: teams[7]?.teamNumber },
-        { name: teams[7]?.player2Name, handicap: teams[7]?.player2Handicap, team: teams[7]?.teamNumber }
-      ].filter(p => p.name)
-    }
-  ];
+  // Create all players list for randomization
+  const allPlayers = teams.flatMap(team => [
+    { name: team.player1Name, handicap: team.player1Handicap, team: team.teamNumber },
+    { name: team.player2Name, handicap: team.player2Handicap, team: team.teamNumber }
+  ]).filter(p => p.name);
+
+  // Randomize players for Round 1 (completely random groups)
+  const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
+  const round1Foursomes = [];
+  for (let i = 0; i < shuffledPlayers.length; i += 4) {
+    round1Foursomes.push({
+      name: `Foursome ${Math.floor(i / 4) + 1}`,
+      players: shuffledPlayers.slice(i, i + 4)
+    });
+  }
 
   const round2Foursomes = round1Foursomes; // Same groupings for Round 2
 
@@ -100,14 +76,32 @@ export default function TournamentMatchups() {
     '13-18': matchups.filter(m => m.hole_segment === '13-18')
   };
 
+  // Create player ID to name mapping from teams data
+  const playerIdToNameMap: Record<number, string> = {};
+  const playerIdToHandicapMap: Record<number, number> = {};
+  
+  // Map known user IDs to names
+  teams.forEach(team => {
+    // Find users for this team
+    const player1User = users.find(u => `${u.firstName} ${u.lastName}` === team.player1Name);
+    const player2User = users.find(u => `${u.firstName} ${u.lastName}` === team.player2Name);
+    
+    if (player1User) {
+      playerIdToNameMap[player1User.id] = team.player1Name;
+      playerIdToHandicapMap[player1User.id] = team.player1Handicap;
+    }
+    if (player2User) {
+      playerIdToNameMap[player2User.id] = team.player2Name;
+      playerIdToHandicapMap[player2User.id] = team.player2Handicap;
+    }
+  });
+
   const getPlayerName = (userId: number) => {
-    const user = userMap[userId];
-    return user ? `${user.firstName} ${user.lastName}` : `Player ${userId}`;
+    return playerIdToNameMap[userId] || `Player ${userId}`;
   };
 
   const getPlayerHandicap = (userId: number) => {
-    const user = userMap[userId];
-    return user ? user.handicap : 0;
+    return playerIdToHandicapMap[userId] || 0;
   };
 
   if (teamsLoading || matchupsLoading || usersLoading) {
@@ -215,56 +209,30 @@ export default function TournamentMatchups() {
             August 31, 2025 • Muskoka Bay Golf Club
           </div>
         </CardHeader>
-        <CardContent className="space-y-8">
-          {Object.entries(round3Segments).map(([segment, matches]) => (
-            <div key={segment}>
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
+        <CardContent className="space-y-6">
+          {round2Foursomes.map((foursome, index) => (
+            <div key={index}>
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Target className="h-4 w-4 text-amber-600" />
-                Holes {segment}
+                {foursome.name} - Head-to-Head Matches
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {matches.map((match) => {
-                  const player1Name = getPlayerName(match.player1_id);
-                  const player2Name = getPlayerName(match.player2_id);
-                  const player1Hcp = getPlayerHandicap(match.player1_id);
-                  const player2Hcp = getPlayerHandicap(match.player2_id);
-                  const strokeRecipient = match.stroke_recipient_id ? getPlayerName(match.stroke_recipient_id) : null;
-                  
-                  return (
-                    <div key={match.id} className="border rounded-lg p-4 bg-amber-50 dark:bg-amber-950">
-                      <div className="text-center mb-3">
-                        <Badge variant="outline" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                          Match {match.id}
-                        </Badge>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{player1Name}</span>
-                          <span className="text-sm text-muted-foreground">({player1Hcp} hcp)</span>
-                        </div>
-                        <div className="text-center text-xs text-muted-foreground">vs</div>
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{player2Name}</span>
-                          <span className="text-sm text-muted-foreground">({player2Hcp} hcp)</span>
-                        </div>
-                        {match.strokes_given > 0 && strokeRecipient && (
-                          <div className="mt-3 p-2 bg-amber-100 dark:bg-amber-900 rounded text-sm">
-                            <div className="font-medium text-amber-800 dark:text-amber-200">
-                              {strokeRecipient} gets {match.strokes_given} stroke{match.strokes_given > 1 ? 's' : ''}
-                            </div>
-                            {match.stroke_holes.length > 0 && (
-                              <div className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-                                On holes: {match.stroke_holes.join(', ')}
-                              </div>
-                            )}
-                          </div>
-                        )}
+              <div className="border rounded-lg p-4 bg-amber-50 dark:bg-amber-950">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {foursome.players.map((player, playerIndex) => (
+                    <div key={playerIndex} className="flex items-center justify-between p-2 bg-white dark:bg-amber-900 rounded">
+                      <span className="font-medium">{player.name}</span>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">Team {player.team}</Badge>
+                        <span className="text-sm text-muted-foreground">({player.handicap} hcp)</span>
                       </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+                <div className="mt-3 text-center text-sm text-amber-700 dark:text-amber-300">
+                  6-hole matches with stroke play handicap allocations
+                </div>
               </div>
-              {segment !== '13-18' && <Separator className="mt-8" />}
+              {index < round2Foursomes.length - 1 && <Separator className="mt-6" />}
             </div>
           ))}
         </CardContent>
