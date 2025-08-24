@@ -36,6 +36,13 @@ interface TournamentFormData {
   champions?: string[];
 }
 
+interface ChampionSelectionState {
+  isOpen: boolean;
+  tournamentYear: number;
+  selectedTeam: string;
+  selectedPlayers: string[];
+}
+
 export default function TournamentManagement() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -50,6 +57,12 @@ export default function TournamentManagement() {
     location: "",
     champions: []
   });
+  const [championSelection, setChampionSelection] = useState<ChampionSelectionState>({
+    isOpen: false,
+    tournamentYear: 0,
+    selectedTeam: "",
+    selectedPlayers: []
+  });
 
   // Check if user has admin privileges
   const isAdmin = user && ['Nick Grossi', 'Connor Patterson'].includes(`${user.firstName} ${user.lastName}`);
@@ -62,6 +75,17 @@ export default function TournamentManagement() {
   // Fetch active tournament
   const { data: activeTournament } = useQuery<Tournament>({
     queryKey: ['/api/tournaments/active'],
+  });
+
+  // Fetch teams and players for champion selection
+  const { data: teams = [] } = useQuery<any[]>({
+    queryKey: ['/api/teams'],
+    enabled: championSelection.isOpen
+  });
+
+  const { data: players = [] } = useQuery<any[]>({
+    queryKey: ['/api/players'],
+    enabled: championSelection.isOpen
   });
 
   // Create tournament mutation
@@ -180,6 +204,51 @@ export default function TournamentManagement() {
       year,
       updateData: { champions }
     });
+  };
+
+  const openChampionSelection = (year: number) => {
+    setChampionSelection({
+      isOpen: true,
+      tournamentYear: year,
+      selectedTeam: "",
+      selectedPlayers: []
+    });
+  };
+
+  const closeChampionSelection = () => {
+    setChampionSelection({
+      isOpen: false,
+      tournamentYear: 0,
+      selectedTeam: "",
+      selectedPlayers: []
+    });
+  };
+
+  const handleTeamSelection = (teamId: string) => {
+    const selectedTeamData = (teams as any[]).find((team: any) => team.id.toString() === teamId);
+    if (selectedTeamData) {
+      setChampionSelection(prev => ({
+        ...prev,
+        selectedTeam: teamId,
+        selectedPlayers: [selectedTeamData.player1Name, selectedTeamData.player2Name]
+      }));
+    }
+  };
+
+  const handlePlayerToggle = (playerName: string) => {
+    setChampionSelection(prev => ({
+      ...prev,
+      selectedPlayers: prev.selectedPlayers.includes(playerName)
+        ? prev.selectedPlayers.filter(p => p !== playerName)
+        : [...prev.selectedPlayers, playerName]
+    }));
+  };
+
+  const saveChampions = () => {
+    if (championSelection.selectedPlayers.length > 0) {
+      setChampions(championSelection.tournamentYear, championSelection.selectedPlayers);
+      closeChampionSelection();
+    }
   };
 
   if (!isAdmin) {
@@ -328,12 +397,7 @@ export default function TournamentManagement() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => {
-                      const champions = prompt('Enter champions (comma-separated):');
-                      if (champions !== null) {
-                        setChampions(tournament.year, champions.split(',').map(c => c.trim()).filter(Boolean));
-                      }
-                    }}
+                    onClick={() => openChampionSelection(tournament.year)}
                   >
                     <Edit className="w-4 h-4 mr-2" />
                     Set Champions
@@ -343,6 +407,81 @@ export default function TournamentManagement() {
             </Card>
           ))}
         </div>
+
+        {/* Champion Selection Dialog */}
+        <AlertDialog open={championSelection.isOpen} onOpenChange={(open) => !open && closeChampionSelection()}>
+          <AlertDialogContent className="sm:max-w-lg">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-yellow-400" />
+                Set Tournament Champions
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Select the winning team or individual champions for {championSelection.tournamentYear}.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Select Winning Team</Label>
+                <Select value={championSelection.selectedTeam} onValueChange={handleTeamSelection}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose a team..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(teams as any[]).map((team: any) => (
+                      <SelectItem key={team.id} value={team.id.toString()}>
+                        Team {team.teamNumber}: {team.player1Name} & {team.player2Name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {championSelection.selectedTeam && (
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Champions (select individual players)</Label>
+                  <div className="space-y-2">
+                    {(teams as any[]).find((team: any) => team.id.toString() === championSelection.selectedTeam) && (
+                      <>
+                        {[(teams as any[]).find((team: any) => team.id.toString() === championSelection.selectedTeam)?.player1Name,
+                          (teams as any[]).find((team: any) => team.id.toString() === championSelection.selectedTeam)?.player2Name].map((playerName: string) => (
+                          <div key={playerName} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id={playerName}
+                              checked={championSelection.selectedPlayers.includes(playerName)}
+                              onChange={() => handlePlayerToggle(playerName)}
+                              className="rounded border-gray-300 text-golf-green-600 focus:ring-golf-green-500"
+                            />
+                            <label htmlFor={playerName} className="text-sm">
+                              {playerName}
+                            </label>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Select both players if the entire team won, or individual players for specific achievements.
+                  </p>
+                </div>
+              )}
+            </div>
+            
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={closeChampionSelection}>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={saveChampions}
+                disabled={championSelection.selectedPlayers.length === 0}
+                className="bg-golf-green-600 hover:bg-golf-green-700"
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Set Champions
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* New Tournament Form */}
         {showNewTournamentForm && (

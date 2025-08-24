@@ -243,7 +243,7 @@ export default function Scores() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
-                    {scores.map((score: any) => (
+                    {(scores as any[]).map((score: any) => (
                       <tr key={score.id} className="hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                         <td className="px-3 sm:px-6 py-3 sm:py-4">{getRankBadge(score.rank)}</td>
                         <td className="px-3 sm:px-6 py-3 sm:py-4">
