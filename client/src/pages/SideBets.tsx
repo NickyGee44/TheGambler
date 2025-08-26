@@ -287,7 +287,7 @@ export default function SideBets() {
     let opponentTeamId = matchType === "team" ? parseInt(selectedOpponentTeam) : null;
     let challengerId = user?.id;
     let opponentId = matchType === "individual" ? 
-      registeredPlayers.find(p => `${p.firstName} ${p.lastName}` === selectedOpponentPlayer)?.userId : null;
+      registeredPlayers.find((p: any) => p.name === selectedOpponentPlayer)?.userId : null;
 
     createSideBetMutation.mutate({
       round: parseInt(selectedRound),
@@ -476,8 +476,8 @@ export default function SideBets() {
                         {registeredPlayers
                           .filter((player: any) => player.userId !== user?.id)
                           .map((player: any) => (
-                            <SelectItem key={player.userId} value={`${player.firstName} ${player.lastName}`}>
-                              {player.firstName} {player.lastName}
+                            <SelectItem key={player.userId} value={player.name}>
+                              {player.name}
                             </SelectItem>
                           ))}
                       </SelectContent>
@@ -525,9 +525,13 @@ export default function SideBets() {
                         <SelectValue placeholder="Select opponent" />
                       </SelectTrigger>
                       <SelectContent>
-                        {allPlayers.map((player, index) => (
-                          <SelectItem key={index} value={player}>{player}</SelectItem>
-                        ))}
+                        {registeredPlayers
+                          .filter((player: any) => player.userId !== user?.id)
+                          .map((player: any) => (
+                            <SelectItem key={player.userId} value={player.name}>
+                              {player.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
