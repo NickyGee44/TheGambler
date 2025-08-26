@@ -37,14 +37,13 @@ interface User {
 }
 
 export default function TournamentMatchups() {
-  const [randomSeed, setRandomSeed] = useState(0); // State to force re-randomization
   const { toast } = useToast();
   
   const { data: teams = [], isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ['/api/teams'],
   });
 
-  const { data: persistentMatchups = [], isLoading: matchupsLoading } = useQuery<any[]>({
+  const { data: persistentMatchups = [], isLoading: matchupsLoading, refetch: refetchMatchups } = useQuery<any[]>({
     queryKey: ['/api/matchups'],
     refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
   });
@@ -57,26 +56,7 @@ export default function TournamentMatchups() {
     queryKey: ['/api/user'],
   });
 
-  // Shuffle matchups mutation (Nick Grossi only)
-  const shuffleMatchupsMutation = useMutation({
-    mutationFn: async ({ round, matchups: shuffledMatchups }: { round: number; matchups: any[] }) => {
-      return await apiRequest('POST', '/api/matchups/shuffle', { round, matchups: shuffledMatchups });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/matchups'] });
-      toast({
-        title: "Matchups Shuffled",
-        description: "New tournament matchups have been generated",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Shuffle Failed",
-        description: error?.message || "Only Nick Grossi can shuffle matchups",
-        variant: "destructive",
-      });
-    },
-  });
+  // No longer needed - using direct API calls instead of mutation
 
   // Check if current user is Nick Grossi
   const isNickGrossi = currentUser && 
@@ -299,19 +279,62 @@ export default function TournamentMatchups() {
       return;
     }
     
-    // Generate new random matchups for the specified round
-    const newMatchups = generateRandomMatchupsForRound(round);
-    await shuffleMatchupsMutation.mutateAsync({ round, matchups: newMatchups });
+    try {
+      // The backend will generate the correct tournament matchups based on the round
+      const response = await apiRequest(`/api/matchups/shuffle`, 'POST', {
+        round
+      });
+      
+      if (response.ok) {
+        // Refetch matchups to get the updated data
+        refetchMatchups();
+        toast({
+          title: "Matchups Updated",
+          description: `Round ${round} matchups have been shuffled successfully.`,
+          variant: "default"
+        });
+      }
+    } catch (error: any) {
+      console.error('Error shuffling matchups:', error);
+      const errorMessage = error?.response?.data?.error || 'Failed to shuffle matchups. Please try again.';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    }
   };
 
-  const generateRandomMatchupsForRound = (round: number) => {
-    if (round === 1) {
-      return generateRound1Matchups();
-    } else if (round === 2) {
-      return generateRound2Matchups();
-    } else {
-      // Round 3 is fixed - cannot be shuffled
-      return [];
+  // Helper function to initialize Round 3 preset matchups (one-time only)
+  const handleInitializeRound3 = async () => {
+    if (!isNickGrossi) {
+      toast({
+        title: "Access Denied",
+        description: "Only Nick Grossi can initialize Round 3 matchups",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const response = await apiRequest(`/api/matchups/init-round3`, 'POST', {});
+      
+      if (response.ok) {
+        refetchMatchups();
+        toast({
+          title: "Round 3 Initialized",
+          description: "Round 3 preset groupings have been created successfully.",
+          variant: "default"
+        });
+      }
+    } catch (error: any) {
+      console.error('Error initializing Round 3:', error);
+      const errorMessage = error?.response?.data?.error || 'Failed to initialize Round 3 matchups.';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
     }
   };
 
@@ -424,10 +447,7 @@ export default function TournamentMatchups() {
 
 
 
-  // Function to randomize matchups
-  const handleRandomizeMatchups = () => {
-    setRandomSeed(Math.random() * 1000);
-  };
+  // Removed handleRandomizeMatchups - now using backend tournament algorithms
 
   if (teamsLoading || matchupsLoading || usersLoading) {
     return (
@@ -445,13 +465,12 @@ export default function TournamentMatchups() {
         <h1 className="text-3xl font-bold text-primary mb-2">Tournament Matchups & Groupings</h1>
         <p className="text-muted-foreground">Complete tournament schedule and pairings for all three rounds</p>
         
-        {/* Randomize Button - Only for Nick Grossi */}
+        {/* Tournament Controls - Only for Nick Grossi */}
         <div className="mt-4">
           {isNickGrossi && (
-            <div className="flex gap-2 justify-center">
+            <div className="flex gap-2 justify-center flex-wrap">
               <Button 
                 onClick={() => handleShuffleMatchups(1)}
-                disabled={shuffleMatchupsMutation.isPending}
                 variant="outline" 
                 size="sm"
                 className="flex items-center gap-2"
@@ -461,7 +480,6 @@ export default function TournamentMatchups() {
               </Button>
               <Button 
                 onClick={() => handleShuffleMatchups(2)}
-                disabled={shuffleMatchupsMutation.isPending}
                 variant="outline" 
                 size="sm"
                 className="flex items-center gap-2"
@@ -469,11 +487,20 @@ export default function TournamentMatchups() {
                 <Shuffle className="h-4 w-4" />
                 Shuffle Round 2
               </Button>
+              <Button 
+                onClick={handleInitializeRound3}
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Target className="h-4 w-4" />
+                Initialize Round 3
+              </Button>
             </div>
           )}
           {isNickGrossi && (
             <p className="text-xs text-muted-foreground mt-2">
-              Round 3 matchups are fixed and cannot be shuffled
+              Round 3 uses fixed preset groupings (Nick G, Nick C, James O, Johnny M)
             </p>
           )}
         </div>

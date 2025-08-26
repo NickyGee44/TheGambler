@@ -40,6 +40,192 @@ async function requireAuth(req: any, res: any, next: any) {
   return res.status(401).json({ error: 'Authentication required' });
 }
 
+// Tournament matchup generation algorithms
+async function generateRound3MatchupsOnce(storage: any) {
+  // Round 3 - Fixed preset groupings (only generate once, never shuffle)
+  const presetGroupings = [
+    {
+      groupNumber: 1,
+      players: [
+        { id: 13, name: "Nick Grossi" },      // Nick Grossi
+        { id: 19, name: "Nick Cook" },        // Nick Cook  
+        { id: 14, name: "James Ogilvie" },    // James Ogilvie
+        { id: 15, name: "Johnny Magnatta" }   // Johnny Magnatta
+      ]
+    },
+    {
+      groupNumber: 2,
+      players: [
+        { id: 20, name: "Connor Patterson" }, // Connor Patterson
+        { id: 16, name: "Erik Boudreau" },    // Erik Boudreau
+        { id: 21, name: "Christian Hauck" },  // Christian Hauck
+        { id: 22, name: "Spencer Reid" }      // Spencer Reid
+      ]
+    },
+    {
+      groupNumber: 3,
+      players: [
+        { id: 18, name: "Will Bibbings" },    // Will Bibbings
+        { id: 23, name: "Jeffrey Reiner" },   // Jeffrey Reiner
+        { id: 24, name: "Nic Huxley" },       // Nic Huxley
+        { id: 25, name: "Bailey Carlson" }    // Bailey Carlson
+      ]
+    }
+  ];
+
+  const matchups = [];
+  
+  for (const group of presetGroupings) {
+    // Create pairings within each foursome for Round 3 match play
+    for (let i = 0; i < group.players.length; i += 2) {
+      const player1 = group.players[i];
+      const player2 = group.players[i + 1];
+      
+      if (player1 && player2) {
+        matchups.push({
+          round: 3,
+          groupNumber: group.groupNumber,
+          player1Id: player1.id,
+          player2Id: player2.id,
+          player1Name: player1.name,
+          player2Name: player2.name
+        });
+      }
+    }
+  }
+  
+  return matchups;
+}
+
+async function generateRound2Matchups(storage: any) {
+  // Round 2 - Scramble format: Teams must stay together
+  const teams = [
+    { player1: { id: 13, name: "Nick Grossi" }, player2: { id: 20, name: "Connor Patterson" } },
+    { player1: { id: 21, name: "Christian Hauck" }, player2: { id: 25, name: "Bailey Carlson" } },
+    { player1: { id: 24, name: "Nic Huxley" }, player2: { id: 14, name: "James Ogilvie" } }, // Note: Mystery Player replaced with James
+    { player1: { id: 16, name: "Erik Boudreau" }, player2: { id: 18, name: "Will Bibbings" } },
+    { player1: { id: 19, name: "Nick Cook" }, player2: { id: 22, name: "Spencer Reid" } }, // Note: Kevin Durco replaced with Spencer
+    { player1: { id: 23, name: "Jeffrey Reiner" }, player2: { id: 15, name: "Johnny Magnatta" } }
+  ];
+
+  // Shuffle teams randomly
+  const shuffledTeams = [...teams].sort(() => Math.random() - 0.5);
+  const matchups = [];
+  
+  // Pair teams into foursomes (2 teams per foursome)
+  for (let i = 0; i < shuffledTeams.length; i += 2) {
+    const team1 = shuffledTeams[i];
+    const team2 = shuffledTeams[i + 1];
+    
+    if (team1 && team2) {
+      const groupNumber = Math.floor(i / 2) + 1;
+      
+      // Create pairings for this foursome
+      matchups.push({
+        round: 2,
+        groupNumber,
+        player1Id: team1.player1.id,
+        player2Id: team1.player2.id,
+        player1Name: team1.player1.name,
+        player2Name: team1.player2.name
+      });
+      
+      matchups.push({
+        round: 2,
+        groupNumber,
+        player1Id: team2.player1.id,
+        player2Id: team2.player2.id,
+        player1Name: team2.player1.name,
+        player2Name: team2.player2.name
+      });
+    }
+  }
+  
+  return matchups;
+}
+
+async function generateRound1Matchups(storage: any) {
+  // Round 1 - Random pairings that avoid overlaps with Round 2 & 3
+  const allPlayers = [
+    { id: 13, name: "Nick Grossi" },
+    { id: 14, name: "James Ogilvie" },
+    { id: 15, name: "Johnny Magnatta" },
+    { id: 16, name: "Erik Boudreau" },
+    { id: 18, name: "Will Bibbings" },
+    { id: 19, name: "Nick Cook" },
+    { id: 20, name: "Connor Patterson" },
+    { id: 21, name: "Christian Hauck" },
+    { id: 22, name: "Spencer Reid" },
+    { id: 23, name: "Jeffrey Reiner" },
+    { id: 24, name: "Nic Huxley" },
+    { id: 25, name: "Bailey Carlson" }
+  ];
+
+  // Get Round 2 and Round 3 pairs to avoid in Round 1
+  const round2Pairs = new Set();
+  const round3Pairs = new Set();
+  
+  // Round 2 teammates (should be together in Round 2, avoid in Round 1)
+  const teams = [
+    [13, 20], [21, 25], [24, 14], [16, 18], [19, 22], [23, 15]
+  ];
+  
+  teams.forEach(team => {
+    const pair = team.sort().join('-');
+    round2Pairs.add(pair);
+  });
+  
+  // Round 3 preset pairs (avoid in Round 1)
+  const round3Groups = [
+    [13, 19, 14, 15], // Nick Grossi, Nick Cook, James Ogilvie, Johnny Magnatta
+    [20, 16, 21, 22], // Connor Patterson, Erik Boudreau, Christian Hauck, Spencer Reid  
+    [18, 23, 24, 25]  // Will Bibbings, Jeffrey Reiner, Nic Huxley, Bailey Carlson
+  ];
+  
+  round3Groups.forEach(group => {
+    for (let i = 0; i < group.length; i++) {
+      for (let j = i + 1; j < group.length; j++) {
+        const pair = [group[i], group[j]].sort().join('-');
+        round3Pairs.add(pair);
+      }
+    }
+  });
+
+  // Generate random pairings with conflict avoidance
+  const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
+  const matchups = [];
+  let groupNumber = 1;
+  
+  for (let i = 0; i < shuffledPlayers.length; i += 4) {
+    const foursome = shuffledPlayers.slice(i, i + 4);
+    
+    if (foursome.length === 4) {
+      // Create pairs within the foursome
+      matchups.push({
+        round: 1,
+        groupNumber,
+        player1Id: foursome[0].id,
+        player2Id: foursome[1].id,
+        player1Name: foursome[0].name,
+        player2Name: foursome[1].name
+      });
+      
+      matchups.push({
+        round: 1,
+        groupNumber,
+        player1Id: foursome[2].id,
+        player2Id: foursome[3].id,
+        player1Name: foursome[2].name,
+        player2Name: foursome[3].name
+      });
+      
+      groupNumber++;
+    }
+  }
+  
+  return matchups;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   setupAuth(app);
@@ -632,6 +818,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Initialize Round 3 matchups (fixed preset groupings - only create once)
+  app.post('/api/matchups/init-round3', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user;
+      
+      // Check if user is Nick Grossi
+      if (!currentUser || currentUser.firstName !== 'Nick' || currentUser.lastName !== 'Grossi') {
+        return res.status(403).json({ error: 'Only Nick Grossi can initialize Round 3 matchups' });
+      }
+
+      // Check if Round 3 matchups already exist
+      const existingMatchups = await storage.getMatchups();
+      const round3Exists = existingMatchups.some(m => m.round === 3);
+      
+      if (round3Exists) {
+        return res.status(400).json({ error: 'Round 3 matchups already exist' });
+      }
+
+      // Generate the fixed Round 3 preset groupings
+      const round3Matchups = await generateRound3MatchupsOnce(storage);
+      const newMatchups = await storage.shuffleMatchupsForRound(3, round3Matchups);
+      
+      // Broadcast to all connected clients
+      broadcast({
+        type: 'MATCHUPS_SHUFFLED',
+        data: { round: 3, matchups: newMatchups }
+      });
+      
+      res.json(newMatchups);
+    } catch (error) {
+      console.error('Error initializing Round 3 matchups:', error);
+      res.status(500).json({ error: 'Failed to initialize Round 3 matchups' });
+    }
+  });
+
   app.post('/api/matchups', async (req, res) => {
     try {
       const matchup = await storage.createMatchup(req.body);
@@ -642,7 +863,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Shuffle matchups endpoint (Nick Grossi only)
+  // Shuffle matchups endpoint (Nick Grossi only) - Generates tournament-correct matchups
   app.post('/api/matchups/shuffle', requireAuth, async (req, res) => {
     try {
       const currentUser = req.user;
@@ -652,30 +873,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: 'Only Nick Grossi can shuffle matchups' });
       }
 
-      const { round, matchups: shuffledMatchups } = req.body;
+      const { round } = req.body;
       
-      console.log('Shuffle request received:', { round, matchupsCount: shuffledMatchups?.length });
-      console.log('Sample matchup data:', shuffledMatchups?.[0]);
+      console.log('Shuffle request received for round:', round);
       
-      if (!round || !Array.isArray(shuffledMatchups)) {
-        return res.status(400).json({ error: 'Round and matchups array required' });
+      if (!round) {
+        return res.status(400).json({ error: 'Round is required' });
       }
 
-      // Validate matchup structure
-      for (let i = 0; i < shuffledMatchups.length; i++) {
-        const matchup = shuffledMatchups[i];
-        if (!matchup.player1Id || !matchup.player2Id || !matchup.player1Name || !matchup.player2Name) {
-          console.error(`Invalid matchup at index ${i}:`, matchup);
-          return res.status(400).json({ 
-            error: `Invalid matchup structure at index ${i}. Missing required fields: player1Id, player2Id, player1Name, or player2Name` 
-          });
-        }
-        if (!matchup.round) {
-          shuffledMatchups[i].round = round; // Ensure round is set
-        }
+      // Round 3 cannot be shuffled - it has fixed preset groupings
+      if (round === 3) {
+        return res.status(400).json({ error: 'Round 3 has fixed preset groupings and cannot be shuffled' });
       }
 
-      const newMatchups = await storage.shuffleMatchupsForRound(round, shuffledMatchups);
+      let generatedMatchups = [];
+
+      if (round === 1) {
+        // Round 1: Random pairings that avoid overlaps with Round 2 & 3
+        generatedMatchups = await generateRound1Matchups(storage);
+      } else if (round === 2) {
+        // Round 2: Teams must stay together (scramble format)
+        generatedMatchups = await generateRound2Matchups(storage);
+      }
+
+      const newMatchups = await storage.shuffleMatchupsForRound(round, generatedMatchups);
       
       // Broadcast the shuffle to all connected clients
       broadcast({
