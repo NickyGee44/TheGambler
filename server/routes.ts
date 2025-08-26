@@ -654,8 +654,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { round, matchups: shuffledMatchups } = req.body;
       
+      console.log('Shuffle request received:', { round, matchupsCount: shuffledMatchups?.length });
+      console.log('Sample matchup data:', shuffledMatchups?.[0]);
+      
       if (!round || !Array.isArray(shuffledMatchups)) {
         return res.status(400).json({ error: 'Round and matchups array required' });
+      }
+
+      // Validate matchup structure
+      for (let i = 0; i < shuffledMatchups.length; i++) {
+        const matchup = shuffledMatchups[i];
+        if (!matchup.player1Id || !matchup.player2Id || !matchup.player1Name || !matchup.player2Name) {
+          console.error(`Invalid matchup at index ${i}:`, matchup);
+          return res.status(400).json({ 
+            error: `Invalid matchup structure at index ${i}. Missing required fields: player1Id, player2Id, player1Name, or player2Name` 
+          });
+        }
+        if (!matchup.round) {
+          shuffledMatchups[i].round = round; // Ensure round is set
+        }
       }
 
       const newMatchups = await storage.shuffleMatchupsForRound(round, shuffledMatchups);
@@ -669,7 +686,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(newMatchups);
     } catch (error) {
       console.error('Error shuffling matchups:', error);
-      res.status(500).json({ error: 'Failed to shuffle matchups' });
+      console.error('Full error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      res.status(500).json({ error: 'Failed to shuffle matchups', details: error.message });
     }
   });
 
