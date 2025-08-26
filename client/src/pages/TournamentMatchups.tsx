@@ -306,27 +306,120 @@ export default function TournamentMatchups() {
   };
 
   const generateRandomMatchupsForRound = (round: number) => {
-    // Create matchups based on teams and players
-    const matchups = [];
+    if (round === 1) {
+      return generateRound1Matchups();
+    } else if (round === 2) {
+      return generateRound2Matchups();
+    } else {
+      // Round 3 is fixed - cannot be shuffled
+      return [];
+    }
+  };
+
+  // Round 1: Completely random while minimizing player overlap
+  const generateRound1Matchups = () => {
+    const matchups: any[] = [];
     const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
+    let groupNumber = 1;
     
-    for (let i = 0; i < shuffledPlayers.length; i += 2) {
-      if (i + 1 < shuffledPlayers.length) {
-        const player1 = users.find(u => `${u.firstName} ${u.lastName}` === shuffledPlayers[i].name);
-        const player2 = users.find(u => `${u.firstName} ${u.lastName}` === shuffledPlayers[i + 1].name);
+    // Create foursomes (4 players each)
+    for (let i = 0; i < shuffledPlayers.length; i += 4) {
+      const foursome = shuffledPlayers.slice(i, i + 4);
+      
+      if (foursome.length === 4) {
+        // Create 2 pairs within the foursome
+        const pairs = [
+          [foursome[0], foursome[1]], // Pair 1
+          [foursome[2], foursome[3]]  // Pair 2
+        ];
         
-        if (player1 && player2) {
-          matchups.push({
-            round,
-            groupNumber: Math.floor(i / 2) + 1,
-            player1Id: player1.id,
-            player2Id: player2.id,
-            player1Data: JSON.stringify({ name: player1.firstName + ' ' + player1.lastName, userId: player1.id }),
-            player2Data: JSON.stringify({ name: player2.firstName + ' ' + player2.lastName, userId: player2.id }),
+        pairs.forEach((pair, pairIndex) => {
+          const player1 = users?.find(u => `${u.firstName} ${u.lastName}` === pair[0].name);
+          const player2 = users?.find(u => `${u.firstName} ${u.lastName}` === pair[1].name);
+          
+          if (player1 && player2) {
+            matchups.push({
+              round: 1,
+              groupNumber,
+              player1Id: player1.id,
+              player2Id: player2.id,
+              player1Data: JSON.stringify({ name: `${player1.firstName} ${player1.lastName}`, userId: player1.id }),
+              player2Data: JSON.stringify({ name: `${player2.firstName} ${player2.lastName}`, userId: player2.id }),
+            });
+          }
+        });
+        
+        groupNumber++;
+      }
+    }
+    
+    return matchups;
+  };
+
+  // Round 2: Scramble format - teammates must be paired together
+  const generateRound2Matchups = () => {
+    const matchups: any[] = [];
+    const teamPairs: any[] = [];
+    
+    // First, create pairs from each team (teammates together)
+    teams?.forEach(team => {
+      const teamPlayers = allPlayers.filter(p => p.team === team.teamNumber);
+      
+      // Create pairs within each team (2 players per pair for scramble)
+      for (let i = 0; i < teamPlayers.length; i += 2) {
+        if (i + 1 < teamPlayers.length) {
+          teamPairs.push({
+            teamId: team.teamNumber,
+            players: [teamPlayers[i], teamPlayers[i + 1]]
           });
         }
       }
+    });
+    
+    // Shuffle team pairs to create random foursomes
+    const shuffledTeamPairs = [...teamPairs].sort(() => Math.random() - 0.5);
+    let groupNumber = 1;
+    
+    // Group team pairs into foursomes (2 team pairs = 4 players)
+    for (let i = 0; i < shuffledTeamPairs.length; i += 2) {
+      if (i + 1 < shuffledTeamPairs.length) {
+        const teamPair1 = shuffledTeamPairs[i];
+        const teamPair2 = shuffledTeamPairs[i + 1];
+        
+        // Create matchup for first team pair
+        const team1Player1 = users?.find(u => `${u.firstName} ${u.lastName}` === teamPair1.players[0].name);
+        const team1Player2 = users?.find(u => `${u.firstName} ${u.lastName}` === teamPair1.players[1].name);
+        
+        // Create matchup for second team pair
+        const team2Player1 = users?.find(u => `${u.firstName} ${u.lastName}` === teamPair2.players[0].name);
+        const team2Player2 = users?.find(u => `${u.firstName} ${u.lastName}` === teamPair2.players[1].name);
+        
+        if (team1Player1 && team1Player2) {
+          matchups.push({
+            round: 2,
+            groupNumber,
+            player1Id: team1Player1.id,
+            player2Id: team1Player2.id,
+            player1Data: JSON.stringify({ name: `${team1Player1.firstName} ${team1Player1.lastName}`, userId: team1Player1.id }),
+            player2Data: JSON.stringify({ name: `${team1Player2.firstName} ${team1Player2.lastName}`, userId: team1Player2.id }),
+          });
+        }
+        
+        if (team2Player1 && team2Player2) {
+          matchups.push({
+            round: 2,
+            groupNumber,
+            player1Id: team2Player1.id,
+            player2Id: team2Player2.id,
+            player1Data: JSON.stringify({ name: `${team2Player1.firstName} ${team2Player1.lastName}`, userId: team2Player1.id }),
+            player2Data: JSON.stringify({ name: `${team2Player2.firstName} ${team2Player2.lastName}`, userId: team2Player2.id }),
+          });
+        }
+        
+        groupNumber++;
+      }
     }
+    
     return matchups;
   };
 
@@ -377,17 +470,12 @@ export default function TournamentMatchups() {
                 <Shuffle className="h-4 w-4" />
                 Shuffle Round 2
               </Button>
-              <Button 
-                onClick={() => handleShuffleMatchups(3)}
-                disabled={shuffleMatchupsMutation.isPending}
-                variant="outline" 
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <Shuffle className="h-4 w-4" />
-                Shuffle Round 3
-              </Button>
             </div>
+          )}
+          {isNickGrossi && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Round 3 matchups are fixed and cannot be shuffled
+            </p>
           )}
         </div>
       </div>
