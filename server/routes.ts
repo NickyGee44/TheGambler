@@ -591,6 +591,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Shuffle matchups endpoint (Nick Grossi only)
+  app.post('/api/matchups/shuffle', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user;
+      
+      // Check if user is Nick Grossi
+      if (!currentUser || currentUser.firstName !== 'Nick' || currentUser.lastName !== 'Grossi') {
+        return res.status(403).json({ error: 'Only Nick Grossi can shuffle matchups' });
+      }
+
+      const { round, matchups: shuffledMatchups } = req.body;
+      
+      if (!round || !Array.isArray(shuffledMatchups)) {
+        return res.status(400).json({ error: 'Round and matchups array required' });
+      }
+
+      const newMatchups = await storage.shuffleMatchupsForRound(round, shuffledMatchups);
+      
+      // Broadcast the shuffle to all connected clients
+      broadcast({
+        type: 'MATCHUPS_SHUFFLED',
+        data: { round, matchups: newMatchups }
+      });
+      
+      res.json(newMatchups);
+    } catch (error) {
+      console.error('Error shuffling matchups:', error);
+      res.status(500).json({ error: 'Failed to shuffle matchups' });
+    }
+  });
+
   app.put('/api/matchups/:id/score', requireAuth, async (req: any, res) => {
     try {
       const matchupId = parseInt(req.params.id);

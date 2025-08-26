@@ -1,10 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Users, Trophy, Target, Shuffle } from "lucide-react";
 import { useState } from "react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface Team {
   id: number;
@@ -36,13 +38,15 @@ interface User {
 
 export default function TournamentMatchups() {
   const [randomSeed, setRandomSeed] = useState(0); // State to force re-randomization
+  const { toast } = useToast();
   
   const { data: teams = [], isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ['/api/teams'],
   });
 
-  const { data: matchups = [], isLoading: matchupsLoading } = useQuery<MatchPlayMatch[]>({
+  const { data: persistentMatchups = [], isLoading: matchupsLoading } = useQuery({
     queryKey: ['/api/matchups'],
+    refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
   });
 
   const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
@@ -52,6 +56,32 @@ export default function TournamentMatchups() {
   const { data: currentUser } = useQuery({
     queryKey: ['/api/user'],
   });
+
+  // Shuffle matchups mutation (Nick Grossi only)
+  const shuffleMatchupsMutation = useMutation({
+    mutationFn: async ({ round, matchups: shuffledMatchups }: { round: number; matchups: any[] }) => {
+      return await apiRequest('POST', '/api/matchups/shuffle', { round, matchups: shuffledMatchups });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/matchups'] });
+      toast({
+        title: "Matchups Shuffled",
+        description: "New tournament matchups have been generated",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Shuffle Failed",
+        description: error?.message || "Only Nick Grossi can shuffle matchups",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Check if current user is Nick Grossi
+  const isNickGrossi = currentUser && 
+    currentUser.firstName === 'Nick' && 
+    currentUser.lastName === 'Grossi';
 
   // Create user lookup map
   const userMap = users.reduce((acc, user) => {
@@ -69,7 +99,7 @@ export default function TournamentMatchups() {
   const playerIdToNameMap: Record<number, string> = {};
   const playerIdToHandicapMap: Record<number, number> = {};
   
-  // Map known user IDs to names from teams
+  // Map known user IDs to names from teams, using database handicaps from users
   teams.forEach(team => {
     // Find users for this team by matching names
     const player1User = users.find(u => `${u.firstName} ${u.lastName}` === team.player1Name);
@@ -77,11 +107,13 @@ export default function TournamentMatchups() {
     
     if (player1User) {
       playerIdToNameMap[player1User.id] = team.player1Name;
-      playerIdToHandicapMap[player1User.id] = team.player1Handicap;
+      // Use handicap from users database (most accurate) instead of teams table
+      playerIdToHandicapMap[player1User.id] = player1User.handicap || team.player1Handicap;
     }
     if (player2User) {
       playerIdToNameMap[player2User.id] = team.player2Name;
-      playerIdToHandicapMap[player2User.id] = team.player2Handicap;
+      // Use handicap from users database (most accurate) instead of teams table
+      playerIdToHandicapMap[player2User.id] = player2User.handicap || team.player2Handicap;
     }
   });
 
@@ -89,14 +121,29 @@ export default function TournamentMatchups() {
     return playerIdToNameMap[userId] || `Player ${userId}`;
   };
 
-  // Track Round 3 pairings to avoid conflicts
+  // Use persistent matchups from database
+  const getPlayerHandicap = (userId: number) => {
+    const user = users.find(u => u.id === userId);
+    return user?.handicap || playerIdToHandicapMap[userId] || 0;
+  };
+
+  // Display persistent matchups by round
+  const matchupsByRound = persistentMatchups.reduce((acc: any, matchup: any) => {
+    if (!acc[matchup.round]) acc[matchup.round] = [];
+    acc[matchup.round].push(matchup);
+    return acc;
+  }, {});
+
+  // Track Round 3 pairings to avoid conflicts (for legacy algorithm display)
   const round3Pairings = new Set<string>();
-  matchups.forEach(match => {
-    const player1Name = getPlayerName(match.player1_id);
-    const player2Name = getPlayerName(match.player2_id);
-    if (player1Name && player2Name) {
-      const pair = [player1Name, player2Name].sort().join('|');
-      round3Pairings.add(pair);
+  (persistentMatchups || []).forEach((match: any) => {
+    if (match.round === 3) {
+      const player1Name = getPlayerName(match.player1Id);
+      const player2Name = getPlayerName(match.player2Id);
+      if (player1Name && player2Name) {
+        const pair = [player1Name, player2Name].sort().join('|');
+        round3Pairings.add(pair);
+      }
     }
   });
 
@@ -242,21 +289,48 @@ export default function TournamentMatchups() {
 
   const round2Foursomes = teams.length >= 4 ? generateRound2Foursomes() : [];
 
-  // Group Round 3 matchups by hole segments
-  const round3Segments = {
-    '1-6': matchups.filter(m => m.hole_segment === '1-6'),
-    '7-12': matchups.filter(m => m.hole_segment === '7-12'),
-    '13-18': matchups.filter(m => m.hole_segment === '13-18')
+  // Helper function to shuffle matchups for Nick Grossi
+  const handleShuffleMatchups = async (round: number) => {
+    if (!isNickGrossi) {
+      toast({
+        title: "Access Denied",
+        description: "Only Nick Grossi can shuffle matchups",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Generate new random matchups for the specified round
+    const newMatchups = generateRandomMatchupsForRound(round);
+    await shuffleMatchupsMutation.mutateAsync({ round, matchups: newMatchups });
   };
 
-  const getPlayerHandicap = (userId: number) => {
-    return playerIdToHandicapMap[userId] || 0;
+  const generateRandomMatchupsForRound = (round: number) => {
+    // Create matchups based on teams and players
+    const matchups = [];
+    const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
+    
+    for (let i = 0; i < shuffledPlayers.length; i += 2) {
+      if (i + 1 < shuffledPlayers.length) {
+        const player1 = users.find(u => `${u.firstName} ${u.lastName}` === shuffledPlayers[i].name);
+        const player2 = users.find(u => `${u.firstName} ${u.lastName}` === shuffledPlayers[i + 1].name);
+        
+        if (player1 && player2) {
+          matchups.push({
+            round,
+            groupNumber: Math.floor(i / 2) + 1,
+            player1Id: player1.id,
+            player2Id: player2.id,
+            player1Data: JSON.stringify({ name: player1.firstName + ' ' + player1.lastName, userId: player1.id }),
+            player2Data: JSON.stringify({ name: player2.firstName + ' ' + player2.lastName, userId: player2.id }),
+          });
+        }
+      }
+    }
+    return matchups;
   };
 
-  // Check if current user is Nick Grossi
-  const isNickGrossi = currentUser && 
-    currentUser.firstName === "Nick" && 
-    currentUser.lastName === "Grossi";
+
 
   // Function to randomize matchups
   const handleRandomizeMatchups = () => {
@@ -281,19 +355,39 @@ export default function TournamentMatchups() {
         
         {/* Randomize Button - Only for Nick Grossi */}
         <div className="mt-4">
-          <Button
-            onClick={handleRandomizeMatchups}
-            disabled={!isNickGrossi}
-            variant={isNickGrossi ? "default" : "secondary"}
-            className={`${!isNickGrossi ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <Shuffle className="h-4 w-4 mr-2" />
-            Randomize Round 1 & 3 Matchups
-          </Button>
-          {!isNickGrossi && (
-            <p className="text-xs text-muted-foreground mt-2">
-              Only Nick Grossi can randomize matchups
-            </p>
+          {isNickGrossi && (
+            <div className="flex gap-2 justify-center">
+              <Button 
+                onClick={() => handleShuffleMatchups(1)}
+                disabled={shuffleMatchupsMutation.isPending}
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Shuffle className="h-4 w-4" />
+                Shuffle Round 1
+              </Button>
+              <Button 
+                onClick={() => handleShuffleMatchups(2)}
+                disabled={shuffleMatchupsMutation.isPending}
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Shuffle className="h-4 w-4" />
+                Shuffle Round 2
+              </Button>
+              <Button 
+                onClick={() => handleShuffleMatchups(3)}
+                disabled={shuffleMatchupsMutation.isPending}
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Shuffle className="h-4 w-4" />
+                Shuffle Round 3
+              </Button>
+            </div>
           )}
         </div>
       </div>
@@ -382,77 +476,93 @@ export default function TournamentMatchups() {
         </CardContent>
       </Card>
 
-      {/* Round 3 - Match Play */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-amber-600" />
-            Round 3 - Match Play Format
-          </CardTitle>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <CalendarDays className="h-4 w-4" />
-            August 31, 2025 • Muskoka Bay Golf Club
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {[
-            {
-              name: "Group 1",
-              players: [
-                { name: "Jordan Kreller", handicap: 6 },
-                { name: "Christian Hauck", handicap: 5 }, 
-                { name: "Connor Patterson", handicap: 4 },
-                { name: "Mystery Player", handicap: 6 }
-              ]
-            },
-            {
-              name: "Group 2", 
-              players: [
-                { name: "Spencer Reid", handicap: 16 },
-                { name: "Jeffrey Reiner", handicap: 9 },
-                { name: "Kevin Durco", handicap: 3 },
-                { name: "Erik Boudreau", handicap: 10 }
-              ]
-            },
-            {
-              name: "Group 3",
-              players: [
-                { name: "Sye Ellard", handicap: 18 },
-                { name: "Will Bibbings", handicap: 5 },
-                { name: "Nic Huxley", handicap: 15 },
-                { name: "Bailey Carlson", handicap: 17 }
-              ]
-            },
-            {
-              name: "Group 4",
-              players: [
-                { name: "Nick Grossi", handicap: 16 },
-                { name: "Nick Cook", handicap: 12 },
-                { name: "Johnny Magnatta", handicap: 11 },
-                { name: "James Ogilvie", handicap: 17 }
-              ]
-            }
-          ].map((group, index) => (
-            <div key={index}>
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                {group.name}
-              </h3>
-              <div className="border rounded-lg p-4 bg-amber-50 dark:bg-amber-950">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {group.players.map((player, playerIndex) => (
-                    <div key={playerIndex} className="flex items-center justify-between p-2 bg-white dark:bg-amber-900 rounded">
-                      <span className="font-medium">{player.name}</span>
-                      <span className="text-sm text-muted-foreground">({player.handicap} hcp)</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {index < 3 && <Separator className="mt-6" />}
+      {/* Persistent Database Matchups - All Rounds */}
+      {Object.keys(matchupsByRound).map(round => (
+        <Card key={round}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-blue-600" />
+              Round {round} - Database Matchups
+              {isNickGrossi && (
+                <Button 
+                  onClick={() => handleShuffleMatchups(parseInt(round))}
+                  disabled={shuffleMatchupsMutation.isPending}
+                  variant="outline" 
+                  size="sm"
+                  className="ml-auto"
+                >
+                  <Shuffle className="h-4 w-4 mr-1" />
+                  Shuffle
+                </Button>
+              )}
+            </CardTitle>
+            <div className="text-sm text-muted-foreground">
+              Persistent matchups stored in database • Shared across all users
             </div>
-          ))}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {matchupsByRound[round].length > 0 ? (
+              matchupsByRound[round].map((matchup: any, index: number) => (
+                <div key={matchup.id} className="border rounded-lg p-4 bg-blue-50 dark:bg-blue-950">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Badge variant="outline" className="font-semibold">
+                        Group {matchup.groupNumber}
+                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-blue-700 dark:text-blue-300">
+                          {getPlayerName(matchup.player1Id)}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          ({getPlayerHandicap(matchup.player1Id)} hcp)
+                        </span>
+                      </div>
+                      <span className="text-muted-foreground">vs</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-blue-700 dark:text-blue-300">
+                          {getPlayerName(matchup.player2Id)}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          ({getPlayerHandicap(matchup.player2Id)} hcp)
+                        </span>
+                      </div>
+                    </div>
+                    {matchup.player1Score !== null && matchup.player2Score !== null && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">
+                          {matchup.player1Score} - {matchup.player2Score}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                  {matchup.createdAt && (
+                    <div className="text-xs text-muted-foreground mt-2">
+                      Created: {new Date(matchup.createdAt).toLocaleString()}
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                No matchups created for Round {round} yet.
+                {isNickGrossi && (
+                  <div className="mt-2">
+                    <Button 
+                      onClick={() => handleShuffleMatchups(parseInt(round))}
+                      disabled={shuffleMatchupsMutation.isPending}
+                      variant="outline" 
+                      size="sm"
+                    >
+                      <Shuffle className="h-4 w-4 mr-1" />
+                      Create Round {round} Matchups
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ))}
 
     </div>
   );

@@ -4,7 +4,7 @@ import {
   scores,
   sideBets,
   photos,
-
+  matchups,
   holeScores,
   tournaments,
   playerTournamentHistory,
@@ -21,7 +21,8 @@ import {
   type Score,
   type SideBet,
   type Photo,
-
+  type Matchup,
+  type InsertMatchup,
   type HoleScore,
   type Tournament,
   type PlayerTournamentHistory,
@@ -102,10 +103,12 @@ export interface IStorage {
   getPhotos(): Promise<Photo[]>;
   createPhoto(photo: InsertPhoto): Promise<Photo>;
   
-  // Matchups - temporarily disabled
-  // getMatchups(): Promise<Matchup[]>;
-  // createMatchup(matchup: InsertMatchup): Promise<Matchup>;
-  // updateMatchupScore(matchupId: number, player1Score: number, player2Score: number): Promise<Matchup>;
+  // Matchups - persistent storage
+  getMatchups(): Promise<Matchup[]>;
+  createMatchup(matchup: InsertMatchup): Promise<Matchup>;
+  updateMatchupScore(matchupId: number, player1Score: number, player2Score: number): Promise<Matchup>;
+  clearAllMatchups(): Promise<void>;
+  shuffleMatchupsForRound(round: number, shuffledMatchups: InsertMatchup[]): Promise<Matchup[]>;
   
   // Match Play (Round 3)
   getMatchPlayGroups(): Promise<MatchPlayGroup[]>;
@@ -2202,57 +2205,53 @@ export class DatabaseStorage implements IStorage {
     return photo;
   }
 
-  async getMatchups(): Promise<any[]> {
-    // Query the actual database match_play_matches table with corrected stroke allocations
-    const matches = await db.execute(sql`
-      SELECT 
-        id, 
-        player1_id, 
-        player2_id, 
-        hole_segment,
-        handicap_difference,
-        strokes_given,
-        stroke_recipient_id,
-        stroke_holes,
-        created_at
-      FROM match_play_matches 
-      ORDER BY id
-    `);
-    return matches.rows as any[];
+  async getMatchups(): Promise<Matchup[]> {
+    return await db.select().from(matchups).orderBy(matchups.round, matchups.groupNumber);
   }
 
   async createMatchup(insertMatchup: InsertMatchup): Promise<Matchup> {
-    const matchup: Matchup = {
-      id: this.currentMatchupId++,
-      ...insertMatchup,
-      player1Score: insertMatchup.player1Score || null,
-      player2Score: insertMatchup.player2Score || null,
-      winner: insertMatchup.winner || null,
-      createdAt: new Date(),
-    };
-    this.matchups.set(matchup.id, matchup);
-    return matchup;
+    const [newMatchup] = await db
+      .insert(matchups)
+      .values(insertMatchup)
+      .returning();
+    return newMatchup;
   }
 
   async updateMatchupScore(matchupId: number, player1Score: number, player2Score: number): Promise<Matchup> {
-    const existingMatchup = this.matchups.get(matchupId);
-    if (!existingMatchup) {
+    const [updatedMatchup] = await db
+      .update(matchups)
+      .set({ 
+        player1Score,
+        player2Score
+      })
+      .where(eq(matchups.id, matchupId))
+      .returning();
+    
+    if (!updatedMatchup) {
       throw new Error(`Matchup with id ${matchupId} not found`);
     }
-
-    const winner = player1Score < player2Score ? existingMatchup.player1 :
-                   player2Score < player1Score ? existingMatchup.player2 : 
-                   'Tie';
-
-    const updatedMatchup: Matchup = {
-      ...existingMatchup,
-      player1Score,
-      player2Score,
-      winner,
-    };
-
-    this.matchups.set(matchupId, updatedMatchup);
+    
     return updatedMatchup;
+  }
+
+  async clearAllMatchups(): Promise<void> {
+    await db.delete(matchups);
+  }
+
+  async shuffleMatchupsForRound(round: number, shuffledMatchups: InsertMatchup[]): Promise<Matchup[]> {
+    // Clear existing matchups for this round
+    await db.delete(matchups).where(eq(matchups.round, round));
+    
+    // Insert new shuffled matchups
+    if (shuffledMatchups.length > 0) {
+      const newMatchups = await db
+        .insert(matchups)
+        .values(shuffledMatchups)
+        .returning();
+      return newMatchups;
+    }
+    
+    return [];
   }
 
   // Match Play Methods (Round 3)
