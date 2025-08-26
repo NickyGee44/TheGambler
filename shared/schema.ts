@@ -326,3 +326,25 @@ export type BoozelympicsMatch = typeof boozelympicsMatches.$inferSelect;
 export type InsertBoozelympicsMatch = z.infer<typeof insertBoozelympicsMatchSchema>;
 export type GolfRelayMatch = typeof golfRelayMatches.$inferSelect;
 export type InsertGolfRelayMatch = z.infer<typeof insertGolfRelayMatchSchema>;
+
+// Tournament matchups table
+export const matchups = pgTable("matchups", {
+  id: serial("id").primaryKey(),
+  round: integer("round").notNull(),
+  player1Id: integer("player1_id").notNull().references(() => users.id),
+  player2Id: integer("player2_id").notNull().references(() => users.id),
+  player1Name: varchar("player1_name", { length: 100 }).notNull(),
+  player2Name: varchar("player2_name", { length: 100 }).notNull(),
+  player1Score: integer("player1_score").default(0),
+  player2Score: integer("player2_score").default(0),
+  groupNumber: integer("group_number"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertMatchupSchema = createInsertSchema(matchups).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type Matchup = typeof matchups.$inferSelect;
+export type InsertMatchup = z.infer<typeof insertMatchupSchema>;

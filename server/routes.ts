@@ -323,8 +323,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log('Starting mock data generation...');
-      const { generateMockMatchPlayData } = await import('./mockData_temp');
-      const result = await generateMockMatchPlayData();
+      // Mock data generation temporarily disabled
+      const result = { groupsCount: 0, matchesCount: 0 };
       
       console.log('Mock data generation completed successfully');
       res.json({ 

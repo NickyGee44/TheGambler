@@ -102,10 +102,10 @@ export interface IStorage {
   getPhotos(): Promise<Photo[]>;
   createPhoto(photo: InsertPhoto): Promise<Photo>;
   
-  // Matchups
-  getMatchups(): Promise<Matchup[]>;
-  createMatchup(matchup: InsertMatchup): Promise<Matchup>;
-  updateMatchupScore(matchupId: number, player1Score: number, player2Score: number): Promise<Matchup>;
+  // Matchups - temporarily disabled
+  // getMatchups(): Promise<Matchup[]>;
+  // createMatchup(matchup: InsertMatchup): Promise<Matchup>;
+  // updateMatchupScore(matchupId: number, player1Score: number, player2Score: number): Promise<Matchup>;
   
   // Match Play (Round 3)
   getMatchPlayGroups(): Promise<MatchPlayGroup[]>;
@@ -918,17 +918,25 @@ export class DatabaseStorage implements IStorage {
   async getMatchPlayLeaderboard(): Promise<any[]> {
     console.log('🏆 Getting match play leaderboard with new per-hole calculation');
     
-    // Get all users and their teams for initialization
-    const allUsers = await db.select({
-      user: users,
-      team: teams,
-    }).from(users)
-      .innerJoin(teams, eq(users.teamId, teams.id));
+    // Get all users and find their teams by name matching
+    const allUsers = await db.select().from(users);
+    const allTeams = await db.select().from(teams);
+    
+    const userTeamPairs = [];
+    for (const user of allUsers) {
+      const userName = `${user.firstName} ${user.lastName}`;
+      const userTeam = allTeams.find(team => 
+        team.player1Name === userName || team.player2Name === userName
+      );
+      if (userTeam) {
+        userTeamPairs.push({ user, team: userTeam });
+      }
+    }
     
     // Calculate points for each player using new per-hole system
     const playerStats = [];
     
-    for (const userTeam of allUsers) {
+    for (const userTeam of userTeamPairs) {
       const matchPoints = await this.calculatePlayerMatchPlayPoints(userTeam.user.id);
       
       // Count matches played and segments won
