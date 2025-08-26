@@ -44,7 +44,7 @@ export default function TournamentMatchups() {
     queryKey: ['/api/teams'],
   });
 
-  const { data: persistentMatchups = [], isLoading: matchupsLoading } = useQuery({
+  const { data: persistentMatchups = [], isLoading: matchupsLoading } = useQuery<any[]>({
     queryKey: ['/api/matchups'],
     refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
   });
@@ -53,7 +53,7 @@ export default function TournamentMatchups() {
     queryKey: ['/api/users'],
   });
 
-  const { data: currentUser } = useQuery({
+  const { data: currentUser } = useQuery<User>({
     queryKey: ['/api/user'],
   });
 
@@ -343,8 +343,8 @@ export default function TournamentMatchups() {
               groupNumber,
               player1Id: player1.id,
               player2Id: player2.id,
-              player1Data: JSON.stringify({ name: `${player1.firstName} ${player1.lastName}`, userId: player1.id }),
-              player2Data: JSON.stringify({ name: `${player2.firstName} ${player2.lastName}`, userId: player2.id }),
+              player1Name: `${player1.firstName} ${player1.lastName}`,
+              player2Name: `${player2.firstName} ${player2.lastName}`,
             });
           }
         });
@@ -400,8 +400,8 @@ export default function TournamentMatchups() {
             groupNumber,
             player1Id: team1Player1.id,
             player2Id: team1Player2.id,
-            player1Data: JSON.stringify({ name: `${team1Player1.firstName} ${team1Player1.lastName}`, userId: team1Player1.id }),
-            player2Data: JSON.stringify({ name: `${team1Player2.firstName} ${team1Player2.lastName}`, userId: team1Player2.id }),
+            player1Name: `${team1Player1.firstName} ${team1Player1.lastName}`,
+            player2Name: `${team1Player2.firstName} ${team1Player2.lastName}`,
           });
         }
         
@@ -411,8 +411,8 @@ export default function TournamentMatchups() {
             groupNumber,
             player1Id: team2Player1.id,
             player2Id: team2Player2.id,
-            player1Data: JSON.stringify({ name: `${team2Player1.firstName} ${team2Player1.lastName}`, userId: team2Player1.id }),
-            player2Data: JSON.stringify({ name: `${team2Player2.firstName} ${team2Player2.lastName}`, userId: team2Player2.id }),
+            player1Name: `${team2Player1.firstName} ${team2Player1.lastName}`,
+            player2Name: `${team2Player2.firstName} ${team2Player2.lastName}`,
           });
         }
         
