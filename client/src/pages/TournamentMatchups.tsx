@@ -204,23 +204,22 @@ export default function TournamentMatchups() {
     return foursomes;
   };
 
-  const round1Foursomes = allPlayers.length >= 16 ? generateRound1Foursomes() : [];
+  // Don't generate random foursomes - only use persistent database matchups
 
-  // Track Round 1 pairings to avoid conflicts in Round 2
-  const round1Pairings = new Set<string>();
-  round1Foursomes.forEach(foursome => {
-    for (let i = 0; i < foursome.players.length; i++) {
-      for (let j = i + 1; j < foursome.players.length; j++) {
-        const pair = [foursome.players[i].name, foursome.players[j].name].sort().join('|');
-        round1Pairings.add(pair);
+  // No longer needed - using persistent database matchups only
+
+  // Helper function to check if two players played together in Round 1 (using persistent data)
+  const areInRound1Together = (name1: string, name2: string) => {
+    const round1Matches = matchupsByRound[1] || [];
+    for (const match of round1Matches) {
+      const player1Name = getPlayerName(match.player1Id);
+      const player2Name = getPlayerName(match.player2Id);
+      if ((player1Name === name1 && player2Name === name2) || 
+          (player1Name === name2 && player2Name === name1)) {
+        return true;
       }
     }
-  });
-
-  // Helper function to check if two players played together in Round 1
-  const areInRound1Together = (name1: string, name2: string) => {
-    const pair = [name1, name2].sort().join('|');
-    return round1Pairings.has(pair);
+    return false;
   };
 
   // Generate optimized Round 2 foursomes (minimize overlaps with Round 1 and 3)
@@ -287,7 +286,7 @@ export default function TournamentMatchups() {
     return foursomes;
   };
 
-  const round2Foursomes = teams.length >= 4 ? generateRound2Foursomes() : [];
+  // Don't generate random foursomes - only use persistent database matchups
 
   // Helper function to shuffle matchups for Nick Grossi
   const handleShuffleMatchups = async (round: number) => {
@@ -493,28 +492,55 @@ export default function TournamentMatchups() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {round1Foursomes.map((foursome, index) => (
-            <div key={index}>
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                {foursome.name}
-              </h3>
-              <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-950">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {foursome.players.map((player, playerIndex) => (
-                    <div key={playerIndex} className="flex items-center justify-between p-2 bg-white dark:bg-green-900 rounded">
-                      <span className="font-medium">{player.name}</span>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">Team {player.team}</Badge>
-                        <span className="text-sm text-muted-foreground">({player.handicap} hcp)</span>
+          {/* Display persistent Round 1 matchups from database */}
+          {Object.entries(matchupsByRound[1] || {}).length > 0 ? (
+            Object.entries(
+              (matchupsByRound[1] || []).reduce((acc: any, matchup: any) => {
+                const group = matchup.groupNumber || 1;
+                if (!acc[group]) acc[group] = [];
+                acc[group].push(matchup);
+                return acc;
+              }, {})
+            ).map(([groupNum, groupMatchups]: [string, any]) => (
+              <div key={`round1-group-${groupNum}`}>
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Foursome {groupNum}
+                </h3>
+                <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-950">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {groupMatchups.map((matchup: any, matchupIndex: number) => (
+                      <div key={`round1-matchup-${matchup.id}`} className="bg-white dark:bg-gray-800 rounded-lg p-3 border">
+                        <div className="text-sm font-medium text-green-700 dark:text-green-300 mb-2">
+                          Pair {matchupIndex + 1}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{getPlayerName(matchup.player1Id)}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {getPlayerHandicap(matchup.player1Id)} hcp
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{getPlayerName(matchup.player2Id)}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {getPlayerHandicap(matchup.player2Id)} hcp
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-              {index < round1Foursomes.length - 1 && <Separator className="mt-6" />}
+            ))
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No Round 1 matchups generated yet.</p>
+              {isNickGrossi && <p className="text-sm">Use the "Shuffle Round 1" button to create matchups.</p>}
             </div>
-          ))}
+          )}
         </CardContent>
       </Card>
 
@@ -531,36 +557,55 @@ export default function TournamentMatchups() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {round2Foursomes.map((foursome, index) => (
-            <div key={index}>
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                {foursome.name}
-                {foursome.conflicts !== undefined && (
-                  <Badge variant={foursome.conflicts > 0 ? "destructive" : "secondary"} className="ml-2 text-xs">
-                    {foursome.conflicts === 0 ? "Optimized" : `${foursome.conflicts} Conflicts`}
-                  </Badge>
-                )}
-                {foursome.teams && (
-                  <span className="text-xs text-muted-foreground ml-2">({foursome.teams})</span>
-                )}
-              </h3>
-              <div className="border rounded-lg p-4 bg-blue-50 dark:bg-blue-950">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {foursome.players.map((player, playerIndex) => (
-                    <div key={playerIndex} className="flex items-center justify-between p-2 bg-white dark:bg-blue-900 rounded">
-                      <span className="font-medium">{player.name}</span>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">Team {player.team}</Badge>
-                        <span className="text-sm text-muted-foreground">({player.handicap} hcp)</span>
+          {/* Display persistent Round 2 matchups from database */}
+          {Object.entries(matchupsByRound[2] || {}).length > 0 ? (
+            Object.entries(
+              (matchupsByRound[2] || []).reduce((acc: any, matchup: any) => {
+                const group = matchup.groupNumber || 1;
+                if (!acc[group]) acc[group] = [];
+                acc[group].push(matchup);
+                return acc;
+              }, {})
+            ).map(([groupNum, groupMatchups]: [string, any]) => (
+              <div key={`round2-group-${groupNum}`}>
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Foursome {groupNum}
+                </h3>
+                <div className="border rounded-lg p-4 bg-blue-50 dark:bg-blue-950">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {groupMatchups.map((matchup: any, matchupIndex: number) => (
+                      <div key={`round2-matchup-${matchup.id}`} className="bg-white dark:bg-gray-800 rounded-lg p-3 border">
+                        <div className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">
+                          Team {matchupIndex + 1}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{getPlayerName(matchup.player1Id)}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {getPlayerHandicap(matchup.player1Id)} hcp
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{getPlayerName(matchup.player2Id)}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {getPlayerHandicap(matchup.player2Id)} hcp
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-              {index < round2Foursomes.length - 1 && <Separator className="mt-6" />}
+            ))
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No Round 2 matchups generated yet.</p>
+              {isNickGrossi && <p className="text-sm">Use the "Shuffle Round 2" button to create matchups.</p>}
             </div>
-          ))}
+          )}
         </CardContent>
       </Card>
 
