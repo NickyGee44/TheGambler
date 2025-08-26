@@ -709,7 +709,6 @@ export default function TournamentMatchups() {
                   <div className="mt-2">
                     <Button 
                       onClick={() => handleShuffleMatchups(parseInt(round))}
-                      disabled={shuffleMatchupsMutation.isPending}
                       variant="outline" 
                       size="sm"
                     >
