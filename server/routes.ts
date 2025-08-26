@@ -448,6 +448,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/sidebets/:id/teammate-accept', requireAuth, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const user = await storage.getUser(req.user.id);
+      
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+      
+      const userName = `${user.firstName} ${user.lastName}`;
+      const updatedSideBet = await storage.updateTeammateAcceptance(parseInt(id), userName);
+      
+      // Broadcast teammate acceptance to all clients
+      broadcast({
+        type: 'SIDE_BET_TEAMMATE_ACCEPTED',
+        data: updatedSideBet
+      });
+
+      res.json(updatedSideBet);
+    } catch (error) {
+      console.error('Error accepting team bet:', error);
+      res.status(500).json({ error: error.message || 'Failed to accept team bet' });
+    }
+  });
+
+  // Team-based side bet acceptance endpoint
+  app.patch('/api/sidebets/:id/teammate-accept', requireAuth, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const user = await storage.getUser(req.user.id);
+      
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+      
+      const userName = `${user.firstName} ${user.lastName}`;
+      const updatedSideBet = await storage.updateTeammateAcceptance(parseInt(id), userName);
+      
+      // Broadcast side bet status update to all clients
+      broadcast({
+        type: 'SIDE_BET_STATUS_UPDATE',
+        data: updatedSideBet
+      });
+
+      res.json(updatedSideBet);
+    } catch (error) {
+      console.error('Error updating teammate acceptance:', error);
+      res.status(500).json({ error: 'Failed to update teammate acceptance' });
+    }
+  });
+
   // Witness voting for side bets
   app.post('/api/sidebets/:id/witness-vote', requireAuth, async (req: any, res) => {
     try {

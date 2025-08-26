@@ -55,11 +55,16 @@ export const sideBets = pgTable("side_bets", {
   opponentName: text("opponent_name").notNull(),
   amount: integer("amount").notNull(),
   condition: text("condition").notNull(),
-  status: text("status").default("Pending"), // Pending, Accepted, Declined
+  status: text("status").default("Pending"), // Pending, Accepted, Declined, Partially Accepted
   result: text("result").default("Pending"), // Pending, Won, Lost, Push
   winnerName: text("winner_name"), // Winner decided by witnesses or admin
   witnessVotes: jsonb("witness_votes").default('{}'), // JSON object tracking witness votes
   readyForResolution: boolean("ready_for_resolution").default(false), // True after round is complete
+  // Team-based bet fields
+  isTeamBet: boolean("is_team_bet").default(false),
+  betterTeammate: text("better_teammate"), // Name of teammate if team bet
+  opponentTeammate: text("opponent_teammate"), // Name of opponent teammate if team bet
+  teammateAccepted: boolean("teammate_accepted").default(false), // Has the opponent teammate accepted?
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

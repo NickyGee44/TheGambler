@@ -96,6 +96,7 @@ export interface IStorage {
   createSideBet(bet: InsertSideBet): Promise<SideBet>;
   updateSideBetResult(betId: number, result: string): Promise<SideBet>;
   updateSideBetStatus(betId: number, status: string): Promise<SideBet>;
+  updateTeammateAcceptance(betId: number, userName: string): Promise<SideBet>;
   addWitnessVote(betId: number, witnessName: string, winnerName: string): Promise<SideBet>;
   markBetForResolution(betId: number): Promise<SideBet>;
   
@@ -2077,6 +2078,63 @@ export class DatabaseStorage implements IStorage {
     if (!updatedBet) {
       throw new Error('Side bet not found');
     }
+    
+    return updatedBet;
+  }
+
+  async updateTeammateAcceptance(betId: number, userName: string): Promise<SideBet> {
+    const [currentBet] = await db.select().from(sideBets).where(eq(sideBets.id, betId));
+    if (!currentBet) {
+      throw new Error('Side bet not found');
+    }
+
+    // Check if this is a team bet and if the user is authorized to accept
+    if (!currentBet.isTeamBet) {
+      throw new Error('This is not a team bet');
+    }
+
+    // Check if user is opponent or opponent teammate
+    const isOpponentTeammate = userName === currentBet.opponentTeammate;
+    const isMainOpponent = userName === currentBet.opponentName;
+
+    if (!isOpponentTeammate && !isMainOpponent) {
+      throw new Error('You are not authorized to accept this bet');
+    }
+
+    let newStatus = currentBet.status;
+
+    // If main opponent accepts first
+    if (isMainOpponent && currentBet.status === 'Pending') {
+      newStatus = currentBet.teammateAccepted ? 'Accepted' : 'Partially Accepted';
+    }
+
+    // If teammate accepts
+    if (isOpponentTeammate) {
+      const teammateAccepted = true;
+      newStatus = currentBet.status === 'Partially Accepted' ? 'Accepted' : 'Partially Accepted';
+      
+      const [updatedBet] = await db
+        .update(sideBets)
+        .set({ 
+          teammateAccepted,
+          status: newStatus,
+          updatedAt: new Date() 
+        })
+        .where(eq(sideBets.id, betId))
+        .returning();
+      
+      return updatedBet;
+    }
+
+    // Update status for main opponent acceptance
+    const [updatedBet] = await db
+      .update(sideBets)
+      .set({ 
+        status: newStatus,
+        updatedAt: new Date() 
+      })
+      .where(eq(sideBets.id, betId))
+      .returning();
     
     return updatedBet;
   }

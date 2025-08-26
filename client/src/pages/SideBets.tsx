@@ -156,6 +156,26 @@ export default function SideBets() {
     },
   });
 
+  const teammateAcceptMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest('PATCH', `/api/sidebets/${id}/teammate-accept`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/sidebets'] });
+      toast({
+        title: "Bet Accepted",
+        description: "You have accepted the team bet",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to accept team bet",
+        variant: "destructive",
+      });
+    },
+  });
+
   const witnessVoteMutation = useMutation({
     mutationFn: async ({ id, winnerName }: { id: number; winnerName: string }) => {
       return await apiRequest('POST', `/api/sidebets/${id}/witness-vote`, { winnerName });
@@ -282,12 +302,27 @@ export default function SideBets() {
       }
     }
 
-    // Find team and player IDs for database storage
-    let challengerTeamId = user?.teamId;
-    let opponentTeamId = matchType === "team" ? parseInt(selectedOpponentTeam) : null;
-    let challengerId = user?.id;
-    let opponentId = matchType === "individual" ? 
-      registeredPlayers.find((p: any) => p.name === selectedOpponentPlayer)?.userId : null;
+    // For team bets, get teammate information
+    let isTeamBet = matchType === "team";
+    let betterTeammate = null;
+    let opponentTeammate = null;
+
+    if (isTeamBet) {
+      const currentUserTeam = teams.find(t => t.id === user?.teamId);
+      const opponentTeam = teams.find(t => t.id === parseInt(selectedOpponentTeam));
+      
+      if (currentUserTeam) {
+        // Find teammate (the player who isn't the current user)
+        betterTeammate = currentUserTeam.player1Name === currentUserName ? 
+          currentUserTeam.player2Name : currentUserTeam.player1Name;
+      }
+      
+      if (opponentTeam) {
+        // For team bets, set main opponent as first player and teammate as second
+        finalOpponentName = opponentTeam.player1Name;
+        opponentTeammate = opponentTeam.player2Name;
+      }
+    }
 
     createSideBetMutation.mutate({
       round: parseInt(selectedRound),
@@ -295,12 +330,10 @@ export default function SideBets() {
       opponentName: finalOpponentName,
       amount: parseInt(amount),
       condition: finalCondition,
-      matchType,
-      scoringType: scoringType || null,
-      challengerTeamId,
-      opponentTeamId,
-      challengerId,
-      opponentId,
+      isTeamBet,
+      betterTeammate,
+      opponentTeammate,
+      teammateAccepted: false,
     });
   };
 
@@ -607,24 +640,69 @@ export default function SideBets() {
                     <div key={bet.id} className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg border border-gray-200 dark:border-slate-600">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex-1">
-                          <div className="font-medium text-golf-green-600 flex items-center gap-3">
-                            <div className="flex items-center gap-2">
-                              <ProfilePicture 
-                                firstName={bet.betterName.split(' ')[0]} 
-                                lastName={bet.betterName.split(' ')[1] || ''} 
-                                size="md"
-                              />
-                              <span>{bet.betterName}</span>
-                            </div>
-                            <span>challenges</span>
-                            <div className="flex items-center gap-2">
-                              <ProfilePicture 
-                                firstName={bet.opponentName.split(' ')[0]} 
-                                lastName={bet.opponentName.split(' ')[1] || ''} 
-                                size="md"
-                              />
-                              <span>{bet.opponentName}</span>
-                            </div>
+                          <div className="font-medium text-golf-green-600">
+                            {bet.isTeamBet ? (
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-1">
+                                    <ProfilePicture 
+                                      firstName={bet.betterName.split(' ')[0]} 
+                                      lastName={bet.betterName.split(' ')[1] || ''} 
+                                      size="sm"
+                                    />
+                                    <span className="text-sm">{bet.betterName}</span>
+                                    <span className="text-xs text-gray-500">&</span>
+                                    <ProfilePicture 
+                                      firstName={bet.betterTeammate?.split(' ')[0] || ''} 
+                                      lastName={bet.betterTeammate?.split(' ')[1] || ''} 
+                                      size="sm"
+                                    />
+                                    <span className="text-sm">{bet.betterTeammate}</span>
+                                  </div>
+                                  <span className="text-sm">challenge</span>
+                                  <div className="flex items-center gap-1">
+                                    <ProfilePicture 
+                                      firstName={bet.opponentName.split(' ')[0]} 
+                                      lastName={bet.opponentName.split(' ')[1] || ''} 
+                                      size="sm"
+                                    />
+                                    <span className="text-sm">{bet.opponentName}</span>
+                                    <span className="text-xs text-gray-500">&</span>
+                                    <ProfilePicture 
+                                      firstName={bet.opponentTeammate?.split(' ')[0] || ''} 
+                                      lastName={bet.opponentTeammate?.split(' ')[1] || ''} 
+                                      size="sm"
+                                    />
+                                    <span className="text-sm">{bet.opponentTeammate}</span>
+                                  </div>
+                                </div>
+                                {bet.status === 'Partially Accepted' && (
+                                  <div className="text-xs text-orange-600 dark:text-orange-400">
+                                    Waiting for {bet.teammateAccepted ? bet.opponentName : bet.opponentTeammate} to accept
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2">
+                                  <ProfilePicture 
+                                    firstName={bet.betterName.split(' ')[0]} 
+                                    lastName={bet.betterName.split(' ')[1] || ''} 
+                                    size="md"
+                                  />
+                                  <span>{bet.betterName}</span>
+                                </div>
+                                <span>challenges</span>
+                                <div className="flex items-center gap-2">
+                                  <ProfilePicture 
+                                    firstName={bet.opponentName.split(' ')[0]} 
+                                    lastName={bet.opponentName.split(' ')[1] || ''} 
+                                    size="md"
+                                  />
+                                  <span>{bet.opponentName}</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                           <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                             {bet.condition}
@@ -635,39 +713,88 @@ export default function SideBets() {
                             ${bet.amount}
                           </span>
                           <div className="flex items-center space-x-2">
-                            {(bet.status === 'Pending' || !bet.status) && (
+                            {(bet.status === 'Pending' || bet.status === 'Partially Accepted') && (
                               <>
-                                {bet.opponentName === (user ? `${user.firstName} ${user.lastName}` : '') ? (
-                                  <div className="flex space-x-1">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => updateSideBetStatusMutation.mutate({ id: bet.id, status: 'Accepted' })}
-                                      className="text-green-600 hover:text-green-700 border-green-600"
-                                    >
-                                      Accept
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => updateSideBetStatusMutation.mutate({ id: bet.id, status: 'Declined' })}
-                                      className="text-red-600 hover:text-red-700 border-red-600"
-                                    >
-                                      Decline
-                                    </Button>
-                                  </div>
-                                ) : bet.betterName === (user ? `${user.firstName} ${user.lastName}` : '') ? (
-                                  <div className="flex items-center space-x-1">
-                                    <Bell className="w-4 h-4 text-yellow-500" />
-                                    <Badge className="bg-yellow-100 text-yellow-800">
-                                      Waiting for response
-                                    </Badge>
-                                  </div>
+                                {bet.isTeamBet ? (
+                                  // Team bet acceptance logic
+                                  <>
+                                    {(bet.opponentName === (user ? `${user.firstName} ${user.lastName}` : '') || 
+                                      bet.opponentTeammate === (user ? `${user.firstName} ${user.lastName}` : '')) ? (
+                                      <div className="flex space-x-1">
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => bet.opponentName === (user ? `${user.firstName} ${user.lastName}` : '') ? 
+                                            updateSideBetStatusMutation.mutate({ id: bet.id, status: 'Accepted' }) :
+                                            teammateAcceptMutation.mutate(bet.id)
+                                          }
+                                          className="text-green-600 hover:text-green-700 border-green-600"
+                                          disabled={bet.status === 'Partially Accepted' && 
+                                            ((bet.teammateAccepted && bet.opponentTeammate === (user ? `${user.firstName} ${user.lastName}` : '')) ||
+                                             (!bet.teammateAccepted && bet.opponentName === (user ? `${user.firstName} ${user.lastName}` : '')))}
+                                        >
+                                          {bet.status === 'Partially Accepted' ? 'Complete Acceptance' : 'Accept'}
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => updateSideBetStatusMutation.mutate({ id: bet.id, status: 'Declined' })}
+                                          className="text-red-600 hover:text-red-700 border-red-600"
+                                        >
+                                          Decline
+                                        </Button>
+                                      </div>
+                                    ) : bet.betterName === (user ? `${user.firstName} ${user.lastName}` : '') || 
+                                           bet.betterTeammate === (user ? `${user.firstName} ${user.lastName}` : '') ? (
+                                      <div className="flex items-center space-x-1">
+                                        <Bell className="w-4 h-4 text-yellow-500" />
+                                        <Badge className="bg-yellow-100 text-yellow-800">
+                                          {bet.status === 'Partially Accepted' ? 'Partially Accepted' : 'Waiting for response'}
+                                        </Badge>
+                                      </div>
+                                    ) : (
+                                      <Badge className="bg-gray-100 text-gray-800">
+                                        <Clock className="w-3 h-3 mr-1" />
+                                        {bet.status === 'Partially Accepted' ? 'Partially Accepted' : 'Pending'}
+                                      </Badge>
+                                    )}
+                                  </>
                                 ) : (
-                                  <Badge className="bg-gray-100 text-gray-800">
-                                    <Clock className="w-3 h-3 mr-1" />
-                                    Pending
-                                  </Badge>
+                                  // Individual bet acceptance logic (unchanged)
+                                  <>
+                                    {bet.opponentName === (user ? `${user.firstName} ${user.lastName}` : '') ? (
+                                      <div className="flex space-x-1">
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => updateSideBetStatusMutation.mutate({ id: bet.id, status: 'Accepted' })}
+                                          className="text-green-600 hover:text-green-700 border-green-600"
+                                        >
+                                          Accept
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => updateSideBetStatusMutation.mutate({ id: bet.id, status: 'Declined' })}
+                                          className="text-red-600 hover:text-red-700 border-red-600"
+                                        >
+                                          Decline
+                                        </Button>
+                                      </div>
+                                    ) : bet.betterName === (user ? `${user.firstName} ${user.lastName}` : '') ? (
+                                      <div className="flex items-center space-x-1">
+                                        <Bell className="w-4 h-4 text-yellow-500" />
+                                        <Badge className="bg-yellow-100 text-yellow-800">
+                                          Waiting for response
+                                        </Badge>
+                                      </div>
+                                    ) : (
+                                      <Badge className="bg-gray-100 text-gray-800">
+                                        <Clock className="w-3 h-3 mr-1" />
+                                        Pending
+                                      </Badge>
+                                    )}
+                                  </>
                                 )}
                               </>
                             )}
