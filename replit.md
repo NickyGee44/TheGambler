@@ -7,6 +7,15 @@ The Gambler Cup 2025 is a golf tournament tracking application for an 8-team tou
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
+**August 26, 2025**: 
+- ✅ **INTELLIGENT MATCHUP SYSTEM**: Implemented persistent database-backed tournament matchups with sophisticated algorithms for each round format
+- ✅ **NICK GROSSI SHUFFLE PERMISSIONS**: Added exclusive shuffle permissions for Nick Grossi (user ID 13) for rounds 1 and 2 only - Round 3 is permanently fixed
+- ✅ **ROUND 1 ALGORITHM**: Completely random foursomes that minimize player overlap across tournament rounds
+- ✅ **ROUND 2 SCRAMBLE ALGORITHM**: Teammates automatically paired together with random foursome groupings (2 teams per foursome for scramble format)
+- ✅ **BAILEY CARLSON LOGIN RESET**: Removed Bailey from users table to allow fresh registration while maintaining his player data
+- ✅ **MATCHUP PERSISTENCE**: All matchups stored in database and synchronized across all users in real-time via WebSocket
+- ✅ **IMPROVED UI**: Tournament Matchups page shows round-specific shuffle buttons only for authorized users with clear messaging
+
 **August 21, 2025**: 
 - ✅ **BULLETPROOF SCORING SYSTEM COMPLETE**: Successfully implemented universal color-coded score button highlighting across all 3 rounds with instant visual feedback that never reverts once user clicks
 - ✅ **ROUND 2 API FIX**: Fixed critical data fetching issue where Round 2 was using non-existent team hole scores endpoint instead of individual scores like Round 1 and 3
