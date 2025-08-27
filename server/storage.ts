@@ -395,21 +395,19 @@ export class DatabaseStorage implements IStorage {
         return 0;
       }
 
-      console.log(`🏌️ Team ${team.teamNumber}: ${team.player1Name} & ${team.player2Name}`);
+      const displayName = team.isThreePersonTeam 
+        ? `${team.player1Name}, ${team.player2Name} & ${team.player3Name}`
+        : `${team.player1Name} & ${team.player2Name}`;
+      console.log(`🏌️ Team ${team.teamNumber}: ${displayName}`);
 
+      const playerPoints: number[] = [];
+
+      // Get player 1 points
       const player1 = await db.select()
         .from(users)
         .where(and(eq(users.firstName, team.player1Name.split(' ')[0]), eq(users.lastName, team.player1Name.split(' ')[1])))
         .limit(1);
         
-      const player2 = await db.select()
-        .from(users)
-        .where(and(eq(users.firstName, team.player2Name.split(' ')[0]), eq(users.lastName, team.player2Name.split(' ')[1])))
-        .limit(1);
-
-      let totalTeamPoints = 0;
-
-      // Calculate points for player 1
       if (player1.length > 0) {
         console.log(`🔍 Checking matches for ${team.player1Name} (ID: ${player1[0].id})`);
         const player1Matches = await db.select()
@@ -420,16 +418,21 @@ export class DatabaseStorage implements IStorage {
         for (const match of player1Matches) {
           if (match.result && match.pointsAwarded) {
             const points = match.pointsAwarded as any;
-            const playerPoints = match.player1Id === player1[0].id ? (points.player1 || 0) : (points.player2 || 0);
-            player1Points += playerPoints;
-            console.log(`   Match ${match.holeSegment}: +${playerPoints} points (Total: ${player1Points})`);
+            const playerPointsFromMatch = match.player1Id === player1[0].id ? (points.player1 || 0) : (points.player2 || 0);
+            player1Points += playerPointsFromMatch;
+            console.log(`   Match ${match.holeSegment}: +${playerPointsFromMatch} points (Total: ${player1Points})`);
           }
         }
-        totalTeamPoints += player1Points;
+        playerPoints.push(player1Points);
         console.log(`✅ ${team.player1Name} total: ${player1Points} points`);
       }
 
-      // Calculate points for player 2
+      // Get player 2 points
+      const player2 = await db.select()
+        .from(users)
+        .where(and(eq(users.firstName, team.player2Name.split(' ')[0]), eq(users.lastName, team.player2Name.split(' ')[1])))
+        .limit(1);
+        
       if (player2.length > 0) {
         console.log(`🔍 Checking matches for ${team.player2Name} (ID: ${player2[0].id})`);
         const player2Matches = await db.select()
@@ -440,13 +443,52 @@ export class DatabaseStorage implements IStorage {
         for (const match of player2Matches) {
           if (match.result && match.pointsAwarded) {
             const points = match.pointsAwarded as any;
-            const playerPoints = match.player1Id === player2[0].id ? (points.player1 || 0) : (points.player2 || 0);
-            player2Points += playerPoints;
-            console.log(`   Match ${match.holeSegment}: +${playerPoints} points (Total: ${player2Points})`);
+            const playerPointsFromMatch = match.player1Id === player2[0].id ? (points.player1 || 0) : (points.player2 || 0);
+            player2Points += playerPointsFromMatch;
+            console.log(`   Match ${match.holeSegment}: +${playerPointsFromMatch} points (Total: ${player2Points})`);
           }
         }
-        totalTeamPoints += player2Points;
+        playerPoints.push(player2Points);
         console.log(`✅ ${team.player2Name} total: ${player2Points} points`);
+      }
+
+      // For 3-person teams: get player 3 points and apply "best 2 out of 3" rule
+      if (team.isThreePersonTeam && team.player3Name) {
+        const player3 = await db.select()
+          .from(users)
+          .where(and(eq(users.firstName, team.player3Name.split(' ')[0]), eq(users.lastName, team.player3Name.split(' ')[1])))
+          .limit(1);
+          
+        if (player3.length > 0) {
+          console.log(`🔍 Checking matches for ${team.player3Name} (ID: ${player3[0].id})`);
+          const player3Matches = await db.select()
+            .from(matchPlayMatches)
+            .where(or(eq(matchPlayMatches.player1Id, player3[0].id), eq(matchPlayMatches.player2Id, player3[0].id)));
+
+          let player3Points = 0;
+          for (const match of player3Matches) {
+            if (match.result && match.pointsAwarded) {
+              const points = match.pointsAwarded as any;
+              const playerPointsFromMatch = match.player1Id === player3[0].id ? (points.player1 || 0) : (points.player2 || 0);
+              player3Points += playerPointsFromMatch;
+              console.log(`   Match ${match.holeSegment}: +${playerPointsFromMatch} points (Total: ${player3Points})`);
+            }
+          }
+          playerPoints.push(player3Points);
+          console.log(`✅ ${team.player3Name} total: ${player3Points} points`);
+        }
+      }
+
+      // Calculate total team points
+      let totalTeamPoints = 0;
+      if (team.isThreePersonTeam) {
+        // For 3-person teams: take best 2 out of 3 scores
+        playerPoints.sort((a, b) => b - a); // Sort descending
+        totalTeamPoints = playerPoints.slice(0, 2).reduce((sum, points) => sum + points, 0);
+        console.log(`🎯 3-PERSON TEAM - Taking best 2 out of 3: [${playerPoints.join(', ')}] → Best 2: ${totalTeamPoints} points`);
+      } else {
+        // For 2-person teams: take both scores
+        totalTeamPoints = playerPoints.reduce((sum, points) => sum + points, 0);
       }
 
       console.log(`🏆 TEAM ${team.teamNumber} MATCH PLAY TOTAL: ${totalTeamPoints} points`);

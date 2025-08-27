@@ -43,13 +43,14 @@ async function requireAuth(req: any, res: any, next: any) {
 // Tournament matchup generation algorithms
 async function generateRound3MatchupsOnce(storage: any) {
   // Round 3 - Fixed preset groupings (only generate once, never shuffle)
+  // NOTE: Team 7 (3-person team) has all 3 members in different groups, but only best 2 out of 3 match results count
   const presetGroupings = [
     {
       groupNumber: 1,
       players: [
         { id: 13, name: "Nick Grossi" },      // Nick Grossi
         { id: 19, name: "Nick Cook" },        // Nick Cook  
-        { id: 14, name: "James Ogilvie" },    // James Ogilvie
+        { id: 14, name: "James Ogilvie" },    // James Ogilvie (Team 7 - Player 3)
         { id: 15, name: "Johnny Magnatta" }   // Johnny Magnatta
       ]
     },
@@ -59,7 +60,7 @@ async function generateRound3MatchupsOnce(storage: any) {
         { id: 20, name: "Connor Patterson" }, // Connor Patterson
         { id: 16, name: "Erik Boudreau" },    // Erik Boudreau
         { id: 21, name: "Christian Hauck" },  // Christian Hauck
-        { id: 22, name: "Spencer Reid" }      // Spencer Reid
+        { id: 26, name: "Sye Ellard" }        // Sye Ellard (Team 7 - Player 2)
       ]
     },
     {
@@ -67,8 +68,14 @@ async function generateRound3MatchupsOnce(storage: any) {
       players: [
         { id: 18, name: "Will Bibbings" },    // Will Bibbings
         { id: 23, name: "Jeffrey Reiner" },   // Jeffrey Reiner
-        { id: 24, name: "Nic Huxley" },       // Nic Huxley
+        { id: 24, name: "Nic Huxley" },       // Nic Huxley (Team 7 - Player 1)
         { id: 25, name: "Bailey Carlson" }    // Bailey Carlson
+      ]
+    },
+    {
+      groupNumber: 4,
+      players: [
+        { id: 22, name: "Spencer Reid" }      // Spencer Reid (moved to own group)
       ]
     }
   ];
