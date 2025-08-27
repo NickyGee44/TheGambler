@@ -10,6 +10,12 @@ export function useAuth() {
   } = useQuery<SelectUser | undefined, Error>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    refetchInterval: false,
+    retry: 1,
   });
 
   const logoutMutation = useMutation({
