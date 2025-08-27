@@ -30,16 +30,16 @@ export default function SideBets() {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const { data: sideBets = [], isLoading } = useQuery({
+  const { data: sideBets = [], isLoading } = useQuery<SideBet[]>({
     queryKey: ['/api/sidebets'],
     refetchInterval: 30000,
   });
 
-  const { data: teams = [] } = useQuery({
+  const { data: teams = [] } = useQuery<any[]>({
     queryKey: ['/api/teams'],
   });
 
-  const { data: registeredPlayers = [] } = useQuery({
+  const { data: registeredPlayers = [] } = useQuery<any[]>({
     queryKey: ['/api/registered-players'],
   });
 
@@ -236,8 +236,8 @@ export default function SideBets() {
         return;
       }
       
-      const currentUserTeam = teams.find(t => t.id === user?.teamId);
-      const opponentTeam = teams.find(t => t.id === parseInt(selectedOpponentTeam));
+      const currentUserTeam = teams.find((t: any) => t.id === user?.teamId);
+      const opponentTeam = teams.find((t: any) => t.id === parseInt(selectedOpponentTeam));
       
       if (currentUserTeam?.id === opponentTeam?.id) {
         toast({
@@ -308,8 +308,8 @@ export default function SideBets() {
     let opponentTeammate = null;
 
     if (isTeamBet) {
-      const currentUserTeam = teams.find(t => t.id === user?.teamId);
-      const opponentTeam = teams.find(t => t.id === parseInt(selectedOpponentTeam));
+      const currentUserTeam = teams.find((t: any) => t.id === user?.teamId);
+      const opponentTeam = teams.find((t: any) => t.id === parseInt(selectedOpponentTeam));
       
       if (currentUserTeam) {
         // Find teammate (the player who isn't the current user)
@@ -443,7 +443,7 @@ export default function SideBets() {
                   <div>
                     <Label>Your Team</Label>
                     <Input
-                      value={`Team ${teams.find(t => t.id === user?.teamId)?.teamNumber || ''} - ${user?.firstName} ${user?.lastName} & Partner`}
+                      value={`Team ${teams.find((t: any) => t.id === user?.teamId)?.teamNumber || ''} - ${user?.firstName} ${user?.lastName} & Partner`}
                       disabled
                       className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                     />
