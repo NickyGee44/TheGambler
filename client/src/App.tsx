@@ -22,11 +22,11 @@ import Round3 from "@/pages/Round3";
 import Round3Matchups from "@/pages/Round3Matchups";
 import TournamentMatchups from "@/pages/TournamentMatchups";
 
-import TrashTalk from "@/pages/TrashTalk";
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/not-found";
 import UpdateNotification from "@/components/UpdateNotification";
 import BirdieNotification from "@/components/BirdieNotification";
+import TrashTalkWidget from "@/components/TrashTalkWidget";
 import { useEffect, useState } from "react";
 import React from "react";
 
@@ -162,7 +162,6 @@ function Router() {
             <Route path="/tournament-management" component={TournamentManagement} />
             <Route path="/sidebets" component={SideBets} />
             <Route path="/boozelympics" component={Boozelympics} />
-            <Route path="/trash-talk" component={TrashTalk} />
             <Route path="/rules" component={Rules} />
     
             <Route path="/photos" component={Photos} />
@@ -190,6 +189,9 @@ function Router() {
           onDismiss={handleBirdieNotificationDismiss}
         />
       )}
+      
+      {/* Trash Talk Widget */}
+      <TrashTalkWidget />
     </>
   );
 }

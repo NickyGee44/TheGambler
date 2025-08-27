@@ -39,7 +39,6 @@ export default function Navigation() {
     { href: "/stats", label: "Statistics", icon: BarChart3 },
     { href: "/sidebets", label: "Side Bets", icon: Coins },
     { href: "/boozelympics", label: "Boozelympics", icon: Beer },
-    { href: "/trash-talk", label: "Trash Talk", icon: MessageSquare },
     { href: "/rules", label: "Rules", icon: BookOpen },
     { href: "/photos", label: "Photos", icon: Camera },
     ...(isAdmin ? [{ href: "/tournament-management", label: "Tournament Management", icon: Settings }] : []),
