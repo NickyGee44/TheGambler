@@ -69,87 +69,128 @@ async function generateRound3MatchupsOnce(storage: any) {
   const matchups = [];
   
   for (const group of presetGroupings) {
-    // Create pairings within each foursome for Round 3 match play
     if (group.players.length === 4) {
-      // Full foursome - create 2 pairs
+      // 4-player group - each player plays against the other 3 (6 total matches)
+      const players = group.players;
+      
+      // Player 1 vs Player 2
       matchups.push({
         round: 3,
         groupNumber: group.groupNumber,
-        player1Id: group.players[0].id,
-        player2Id: group.players[1].id,
-        player1Name: group.players[0].name,
-        player2Name: group.players[1].name
+        player1Id: players[0].id,
+        player2Id: players[1].id,
+        player1Name: players[0].name,
+        player2Name: players[1].name
       });
       
+      // Player 1 vs Player 3
       matchups.push({
         round: 3,
         groupNumber: group.groupNumber,
-        player1Id: group.players[2].id,
-        player2Id: group.players[3].id,
-        player1Name: group.players[2].name,
-        player2Name: group.players[3].name
+        player1Id: players[0].id,
+        player2Id: players[2].id,
+        player1Name: players[0].name,
+        player2Name: players[2].name
       });
+      
+      // Player 1 vs Player 4
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: players[0].id,
+        player2Id: players[3].id,
+        player1Name: players[0].name,
+        player2Name: players[3].name
+      });
+      
+      // Player 2 vs Player 3
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: players[1].id,
+        player2Id: players[2].id,
+        player1Name: players[1].name,
+        player2Name: players[2].name
+      });
+      
+      // Player 2 vs Player 4
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: players[1].id,
+        player2Id: players[3].id,
+        player1Name: players[1].name,
+        player2Name: players[3].name
+      });
+      
+      // Player 3 vs Player 4
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: players[2].id,
+        player2Id: players[3].id,
+        player1Name: players[2].name,
+        player2Name: players[3].name
+      });
+      
     } else if (group.players.length === 3) {
-      // Threesome - each pair plays twice (6 total matches, 4 matches per player)
-      // Spencer vs Jordan (Match 1)
+      // 3-player group - each player plays 3 matches (some opponents twice)
+      const players = group.players;
+      
+      // Each player vs each other player once (3 matches total)
       matchups.push({
         round: 3,
         groupNumber: group.groupNumber,
-        player1Id: group.players[0].id, // Spencer
-        player2Id: group.players[1].id, // Jordan
-        player1Name: group.players[0].name,
-        player2Name: group.players[1].name
+        player1Id: players[0].id,
+        player2Id: players[1].id,
+        player1Name: players[0].name,
+        player2Name: players[1].name
       });
       
-      // Jordan vs Kevin (Match 2)
       matchups.push({
         round: 3,
         groupNumber: group.groupNumber,
-        player1Id: group.players[1].id, // Jordan
-        player2Id: group.players[2].id, // Kevin
-        player1Name: group.players[1].name,
-        player2Name: group.players[2].name
+        player1Id: players[0].id,
+        player2Id: players[2].id,
+        player1Name: players[0].name,
+        player2Name: players[2].name
       });
       
-      // Spencer vs Kevin (Match 3)
       matchups.push({
         round: 3,
         groupNumber: group.groupNumber,
-        player1Id: group.players[0].id, // Spencer
-        player2Id: group.players[2].id, // Kevin
-        player1Name: group.players[0].name,
-        player2Name: group.players[2].name
+        player1Id: players[1].id,
+        player2Id: players[2].id,
+        player1Name: players[1].name,
+        player2Name: players[2].name
       });
       
-      // Rematches to get each player 4 total matches
-      // Spencer vs Jordan (Match 4 - rematch)
+      // Additional matches to get each player to 3 total matches
       matchups.push({
         round: 3,
         groupNumber: group.groupNumber,
-        player1Id: group.players[0].id, // Spencer
-        player2Id: group.players[1].id, // Jordan
-        player1Name: group.players[0].name,
-        player2Name: group.players[1].name
+        player1Id: players[0].id,
+        player2Id: players[1].id,
+        player1Name: players[0].name,
+        player2Name: players[1].name
       });
       
-      // Jordan vs Kevin (Match 5 - rematch)
       matchups.push({
         round: 3,
         groupNumber: group.groupNumber,
-        player1Id: group.players[1].id, // Jordan
-        player2Id: group.players[2].id, // Kevin
-        player1Name: group.players[1].name,
-        player2Name: group.players[2].name
+        player1Id: players[0].id,
+        player2Id: players[2].id,
+        player1Name: players[0].name,
+        player2Name: players[2].name
       });
       
-      // Spencer vs Kevin (Match 6 - rematch)
       matchups.push({
         round: 3,
         groupNumber: group.groupNumber,
-        player1Id: group.players[0].id, // Spencer
-        player2Id: group.players[2].id, // Kevin
-        player1Name: group.players[0].name,
-        player2Name: group.players[2].name
+        player1Id: players[1].id,
+        player2Id: players[2].id,
+        player1Name: players[1].name,
+        player2Name: players[2].name
       });
     }
   }
