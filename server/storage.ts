@@ -122,7 +122,7 @@ export interface IStorage {
   getCurrentMatchForPlayer(playerId: number, currentHole: number): Promise<MatchPlayMatch | null>;
   
   // Player matching
-  findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2; handicap: number } | null>;
+  findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 | 3; handicap: number } | null>;
   
   // Tournament management
   getTournaments(): Promise<Tournament[]>;
@@ -189,7 +189,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2; handicap: number } | null> {
+  async findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 | 3; handicap: number } | null> {
     const allTeams = await db.select().from(teams);
     
     // First get the player's handicap from the users table (single source of truth)
@@ -204,6 +204,10 @@ export class DatabaseStorage implements IStorage {
       }
       if (team.player2Name.toLowerCase() === `${firstName} ${lastName}`.toLowerCase()) {
         return { teamId: team.id, playerNumber: 2, handicap: user.handicap || 0 };
+      }
+      // Check for player3Name in 3-person teams (Team 7)
+      if (team.player3Name && team.player3Name.toLowerCase() === `${firstName} ${lastName}`.toLowerCase()) {
+        return { teamId: team.id, playerNumber: 3, handicap: user.handicap || 0 };
       }
     }
     
