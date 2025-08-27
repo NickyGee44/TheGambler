@@ -90,24 +90,66 @@ async function generateRound3MatchupsOnce(storage: any) {
         player2Name: group.players[3].name
       });
     } else if (group.players.length === 3) {
-      // Threesome - create 1 pair + 1 solo player
+      // Threesome - each pair plays twice (6 total matches, 4 matches per player)
+      // Spencer vs Jordan (Match 1)
       matchups.push({
         round: 3,
         groupNumber: group.groupNumber,
-        player1Id: group.players[0].id,
-        player2Id: group.players[1].id,
+        player1Id: group.players[0].id, // Spencer
+        player2Id: group.players[1].id, // Jordan
         player1Name: group.players[0].name,
         player2Name: group.players[1].name
       });
       
-      // Third player as solo
+      // Jordan vs Kevin (Match 2)
       matchups.push({
         round: 3,
         groupNumber: group.groupNumber,
-        player1Id: group.players[2].id,
-        player2Id: null,
-        player1Name: group.players[2].name,
-        player2Name: "Solo Player"
+        player1Id: group.players[1].id, // Jordan
+        player2Id: group.players[2].id, // Kevin
+        player1Name: group.players[1].name,
+        player2Name: group.players[2].name
+      });
+      
+      // Spencer vs Kevin (Match 3)
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: group.players[0].id, // Spencer
+        player2Id: group.players[2].id, // Kevin
+        player1Name: group.players[0].name,
+        player2Name: group.players[2].name
+      });
+      
+      // Rematches to get each player 4 total matches
+      // Spencer vs Jordan (Match 4 - rematch)
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: group.players[0].id, // Spencer
+        player2Id: group.players[1].id, // Jordan
+        player1Name: group.players[0].name,
+        player2Name: group.players[1].name
+      });
+      
+      // Jordan vs Kevin (Match 5 - rematch)
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: group.players[1].id, // Jordan
+        player2Id: group.players[2].id, // Kevin
+        player1Name: group.players[1].name,
+        player2Name: group.players[2].name
+      });
+      
+      // Spencer vs Kevin (Match 6 - rematch)
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: group.players[0].id, // Spencer
+        player2Id: group.players[2].id, // Kevin
+        player1Name: group.players[0].name,
+        player2Name: group.players[2].name
       });
     }
   }
