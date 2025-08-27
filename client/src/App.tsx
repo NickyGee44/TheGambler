@@ -166,6 +166,7 @@ function Router() {
     
             <Route path="/photos" component={Photos} />
             <Route path="/matchups" component={TournamentMatchups} />
+            <Route path="/tournament-matchups" component={TournamentMatchups} />
             <Route path="/round3-matchups" component={Round3Matchups} />
 
           </>

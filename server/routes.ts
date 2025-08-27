@@ -1095,8 +1095,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const currentUser = req.user;
       
-      // Check if user is Nick Grossi
-      if (!currentUser || currentUser.firstName !== 'Nick' || currentUser.lastName !== 'Grossi') {
+      // Check if user is Nick Grossi (ID 13 based on database)
+      if (!currentUser || currentUser.id !== 13) {
+        console.log('Auth failed - User:', currentUser);
         return res.status(403).json({ error: 'Only Nick Grossi can shuffle matchups' });
       }
 
@@ -1172,8 +1173,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const currentUser = req.user;
       
-      // Check if user is Nick Grossi
-      if (!currentUser || currentUser.firstName !== 'Nick' || currentUser.lastName !== 'Grossi') {
+      // Check if user is Nick Grossi (ID 13 based on database)
+      if (!currentUser || currentUser.id !== 13) {
+        console.log('Auth failed - User:', currentUser);
         return res.status(403).json({ error: 'Only Nick Grossi can initialize Round 3 matchups' });
       }
 
