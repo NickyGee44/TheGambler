@@ -192,12 +192,18 @@ export class DatabaseStorage implements IStorage {
   async findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2; handicap: number } | null> {
     const allTeams = await db.select().from(teams);
     
+    // First get the player's handicap from the users table (single source of truth)
+    const user = await this.getUserByName(firstName, lastName);
+    if (!user) {
+      return null;
+    }
+    
     for (const team of allTeams) {
       if (team.player1Name.toLowerCase() === `${firstName} ${lastName}`.toLowerCase()) {
-        return { teamId: team.id, playerNumber: 1, handicap: team.player1Handicap };
+        return { teamId: team.id, playerNumber: 1, handicap: user.handicap || 0 };
       }
       if (team.player2Name.toLowerCase() === `${firstName} ${lastName}`.toLowerCase()) {
-        return { teamId: team.id, playerNumber: 2, handicap: team.player2Handicap };
+        return { teamId: team.id, playerNumber: 2, handicap: user.handicap || 0 };
       }
     }
     
@@ -677,15 +683,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async calculateHoleHandicap(userId: number, hole: number): Promise<number> {
-    // Get the user's course handicap
+    // Get the user's course handicap directly from users table (single source of truth)
     const user = await this.getUser(userId);
     if (!user) return 0;
     
-    const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
-    if (!playerInfo) return 0;
-    
-    // Get player's handicap from team assignment
-    const playerHandicap = playerInfo.handicap || 0;
+    // Use handicap directly from users table
+    const playerHandicap = user.handicap || 0;
     
     // Course handicap allocation - distribute strokes based on hole difficulty
     // Most golf courses allocate strokes starting from handicap hole 1 (hardest)
@@ -1846,23 +1849,10 @@ export class DatabaseStorage implements IStorage {
           const player = teamMembers.find(p => p.id === holeScore.userId);
           if (!player) continue;
 
-          // Use the correct team handicap, not the user database handicap
-          const isPlayer1 = player.firstName === team.player1Name?.split(' ')[0] && player.lastName === team.player1Name?.split(' ')[1];
-          const isPlayer2 = player.firstName === team.player2Name?.split(' ')[0] && player.lastName === team.player2Name?.split(' ')[1];
-          const isPlayer3 = team.player3Name && player.firstName === team.player3Name?.split(' ')[0] && player.lastName === team.player3Name?.split(' ')[1];
+          // Use the correct user handicap from users table (single source of truth)
+          const playerHandicap = player.handicap || 0;
           
-          let playerHandicap: number;
-          if (isPlayer1) {
-            playerHandicap = team.player1Handicap;
-          } else if (isPlayer2) {
-            playerHandicap = team.player2Handicap;
-          } else if (isPlayer3 && team.player3Handicap) {
-            playerHandicap = team.player3Handicap;
-          } else {
-            playerHandicap = team.player2Handicap; // fallback
-          }
-          
-          console.log(`🔧 HANDICAP DEBUG: ${player.firstName} ${player.lastName} - IsPlayer1: ${isPlayer1} - Team handicap: ${playerHandicap} - User DB handicap: ${player.handicap}`);
+          console.log(`🔧 HANDICAP DEBUG: ${player.firstName} ${player.lastName} - Using user handicap: ${playerHandicap}`);
           const grossScore = holeScore.strokes;
 
           // Calculate strokes received on this hole based on handicap ranking
@@ -1915,21 +1905,38 @@ export class DatabaseStorage implements IStorage {
       const team = await this.getTeam(teamId);
       if (!team) return 0;
       
-      // Calculate scramble team handicap using the updated function
+      // Calculate scramble team handicap using handicaps from users table (single source of truth)
       let teamHandicap: number;
-      if (team.isThreePersonTeam && team.player3Handicap) {
+      
+      // Get team members' handicaps from users table
+      const teamMemberHandicaps: number[] = [];
+      
+      // Get player 1 handicap
+      const player1 = await this.getUserByFullName(team.player1Name);
+      if (player1) teamMemberHandicaps.push(player1.handicap || 0);
+      
+      // Get player 2 handicap
+      const player2 = await this.getUserByFullName(team.player2Name);
+      if (player2) teamMemberHandicaps.push(player2.handicap || 0);
+      
+      // Get player 3 handicap if exists
+      if (team.isThreePersonTeam && team.player3Name) {
+        const player3 = await this.getUserByFullName(team.player3Name);
+        if (player3) teamMemberHandicaps.push(player3.handicap || 0);
+      }
+      
+      if (team.isThreePersonTeam && teamMemberHandicaps.length === 3) {
         // For 3-person teams: use 20% + 15% + 10% of the three handicaps (lowest, middle, highest)
-        const handicaps = [team.player1Handicap || 0, team.player2Handicap || 0, team.player3Handicap || 0];
-        handicaps.sort((a, b) => a - b); // Sort from lowest to highest
-        const [lowest, middle, highest] = handicaps;
+        teamMemberHandicaps.sort((a, b) => a - b); // Sort from lowest to highest
+        const [lowest, middle, highest] = teamMemberHandicaps;
         teamHandicap = Math.round((lowest * 0.20) + (middle * 0.15) + (highest * 0.10));
-      } else {
+      } else if (teamMemberHandicaps.length >= 2) {
         // Standard 2-person calculation
-        const player1Hcp = team.player1Handicap || 0;
-        const player2Hcp = team.player2Handicap || 0;
-        const lowerHcp = Math.min(player1Hcp, player2Hcp);
-        const higherHcp = Math.max(player1Hcp, player2Hcp);
+        const lowerHcp = Math.min(teamMemberHandicaps[0], teamMemberHandicaps[1]);
+        const higherHcp = Math.max(teamMemberHandicaps[0], teamMemberHandicaps[1]);
         teamHandicap = Math.round((lowerHcp * 0.35) + (higherHcp * 0.15));
+      } else {
+        teamHandicap = 0; // Fallback if no handicaps found
       }
       
       const totalNetStrokes = totalGrossStrokes - teamHandicap;
