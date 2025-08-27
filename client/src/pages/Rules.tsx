@@ -86,11 +86,13 @@ export default function Rules() {
               <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
                 <h4 className="font-medium text-orange-800 dark:text-orange-200 mb-1 flex items-center gap-2">
                   <Beer className="h-4 w-4" />
-                  Drinking Rule
+                  Drinking Rule: 3-6-9 System
                 </h4>
-                <p className="text-sm text-orange-700 dark:text-orange-300">
-                  Birdie forces all other teams to drink
-                </p>
+                <div className="text-sm text-orange-700 dark:text-orange-300 space-y-1">
+                  <div><strong>3 feet or less:</strong> Putter length (1 drink)</div>
+                  <div><strong>6 feet or less:</strong> Flagstick length (2 drinks)</div>
+                  <div><strong>9 feet or less:</strong> Putter + Flagstick length (3 drinks)</div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -163,11 +165,16 @@ export default function Rules() {
               <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
                 <h4 className="font-medium text-orange-800 dark:text-orange-200 mb-1 flex items-center gap-2">
                   <Beer className="h-4 w-4" />
-                  Drinking Rule
+                  Drinking Rule: 3-6-9 System
                 </h4>
-                <p className="text-sm text-orange-700 dark:text-orange-300">
-                  Player whose shot is not taken, must take a drink
-                </p>
+                <div className="text-sm text-orange-700 dark:text-orange-300 space-y-1">
+                  <div><strong>3 feet or less:</strong> Putter length (1 drink)</div>
+                  <div><strong>6 feet or less:</strong> Flagstick length (2 drinks)</div>
+                  <div><strong>9 feet or less:</strong> Putter + Flagstick length (3 drinks)</div>
+                  <div className="mt-2 p-2 bg-orange-100 dark:bg-orange-800/30 rounded text-xs">
+                    <strong>SCRAMBLE SPECIAL:</strong> Both players must achieve drinking distance to get the bonus
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -251,11 +258,16 @@ export default function Rules() {
             <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
               <h4 className="font-medium text-red-800 dark:text-red-200 mb-1 flex items-center gap-2">
                 <Beer className="h-4 w-4" />
-                Drinking Rule
+                Drinking Rule: 3-6-9 System
               </h4>
-              <p className="text-sm text-red-700 dark:text-red-300">
-                Each player starts at +18, subtract 1 stroke per drink
-              </p>
+              <div className="text-sm text-red-700 dark:text-red-300 space-y-1">
+                <div><strong>3 feet or less:</strong> Putter length (1 drink)</div>
+                <div><strong>6 feet or less:</strong> Flagstick length (2 drinks)</div>
+                <div><strong>9 feet or less:</strong> Putter + Flagstick length (3 drinks)</div>
+                <div className="mt-2 p-2 bg-red-100 dark:bg-red-800/30 rounded text-xs">
+                  <strong>MATCH PLAY SPECIAL:</strong> No gimmes - all putts must be holed out
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
