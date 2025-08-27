@@ -89,9 +89,9 @@ export default function Rules() {
                   Drinking Rule: 3-6-9 System
                 </h4>
                 <div className="text-sm text-orange-700 dark:text-orange-300 space-y-1">
-                  <div><strong>3 feet or less:</strong> Putter length (1 drink)</div>
-                  <div><strong>6 feet or less:</strong> Flagstick length (2 drinks)</div>
-                  <div><strong>9 feet or less:</strong> Putter + Flagstick length (3 drinks)</div>
+                  <div><strong>3 drinks:</strong> Putter length gimme</div>
+                  <div><strong>6 drinks:</strong> Flagstick length gimme</div>
+                  <div><strong>9 drinks:</strong> Both putter + flagstick length gimmes</div>
                 </div>
               </div>
             </CardContent>
@@ -168,11 +168,11 @@ export default function Rules() {
                   Drinking Rule: 3-6-9 System
                 </h4>
                 <div className="text-sm text-orange-700 dark:text-orange-300 space-y-1">
-                  <div><strong>3 feet or less:</strong> Putter length (1 drink)</div>
-                  <div><strong>6 feet or less:</strong> Flagstick length (2 drinks)</div>
-                  <div><strong>9 feet or less:</strong> Putter + Flagstick length (3 drinks)</div>
+                  <div><strong>3 drinks:</strong> Putter length gimme</div>
+                  <div><strong>6 drinks:</strong> Flagstick length gimme</div>
+                  <div><strong>9 drinks:</strong> Both putter + flagstick length gimmes</div>
                   <div className="mt-2 p-2 bg-orange-100 dark:bg-orange-800/30 rounded text-xs">
-                    <strong>SCRAMBLE SPECIAL:</strong> Both players must achieve drinking distance to get the bonus
+                    <strong>SCRAMBLE SPECIAL:</strong> Both players must drink the amount to get the bonus
                   </div>
                 </div>
               </div>
