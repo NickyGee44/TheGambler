@@ -591,7 +591,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         res.status(400).json({ error: error.errors });
       } else {
-        res.status(500).json({ error: 'Failed to create side bet' });
+        console.error('Error creating side bet:', error);
+        res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to create side bet' });
       }
     }
   });
@@ -656,6 +657,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error accepting team bet:', error);
       res.status(500).json({ error: error.message || 'Failed to accept team bet' });
+    }
+  });
+
+  // Check bet deadline for a round
+  app.get('/api/sidebets/deadline/:round', async (req, res) => {
+    try {
+      const round = parseInt(req.params.round);
+      const deadlineInfo = await storage.checkBetDeadline(round);
+      res.json(deadlineInfo);
+    } catch (error) {
+      console.error('Error checking bet deadline:', error);
+      res.status(500).json({ error: 'Failed to check bet deadline' });
     }
   });
 

@@ -30,17 +30,20 @@ export const TOURNAMENT_CONFIG = {
     round1: {
       date: "Friday Aug 29",
       time: "1:10 PM first tee",
-      course: "Deerhurst Golf Course"
+      course: "Deerhurst Golf Course",
+      startDateTime: "2025-08-29T13:10:00-04:00" // 1:10 PM EDT
     },
     round2: {
       date: "Saturday Aug 30", 
       time: "11:20 AM first tee",
-      course: "Deerhurst Golf Course"
+      course: "Deerhurst Golf Course",
+      startDateTime: "2025-08-30T11:20:00-04:00" // 11:20 AM EDT
     },
     round3: {
       date: "Sunday Aug 31",
       time: "11:30 AM first tee", 
-      course: "Muskoka Bay Golf Club"
+      course: "Muskoka Bay Golf Club",
+      startDateTime: "2025-08-31T11:30:00-04:00" // 11:30 AM EDT
     }
   },
   teams: {
@@ -62,4 +65,19 @@ export const getCourseForRound = (round: number) => {
     case 3: return TOURNAMENT_CONFIG.courses.round3;
     default: return TOURNAMENT_CONFIG.courses.round1;
   }
+};
+
+export const getRoundStartTime = (round: number): Date => {
+  switch(round) {
+    case 1: return new Date(TOURNAMENT_CONFIG.schedule.round1.startDateTime);
+    case 2: return new Date(TOURNAMENT_CONFIG.schedule.round2.startDateTime);
+    case 3: return new Date(TOURNAMENT_CONFIG.schedule.round3.startDateTime);
+    default: return new Date(TOURNAMENT_CONFIG.schedule.round1.startDateTime);
+  }
+};
+
+export const getBetDeadline = (round: number): Date => {
+  const roundStart = getRoundStartTime(round);
+  // Deadline is 1 hour before round start
+  return new Date(roundStart.getTime() - (60 * 60 * 1000));
 };

@@ -7,6 +7,13 @@ The Gambler Cup 2025 is a golf tournament tracking application for an 8-team tou
 Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
+**August 27, 2025**: 
+- ✅ **AUTOMATIC BET DECLINE SYSTEM**: Implemented time-based validation that auto-declines side bets not accepted 1 hour before round start
+- ✅ **ENHANCED TEAM BETTING**: Fixed team bet display format to show "Nick and Connor challenge Christian and Bailey" instead of individual challenges
+- ✅ **TEAMMATE ACCEPTANCE LOGIC**: Both opposing team members must accept before team bet confirmation, otherwise goes to "Pussy Boys Hall of Shame"
+- ✅ **DEADLINE VALIDATION**: Added API endpoints to check bet deadlines and prevent late bet creation
+- ✅ **TOURNAMENT SCHEDULING**: Added precise round start times (Round 1: 1:10 PM, Round 2: 11:20 AM, Round 3: 11:30 AM) for deadline calculations
+
 **August 26, 2025**: 
 - ✅ **INTELLIGENT MATCHUP SYSTEM**: Implemented persistent database-backed tournament matchups with sophisticated algorithms for each round format
 - ✅ **NICK GROSSI SHUFFLE PERMISSIONS**: Added exclusive shuffle permissions for Nick Grossi (user ID 13) for rounds 1 and 2 only - Round 3 is permanently fixed

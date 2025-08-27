@@ -2038,11 +2038,56 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSideBets(): Promise<SideBet[]> {
+    // First, auto-decline expired bets
+    await this.autoDeclineExpiredBets();
+    
     const bets = await db.select().from(sideBets).orderBy(asc(sideBets.round), asc(sideBets.createdAt));
     return bets;
   }
 
+  async autoDeclineExpiredBets(): Promise<void> {
+    const { getBetDeadline } = await import('../shared/tournamentConfig');
+    const now = new Date();
+    
+    // Check pending bets for each round
+    for (const round of [1, 2, 3]) {
+      const deadline = getBetDeadline(round);
+      
+      if (now > deadline) {
+        // Auto-decline all pending or partially accepted bets for this round
+        const expiredBets = await db
+          .select()
+          .from(sideBets)
+          .where(
+            sql`${sideBets.round} = ${round} AND ${sideBets.status} IN ('Pending', 'Partially Accepted')`
+          );
+
+        for (const bet of expiredBets) {
+          await db
+            .update(sideBets)
+            .set({ 
+              status: 'Declined',
+              result: 'Auto-declined - missed 1 hour deadline',
+              updatedAt: new Date()
+            })
+            .where(eq(sideBets.id, bet.id));
+          
+          console.log(`🐱 AUTO-DECLINE: Bet ${bet.id} for Round ${round} auto-declined due to missed deadline`);
+        }
+      }
+    }
+  }
+
   async createSideBet(insertSideBet: InsertSideBet): Promise<SideBet> {
+    // Check if bet deadline has passed
+    const { getBetDeadline } = await import('../shared/tournamentConfig');
+    const deadline = getBetDeadline(insertSideBet.round);
+    const now = new Date();
+    
+    if (now > deadline) {
+      throw new Error(`Cannot create bet for Round ${insertSideBet.round} - deadline has passed. Bets must be created 1 hour before round start.`);
+    }
+    
     const [sideBet] = await db
       .insert(sideBets)
       .values({
@@ -2080,6 +2125,23 @@ export class DatabaseStorage implements IStorage {
     }
     
     return updatedBet;
+  }
+
+  async checkBetDeadline(round: number): Promise<{ passed: boolean; deadline: Date; timeLeft?: string }> {
+    const { getBetDeadline } = await import('../shared/tournamentConfig');
+    const deadline = getBetDeadline(round);
+    const now = new Date();
+    const passed = now > deadline;
+    
+    let timeLeft;
+    if (!passed) {
+      const msLeft = deadline.getTime() - now.getTime();
+      const hoursLeft = Math.floor(msLeft / (1000 * 60 * 60));
+      const minutesLeft = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+      timeLeft = `${hoursLeft}h ${minutesLeft}m`;
+    }
+    
+    return { passed, deadline, timeLeft };
   }
 
   async updateTeammateAcceptance(betId: number, userName: string): Promise<SideBet> {
