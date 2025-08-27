@@ -130,7 +130,8 @@ function Router() {
     setBirdieNotification(null);
   };
 
-  if (isLoading) {
+  // Show loading only if we're actively checking and have already found a user
+  if (isLoading && user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">

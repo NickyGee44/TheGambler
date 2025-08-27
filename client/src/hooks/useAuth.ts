@@ -10,12 +10,13 @@ export function useAuth() {
   } = useQuery<SelectUser | undefined, Error>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 30000, // 30 seconds
+    gcTime: 60000, // 1 minute
     refetchOnWindowFocus: false,
-    refetchOnMount: true,
+    refetchOnMount: false,
     refetchInterval: false,
-    retry: 1,
+    retry: false,
+    enabled: true,
   });
 
   const logoutMutation = useMutation({
@@ -45,7 +46,7 @@ export function useAuth() {
 
   return {
     user: user ?? null,
-    isLoading,
+    isLoading: isLoading && !!user, // Only show loading if we have a user
     error,
     isAuthenticated: !!user,
     logoutMutation,
