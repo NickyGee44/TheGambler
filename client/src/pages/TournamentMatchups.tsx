@@ -76,32 +76,57 @@ export default function TournamentMatchups() {
   // Handle shuffling matchups for different rounds
   const handleShuffleMatchups = async (round: number) => {
     try {
+      console.log(`Starting shuffle for Round ${round}`);
+      
       if (round === 1 || round === 2) {
-        await apiRequest('/api/matchups/shuffle', {
+        const response = await fetch('/api/matchups/shuffle', {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ round }),
-          headers: { 'Content-Type': 'application/json' }
+          credentials: 'include'
         });
+
+        if (!response.ok) {
+          const error = await response.text();
+          throw new Error(`HTTP ${response.status}: ${error}`);
+        }
+
+        const newMatchups = await response.json();
+        console.log(`Round ${round} shuffled successfully:`, newMatchups);
+        
         toast({
           title: `Round ${round} Shuffled`,
           description: round === 1 ? "New random foursomes generated." : "New scramble foursomes generated (teammates paired).",
         });
       } else if (round === 3) {
-        await apiRequest('/api/matchups/initialize-round3', {
-          method: 'POST'
+        const response = await fetch('/api/matchups/initialize-round3', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
         });
+
+        if (!response.ok) {
+          const error = await response.text();
+          throw new Error(`HTTP ${response.status}: ${error}`);
+        }
+
+        const newMatchups = await response.json();
+        console.log('Round 3 initialized successfully:', newMatchups);
+        
         toast({
           title: "Round 3 Initialized",
           description: "Fixed match play pairings created.",
         });
       }
       
-      refetchMatchups();
+      // Refetch matchups to get updated data
+      await refetchMatchups();
+      
     } catch (error) {
       console.error('Shuffle error:', error);
       toast({
         title: "Error",
-        description: `Failed to shuffle Round ${round} matchups.`,
+        description: error instanceof Error ? error.message : `Failed to shuffle Round ${round} matchups.`,
         variant: "destructive",
       });
     }
