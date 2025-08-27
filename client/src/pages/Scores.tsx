@@ -266,6 +266,20 @@ export default function Scores() {
                               />
                               <span className="truncate">{score.team.player2Name}</span>
                             </div>
+                            {/* Show third player for 3-person teams */}
+                            {score.team.isThreePersonTeam && score.team.player3Name && (
+                              <>
+                                <span className="hidden sm:inline">&</span>
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                  <ProfilePicture 
+                                    firstName={score.team.player3Name.split(' ')[0]} 
+                                    lastName={score.team.player3Name.split(' ')[1] || ''} 
+                                    size="sm"
+                                  />
+                                  <span className="truncate">{score.team.player3Name}</span>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </td>
                         <td className="px-3 sm:px-6 py-3 sm:py-4 text-center font-medium text-sm sm:text-base">{score.round1Points || '-'}</td>

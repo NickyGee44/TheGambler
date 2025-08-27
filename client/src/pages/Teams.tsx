@@ -93,16 +93,16 @@ export default function Teams() {
               </div>
             </CardHeader>
             <CardContent className="pt-6 pb-6">
-              <div className="flex justify-center items-start space-x-8">
+              <div className={`flex justify-center items-start ${team.isThreePersonTeam ? 'space-x-4' : 'space-x-8'}`}>
                 {/* Player 1 */}
                 <div className="flex flex-col items-center text-center">
                   <ProfilePicture 
                     firstName={team.player1Name.split(' ')[0]} 
                     lastName={team.player1Name.split(' ').slice(1).join(' ')} 
-                    size="2xl"
+                    size={team.isThreePersonTeam ? "xl" : "2xl"}
                     className="border-2 border-golf-green-200 dark:border-golf-green-600 mb-3"
                   />
-                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">
+                  <h3 className={`font-semibold ${team.isThreePersonTeam ? 'text-base' : 'text-lg'} text-gray-900 dark:text-white mb-2`}>
                     {team.player1Name}
                   </h3>
                   <Badge variant="secondary" className="bg-golf-green-100 dark:bg-golf-green-900 text-golf-green-700 dark:text-golf-green-300">
@@ -115,16 +115,34 @@ export default function Teams() {
                   <ProfilePicture 
                     firstName={team.player2Name.split(' ')[0]} 
                     lastName={team.player2Name.split(' ').slice(1).join(' ')} 
-                    size="2xl"
+                    size={team.isThreePersonTeam ? "xl" : "2xl"}
                     className="border-2 border-golf-green-200 dark:border-golf-green-600 mb-3"
                   />
-                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">
+                  <h3 className={`font-semibold ${team.isThreePersonTeam ? 'text-base' : 'text-lg'} text-gray-900 dark:text-white mb-2`}>
                     {team.player2Name}
                   </h3>
                   <Badge variant="secondary" className="bg-golf-green-100 dark:bg-golf-green-900 text-golf-green-700 dark:text-golf-green-300">
                     {team.player2Handicap} Handicap
                   </Badge>
                 </div>
+
+                {/* Player 3 - Only show for 3-person teams */}
+                {team.isThreePersonTeam && team.player3Name && (
+                  <div className="flex flex-col items-center text-center">
+                    <ProfilePicture 
+                      firstName={team.player3Name.split(' ')[0]} 
+                      lastName={team.player3Name.split(' ').slice(1).join(' ')} 
+                      size="xl"
+                      className="border-2 border-golf-green-200 dark:border-golf-green-600 mb-3"
+                    />
+                    <h3 className="font-semibold text-base text-gray-900 dark:text-white mb-2">
+                      {team.player3Name}
+                    </h3>
+                    <Badge variant="secondary" className="bg-golf-green-100 dark:bg-golf-green-900 text-golf-green-700 dark:text-golf-green-300">
+                      {team.player3Handicap} Handicap
+                    </Badge>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

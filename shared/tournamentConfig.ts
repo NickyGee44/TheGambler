@@ -47,8 +47,8 @@ export const TOURNAMENT_CONFIG = {
     }
   },
   teams: {
-    count: 8,
-    totalPlayers: 17, // Updated for 7 two-person teams + 1 three-person team
+    count: 7,
+    totalPlayers: 15, // 6 two-person teams (12 players) + 1 three-person team (3 players) = 15 players
     threePersonTeam: {
       teamNumber: 7,
       members: ["Nic Huxley", "Sye Ellard", "James Ogilvie"]
