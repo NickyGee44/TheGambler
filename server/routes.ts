@@ -4,10 +4,9 @@ import { WebSocketServer, WebSocket } from "ws";
 import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
-import { setupAuth } from "./auth";
+import { setupAuth } from "./replitAuth";
 import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema, insertHoleScoreSchema, User } from "@shared/schema";
 import { z } from "zod";
-import { simpleRouter } from "./routes_simple";
 
 // Middleware to check authentication
 async function requireAuth(req: any, res: any, next: any) {
@@ -16,26 +15,7 @@ async function requireAuth(req: any, res: any, next: any) {
     return next();
   }
   
-  // Fallback to token-based authentication
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    const { getUserFromToken } = await import('./auth');
-    const userId = getUserFromToken(token);
-    
-    if (userId) {
-      try {
-        const user = await storage.getUser(userId);
-        if (user) {
-          // Attach user to request for routes that need it
-          req.user = user;
-          return next();
-        }
-      } catch (error) {
-        console.error("Error fetching user by token:", error);
-      }
-    }
-  }
+  // No fallback token authentication needed - use Replit Auth only
   
   return res.status(401).json({ error: 'Authentication required' });
 }
@@ -235,10 +215,7 @@ async function generateRound1Matchups(storage: any) {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  setupAuth(app);
-  
-  // Add simple routes
-  app.use('/api', simpleRouter);
+  await setupAuth(app);
   
   const httpServer = createServer(app);
 
@@ -492,48 +469,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Generate mock data endpoint (admin only)
-  app.post('/api/generate-mock-data', requireAuth, async (req: any, res) => {
-    try {
-      console.log('Mock data generation request received');
-      const userId = req.user.id;
-      const user = await storage.getUser(userId);
-      
-      if (!user) {
-        console.log('User not found:', userId);
-        return res.status(401).json({ error: 'User not found' });
-      }
-      
-      // Only allow Nick Grossi and Connor Patterson to generate mock data
-      const allowedUsers = ['Nick Grossi', 'Connor Patterson'];
-      const userName = `${user.firstName} ${user.lastName}`;
-      
-      console.log('User attempting mock data generation:', userName);
-      
-      if (!allowedUsers.includes(userName)) {
-        console.log('Access denied for user:', userName);
-        return res.status(403).json({ error: 'Only Nick Grossi and Connor Patterson can generate mock data' });
-      }
-      
-      console.log('Starting mock data generation...');
-      // Mock data generation temporarily disabled
-      const result = { groupsCount: 0, matchesCount: 0 };
-      
-      console.log('Mock data generation completed successfully');
-      res.json({ 
-        message: 'Mock data generated successfully',
-        data: {
-          groupsCreated: result.groupsCount,
-          matchesCreated: result.matchesCount
-        }
-      });
-    } catch (error) {
-      console.error('Error generating mock data:', error);
-      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
-      res.status(500).json({ error: `Failed to generate mock data: ${error instanceof Error ? error.message : 'Unknown error'}` });
-    }
-  });
-
   app.post('/api/scores', requireAuth, async (req: any, res) => {
     try {
       const { teamId, round, score } = req.body;
@@ -663,7 +598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedSideBet);
     } catch (error) {
       console.error('Error accepting team bet:', error);
-      res.status(500).json({ error: error.message || 'Failed to accept team bet' });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to accept team bet' });
     }
   });
 
@@ -880,7 +815,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Round 3 has fixed preset groupings and cannot be shuffled' });
       }
 
-      let generatedMatchups = [];
+      let generatedMatchups: any[] = [];
 
       if (round === 1) {
         // Round 1: Random pairings that avoid overlaps with Round 2 & 3
@@ -901,12 +836,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(newMatchups);
     } catch (error) {
       console.error('Error shuffling matchups:', error);
-      console.error('Full error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-      res.status(500).json({ error: 'Failed to shuffle matchups', details: error.message });
+      if (error instanceof Error) {
+        console.error('Full error details:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
+        res.status(500).json({ error: 'Failed to shuffle matchups', details: error.message });
+      } else {
+        res.status(500).json({ error: 'Failed to shuffle matchups' });
+      }
     }
   });
 
@@ -1159,8 +1098,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'User not found' });
       }
       
+      // Find user's team
+      const userFullName = `${user.firstName} ${user.lastName}`;
+      const teams = await storage.getTeams();
+      const team = teams.find(t => 
+        t.player1Name === userFullName || 
+        t.player2Name === userFullName ||
+        t.player3Name === userFullName
+      );
+      
+      if (!team) {
+        return res.status(404).json({ error: 'Team not found for user' });
+      }
+      
       // Get team hole scores for scramble format
-      const teamHoleScores = await storage.getTeamHoleScores(user.teamId, round);
+      const teamHoleScores = await storage.getTeamHoleScores(team.id, round);
       res.json(teamHoleScores);
     } catch (error) {
       console.error('Error fetching team hole scores:', error);
@@ -1280,7 +1232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Broadcast team hole score update to all clients
       broadcast({
         type: 'TEAM_HOLE_SCORE_UPDATE',
-        data: { holeScore, teamId: user.teamId, userId, round, hole }
+        data: { holeScore, teamId: team.id, userId, round, hole }
       });
 
       res.json(holeScore);

@@ -19,13 +19,11 @@ import Photos from "@/pages/Photos";
 import Round1 from "@/pages/Round1";
 import Round2 from "@/pages/Round2";
 import Round3 from "@/pages/Round3";
-import { SimpleRound1 } from "@/pages/SimpleRound1";
 import Round3Matchups from "@/pages/Round3Matchups";
 import TournamentMatchups from "@/pages/TournamentMatchups";
 
 import TrashTalk from "@/pages/TrashTalk";
 import AuthPage from "@/pages/AuthPage";
-import PictureAssignment from "@/pages/PictureAssignment";
 import NotFound from "@/pages/not-found";
 import UpdateNotification from "@/components/UpdateNotification";
 import BirdieNotification from "@/components/BirdieNotification";
@@ -153,7 +151,7 @@ function Router() {
             <Route path="/" component={Home} />
             <Route path="/teams" component={Teams} />
             <Route path="/round1" component={Round1} />
-            <Route path="/simple1" component={SimpleRound1} />
+
             <Route path="/round2" component={Round2} />
             <Route path="/round3" component={Round3} />
 
@@ -169,7 +167,7 @@ function Router() {
             <Route path="/photos" component={Photos} />
             <Route path="/matchups" component={TournamentMatchups} />
             <Route path="/round3-matchups" component={Round3Matchups} />
-            <Route path="/admin/picture-assignment" component={PictureAssignment} />
+
           </>
         )}
         <Route component={NotFound} />
