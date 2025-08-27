@@ -340,9 +340,9 @@ export const matchups = pgTable("matchups", {
   id: serial("id").primaryKey(),
   round: integer("round").notNull(),
   player1Id: integer("player1_id").notNull().references(() => users.id),
-  player2Id: integer("player2_id").notNull().references(() => users.id),
+  player2Id: integer("player2_id").references(() => users.id), // Allow null for solo players
   player1Name: varchar("player1_name", { length: 100 }).notNull(),
-  player2Name: varchar("player2_name", { length: 100 }).notNull(),
+  player2Name: varchar("player2_name", { length: 100 }), // Allow null for solo players
   player1Score: integer("player1_score").default(0),
   player2Score: integer("player2_score").default(0),
   groupNumber: integer("group_number"),

@@ -70,20 +70,45 @@ async function generateRound3MatchupsOnce(storage: any) {
   
   for (const group of presetGroupings) {
     // Create pairings within each foursome for Round 3 match play
-    for (let i = 0; i < group.players.length; i += 2) {
-      const player1 = group.players[i];
-      const player2 = group.players[i + 1];
+    if (group.players.length === 4) {
+      // Full foursome - create 2 pairs
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: group.players[0].id,
+        player2Id: group.players[1].id,
+        player1Name: group.players[0].name,
+        player2Name: group.players[1].name
+      });
       
-      if (player1 && player2) {
-        matchups.push({
-          round: 3,
-          groupNumber: group.groupNumber,
-          player1Id: player1.id,
-          player2Id: player2.id,
-          player1Name: player1.name,
-          player2Name: player2.name
-        });
-      }
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: group.players[2].id,
+        player2Id: group.players[3].id,
+        player1Name: group.players[2].name,
+        player2Name: group.players[3].name
+      });
+    } else if (group.players.length === 3) {
+      // Threesome - create 1 pair + 1 solo player
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: group.players[0].id,
+        player2Id: group.players[1].id,
+        player1Name: group.players[0].name,
+        player2Name: group.players[1].name
+      });
+      
+      // Third player as solo
+      matchups.push({
+        round: 3,
+        groupNumber: group.groupNumber,
+        player1Id: group.players[2].id,
+        player2Id: null,
+        player1Name: group.players[2].name,
+        player2Name: "Solo Player"
+      });
     }
   }
   
@@ -121,26 +146,75 @@ async function generateRound2Matchups(storage: any) {
     }
   });
   
-  // Group players into foursomes
+  // Group players into foursomes (15 players = 3 foursomes + 1 threesome)
   let groupNumber = 1;
   for (let i = 0; i < playerPool.length; i += 4) {
     const foursome = playerPool.slice(i, i + 4);
     
-    if (foursome.length >= 2) {
-      // Create pairs within the foursome
-      for (let j = 0; j < foursome.length; j += 2) {
-        if (foursome[j + 1]) {
-          // Regular pair
-          matchups.push({
-            round: 2,
-            groupNumber,
-            player1Id: foursome[j].id,
-            player2Id: foursome[j + 1].id,
-            player1Name: foursome[j].name,
-            player2Name: foursome[j + 1].name
-          });
-        }
-      }
+    if (foursome.length === 4) {
+      // Regular foursome - create 2 pairs
+      matchups.push({
+        round: 2,
+        groupNumber,
+        player1Id: foursome[0].id,
+        player2Id: foursome[1].id,
+        player1Name: foursome[0].name,
+        player2Name: foursome[1].name
+      });
+      
+      matchups.push({
+        round: 2,
+        groupNumber,
+        player1Id: foursome[2].id,
+        player2Id: foursome[3].id,
+        player1Name: foursome[2].name,
+        player2Name: foursome[3].name
+      });
+      
+      groupNumber++;
+    } else if (foursome.length === 3) {
+      // Threesome - create 1 pair + 1 solo player
+      matchups.push({
+        round: 2,
+        groupNumber,
+        player1Id: foursome[0].id,
+        player2Id: foursome[1].id,
+        player1Name: foursome[0].name,
+        player2Name: foursome[1].name
+      });
+      
+      // Third player as solo
+      matchups.push({
+        round: 2,
+        groupNumber,
+        player1Id: foursome[2].id,
+        player2Id: null,
+        player1Name: foursome[2].name,
+        player2Name: "Solo Player"
+      });
+      
+      groupNumber++;
+    } else if (foursome.length === 2) {
+      // Remaining pair
+      matchups.push({
+        round: 2,
+        groupNumber,
+        player1Id: foursome[0].id,
+        player2Id: foursome[1].id,
+        player1Name: foursome[0].name,
+        player2Name: foursome[1].name
+      });
+      groupNumber++;
+    } else if (foursome.length === 1) {
+      // Single remaining player
+      matchups.push({
+        round: 2,
+        groupNumber,
+        player1Id: foursome[0].id,
+        player2Id: null,
+        player1Name: foursome[0].name,
+        player2Name: "Solo Player"
+      });
       groupNumber++;
     }
   }
@@ -228,8 +302,8 @@ async function generateRound1Matchups(storage: any) {
       });
       
       groupNumber++;
-    } else if (foursome.length === 2) {
-      // Handle the final group with only 2 players (14 total players)
+    } else if (foursome.length === 3) {
+      // Handle the final threesome (15 total players)
       matchups.push({
         round: 1,
         groupNumber,
@@ -237,6 +311,39 @@ async function generateRound1Matchups(storage: any) {
         player2Id: foursome[1].id,
         player1Name: foursome[0].name,
         player2Name: foursome[1].name
+      });
+      
+      // Third player creates a single-player "pair" 
+      matchups.push({
+        round: 1,
+        groupNumber,
+        player1Id: foursome[2].id,
+        player2Id: null,
+        player1Name: foursome[2].name,
+        player2Name: "Solo Player"
+      });
+      
+      groupNumber++;
+    } else if (foursome.length === 2) {
+      // Handle remaining pair
+      matchups.push({
+        round: 1,
+        groupNumber,
+        player1Id: foursome[0].id,
+        player2Id: foursome[1].id,
+        player1Name: foursome[0].name,
+        player2Name: foursome[1].name
+      });
+      groupNumber++;
+    } else if (foursome.length === 1) {
+      // Handle single remaining player
+      matchups.push({
+        round: 1,
+        groupNumber,
+        player1Id: foursome[0].id,
+        player2Id: null,
+        player1Name: foursome[0].name,
+        player2Name: "Solo Player"
       });
       groupNumber++;
     }
