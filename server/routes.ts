@@ -93,42 +93,53 @@ async function generateRound2Matchups(storage: any) {
   const teams = [
     { player1: { id: 13, name: "Nick Grossi" }, player2: { id: 20, name: "Connor Patterson" } },
     { player1: { id: 21, name: "Christian Hauck" }, player2: { id: 25, name: "Bailey Carlson" } },
-    { player1: { id: 24, name: "Nic Huxley" }, player2: { id: 14, name: "James Ogilvie" } }, // Note: Mystery Player replaced with James
     { player1: { id: 16, name: "Erik Boudreau" }, player2: { id: 18, name: "Will Bibbings" } },
-    { player1: { id: 19, name: "Nick Cook" }, player2: { id: 22, name: "Spencer Reid" } }, // Note: Kevin Durco replaced with Spencer
-    { player1: { id: 23, name: "Jeffrey Reiner" }, player2: { id: 15, name: "Johnny Magnatta" } }
+    { player1: { id: 19, name: "Nick Cook" }, player2: { id: 22, name: "Spencer Reid" } },
+    { player1: { id: 23, name: "Jeffrey Reiner" }, player2: { id: 15, name: "Johnny Magnatta" } },
+    { player1: { id: 27, name: "Jordan Kreller" } }, // Team 6 (single player)
+    { player1: { id: 24, name: "Nic Huxley" }, player2: { id: 26, name: "Sye Ellard" }, player3: { id: 14, name: "James Ogilvie" } } // Team 7 (3-person team)
   ];
 
   // Shuffle teams randomly
   const shuffledTeams = [...teams].sort(() => Math.random() - 0.5);
   const matchups = [];
   
-  // Pair teams into foursomes (2 teams per foursome)
-  for (let i = 0; i < shuffledTeams.length; i += 2) {
-    const team1 = shuffledTeams[i];
-    const team2 = shuffledTeams[i + 1];
+  // Handle different team sizes and group them into foursomes
+  const playerPool = [];
+  shuffledTeams.forEach(team => {
+    if (team.player3) {
+      // 3-person team - add all 3 players
+      playerPool.push(team.player1, team.player2, team.player3);
+    } else if (team.player2) {
+      // 2-person team - add both players
+      playerPool.push(team.player1, team.player2);
+    } else {
+      // 1-person team - add single player
+      playerPool.push(team.player1);
+    }
+  });
+  
+  // Group players into foursomes
+  let groupNumber = 1;
+  for (let i = 0; i < playerPool.length; i += 4) {
+    const foursome = playerPool.slice(i, i + 4);
     
-    if (team1 && team2) {
-      const groupNumber = Math.floor(i / 2) + 1;
-      
-      // Create pairings for this foursome
-      matchups.push({
-        round: 2,
-        groupNumber,
-        player1Id: team1.player1.id,
-        player2Id: team1.player2.id,
-        player1Name: team1.player1.name,
-        player2Name: team1.player2.name
-      });
-      
-      matchups.push({
-        round: 2,
-        groupNumber,
-        player1Id: team2.player1.id,
-        player2Id: team2.player2.id,
-        player1Name: team2.player1.name,
-        player2Name: team2.player2.name
-      });
+    if (foursome.length >= 2) {
+      // Create pairs within the foursome
+      for (let j = 0; j < foursome.length; j += 2) {
+        if (foursome[j + 1]) {
+          // Regular pair
+          matchups.push({
+            round: 2,
+            groupNumber,
+            player1Id: foursome[j].id,
+            player2Id: foursome[j + 1].id,
+            player1Name: foursome[j].name,
+            player2Name: foursome[j + 1].name
+          });
+        }
+      }
+      groupNumber++;
     }
   }
   
@@ -149,7 +160,9 @@ async function generateRound1Matchups(storage: any) {
     { id: 22, name: "Spencer Reid" },
     { id: 23, name: "Jeffrey Reiner" },
     { id: 24, name: "Nic Huxley" },
-    { id: 25, name: "Bailey Carlson" }
+    { id: 25, name: "Bailey Carlson" },
+    { id: 26, name: "Sye Ellard" },
+    { id: 27, name: "Jordan Kreller" }
   ];
 
   // Get Round 2 and Round 3 pairs to avoid in Round 1
@@ -210,6 +223,17 @@ async function generateRound1Matchups(storage: any) {
         player2Name: foursome[3].name
       });
       
+      groupNumber++;
+    } else if (foursome.length === 2) {
+      // Handle the final group with only 2 players (14 total players)
+      matchups.push({
+        round: 1,
+        groupNumber,
+        player1Id: foursome[0].id,
+        player2Id: foursome[1].id,
+        player1Name: foursome[0].name,
+        player2Name: foursome[1].name
+      });
       groupNumber++;
     }
   }
