@@ -270,9 +270,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
-      // For now, accept the password "abc123" - later we can implement proper password hashing
-      // The database password field contains a hashed value, but for simplicity during tournament
-      if (password !== 'abc123') {
+      // Check password against the stored password in database
+      if (password !== user.password) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
