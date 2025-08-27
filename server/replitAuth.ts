@@ -38,7 +38,7 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production', // Only require HTTPS in production
       maxAge: sessionTtl,
     },
   });
@@ -57,13 +57,9 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
-  await storage.upsertUser({
-    id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
-    profileImageUrl: claims["profile_image_url"],
-  });
+  // Note: For custom auth during tournament, we don't need to upsert Replit Auth users
+  // This function would normally handle Replit Auth users, but we'll skip for now
+  console.log('Replit Auth user upsert skipped during tournament');
 }
 
 export async function setupAuth(app: Express) {

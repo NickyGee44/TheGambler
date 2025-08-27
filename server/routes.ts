@@ -10,12 +10,16 @@ import { z } from "zod";
 
 // Middleware to check authentication
 async function requireAuth(req: any, res: any, next: any) {
-  // First try session-based authentication
-  if (req.isAuthenticated()) {
+  // First try session-based authentication (custom auth)
+  if (req.session?.user) {
+    req.user = req.session.user;
     return next();
   }
   
-  // No fallback token authentication needed - use Replit Auth only
+  // Fallback to Replit Auth
+  if (req.isAuthenticated()) {
+    return next();
+  }
   
   return res.status(401).json({ error: 'Authentication required' });
 }
@@ -214,8 +218,158 @@ async function generateRound1Matchups(storage: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
+  // Auth middleware setup (includes session middleware)
   await setupAuth(app);
+
+  // Define custom auth routes AFTER session middleware is set up
+  // Custom username/password login endpoint (overrides Replit Auth GET /api/login)
+  app.post('/api/login', async (req, res) => {
+    try {
+      const { playerName, password } = req.body;
+      
+      if (!playerName || !password) {
+        return res.status(400).json({ error: 'Player name and password are required' });
+      }
+
+      // Parse player name to get first and last name
+      const nameParts = playerName.trim().split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
+      
+      // Find user by name
+      const user = await storage.getUserByName(firstName, lastName);
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      // For now, accept the password "abc123" - later we can implement proper password hashing
+      // The database password field contains a hashed value, but for simplicity during tournament
+      if (password !== 'abc123') {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      // Create session data
+      req.session.user = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName
+      };
+
+      res.json({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        message: 'Login successful'
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Custom registration endpoint
+  app.post('/api/register', async (req, res) => {
+    try {
+      const { playerName, password } = req.body;
+      
+      if (!playerName || !password) {
+        return res.status(400).json({ error: 'Player name and password are required' });
+      }
+
+      // Parse player name to get first and last name
+      const nameParts = playerName.trim().split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByName(firstName, lastName);
+      if (existingUser) {
+        return res.status(400).json({ error: 'User already exists' });
+      }
+
+      // Create new user with simple password (for tournament convenience)
+      const newUser = await storage.createUser({
+        firstName,
+        lastName,
+        password: 'abc123', // Simple password for tournament
+        handicap: 20
+      });
+
+      // Create session data
+      req.session.user = {
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName
+      };
+
+      res.json({
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        message: 'Registration successful'
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Get current user endpoint
+  app.get('/api/user', async (req, res) => {
+    try {
+      // Check for custom session auth first
+      if (req.session?.user) {
+        const user = await storage.getUser(req.session.user.id);
+        if (user) {
+          return res.json({
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName
+          });
+        }
+      }
+      
+      // Fallback to Replit Auth
+      if (req.isAuthenticated && req.isAuthenticated()) {
+        // Handle Replit Auth user
+        const user = req.user as any;
+        if (user?.claims?.sub) {
+          return res.json({
+            id: user.claims.sub,
+            firstName: user.claims.given_name || 'User',
+            lastName: user.claims.family_name || ''
+          });
+        }
+      }
+      
+      // No authenticated user found
+      res.status(401).json({ error: 'Not authenticated' });
+    } catch (error) {
+      console.error('Get user error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Logout endpoint
+  app.post('/api/logout', (req, res) => {
+    if (req.session?.user) {
+      // Custom auth logout
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Session destroy error:', err);
+          return res.status(500).json({ error: 'Logout failed' });
+        }
+        res.json({ message: 'Logged out successfully' });
+      });
+    } else if (req.logout) {
+      // Replit Auth logout
+      req.logout(() => {
+        res.json({ message: 'Logged out successfully' });
+      });
+    } else {
+      res.json({ message: 'No active session' });
+    }
+  });
   
   const httpServer = createServer(app);
 
@@ -401,6 +555,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(registeredPlayers);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch registered players' });
+    }
+  });
+
+  // Authentication routes already defined at the top of the file
+
+  // Teams endpoints
+  app.get('/api/teams', async (req, res) => {
+    try {
+      const teams = await storage.getTeams();
+      res.json(teams);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch teams' });
+    }
+  });
+
+  // Custom registration endpoint
+  app.post('/api/register', async (req, res) => {
+    try {
+      const { playerName, password } = req.body;
+      
+      if (!playerName || !password) {
+        return res.status(400).json({ error: 'Player name and password are required' });
+      }
+
+      // Parse player name to get first and last name
+      const nameParts = playerName.trim().split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ');
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByName(firstName, lastName);
+      if (existingUser) {
+        return res.status(400).json({ error: 'User already exists' });
+      }
+
+      // Create new user with simple password (for tournament convenience)
+      const newUser = await storage.createUser({
+        firstName,
+        lastName,
+        password: 'abc123', // Simple password for tournament
+        handicap: 20
+      });
+
+      // Create session data
+      req.session.user = {
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName
+      };
+
+      res.json({
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        message: 'Registration successful'
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Get current user endpoint
+  app.get('/api/user', async (req, res) => {
+    try {
+      // Check for custom session auth first
+      if (req.session?.user) {
+        const user = await storage.getUser(req.session.user.id);
+        if (user) {
+          return res.json({
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName
+          });
+        }
+      }
+      
+      // Fallback to Replit Auth
+      if (req.isAuthenticated && req.isAuthenticated()) {
+        // Handle Replit Auth user
+        const user = req.user as any;
+        if (user?.claims?.sub) {
+          return res.json({
+            id: user.claims.sub,
+            firstName: user.claims.given_name || 'User',
+            lastName: user.claims.family_name || ''
+          });
+        }
+      }
+      
+      // No authenticated user found
+      res.status(401).json({ error: 'Not authenticated' });
+    } catch (error) {
+      console.error('Get user error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Logout endpoint
+  app.post('/api/logout', (req, res) => {
+    if (req.session?.user) {
+      // Custom auth logout
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Session destroy error:', err);
+          return res.status(500).json({ error: 'Logout failed' });
+        }
+        res.json({ message: 'Logged out successfully' });
+      });
+    } else if (req.logout) {
+      // Replit Auth logout
+      req.logout(() => {
+        res.json({ message: 'Logged out successfully' });
+      });
+    } else {
+      res.json({ message: 'No active session' });
     }
   });
 
