@@ -8,6 +8,9 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 **August 27, 2025**: 
+- ✅ **NICK GROSSI AUTHENTICATION FIX**: Resolved session middleware ordering issue that prevented custom login routes from working properly. Nick Grossi can now log in with "Nick Grossi" / "abc123" credentials and access tournament matchup shuffle features
+- ✅ **SESSION MANAGEMENT REPAIR**: Fixed cookie security settings for development environment (secure: false) and resolved session persistence issues
+- ✅ **DRINKING RULES CORRECTION**: Updated 3-6-9 drinking system rules - 3 drinks = putter length gimme, 6 drinks = flagstick gimme, 9 drinks = both gimmes. Added scramble rule that both players must drink the amount to get bonus
 - ✅ **AUTOMATIC BET DECLINE SYSTEM**: Implemented time-based validation that auto-declines side bets not accepted 1 hour before round start
 - ✅ **ENHANCED TEAM BETTING**: Fixed team bet display format to show "Nick and Connor challenge Christian and Bailey" instead of individual challenges
 - ✅ **TEAMMATE ACCEPTANCE LOGIC**: Both opposing team members must accept before team bet confirmation, otherwise goes to "Pussy Boys Hall of Shame"
