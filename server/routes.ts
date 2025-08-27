@@ -59,7 +59,9 @@ async function generateRound3MatchupsOnce(storage: any) {
     {
       groupNumber: 4,
       players: [
-        { id: 22, name: "Spencer Reid" }      // Spencer Reid (moved to own group)
+        { id: 22, name: "Spencer Reid" },     // Spencer Reid
+        { id: 27, name: "Jordan Kreller" },   // Jordan Kreller
+        { id: 28, name: "Kevin Durco" }       // Kevin Durco
       ]
     }
   ];
@@ -94,9 +96,9 @@ async function generateRound2Matchups(storage: any) {
     { player1: { id: 13, name: "Nick Grossi" }, player2: { id: 20, name: "Connor Patterson" } },
     { player1: { id: 21, name: "Christian Hauck" }, player2: { id: 25, name: "Bailey Carlson" } },
     { player1: { id: 16, name: "Erik Boudreau" }, player2: { id: 18, name: "Will Bibbings" } },
-    { player1: { id: 19, name: "Nick Cook" }, player2: { id: 22, name: "Spencer Reid" } },
-    { player1: { id: 23, name: "Jeffrey Reiner" }, player2: { id: 15, name: "Johnny Magnatta" } },
-    { player1: { id: 27, name: "Jordan Kreller" } }, // Team 6 (single player)
+    { player1: { id: 19, name: "Nick Cook" }, player2: { id: 28, name: "Kevin Durco" } },
+    { player1: { id: 22, name: "Spencer Reid" }, player2: { id: 23, name: "Jeffrey Reiner" } },
+    { player1: { id: 15, name: "Johnny Magnatta" }, player2: { id: 27, name: "Jordan Kreller" } },
     { player1: { id: 24, name: "Nic Huxley" }, player2: { id: 26, name: "Sye Ellard" }, player3: { id: 14, name: "James Ogilvie" } } // Team 7 (3-person team)
   ];
 
@@ -162,7 +164,8 @@ async function generateRound1Matchups(storage: any) {
     { id: 24, name: "Nic Huxley" },
     { id: 25, name: "Bailey Carlson" },
     { id: 26, name: "Sye Ellard" },
-    { id: 27, name: "Jordan Kreller" }
+    { id: 27, name: "Jordan Kreller" },
+    { id: 28, name: "Kevin Durco" }
   ];
 
   // Get Round 2 and Round 3 pairs to avoid in Round 1
@@ -171,7 +174,7 @@ async function generateRound1Matchups(storage: any) {
   
   // Round 2 teammates (should be together in Round 2, avoid in Round 1)
   const teams = [
-    [13, 20], [21, 25], [24, 14], [16, 18], [19, 22], [23, 15]
+    [13, 20], [21, 25], [16, 18], [19, 28], [22, 23], [15, 27], [24, 26, 14]
   ];
   
   teams.forEach(team => {
@@ -182,8 +185,9 @@ async function generateRound1Matchups(storage: any) {
   // Round 3 preset pairs (avoid in Round 1)
   const round3Groups = [
     [13, 19, 14, 15], // Nick Grossi, Nick Cook, James Ogilvie, Johnny Magnatta
-    [20, 16, 21, 22], // Connor Patterson, Erik Boudreau, Christian Hauck, Spencer Reid  
-    [18, 23, 24, 25]  // Will Bibbings, Jeffrey Reiner, Nic Huxley, Bailey Carlson
+    [20, 16, 21, 26], // Connor Patterson, Erik Boudreau, Christian Hauck, Sye Ellard
+    [18, 23, 24, 25], // Will Bibbings, Jeffrey Reiner, Nic Huxley, Bailey Carlson
+    [22, 27, 28]      // Spencer Reid, Jordan Kreller, Kevin Durco
   ];
   
   round3Groups.forEach(group => {
