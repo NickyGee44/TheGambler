@@ -194,10 +194,10 @@ export default function TrashTalkWidget() {
         </Button>
       ) : (
         // Expanded state - full chat widget
-        <Card className="shadow-xl border-green-200 bg-white">
-          <CardHeader className="pb-3">
+        <Card className="shadow-xl border-green-200 bg-black text-white">
+          <CardHeader className="pb-3 bg-black border-b border-gray-700">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-sm">
+              <CardTitle className="flex items-center gap-2 text-sm text-white">
                 <MessageSquare className="h-4 w-4" />
                 Trash Talk
                 {unreadCount > 0 && (
@@ -211,7 +211,7 @@ export default function TrashTalkWidget() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsMinimized(!isMinimized)}
-                  className="h-6 w-6 p-0"
+                  className="h-6 w-6 p-0 text-white hover:bg-gray-800"
                 >
                   {isMinimized ? <Maximize2 className="h-3 w-3" /> : <Minimize2 className="h-3 w-3" />}
                 </Button>
@@ -219,7 +219,7 @@ export default function TrashTalkWidget() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsExpanded(false)}
-                  className="h-6 w-6 p-0"
+                  className="h-6 w-6 p-0 text-white hover:bg-gray-800"
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -228,14 +228,14 @@ export default function TrashTalkWidget() {
           </CardHeader>
           
           {!isMinimized && (
-            <CardContent className="p-0">
+            <CardContent className="p-0 bg-black">
               {/* Messages Area */}
-              <ScrollArea className="h-72 p-3">
+              <ScrollArea className="h-72 p-3 bg-black">
                 <div className="space-y-3">
                   {isLoading ? (
-                    <div className="text-center text-muted-foreground py-4 text-sm">Loading...</div>
+                    <div className="text-center text-gray-400 py-4 text-sm">Loading...</div>
                   ) : messages.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-4 text-sm">
+                    <div className="text-center text-gray-400 py-4 text-sm">
                       No messages yet 🗣️
                     </div>
                   ) : (
@@ -248,15 +248,15 @@ export default function TrashTalkWidget() {
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-xs">
+                            <span className="font-medium text-xs text-white">
                               {message.user.firstName} {message.user.lastName}
                             </span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-gray-400">
                               {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
                             </span>
                           </div>
                           <div 
-                            className="text-xs leading-relaxed break-words"
+                            className="text-xs leading-relaxed break-words text-gray-200"
                             dangerouslySetInnerHTML={{
                               __html: formatMessageWithTags(message.message)
                             }}
@@ -271,8 +271,8 @@ export default function TrashTalkWidget() {
 
               {/* Quick Tag Selector */}
               {showTagSelector && (
-                <div className="p-3 border-t bg-muted/30">
-                  <div className="text-xs font-medium mb-2">Tag players:</div>
+                <div className="p-3 border-t border-gray-700 bg-gray-900">
+                  <div className="text-xs font-medium mb-2 text-white">Tag players:</div>
                   <div className="flex flex-wrap gap-1">
                     {players
                       .filter(player => player.userId !== user?.id)
@@ -285,7 +285,7 @@ export default function TrashTalkWidget() {
                           const firstName = player.name.split(' ')[0];
                           setNewMessage(prev => prev + `@${firstName} `);
                         }}
-                        className="h-6 text-xs"
+                        className="h-6 text-xs border-gray-600 text-white hover:bg-gray-800"
                       >
                         @{player.name.split(' ')[0]}
                       </Button>
@@ -295,13 +295,13 @@ export default function TrashTalkWidget() {
               )}
 
               {/* Message Input */}
-              <div className="p-3 border-t">
+              <div className="p-3 border-t border-gray-700 bg-black">
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowTagSelector(!showTagSelector)}
-                    className="shrink-0 h-8 w-8 p-0"
+                    className="shrink-0 h-8 w-8 p-0 border-gray-600 text-white hover:bg-gray-800"
                     title="Tag players"
                   >
                     @
@@ -311,14 +311,14 @@ export default function TrashTalkWidget() {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    className="flex-1 h-8 text-sm"
+                    className="flex-1 h-8 text-sm bg-gray-900 border-gray-600 text-white placeholder:text-gray-400"
                     disabled={sendMessageMutation.isPending}
                   />
                   <Button
                     onClick={handleSendMessage}
                     disabled={!newMessage.trim() || sendMessageMutation.isPending}
                     size="sm"
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 bg-green-600 hover:bg-green-700"
                   >
                     <Send className="h-3 w-3" />
                   </Button>
