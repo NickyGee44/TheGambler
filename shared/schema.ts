@@ -32,6 +32,9 @@ export const teams = pgTable("teams", {
   player1Handicap: integer("player1_handicap").notNull(),
   player2Name: text("player2_name").notNull(),
   player2Handicap: integer("player2_handicap").notNull(),
+  player3Name: text("player3_name"), // Optional third player for 3-person teams
+  player3Handicap: integer("player3_handicap"), // Optional third player handicap
+  isThreePersonTeam: boolean("is_three_person_team").default(false), // Flag for 3-person teams
   totalHandicap: integer("total_handicap").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });

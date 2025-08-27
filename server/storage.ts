@@ -819,15 +819,24 @@ export class DatabaseStorage implements IStorage {
       }
     }
 
-    // Calculate scramble team handicaps: 35% of lower + 15% of higher
+    // Calculate scramble team handicaps: 35% of lower + 15% of higher for 2-person, special calculation for 3-person
     const calculateScrambleTeamHandicap = (team: Team): number => {
-      const player1Hcp = team.player1Handicap || 0;
-      const player2Hcp = team.player2Handicap || 0;
-      
-      const lowerHcp = Math.min(player1Hcp, player2Hcp);
-      const higherHcp = Math.max(player1Hcp, player2Hcp);
-      
-      return Math.round((lowerHcp * 0.35) + (higherHcp * 0.15));
+      if (team.isThreePersonTeam && team.player3Handicap) {
+        // For 3-person teams: use 20% + 15% + 10% of the three handicaps (lowest, middle, highest)
+        const handicaps = [team.player1Handicap || 0, team.player2Handicap || 0, team.player3Handicap || 0];
+        handicaps.sort((a, b) => a - b); // Sort from lowest to highest
+        const [lowest, middle, highest] = handicaps;
+        return Math.round((lowest * 0.20) + (middle * 0.15) + (highest * 0.10));
+      } else {
+        // Standard 2-person calculation
+        const player1Hcp = team.player1Handicap || 0;
+        const player2Hcp = team.player2Handicap || 0;
+        
+        const lowerHcp = Math.min(player1Hcp, player2Hcp);
+        const higherHcp = Math.max(player1Hcp, player2Hcp);
+        
+        return Math.round((lowerHcp * 0.35) + (higherHcp * 0.15));
+      }
     };
 
     // Calculate how many strokes a team gets on each hole
@@ -1357,19 +1366,34 @@ export class DatabaseStorage implements IStorage {
     const teamData = [
       { teamNumber: 1, player1Name: "Nick Grossi", player1Handicap: 15, player2Name: "Connor Patterson", player2Handicap: 3 },
       { teamNumber: 2, player1Name: "Christian Hauck", player1Handicap: 5, player2Name: "Bailey Carlson", player2Handicap: 16 },
-      { teamNumber: 3, player1Name: "Mystery Player", player1Handicap: 6, player2Name: "Nic Huxley", player2Handicap: 15 },
-      { teamNumber: 4, player1Name: "Erik Boudreau", player1Handicap: 10, player2Name: "Will Bibi", player2Handicap: 5 },
-      { teamNumber: 5, player1Name: "Nick Cook", player1Handicap: 12, player2Name: "Kevin Durco", player2Handicap: 3 },
-      { teamNumber: 6, player1Name: "Spencer Reid", player1Handicap: 16, player2Name: "Jeff Reiner", player2Handicap: 9 },
-      { teamNumber: 7, player1Name: "Sye Ellard", player1Handicap: 18, player2Name: "James Ogilvie", player2Handicap: 17 },
-      { teamNumber: 8, player1Name: "Jordan Kreller", player1Handicap: 6, player2Name: "Jonathan Magnatta", player2Handicap: 11 }
+      { teamNumber: 3, player1Name: "Erik Boudreau", player1Handicap: 10, player2Name: "Will Bibbings", player2Handicap: 5 },
+      { teamNumber: 4, player1Name: "Nick Cook", player1Handicap: 12, player2Name: "Kevin Durco", player2Handicap: 3 },
+      { teamNumber: 5, player1Name: "Spencer Reid", player1Handicap: 16, player2Name: "Jeffrey Reiner", player2Handicap: 9 },
+      { teamNumber: 6, player1Name: "Jordan Kreller", player1Handicap: 6, player2Name: "Johnny Magnatta", player2Handicap: 11 },
+      { 
+        teamNumber: 7, 
+        player1Name: "Nic Huxley", 
+        player1Handicap: 20, 
+        player2Name: "Sye Ellard", 
+        player2Handicap: 18, 
+        player3Name: "James Ogilvie", 
+        player3Handicap: 17, 
+        isThreePersonTeam: true 
+      },
+      { teamNumber: 8, player1Name: "Mystery Player", player1Handicap: 6, player2Name: "Unknown Player", player2Handicap: 15 }
     ];
 
     teamData.forEach(team => {
+      // Calculate total handicap - add third player if exists
+      const totalHandicap = team.player1Handicap + team.player2Handicap + (team.player3Handicap || 0);
+      
       const newTeam: Team = {
         id: this.currentTeamId++,
         ...team,
-        totalHandicap: team.player1Handicap + team.player2Handicap,
+        player3Name: team.player3Name || null,
+        player3Handicap: team.player3Handicap || null,
+        isThreePersonTeam: team.isThreePersonTeam || false,
+        totalHandicap,
         createdAt: new Date()
       };
       this.teams.set(newTeam.id, newTeam);
@@ -1707,22 +1731,46 @@ export class DatabaseStorage implements IStorage {
       console.log(`🔧 DEBUG: Looking for players: ${player1FirstName} and ${player2FirstName}`);
       
       // Get team members more precisely by full name matching
-      const teamMembers = await db.select()
-        .from(users)
-        .where(
-          or(
-            and(
-              eq(users.firstName, player1FirstName),
-              eq(users.lastName, team.player1Name?.split(' ')[1] || '')
-            ),
-            and(
-              eq(users.firstName, player2FirstName),
-              eq(users.lastName, team.player2Name?.split(' ')[1] || '')
+      // Handle 3-person teams differently
+      let teamMembers: any[] = [];
+      if (team.isThreePersonTeam && team.player3Name) {
+        const player3FirstName = team.player3Name.split(' ')[0];
+        teamMembers = await db.select()
+          .from(users)
+          .where(
+            or(
+              and(
+                eq(users.firstName, player1FirstName),
+                eq(users.lastName, team.player1Name?.split(' ')[1] || '')
+              ),
+              and(
+                eq(users.firstName, player2FirstName),
+                eq(users.lastName, team.player2Name?.split(' ')[1] || '')
+              ),
+              and(
+                eq(users.firstName, player3FirstName),
+                eq(users.lastName, team.player3Name?.split(' ')[1] || '')
+              )
             )
-          )
-        );
+          );
+      } else {
+        teamMembers = await db.select()
+          .from(users)
+          .where(
+            or(
+              and(
+                eq(users.firstName, player1FirstName),
+                eq(users.lastName, team.player1Name?.split(' ')[1] || '')
+              ),
+              and(
+                eq(users.firstName, player2FirstName),
+                eq(users.lastName, team.player2Name?.split(' ')[1] || '')
+              )
+            )
+          );
+      }
 
-      console.log(`🔧 DEBUG: Found ${teamMembers.length} team members:`, teamMembers.map(p => `${p.firstName} ${p.lastName} (${p.handicap} hcp)`));
+      console.log(`🔧 DEBUG: ${team.isThreePersonTeam ? '3-PERSON' : '2-PERSON'} TEAM - Found ${teamMembers.length} team members:`, teamMembers.map(p => `${p.firstName} ${p.lastName} (${p.handicap} hcp)`));
 
       if (teamMembers.length < 2) return 0;
 
@@ -1757,7 +1805,19 @@ export class DatabaseStorage implements IStorage {
 
           // Use the correct team handicap, not the user database handicap
           const isPlayer1 = player.firstName === team.player1Name?.split(' ')[0] && player.lastName === team.player1Name?.split(' ')[1];
-          const playerHandicap = isPlayer1 ? team.player1Handicap : team.player2Handicap;
+          const isPlayer2 = player.firstName === team.player2Name?.split(' ')[0] && player.lastName === team.player2Name?.split(' ')[1];
+          const isPlayer3 = team.player3Name && player.firstName === team.player3Name?.split(' ')[0] && player.lastName === team.player3Name?.split(' ')[1];
+          
+          let playerHandicap: number;
+          if (isPlayer1) {
+            playerHandicap = team.player1Handicap;
+          } else if (isPlayer2) {
+            playerHandicap = team.player2Handicap;
+          } else if (isPlayer3 && team.player3Handicap) {
+            playerHandicap = team.player3Handicap;
+          } else {
+            playerHandicap = team.player2Handicap; // fallback
+          }
           
           console.log(`🔧 HANDICAP DEBUG: ${player.firstName} ${player.lastName} - IsPlayer1: ${isPlayer1} - Team handicap: ${playerHandicap} - User DB handicap: ${player.handicap}`);
           const grossScore = holeScore.strokes;
@@ -1772,9 +1832,16 @@ export class DatabaseStorage implements IStorage {
           console.log(`🏌️ Player ${player.firstName} ${player.lastName} (${playerHandicap} hcp) - Hole ${holeNumber}: ${grossScore} gross - ${strokesReceived} strokes = ${netScore} net`);
         }
 
-        // Take the better (lower) net score for the team
+        // For 3-person teams: take best 3 net scores, for 2-person teams: take best 2 (but with only 2 players, it's just the better one)
         if (netScores.length > 0) {
-          const bestNetScore = Math.min(...netScores);
+          let bestNetScore: number;
+          if (team.isThreePersonTeam && netScores.length >= 3) {
+            // For 3-person teams: take best score from all 3 players (this is still best ball, just from 3 options instead of 2)
+            bestNetScore = Math.min(...netScores);
+          } else {
+            // For 2-person teams: take the better (lower) net score
+            bestNetScore = Math.min(...netScores);
+          }
           totalNetStrokes += bestNetScore;
           holesCompleted++;
         }
@@ -1805,12 +1872,22 @@ export class DatabaseStorage implements IStorage {
       const team = await this.getTeam(teamId);
       if (!team) return 0;
       
-      // Calculate scramble team handicap: 35% of lower + 15% of higher
-      const player1Hcp = team.player1Handicap || 0;
-      const player2Hcp = team.player2Handicap || 0;
-      const lowerHcp = Math.min(player1Hcp, player2Hcp);
-      const higherHcp = Math.max(player1Hcp, player2Hcp);
-      const teamHandicap = Math.round((lowerHcp * 0.35) + (higherHcp * 0.15));
+      // Calculate scramble team handicap using the updated function
+      let teamHandicap: number;
+      if (team.isThreePersonTeam && team.player3Handicap) {
+        // For 3-person teams: use 20% + 15% + 10% of the three handicaps (lowest, middle, highest)
+        const handicaps = [team.player1Handicap || 0, team.player2Handicap || 0, team.player3Handicap || 0];
+        handicaps.sort((a, b) => a - b); // Sort from lowest to highest
+        const [lowest, middle, highest] = handicaps;
+        teamHandicap = Math.round((lowest * 0.20) + (middle * 0.15) + (highest * 0.10));
+      } else {
+        // Standard 2-person calculation
+        const player1Hcp = team.player1Handicap || 0;
+        const player2Hcp = team.player2Handicap || 0;
+        const lowerHcp = Math.min(player1Hcp, player2Hcp);
+        const higherHcp = Math.max(player1Hcp, player2Hcp);
+        teamHandicap = Math.round((lowerHcp * 0.35) + (higherHcp * 0.15));
+      }
       
       const totalNetStrokes = totalGrossStrokes - teamHandicap;
       
