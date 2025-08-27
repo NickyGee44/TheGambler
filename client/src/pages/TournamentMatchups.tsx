@@ -56,7 +56,45 @@ export default function TournamentMatchups() {
     queryKey: ['/api/user'],
   });
 
-  // No longer needed - using direct API calls instead of mutation
+  // Handle shuffling matchups for different rounds
+  const handleShuffleMatchups = async (round: number) => {
+    try {
+      if (round === 1) {
+        await apiRequest('/api/tournament/generate-round1', {
+          method: 'POST',
+        });
+        toast({
+          title: "Round 1 Shuffled",
+          description: "New random foursomes generated with optimized pairing.",
+        });
+      } else if (round === 2) {
+        await apiRequest('/api/tournament/generate-round2', {
+          method: 'POST',
+        });
+        toast({
+          title: "Round 2 Shuffled", 
+          description: "New scramble foursomes generated (teammates paired).",
+        });
+      } else if (round === 3) {
+        await apiRequest('/api/tournament/initialize-round3', {
+          method: 'POST',
+        });
+        toast({
+          title: "Round 3 Initialized",
+          description: "Fixed match play pairings created.",
+        });
+      }
+      
+      // Refetch matchups to show updated data
+      refetchMatchups();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to shuffle Round ${round} matchups. Please try again.`,
+        variant: "destructive",
+      });
+    }
+  };
 
   // Check if current user is Nick Grossi
   const isNickGrossi = currentUser && 
@@ -142,8 +180,8 @@ export default function TournamentMatchups() {
 
   // Generate optimized Round 1 foursomes (randomized but avoiding Round 3 overlaps)
   const generateRound1Foursomes = () => {
-    // Use randomSeed to make shuffling deterministic for the current seed
-    const shuffledPlayers = [...allPlayers].sort(() => (Math.sin(randomSeed + Math.random()) - 0.5));
+    // Use random shuffling for player groupings
+    const shuffledPlayers = [...allPlayers].sort(() => Math.random() - 0.5);
     
     // Find Connor and Christian to swap them
     const connorIndex = shuffledPlayers.findIndex(p => p.name === "Connor Patterson");
@@ -267,43 +305,6 @@ export default function TournamentMatchups() {
   };
 
   // Don't generate random foursomes - only use persistent database matchups
-
-  // Helper function to shuffle matchups for Nick Grossi
-  const handleShuffleMatchups = async (round: number) => {
-    if (!isNickGrossi) {
-      toast({
-        title: "Access Denied",
-        description: "Only Nick Grossi can shuffle matchups",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    try {
-      // The backend will generate the correct tournament matchups based on the round
-      const response = await apiRequest(`/api/matchups/shuffle`, 'POST', {
-        round
-      });
-      
-      if (response.ok) {
-        // Refetch matchups to get the updated data
-        refetchMatchups();
-        toast({
-          title: "Matchups Updated",
-          description: `Round ${round} matchups have been shuffled successfully.`,
-          variant: "default"
-        });
-      }
-    } catch (error: any) {
-      console.error('Error shuffling matchups:', error);
-      const errorMessage = error?.response?.data?.error || 'Failed to shuffle matchups. Please try again.';
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
-    }
-  };
 
   // Helper function to initialize Round 3 preset matchups (one-time only)
   const handleInitializeRound3 = async () => {
@@ -643,16 +644,15 @@ export default function TournamentMatchups() {
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5 text-blue-600" />
               Round {round} - Database Matchups
-              {isNickGrossi && (
+              {isNickGrossi && (parseInt(round) === 1 || parseInt(round) === 2) && (
                 <Button 
                   onClick={() => handleShuffleMatchups(parseInt(round))}
-                  disabled={shuffleMatchupsMutation.isPending}
                   variant="outline" 
                   size="sm"
                   className="ml-auto"
                 >
                   <Shuffle className="h-4 w-4 mr-1" />
-                  Shuffle
+                  Shuffle Round {round}
                 </Button>
               )}
             </CardTitle>
