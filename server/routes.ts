@@ -571,6 +571,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Database initialization endpoint
+  app.post('/api/initialize-database', async (req, res) => {
+    try {
+      // Check if teams already exist to avoid duplication
+      const existingTeams = await storage.getTeams();
+      if (existingTeams.length > 0) {
+        return res.json({ message: 'Database already initialized', teams: existingTeams.length });
+      }
+
+      console.log('Initializing database with tournament data...');
+
+      // Create all teams first
+      const teamsData = [
+        { teamNumber: 1, player1Name: "Nick Grossi", player1Handicap: 8, player2Name: "Connor Patterson", player2Handicap: 6 },
+        { teamNumber: 2, player1Name: "Christian Hauck", player1Handicap: 12, player2Name: "Bailey Carlson", player2Handicap: 15 },
+        { teamNumber: 3, player1Name: "Erik Boudreau", player1Handicap: 8, player2Name: "Will Bibbings", player2Handicap: 6 },
+        { teamNumber: 4, player1Name: "Nick Cook", player1Handicap: 10, player2Name: "Kevin Durco", player2Handicap: 12 },
+        { teamNumber: 5, player1Name: "Spencer Reid", player1Handicap: 7, player2Name: "Jeffrey Reiner", player2Handicap: 9 },
+        { teamNumber: 6, player1Name: "Johnny Magnatta", player1Handicap: 9, player2Name: "Jordan Kreller", player2Handicap: 5 },
+        { 
+          teamNumber: 7, 
+          player1Name: "Nic Huxley", 
+          player1Handicap: 8, 
+          player2Name: "Sye Ellard", 
+          player2Handicap: 6,
+          player3Name: "James Ogilvie", 
+          player3Handicap: 9, 
+          isThreePersonTeam: true 
+        }
+      ];
+
+      const createdTeams = [];
+      for (const teamData of teamsData) {
+        const totalHandicap = teamData.isThreePersonTeam 
+          ? teamData.player1Handicap + teamData.player2Handicap + (teamData.player3Handicap || 0)
+          : teamData.player1Handicap + teamData.player2Handicap;
+        
+        const team = await storage.createTeam({
+          ...teamData,
+          totalHandicap
+        });
+        createdTeams.push(team);
+        console.log(`Created team ${team.teamNumber}: ${team.player1Name} & ${team.player2Name}${team.player3Name ? ` & ${team.player3Name}` : ''}`);
+      }
+
+      // Create all users (players)
+      const playersData = [
+        { firstName: "Nick", lastName: "Grossi", handicap: 8 },
+        { firstName: "Connor", lastName: "Patterson", handicap: 6 },
+        { firstName: "Christian", lastName: "Hauck", handicap: 12 },
+        { firstName: "Bailey", lastName: "Carlson", handicap: 15 },
+        { firstName: "Erik", lastName: "Boudreau", handicap: 8 },
+        { firstName: "Will", lastName: "Bibbings", handicap: 6 },
+        { firstName: "Nick", lastName: "Cook", handicap: 10 },
+        { firstName: "Kevin", lastName: "Durco", handicap: 12 },
+        { firstName: "Spencer", lastName: "Reid", handicap: 7 },
+        { firstName: "Jeffrey", lastName: "Reiner", handicap: 9 },
+        { firstName: "Johnny", lastName: "Magnatta", handicap: 9 },
+        { firstName: "Jordan", lastName: "Kreller", handicap: 5 },
+        { firstName: "Nic", lastName: "Huxley", handicap: 8 },
+        { firstName: "Sye", lastName: "Ellard", handicap: 6 },
+        { firstName: "James", lastName: "Ogilvie", handicap: 9 }
+      ];
+
+      const createdUsers = [];
+      for (const playerData of playersData) {
+        // Check if user already exists to avoid duplicates
+        const existingUser = await storage.getUserByName(playerData.firstName, playerData.lastName);
+        if (!existingUser) {
+          const user = await storage.createUser({
+            ...playerData,
+            password: 'abc123' // Simple password for tournament convenience
+          });
+          createdUsers.push(user);
+          console.log(`Created user: ${user.firstName} ${user.lastName}`);
+        } else {
+          createdUsers.push(existingUser);
+        }
+      }
+
+      res.json({ 
+        message: 'Database initialized successfully',
+        teamsCreated: createdTeams.length,
+        usersCreated: createdUsers.length,
+        totalPlayers: createdUsers.length
+      });
+
+    } catch (error) {
+      console.error('Database initialization error:', error);
+      res.status(500).json({ error: 'Failed to initialize database' });
+    }
+  });
+
   // Get registered players for login dropdown
   app.get('/api/registered-players', async (req, res) => {
     try {
