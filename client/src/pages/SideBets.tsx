@@ -365,7 +365,11 @@ export default function SideBets() {
   };
 
   const getBetsByRound = (round: number) => {
-    return sideBets.filter((bet: SideBet) => bet.round === round);
+    return sideBets.filter((bet: SideBet) => 
+      bet.round === round && 
+      bet.status !== 'Declined' && 
+      !bet.status?.startsWith('Auto-declined')
+    );
   };
 
   const roundTitles = {
@@ -878,7 +882,7 @@ export default function SideBets() {
       </div>
 
       {/* Declined Challenges Section - Pussy Boys Hall of Shame */}
-      {sideBets.filter((bet: SideBet) => bet.status === 'Declined').length > 0 && (
+      {sideBets.filter((bet: SideBet) => bet.status === 'Declined' || bet.status?.startsWith('Auto-declined')).length > 0 && (
         <Card className="shadow-lg border-red-200 bg-red-50 dark:bg-red-950/20 mt-8">
           <CardHeader>
             <CardTitle className="text-2xl text-red-600 font-bold text-center flex items-center justify-center gap-2">
@@ -893,7 +897,7 @@ export default function SideBets() {
           <CardContent>
             <div className="space-y-3">
               {sideBets
-                .filter((bet: SideBet) => bet.status === 'Declined')
+                .filter((bet: SideBet) => bet.status === 'Declined' || bet.status?.startsWith('Auto-declined'))
                 .map((bet: SideBet) => (
                   <div key={bet.id} className="bg-red-100 dark:bg-red-900/30 p-4 rounded-lg border border-red-300 dark:border-red-600">
                     <div className="flex items-center justify-between">
@@ -913,7 +917,10 @@ export default function SideBets() {
                             {bet.opponentName} is a PUSSY!
                           </p>
                           <p className="text-red-600 dark:text-red-400 text-sm">
-                            Declined {bet.betterName}'s ${bet.amount} challenge
+                            {bet.status?.startsWith('Auto-declined') ? 
+                              `Missed deadline for ${bet.betterName}'s $${bet.amount} challenge` :
+                              `Declined ${bet.betterName}'s $${bet.amount} challenge`
+                            }
                           </p>
                           <p className="text-red-500 dark:text-red-500 text-xs italic">
                             "{bet.condition}"
