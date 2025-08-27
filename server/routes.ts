@@ -1139,6 +1139,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Initialize Round 3 matchups endpoint (Round 3 can only be initialized once, not shuffled)
+  app.post('/api/matchups/initialize-round3', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user;
+      
+      // Check if user is Nick Grossi
+      if (!currentUser || currentUser.firstName !== 'Nick' || currentUser.lastName !== 'Grossi') {
+        return res.status(403).json({ error: 'Only Nick Grossi can initialize Round 3 matchups' });
+      }
+
+      console.log('Round 3 initialization request received');
+      
+      // Check if Round 3 matchups already exist
+      const existingMatchups = await storage.getMatchupsByRound(3);
+      if (existingMatchups && existingMatchups.length > 0) {
+        return res.status(400).json({ error: 'Round 3 matchups already initialized' });
+      }
+
+      // Generate Round 3 matchups using preset groupings
+      const round3Matchups = await generateRound3MatchupsOnce(storage);
+      const newMatchups = await storage.shuffleMatchupsForRound(3, round3Matchups);
+      
+      // Broadcast the initialization to all connected clients
+      broadcast({
+        type: 'MATCHUPS_INITIALIZED',
+        data: { round: 3, matchups: newMatchups }
+      });
+      
+      res.json(newMatchups);
+    } catch (error) {
+      console.error('Error initializing Round 3 matchups:', error);
+      if (error instanceof Error) {
+        console.error('Full error details:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
+        res.status(500).json({ error: 'Failed to initialize Round 3 matchups', details: error.message });
+      } else {
+        res.status(500).json({ error: 'Failed to initialize Round 3 matchups' });
+      }
+    }
+  });
+
   // Hole scoring endpoints
   app.get('/api/my-hole-scores/:round', requireAuth, async (req: any, res) => {
     try {

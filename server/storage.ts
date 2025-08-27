@@ -106,6 +106,7 @@ export interface IStorage {
   
   // Matchups - persistent storage
   getMatchups(): Promise<Matchup[]>;
+  getMatchupsByRound(round: number): Promise<Matchup[]>;
   createMatchup(matchup: InsertMatchup): Promise<Matchup>;
   updateMatchupScore(matchupId: number, player1Score: number, player2Score: number): Promise<Matchup>;
   clearAllMatchups(): Promise<void>;
@@ -2446,6 +2447,10 @@ export class DatabaseStorage implements IStorage {
 
   async getMatchups(): Promise<Matchup[]> {
     return await db.select().from(matchups).orderBy(matchups.round, matchups.groupNumber);
+  }
+
+  async getMatchupsByRound(round: number): Promise<Matchup[]> {
+    return await db.select().from(matchups).where(eq(matchups.round, round));
   }
 
   async createMatchup(insertMatchup: InsertMatchup): Promise<Matchup> {

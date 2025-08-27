@@ -76,20 +76,18 @@ export default function TournamentMatchups() {
   // Handle shuffling matchups for different rounds
   const handleShuffleMatchups = async (round: number) => {
     try {
-      if (round === 1) {
-        await apiRequest('/api/tournament/generate-round1', { method: 'POST' });
-        toast({
-          title: "Round 1 Shuffled",
-          description: "New random foursomes generated.",
+      if (round === 1 || round === 2) {
+        await apiRequest('/api/matchups/shuffle', { 
+          method: 'POST',
+          body: JSON.stringify({ round }),
+          headers: { 'Content-Type': 'application/json' }
         });
-      } else if (round === 2) {
-        await apiRequest('/api/tournament/generate-round2', { method: 'POST' });
         toast({
-          title: "Round 2 Shuffled", 
-          description: "New scramble foursomes generated (teammates paired).",
+          title: `Round ${round} Shuffled`,
+          description: round === 1 ? "New random foursomes generated." : "New scramble foursomes generated (teammates paired).",
         });
       } else if (round === 3) {
-        await apiRequest('/api/tournament/initialize-round3', { method: 'POST' });
+        await apiRequest('/api/matchups/initialize-round3', { method: 'POST' });
         toast({
           title: "Round 3 Initialized",
           description: "Fixed match play pairings created.",
@@ -98,6 +96,7 @@ export default function TournamentMatchups() {
       
       refetchMatchups();
     } catch (error) {
+      console.error('Shuffle error:', error);
       toast({
         title: "Error",
         description: `Failed to shuffle Round ${round} matchups.`,
