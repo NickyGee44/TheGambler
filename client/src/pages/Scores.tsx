@@ -484,6 +484,10 @@ function BetterBallLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       <div>{entry.team?.player1Name}</div>
                       <div className="sm:inline sm:before:content-['_&_'] ">{entry.team?.player2Name}</div>
+                      {/* Show third player for 3-person teams */}
+                      {entry.team?.isThreePersonTeam && entry.team?.player3Name && (
+                        <div className="sm:inline sm:before:content-['_&_'] ">{entry.team?.player3Name}</div>
+                      )}
                     </div>
                   </td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.totalGrossStrokes || '-'}</td>
@@ -571,6 +575,10 @@ function ScrambleLeaderboard({ leaderboard }: { leaderboard: any[] }) {
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       <div>{entry.team?.player1Name} ({entry.team?.player1Handicap})</div>
                       <div className="sm:inline sm:before:content-['_&_'] ">{entry.team?.player2Name} ({entry.team?.player2Handicap})</div>
+                      {/* Show third player for 3-person teams */}
+                      {entry.team?.isThreePersonTeam && entry.team?.player3Name && (
+                        <div className="sm:inline sm:before:content-['_&_'] ">{entry.team?.player3Name} ({entry.team?.player3Handicap})</div>
+                      )}
                     </div>
                   </td>
                   <td className="px-2 sm:px-4 py-2 sm:py-3 text-center font-medium text-xs sm:text-sm">{entry.teamHandicap || '-'}</td>
