@@ -53,6 +53,7 @@ import { db, pool } from "./db";
 import { eq, and, asc, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { deerhurstCourse } from "@shared/courseData";
+import memoize from "memoizee";
 
 // Interface for storage operations
 export interface IStorage {
@@ -1762,7 +1763,23 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Memoized version of calculateTeamNetStrokes to improve performance
+  private calculateTeamNetStrokesMemoized = memoize(
+    async (teamId: number, round: number): Promise<number> => {
+      return this.calculateTeamNetStrokesCore(teamId, round);
+    },
+    { 
+      promise: true, 
+      maxAge: 30000, // Cache for 30 seconds
+      max: 100 // Max 100 cached entries
+    }
+  );
+
   private async calculateTeamNetStrokes(teamId: number, round: number): Promise<number> {
+    return this.calculateTeamNetStrokesMemoized(teamId, round);
+  }
+
+  private async calculateTeamNetStrokesCore(teamId: number, round: number): Promise<number> {
     // Calculate total net strokes for the team based on format
     const teamHoleScores = await db.select()
       .from(holeScores)
@@ -1787,13 +1804,8 @@ export class DatabaseStorage implements IStorage {
       const player1FirstName = team.player1Name?.split(' ')[0] || '';
       const player2FirstName = team.player2Name?.split(' ')[0] || '';
       
-      if (team.isThreePersonTeam && team.player3Name) {
-        console.log(`🔧 DEBUG: Calculating better ball for Team ${team.teamNumber} (${team.player1Name}, ${team.player2Name} & ${team.player3Name})`);
-        console.log(`🔧 DEBUG: Looking for players: ${player1FirstName}, ${player2FirstName} and ${team.player3Name.split(' ')[0]}`);
-      } else {
-        console.log(`🔧 DEBUG: Calculating better ball for Team ${team.teamNumber} (${team.player1Name} & ${team.player2Name})`);
-        console.log(`🔧 DEBUG: Looking for players: ${player1FirstName} and ${player2FirstName}`);
-      }
+      // Reduced logging for performance
+      // console.log(`🔧 DEBUG: Calculating better ball for Team ${team.teamNumber}`);
       
       // Get team members more precisely by full name matching
       // Handle 3-person teams differently
@@ -1835,7 +1847,7 @@ export class DatabaseStorage implements IStorage {
           );
       }
 
-      console.log(`🔧 DEBUG: ${team.isThreePersonTeam ? '3-PERSON' : '2-PERSON'} TEAM - Found ${teamMembers.length} team members:`, teamMembers.map(p => `${p.firstName} ${p.lastName} (${p.handicap} hcp)`));
+      // console.log(`🔧 DEBUG: ${team.isThreePersonTeam ? '3-PERSON' : '2-PERSON'} TEAM - Found ${teamMembers.length} team members:`, teamMembers.map(p => `${p.firstName} ${p.lastName} (${p.handicap} hcp)`));
 
       if (teamMembers.length < 2) return 0;
 
@@ -1871,7 +1883,7 @@ export class DatabaseStorage implements IStorage {
           // Use the correct user handicap from users table (single source of truth)
           const playerHandicap = player.handicap || 0;
           
-          console.log(`🔧 HANDICAP DEBUG: ${player.firstName} ${player.lastName} - Using user handicap: ${playerHandicap}`);
+          // console.log(`🔧 HANDICAP DEBUG: ${player.firstName} ${player.lastName} - Using user handicap: ${playerHandicap}`);
           const grossScore = holeScore.strokes;
 
           // Calculate strokes received on this hole based on handicap ranking
@@ -1881,7 +1893,7 @@ export class DatabaseStorage implements IStorage {
           const netScore = grossScore - strokesReceived;
           netScores.push(netScore);
           
-          console.log(`🏌️ Player ${player.firstName} ${player.lastName} (${playerHandicap} hcp) - Hole ${holeNumber}: ${grossScore} gross - ${strokesReceived} strokes = ${netScore} net`);
+          // console.log(`🏌️ Player ${player.firstName} ${player.lastName} (${playerHandicap} hcp) - Hole ${holeNumber}: ${grossScore} gross - ${strokesReceived} strokes = ${netScore} net`);
         }
 
         // For 3-person teams: take best 3 net scores, for 2-person teams: take best 2 (but with only 2 players, it's just the better one)
@@ -1899,7 +1911,7 @@ export class DatabaseStorage implements IStorage {
         }
       }
       
-      console.log(`🏌️ Round 1 Better Ball - Team ${team.teamNumber}: ${totalNetStrokes} net strokes (${holesCompleted}/18 holes)`);
+      // console.log(`🏌️ Round 1 Better Ball - Team ${team.teamNumber}: ${totalNetStrokes} net strokes (${holesCompleted}/18 holes)`);
       return totalNetStrokes;
     } else if (round === 2) {
       // Round 2: Scramble format - take one score per hole
