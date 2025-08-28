@@ -1787,8 +1787,13 @@ export class DatabaseStorage implements IStorage {
       const player1FirstName = team.player1Name?.split(' ')[0] || '';
       const player2FirstName = team.player2Name?.split(' ')[0] || '';
       
-      console.log(`🔧 DEBUG: Calculating better ball for Team ${team.teamNumber} (${team.player1Name} & ${team.player2Name})`);
-      console.log(`🔧 DEBUG: Looking for players: ${player1FirstName} and ${player2FirstName}`);
+      if (team.isThreePersonTeam && team.player3Name) {
+        console.log(`🔧 DEBUG: Calculating better ball for Team ${team.teamNumber} (${team.player1Name}, ${team.player2Name} & ${team.player3Name})`);
+        console.log(`🔧 DEBUG: Looking for players: ${player1FirstName}, ${player2FirstName} and ${team.player3Name.split(' ')[0]}`);
+      } else {
+        console.log(`🔧 DEBUG: Calculating better ball for Team ${team.teamNumber} (${team.player1Name} & ${team.player2Name})`);
+        console.log(`🔧 DEBUG: Looking for players: ${player1FirstName} and ${player2FirstName}`);
+      }
       
       // Get team members more precisely by full name matching
       // Handle 3-person teams differently
