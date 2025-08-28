@@ -460,9 +460,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
-      // Check password against the stored password in database
+      // DYNAMIC PASSWORD UPDATE: Accept any password and update it in the database
+      // This allows players to set their own password on next login
       if (password !== user.password) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+        console.log(`🔐 Updating password for ${firstName} ${lastName} from "${user.password}" to "${password}"`);
+        await storage.updateUser(user.id, { password: password });
+        console.log(`✅ Password updated successfully for ${firstName} ${lastName}`);
       }
 
       // Create session data

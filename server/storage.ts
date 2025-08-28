@@ -61,6 +61,7 @@ export interface IStorage {
   getUserByName(firstName: string, lastName: string): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(userId: number, updateData: Partial<User>): Promise<User>;
   
   // Teams
   getTeams(): Promise<Team[]>;
@@ -187,6 +188,15 @@ export class DatabaseStorage implements IStorage {
       .values(userData)
       .returning();
     return user;
+  }
+
+  async updateUser(userId: number, updateData: Partial<User>): Promise<User> {
+    const [updatedUser] = await db
+      .update(users)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+    return updatedUser;
   }
 
   async findPlayerByName(firstName: string, lastName: string): Promise<{ teamId: number; playerNumber: 1 | 2 | 3; handicap: number } | null> {
