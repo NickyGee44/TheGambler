@@ -436,6 +436,20 @@ async function generateRound1Matchups(storage: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check route - must be first to ensure immediate response
+  app.get('/', (req, res) => {
+    res.status(200).json({ status: 'OK', message: 'Gambler Cup 2025 Tournament Tracker' });
+  });
+
+  // Health check endpoints for different deployment systems
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+  });
+
+  app.get('/healthz', (req, res) => {
+    res.status(200).send('OK');
+  });
+
   // Auth middleware setup (includes session middleware)
   await setupAuth(app);
 
