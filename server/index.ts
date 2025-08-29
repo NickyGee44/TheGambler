@@ -82,7 +82,17 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // Recalculate hole scores on startup to fix any incorrect data
+    console.log('🔄 Running hole score recalculation...');
+    try {
+      const { storage } = await import('./storage');
+      await storage.recalculateAllHoleScores();
+      console.log('✅ Hole score recalculation completed');
+    } catch (error) {
+      console.error('❌ Error during hole score recalculation:', error);
+    }
   });
 })();

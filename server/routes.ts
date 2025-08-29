@@ -1383,6 +1383,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Recalculate all hole scores with correct handicap data (POST /api/admin/recalculate-scores)
+  app.post('/api/admin/recalculate-scores', requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user;
+      
+      // Check if user is Nick Grossi (admin only)
+      if (!currentUser || currentUser.firstName !== 'Nick' || currentUser.lastName !== 'Grossi') {
+        return res.status(403).json({ error: 'Only Nick Grossi can recalculate scores' });
+      }
+
+      // Recalculate all hole scores with correct handicap data
+      await storage.recalculateAllHoleScores();
+      
+      res.json({ success: true, message: 'All hole scores recalculated successfully' });
+    } catch (error) {
+      console.error('Error recalculating hole scores:', error);
+      res.status(500).json({ error: 'Failed to recalculate hole scores' });
+    }
+  });
+
   app.post('/api/matchups', async (req, res) => {
     try {
       const matchup = await storage.createMatchup(req.body);

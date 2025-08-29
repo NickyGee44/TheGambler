@@ -766,17 +766,52 @@ export class DatabaseStorage implements IStorage {
     // Use handicap directly from users table
     const playerHandicap = user.handicap || 0;
     
-    // Course handicap allocation - distribute strokes based on hole difficulty
-    // Most golf courses allocate strokes starting from handicap hole 1 (hardest)
-    // For simplicity, we'll use a standard allocation pattern
-    const holeHandicapIndex = [
-      10, 4, 14, 2, 12, 8, 16, 6, 18, 1, 11, 5, 15, 3, 13, 7, 17, 9
-    ];
+    // Import the actual course data to get correct handicap rankings
+    const { muskokaBayCourse } = await import('../shared/courseData');
     
-    const strokeIndex = holeHandicapIndex[hole - 1] || 18;
+    // Find the handicap index for this specific hole from course data
+    const holeData = muskokaBayCourse.holes.find(h => h.number === hole);
+    const strokeIndex = holeData ? holeData.handicap : 18;
     
     // Player gets a stroke if their handicap >= stroke index
     return playerHandicap >= strokeIndex ? 1 : 0;
+  }
+
+  async recalculateAllHoleScores(): Promise<void> {
+    console.log('🔄 Recalculating all hole scores with correct handicap data...');
+    
+    // Get all hole scores that need recalculation
+    const allHoleScores = await db.select().from(holeScores);
+    
+    const { muskokaBayCourse } = await import('../shared/courseData');
+    
+    for (const score of allHoleScores) {
+      // Get the correct handicap for this hole from course data
+      const holeData = muskokaBayCourse.holes.find(h => h.number === score.hole);
+      const par = holeData ? holeData.par : 4;
+      
+      // Calculate correct handicap strokes for this player on this hole
+      const handicapStrokes = await this.calculateHoleHandicap(score.userId, score.hole);
+      
+      // Calculate correct net score
+      const netScore = score.strokes - handicapStrokes;
+      
+      // Calculate Stableford points (2 points for par, +1 for each stroke under, -1 for each stroke over)
+      const stablefordPoints = Math.max(0, 2 + (par - netScore));
+      
+      // Update the score with correct values
+      await db.update(holeScores)
+        .set({
+          par: par,
+          handicap: handicapStrokes,
+          netScore: netScore,
+          points: stablefordPoints,
+          updatedAt: new Date()
+        })
+        .where(eq(holeScores.id, score.id));
+    }
+    
+    console.log(`✅ Recalculated ${allHoleScores.length} hole scores`);
   }
 
   async getTournamentPlacementLeaderboard(round: number): Promise<any[]> {
