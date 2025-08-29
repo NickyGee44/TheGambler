@@ -1868,7 +1868,7 @@ export class DatabaseStorage implements IStorage {
       let holesCompleted = 0;
 
       // Calculate better ball net score for each hole
-      for (const [holeNumber, holeScores] of holeScoresByHole) {
+      for (const [holeNumber, holeScores] of Array.from(holeScoresByHole.entries())) {
         const holeInfo = deerhurstCourse.holes.find(h => h.number === holeNumber);
         if (!holeInfo) continue;
 
@@ -1907,8 +1907,8 @@ export class DatabaseStorage implements IStorage {
             // Holes 13-18: All three players best ball
             
             // Map net scores to players for this hole
-            const playerNetScores = new Map();
-            holeScores.forEach((holeScore, index) => {
+            const playerNetScores = new Map<string, number>();
+            holeScores.forEach((holeScore: any, index: number) => {
               const player = teamMembers.find(p => p.id === holeScore.userId);
               if (player && netScores[index] !== undefined) {
                 playerNetScores.set(player.firstName, netScores[index]);
