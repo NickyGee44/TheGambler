@@ -450,6 +450,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(200).send('OK');
   });
 
+  // Additional API-prefixed health endpoints for redundancy
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+  });
+
+  app.get('/api/healthz', (req, res) => {
+    res.status(200).send('OK');
+  });
+
   // Auth middleware setup (includes session middleware)
   await setupAuth(app);
 
