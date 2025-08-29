@@ -684,8 +684,8 @@ export class DatabaseStorage implements IStorage {
 
   async getLeaderboard(round: number): Promise<any[]> {
     if (round === 1) {
-      // Round 1: Better ball format - show tournament placement points
-      return this.getTournamentPlacementLeaderboard(round);
+      // Round 1: Better ball format - show individual player leaderboard
+      return this.getIndividualLeaderboard(round);
     } else if (round === 2) {
       // Round 2: Scramble format - show tournament placement points
       return this.getTournamentPlacementLeaderboard(round);
@@ -695,6 +695,67 @@ export class DatabaseStorage implements IStorage {
     } else {
       return [];
     }
+  }
+
+  async getIndividualLeaderboard(round: number): Promise<any[]> {
+    // Get all users and their individual performance for this round
+    const allUsers = await this.getAllUsers();
+    const individualData = [];
+    
+    for (const user of allUsers) {
+      // Get player's team info
+      const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
+      const team = playerInfo ? await this.getTeam(playerInfo.teamId) : null;
+      
+      // Get player's hole scores for this round
+      const playerHoleScores = await db.select()
+        .from(holeScores)
+        .where(
+          and(
+            eq(holeScores.userId, user.id),
+            eq(holeScores.round, round)
+          )
+        );
+      
+      // Calculate individual stats
+      const totalPoints = playerHoleScores.reduce((sum, score) => sum + score.points, 0);
+      const holesCompleted = playerHoleScores.length;
+      const totalStrokes = playerHoleScores.reduce((sum, score) => sum + score.strokes, 0);
+      const netStrokes = playerHoleScores.reduce((sum, score) => sum + score.netScore, 0);
+      
+      individualData.push({
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName
+        },
+        team: team ? { 
+          id: team.id,
+          teamNumber: team.teamNumber 
+        } : null,
+        totalPoints: totalPoints,
+        holes: holesCompleted,
+        stablefordPoints: totalPoints, // Same as totalPoints for individual
+        netStrokes: netStrokes,
+        grossStrokes: totalStrokes,
+        holesCompleted: holesCompleted
+      });
+    }
+    
+    // Sort by total points (descending), then by holes completed (descending)
+    individualData.sort((a, b) => {
+      if (b.totalPoints !== a.totalPoints) {
+        return b.totalPoints - a.totalPoints;
+      }
+      return b.holes - a.holes;
+    });
+    
+    // Assign positions
+    individualData.forEach((player, index) => {
+      player.position = index + 1;
+    });
+    
+    return individualData;
   }
 
   async calculateHoleHandicap(userId: number, hole: number): Promise<number> {
