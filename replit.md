@@ -28,6 +28,11 @@ Preferred communication style: Simple, everyday language.
 ### Key Features & Technical Implementations
 - **Database Schema**: Manages `Teams`, `Scores` (hole-by-hole), `Side Bets`, `Photos`, `Users`, `Tournaments`, and `Player Tournament History`.
 - **Tournament Structure**: Supports 8 teams, 3 rounds, with specific scoring rules (e.g., scramble handicap calculation, match play).
+- **Team 7 Custom Round 1 Format**: The 3-person team (Nic Huxley, Sye Ellard, James Ogilvie) uses a special rotating pairing system:
+  - Holes 1-6: James and Nic best ball
+  - Holes 7-9: Nic and Sye best ball  
+  - Holes 10-12: James and Sye best ball
+  - Holes 13-18: All three players best ball
 - **Live Scoring**: Real-time score tracking, automatic score calculation, and live standings updates.
 - **Golf Statistics Tracking**: Comprehensive per-hole statistics (FIR, GIR, putts, penalties, drive direction, sand saves, up-and-downs) with dedicated statistics page and leaderboards.
 - **GPS Functionality**: Integrated GPS with satellite imagery, displaying real-time yardages and custom distance measurements using Google Maps API.

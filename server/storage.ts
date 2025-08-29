@@ -1896,12 +1896,49 @@ export class DatabaseStorage implements IStorage {
           // console.log(`🏌️ Player ${player.firstName} ${player.lastName} (${playerHandicap} hcp) - Hole ${holeNumber}: ${grossScore} gross - ${strokesReceived} strokes = ${netScore} net`);
         }
 
-        // For 3-person teams: take best 3 net scores, for 2-person teams: take best 2 (but with only 2 players, it's just the better one)
+        // For 3-person teams: custom format with different pairings per hole section
         if (netScores.length > 0) {
           let bestNetScore: number;
-          if (team.isThreePersonTeam && netScores.length >= 3) {
-            // For 3-person teams: take best score from all 3 players (this is still best ball, just from 3 options instead of 2)
-            bestNetScore = Math.min(...netScores);
+          if (team.isThreePersonTeam && netScores.length >= 2) {
+            // Team 7 custom format:
+            // Holes 1-6: James and Nic best ball
+            // Holes 7-9: Nic and Sye best ball  
+            // Holes 10-12: James and Sye best ball
+            // Holes 13-18: All three players best ball
+            
+            // Map net scores to players for this hole
+            const playerNetScores = new Map();
+            holeScores.forEach((holeScore, index) => {
+              const player = teamMembers.find(p => p.id === holeScore.userId);
+              if (player && netScores[index] !== undefined) {
+                playerNetScores.set(player.firstName, netScores[index]);
+              }
+            });
+            
+            const jamesScore = playerNetScores.get('James');
+            const nicScore = playerNetScores.get('Nic');
+            const syeScore = playerNetScores.get('Sye');
+            
+            if (holeNumber >= 1 && holeNumber <= 6) {
+              // Holes 1-6: James and Nic best ball
+              const availableScores = [jamesScore, nicScore].filter(score => score !== undefined);
+              bestNetScore = availableScores.length > 0 ? Math.min(...availableScores) : Math.min(...netScores);
+              console.log(`🏌️ Team 7 Hole ${holeNumber} (James & Nic): James=${jamesScore}, Nic=${nicScore} → Best: ${bestNetScore}`);
+            } else if (holeNumber >= 7 && holeNumber <= 9) {
+              // Holes 7-9: Nic and Sye best ball
+              const availableScores = [nicScore, syeScore].filter(score => score !== undefined);
+              bestNetScore = availableScores.length > 0 ? Math.min(...availableScores) : Math.min(...netScores);
+              console.log(`🏌️ Team 7 Hole ${holeNumber} (Nic & Sye): Nic=${nicScore}, Sye=${syeScore} → Best: ${bestNetScore}`);
+            } else if (holeNumber >= 10 && holeNumber <= 12) {
+              // Holes 10-12: James and Sye best ball
+              const availableScores = [jamesScore, syeScore].filter(score => score !== undefined);
+              bestNetScore = availableScores.length > 0 ? Math.min(...availableScores) : Math.min(...netScores);
+              console.log(`🏌️ Team 7 Hole ${holeNumber} (James & Sye): James=${jamesScore}, Sye=${syeScore} → Best: ${bestNetScore}`);
+            } else {
+              // Holes 13-18: All three players best ball
+              bestNetScore = Math.min(...netScores);
+              console.log(`🏌️ Team 7 Hole ${holeNumber} (All 3): James=${jamesScore}, Nic=${nicScore}, Sye=${syeScore} → Best: ${bestNetScore}`);
+            }
           } else {
             // For 2-person teams: take the better (lower) net score
             bestNetScore = Math.min(...netScores);
