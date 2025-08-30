@@ -212,6 +212,8 @@ export default function Round2() {
 
   const getScoreForHole = (hole: number) => {
     const score = holeScores.find(s => s.hole === hole);
+    console.log(`🔍 [HOLE ${hole}] Looking for score:`, score);
+    console.log(`🔍 [HOLE ${hole}] All scores:`, holeScores.map(s => ({ hole: s.hole, strokes: s.strokes })));
     return score?.strokes || 0;
   };
 
