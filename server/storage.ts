@@ -1056,10 +1056,9 @@ export class DatabaseStorage implements IStorage {
       teamTotal.holes += 1;
     }
 
-    // Convert to leaderboard format and sort by total points (highest wins for Stableford)
+    // Convert to leaderboard format with corrected calculations, then sort by lowest net strokes
     const leaderboard = Array.from(teamTotals.values())
-      .sort((a, b) => b.totalPoints - a.totalPoints)
-      .map((entry, index) => {
+      .map((entry) => {
         // Fix total net strokes calculation: Total Gross - Team Handicap
         const correctedTotalNetStrokes = entry.totalGrossStrokes - entry.teamHandicap;
         const correctedNetToPar = correctedTotalNetStrokes - 72; // Par 72
@@ -1076,11 +1075,12 @@ export class DatabaseStorage implements IStorage {
           netToPar: correctedNetToPar,
           holes: entry.holes,
           teamHandicap: entry.teamHandicap,
-          position: index + 1,
           isTeamLeaderboard: true,
           isScramble: true,
         };
-      });
+      })
+      .sort((a, b) => a.totalNetStrokes - b.totalNetStrokes) // Sort by lowest net strokes (best golf score first)
+      .map((entry, index) => ({ ...entry, position: index + 1 })); // Add positions after sorting
 
     return leaderboard;
   }
