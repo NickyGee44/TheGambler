@@ -228,10 +228,11 @@ export default function Round2() {
   });
 
   const getScoreForHole = (hole: number) => {
-    const score = holeScores.find(s => s.hole === hole);
-    console.log(`🔍 [HOLE ${hole}] Looking for score:`, score);
-    console.log(`🔍 [HOLE ${hole}] Current hole scores:`, holeScores.filter(s => s.hole === hole).map(s => ({ userId: s.userId, strokes: s.strokes })));
-    return score?.strokes || 0;
+    // Find score for current user specifically, not just any user
+    const userScore = holeScores.find(s => s.hole === hole && s.userId === user?.id);
+    console.log(`🔍 [HOLE ${hole}] Looking for USER ${user?.id} score:`, userScore);
+    console.log(`🔍 [HOLE ${hole}] All hole ${hole} scores:`, holeScores.filter(s => s.hole === hole).map(s => ({ userId: s.userId, name: s.user?.firstName, strokes: s.strokes })));
+    return userScore?.strokes || 0;
   };
 
   const updateScore = (strokes: number) => {
