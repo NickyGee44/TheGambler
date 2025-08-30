@@ -382,13 +382,19 @@ export default function Round1() {
 
   // Show hole view when round is started
   if (isRoundStarted) {
-    // Generate hole data for current hole
+    // Get real hole data from course
+    const currentHoleInfo = course.holes.find(h => h.number === currentHole);
+    if (!currentHoleInfo) {
+      console.error(`No hole data found for hole ${currentHole}`);
+      return <div>Error: Hole data not found</div>;
+    }
+    
     const currentHoleData = {
       hole: currentHole,
       number: currentHole,
-      par: currentHole <= 6 ? 4 : currentHole <= 12 ? 3 : currentHole <= 18 ? 5 : 4, // Simple par assignment
-      yardage: 350 + (currentHole * 10), // Simple yardage assignment
-      handicap: currentHole
+      par: currentHoleInfo.par,
+      yardage: currentHoleInfo.yardage,
+      handicap: currentHoleInfo.handicap
     };
     const currentScore = getScoreForHole(currentHole);
     
