@@ -1695,16 +1695,35 @@ export class DatabaseStorage implements IStorage {
     if (currentRound === 1 || currentRound === 2) {
       const allTeams = await this.getTeams();
       const teamCurrentScores = await Promise.all(allTeams.map(async (team) => {
-        const stablefordPoints = await this.calculateTeamStablefordPoints(team.id, currentRound);
-        return {
-          teamId: team.id,
-          stablefordPoints: stablefordPoints,
-          holesCompleted: await this.getTeamHolesCompleted(team.id, currentRound)
-        };
+        if (currentRound === 1) {
+          // Round 1: Better ball - use Stableford points (higher is better)
+          const stablefordPoints = await this.calculateTeamStablefordPoints(team.id, currentRound);
+          return {
+            teamId: team.id,
+            stablefordPoints: stablefordPoints,
+            netStrokes: 0, // Not used for Round 1
+            holesCompleted: await this.getTeamHolesCompleted(team.id, currentRound)
+          };
+        } else {
+          // Round 2: Scramble - use net strokes (lower is better)
+          const netStrokes = await this.calculateTeamNetStrokes(team.id, currentRound);
+          return {
+            teamId: team.id,
+            stablefordPoints: 0, // Not used for Round 2
+            netStrokes: netStrokes,
+            holesCompleted: await this.getTeamHolesCompleted(team.id, currentRound)
+          };
+        }
       }));
       
-      // Sort by current Stableford points to determine standings
-      teamCurrentScores.sort((a, b) => b.stablefordPoints - a.stablefordPoints);
+      // Sort by appropriate metric for each round
+      if (currentRound === 1) {
+        // Round 1: Sort by Stableford points (higher is better)
+        teamCurrentScores.sort((a, b) => b.stablefordPoints - a.stablefordPoints);
+      } else {
+        // Round 2: Sort by net strokes (lower is better)
+        teamCurrentScores.sort((a, b) => a.netStrokes - b.netStrokes);
+      }
       
       // Find this team's current position and award points accordingly
       const teamPosition = teamCurrentScores.findIndex(score => score.teamId === teamId) + 1;
