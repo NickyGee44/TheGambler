@@ -1056,8 +1056,8 @@ export class DatabaseStorage implements IStorage {
       teamTotal.holes += 1;
     }
 
-    // Convert to leaderboard format with corrected calculations, then sort by lowest net strokes
-    const leaderboard = Array.from(teamTotals.values())
+    // Convert to leaderboard format with corrected calculations
+    const leaderboardEntries = Array.from(teamTotals.values())
       .map((entry) => {
         // Fix total net strokes calculation: Total Gross - Team Handicap
         const correctedTotalNetStrokes = entry.totalGrossStrokes - entry.teamHandicap;
@@ -1077,10 +1077,19 @@ export class DatabaseStorage implements IStorage {
           teamHandicap: entry.teamHandicap,
           isTeamLeaderboard: true,
           isScramble: true,
+          holesCompleted: entry.holes,
         };
-      })
-      .sort((a, b) => a.totalNetStrokes - b.totalNetStrokes) // Sort by lowest net strokes (best golf score first)
+      });
+    
+    // Sort by lowest net strokes (best golf score first)
+    const leaderboard = leaderboardEntries
+      .sort((a, b) => a.totalNetStrokes - b.totalNetStrokes)
       .map((entry, index) => ({ ...entry, position: index + 1 })); // Add positions after sorting
+    
+    console.log('🚀 SORTED Round 2 Leaderboard Order:');
+    leaderboard.forEach((entry, idx) => {
+      console.log(`   ${idx + 1}. Team ${entry.team.teamNumber}: ${entry.totalNetStrokes} net strokes`);
+    });
 
     return leaderboard;
   }
