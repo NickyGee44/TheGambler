@@ -147,6 +147,9 @@ export default function Round2() {
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({
     queryKey: [`/api/hole-scores/${round}`],
     enabled: !!user,
+    staleTime: 0, // Always refetch for fresh data
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   // Fetch scramble leaderboard for round 2
@@ -164,11 +167,15 @@ export default function Round2() {
       });
       return await res.json();
     },
-    onSuccess: () => {
-      // Immediately invalidate ALL relevant caches for instant updates
-      queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
+    onSuccess: async () => {
+      console.log('✅ [ROUND 2 SAVE] Mutation successful, invalidating cache...');
+      
+      // Force immediate refetch of all data
+      await queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`], refetchType: 'all' });
+      await queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`], refetchType: 'all' });
+      await queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`], refetchType: 'all' });
+      
+      console.log('✅ [ROUND 2 SAVE] Cache invalidated, should refetch now');
       
       toast({
         title: "Team score saved",
