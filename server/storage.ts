@@ -552,11 +552,8 @@ export class DatabaseStorage implements IStorage {
       const netScore = strokes - handicap;
       let points = 0;
       
-      if (netScore <= par - 2) points = 4;
-      else if (netScore === par - 1) points = 3;
-      else if (netScore === par) points = 2;
-      else if (netScore === par + 1) points = 1;
-      else points = 0;
+      // No Stableford points - using pure net stroke play
+      points = 0;
 
       console.log('✅ Calculated scores:', { par, handicap, netScore, points });
 
@@ -1039,16 +1036,10 @@ export class DatabaseStorage implements IStorage {
       const strokesReceived = getStrokesOnHole(teamTotal.teamHandicap, teamHole.handicap);
       const netScore = teamHole.strokes - strokesReceived;
       
-      // Calculate Stableford points based on net score
+      // No Stableford points - using pure net stroke play
       const netToPar = netScore - teamHole.par;
-      let stablefordPoints = 0;
-      if (netToPar <= -2) stablefordPoints = 4; // Eagle or better
-      else if (netToPar === -1) stablefordPoints = 3; // Birdie
-      else if (netToPar === 0) stablefordPoints = 2; // Par
-      else if (netToPar === 1) stablefordPoints = 1; // Bogey
-      // Double bogey or worse = 0 points
       
-      teamTotal.totalPoints += stablefordPoints;
+      teamTotal.totalPoints += 0; // No individual hole points
       teamTotal.totalGrossStrokes += teamHole.strokes;
       teamTotal.totalNetStrokes += netScore;
       teamTotal.grossToPar += (teamHole.strokes - teamHole.par);
@@ -1695,35 +1686,17 @@ export class DatabaseStorage implements IStorage {
     if (currentRound === 1 || currentRound === 2) {
       const allTeams = await this.getTeams();
       const teamCurrentScores = await Promise.all(allTeams.map(async (team) => {
-        if (currentRound === 1) {
-          // Round 1: Better ball - use Stableford points (higher is better)
-          const stablefordPoints = await this.calculateTeamStablefordPoints(team.id, currentRound);
-          return {
-            teamId: team.id,
-            stablefordPoints: stablefordPoints,
-            netStrokes: 0, // Not used for Round 1
-            holesCompleted: await this.getTeamHolesCompleted(team.id, currentRound)
-          };
-        } else {
-          // Round 2: Scramble - use net strokes (lower is better)
-          const netStrokes = await this.calculateTeamNetStrokes(team.id, currentRound);
-          return {
-            teamId: team.id,
-            stablefordPoints: 0, // Not used for Round 2
-            netStrokes: netStrokes,
-            holesCompleted: await this.getTeamHolesCompleted(team.id, currentRound)
-          };
-        }
+        // All rounds use net strokes (lower is better)
+        const netStrokes = await this.calculateTeamNetStrokes(team.id, currentRound);
+        return {
+          teamId: team.id,
+          netStrokes: netStrokes,
+          holesCompleted: await this.getTeamHolesCompleted(team.id, currentRound)
+        };
       }));
       
-      // Sort by appropriate metric for each round
-      if (currentRound === 1) {
-        // Round 1: Sort by Stableford points (higher is better)
-        teamCurrentScores.sort((a, b) => b.stablefordPoints - a.stablefordPoints);
-      } else {
-        // Round 2: Sort by net strokes (lower is better)
-        teamCurrentScores.sort((a, b) => a.netStrokes - b.netStrokes);
-      }
+      // All rounds: Sort by net strokes (lower is better)
+      teamCurrentScores.sort((a, b) => a.netStrokes - b.netStrokes);
       
       // Find this team's current position and award points accordingly
       const teamPosition = teamCurrentScores.findIndex(score => score.teamId === teamId) + 1;
@@ -1829,9 +1802,9 @@ export class DatabaseStorage implements IStorage {
       return 0;
     }
     
-    // Award live placement points based on current standing: 1st = 10, 2nd = 9, etc.
+    // Award placement points: 10 for 1st down to 3 for last place
     const pointsMap = [10, 9, 8, 7, 6, 5, 4, 3];
-    return teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 1;
+    return teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 3;
   }
 
   private async calculateTeamStablefordPoints(teamId: number, round: number): Promise<number> {
@@ -3038,14 +3011,9 @@ export class DatabaseStorage implements IStorage {
     const strokesReceived = teamHandicap >= holeData.handicap ? 1 : 0;
     const netScore = strokes - strokesReceived;
 
-    // Calculate Stableford points based on net score
+    // No Stableford points - using pure net stroke play
     const netToPar = netScore - holeData.par;
-    let stablefordPoints = 0;
-    if (netToPar <= -2) stablefordPoints = 4; // Eagle or better
-    else if (netToPar === -1) stablefordPoints = 3; // Birdie
-    else if (netToPar === 0) stablefordPoints = 2; // Par
-    else if (netToPar === 1) stablefordPoints = 1; // Bogey
-    // Double bogey or worse = 0 points
+    let stablefordPoints = 0; // No individual hole points
 
     let returnHoleScore: HoleScore;
 
