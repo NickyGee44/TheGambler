@@ -134,6 +134,11 @@ export default function Round2() {
           detail: data.data,
         });
         window.dispatchEvent(event);
+      } else if (data.type === "TEAM_HOLE_SCORE_UPDATE" || data.type === "HOLE_SCORE_UPDATE") {
+        // Force immediate refresh of all Round 2 data when scores update
+        queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
       }
     },
   });
@@ -160,13 +165,10 @@ export default function Round2() {
       return await res.json();
     },
     onSuccess: () => {
-      // Immediately invalidate individual hole scores to refresh UI
+      // Immediately invalidate ALL relevant caches for instant updates
       queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
-      
-      // Delay leaderboard cache invalidation to prevent UI reversion during user interaction
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`] });
-      }, 1000); // Reduced to 1 second delay
+      queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
       
       toast({
         title: "Team score saved",
