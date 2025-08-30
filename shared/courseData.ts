@@ -18,6 +18,9 @@ export interface CourseData {
   name: string;
   location: string;
   holes: HoleInfo[];
+  totalPar: number;
+  totalYardage: number;
+  courseRating: number;
 }
 
 // Deerhurst Highlands Golf Course data (Rounds 1-3) - Official Gold Tee Scorecard
@@ -43,7 +46,10 @@ export const deerhurstCourse: CourseData = {
     { number: 16, par: 4, yardage: 375, handicap: 10 },
     { number: 17, par: 3, yardage: 195, handicap: 18 },
     { number: 18, par: 5, yardage: 553, handicap: 6 }
-  ]
+  ],
+  totalPar: 72,
+  totalYardage: 7031,
+  courseRating: 73.8
 };
 
 // Muskoka Bay Club data (Round 3) - Official Championship Tee Scorecard
@@ -69,7 +75,10 @@ export const muskokaBayCourse: CourseData = {
     { number: 16, par: 4, yardage: 440, handicap: 12 },
     { number: 17, par: 3, yardage: 182, handicap: 14 },
     { number: 18, par: 4, yardage: 429, handicap: 10 }
-  ]
+  ],
+  totalPar: 72,
+  totalYardage: 6911,
+  courseRating: 72.4
 };
 
 

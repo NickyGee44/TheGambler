@@ -5,15 +5,45 @@ import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
 import { setupAuth } from "./replitAuth";
-import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema, insertHoleScoreSchema, User } from "@shared/schema";
+import { insertScoreSchema, insertSideBetSchema, insertPhotoSchema, insertHoleScoreSchema, users } from "@shared/schema";
 import { z } from "zod";
+
+// Type the User from the schema
+type User = typeof users.$inferSelect;
+
+// Session user type (subset of User)
+type SessionUser = Pick<User, 'id' | 'firstName' | 'lastName'>;
+
+// Extend Express Request to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User;
+    }
+  }
+}
+
+// Extend session type
+declare module 'express-session' {
+  interface SessionData {
+    user?: SessionUser;
+  }
+}
 
 // Middleware to check authentication
 async function requireAuth(req: any, res: any, next: any) {
   // First try session-based authentication (custom auth)
   if (req.session?.user) {
-    req.user = req.session.user;
-    return next();
+    // Get full user object from database using session user ID
+    try {
+      const fullUser = await storage.getUser(req.session.user.id);
+      if (fullUser) {
+        req.user = fullUser;
+        return next();
+      }
+    } catch (error) {
+      console.error('Error fetching user from session:', error);
+    }
   }
   
   // Fallback to Replit Auth
@@ -215,7 +245,7 @@ async function generateRound2Matchups(storage: any) {
   const matchups = [];
   
   // Handle different team sizes and group them into foursomes
-  const playerPool = [];
+  const playerPool: Array<{ id: number; name: string }> = [];
   shuffledTeams.forEach(team => {
     if (team.player3) {
       // 3-person team - add all 3 players
@@ -1353,8 +1383,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const currentUser = req.user;
       
-      // Check if user is Nick Grossi
-      if (!currentUser || currentUser.firstName !== 'Nick' || currentUser.lastName !== 'Grossi') {
+      // Check if user is Nick Grossi  
+      if (!currentUser || (currentUser as any).firstName !== 'Nick' || (currentUser as any).lastName !== 'Grossi') {
         return res.status(403).json({ error: 'Only Nick Grossi can initialize Round 3 matchups' });
       }
 
@@ -1388,8 +1418,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const currentUser = req.user;
       
-      // Check if user is Nick Grossi (admin only)
-      if (!currentUser || currentUser.firstName !== 'Nick' || currentUser.lastName !== 'Grossi') {
+      // Check if user is Nick Grossi (admin only)  
+      if (!currentUser || (currentUser as any).firstName !== 'Nick' || (currentUser as any).lastName !== 'Grossi') {
         return res.status(403).json({ error: 'Only Nick Grossi can recalculate scores' });
       }
 
@@ -1419,7 +1449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentUser = req.user;
       
       // Check if user is Nick Grossi (ID 13 based on database)
-      if (!currentUser || currentUser.id !== 13) {
+      if (!currentUser || (currentUser as any).id !== 13) {
         console.log('Auth failed - User:', currentUser);
         return res.status(403).json({ error: 'Only Nick Grossi can shuffle matchups' });
       }
@@ -1497,7 +1527,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentUser = req.user;
       
       // Check if user is Nick Grossi (ID 13 based on database)
-      if (!currentUser || currentUser.id !== 13) {
+      if (!currentUser || (currentUser as any).id !== 13) {
         console.log('Auth failed - User:', currentUser);
         return res.status(403).json({ error: 'Only Nick Grossi can initialize Round 3 matchups' });
       }
