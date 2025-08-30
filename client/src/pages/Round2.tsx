@@ -135,10 +135,15 @@ export default function Round2() {
         });
         window.dispatchEvent(event);
       } else if (data.type === "TEAM_HOLE_SCORE_UPDATE" || data.type === "HOLE_SCORE_UPDATE") {
-        // Force immediate refresh of all Round 2 data when scores update
+        // Force immediate refresh of all Round 2 data AND leaderboards when scores update
         queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
         queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`] });
         queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
+        
+        // Invalidate all leaderboard caches too
+        queryClient.invalidateQueries({ queryKey: ['/api/live-scores'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/scores'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/leaderboard'] });
       }
     },
   });
@@ -168,14 +173,19 @@ export default function Round2() {
       return await res.json();
     },
     onSuccess: async () => {
-      console.log('✅ [ROUND 2 SAVE] Mutation successful, invalidating cache...');
+      console.log('✅ [ROUND 2 SAVE] Mutation successful, invalidating ALL caches...');
       
-      // Force immediate refetch of all data
+      // Force immediate refetch of all relevant data including leaderboards
       await queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`], refetchType: 'all' });
       await queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`], refetchType: 'all' });
       await queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`], refetchType: 'all' });
       
-      console.log('✅ [ROUND 2 SAVE] Cache invalidated, should refetch now');
+      // Invalidate ALL leaderboard caches
+      await queryClient.invalidateQueries({ queryKey: ['/api/live-scores'], refetchType: 'all' });
+      await queryClient.invalidateQueries({ queryKey: ['/api/scores'], refetchType: 'all' });
+      await queryClient.invalidateQueries({ queryKey: ['/api/leaderboard'], refetchType: 'all' });
+      
+      console.log('✅ [ROUND 2 SAVE] ALL caches invalidated, leaderboards should update');
       
       toast({
         title: "Team score saved",

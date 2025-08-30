@@ -39,6 +39,9 @@ export default function Scores() {
   const { data: scores = [], isLoading: scoresLoading, refetch } = useQuery({
     queryKey: ['/api/live-scores'],
     refetchInterval: 5000, // Refresh every 5 seconds for live updates
+    staleTime: 0, // Always fetch fresh data
+    retry: 3, // Retry failed requests
+    retryDelay: 1000, // Wait 1 second between retries
   });
 
   const { data: teams = [], isLoading: teamsLoading } = useQuery({
@@ -316,7 +319,7 @@ export default function Scores() {
 
 // Detailed view components with both leaderboards and individual scores
 
-function Round1DetailedView({ leaderboard }: { leaderboard: any[] }) {
+function Round1DetailedView({ leaderboard = [] }: { leaderboard: any[] }) {
   const [activeSubTab, setActiveSubTab] = useState("leaderboard");
   
   const { data: holeScores = [] } = useQuery({
@@ -350,7 +353,7 @@ function Round1DetailedView({ leaderboard }: { leaderboard: any[] }) {
   );
 }
 
-function Round2DetailedView({ leaderboard }: { leaderboard: any[] }) {
+function Round2DetailedView({ leaderboard = [] }: { leaderboard: any[] }) {
   const [activeSubTab, setActiveSubTab] = useState("leaderboard");
   
   const { data: holeScores = [] } = useQuery({
@@ -384,7 +387,7 @@ function Round2DetailedView({ leaderboard }: { leaderboard: any[] }) {
   );
 }
 
-function Round3DetailedView({ leaderboard }: { leaderboard: any[] }) {
+function Round3DetailedView({ leaderboard = [] }: { leaderboard: any[] }) {
   const [activeSubTab, setActiveSubTab] = useState("leaderboard");
   
   const { data: holeScores = [] } = useQuery({
