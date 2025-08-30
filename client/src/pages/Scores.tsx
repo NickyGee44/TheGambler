@@ -298,7 +298,7 @@ export default function Scores() {
         </TabsContent>
 
         <TabsContent value="round1">
-          <Round1DetailedView leaderboard={round1Leaderboard} />
+          <Round1DetailedView leaderboard={round1BetterBall} />
         </TabsContent>
 
         <TabsContent value="round2">
