@@ -376,14 +376,27 @@ export default function Round3() {
 
   const updateScoreMutation = useMutation({
     mutationFn: async ({ hole, strokes }: { hole: number; strokes: number }) => {
-      const res = await apiRequest("POST", "/api/hole-scores", {
-        round,
-        hole,
-        strokes,
-      });
-      return await res.json();
+      console.log(`🚀 [API REQUEST] Sending score update:`, { round, hole, strokes });
+      
+      try {
+        const res = await apiRequest("POST", "/api/hole-scores", {
+          round,
+          hole,
+          strokes,
+        });
+        
+        console.log(`✅ [API SUCCESS] Score update response status:`, res.status);
+        const data = await res.json();
+        console.log(`✅ [API SUCCESS] Score update response data:`, data);
+        return data;
+      } catch (error) {
+        console.error(`❌ [API ERROR] Score update failed:`, error);
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(`🎉 [MUTATION SUCCESS] Score saved successfully:`, data);
+      
       // Immediately invalidate hole scores to refresh UI
       queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
       
@@ -392,7 +405,7 @@ export default function Round3() {
         queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
         queryClient.invalidateQueries({ queryKey: ["/api/match-play/matches"] });
         queryClient.invalidateQueries({ queryKey: ["/api/match-play/leaderboard"] });
-      }, 1000); // Reduced to 1 second delay
+      }, 1000);
       
       toast({
         title: "Score saved",
@@ -400,9 +413,10 @@ export default function Round3() {
       });
     },
     onError: (error: Error) => {
+      console.error(`💥 [MUTATION ERROR] Score save failed:`, error);
       toast({
         title: "Error",
-        description: error.message,
+        description: `Failed to save score: ${error.message}`,
         variant: "destructive",
       });
     },
