@@ -1624,7 +1624,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (strokes < 1 || strokes > 15) {
         console.log('❌ Invalid strokes value:', strokes);
-        return res.status(400).json({ error: 'Invalid strokes value' });
+        return res.status(400).json({ error: 'Invalid strokes value. Must be between 1 and 15.' });
+      }
+      
+      // Extra validation to prevent 0 scores
+      if (strokes === 0) {
+        console.log('❌ Zero strokes not allowed:', strokes);
+        return res.status(400).json({ error: 'Score cannot be zero. Please select a valid score.' });
       }
       
       // Validate hole number (1-18 only)
@@ -1836,7 +1842,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (strokes < 1 || strokes > 15) {
         console.log('❌ Invalid strokes value:', strokes);
-        return res.status(400).json({ error: 'Invalid strokes value' });
+        return res.status(400).json({ error: 'Invalid strokes value. Must be between 1 and 15.' });
+      }
+      
+      // Extra validation to prevent 0 scores
+      if (strokes === 0) {
+        console.log('❌ Zero strokes not allowed:', strokes);
+        return res.status(400).json({ error: 'Score cannot be zero. Please select a valid score.' });
       }
       
       // Validate hole number (1-18 only)

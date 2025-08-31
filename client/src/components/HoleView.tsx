@@ -188,7 +188,10 @@ export default function HoleView({
 
   // BULLETPROOF SCORE HANDLER - Immediate UI response, background save
   const handleScoreClick = (strokes: number) => {
-    if (strokes < 1) return;
+    if (strokes < 1) {
+      console.log(`❌ [HOLE ${hole.number}] Invalid strokes:`, strokes);
+      return;
+    }
     
     console.log(`👆 [HOLE ${hole.number}] SCORE CLICK:`, { strokes, previous: displayScore });
     
@@ -196,8 +199,18 @@ export default function HoleView({
     setUserScore(strokes);
     setHasUserSetScore(true);
     
-    // Save in background - UI doesn't depend on this
-    onScoreUpdate(strokes);
+    // Validate strokes again before sending to API
+    if (strokes >= 1 && strokes <= 15) {
+      console.log(`✅ [HOLE ${hole.number}] Sending valid score to API:`, strokes);
+      onScoreUpdate(strokes);
+    } else {
+      console.error(`❌ [HOLE ${hole.number}] Invalid strokes for API:`, strokes);
+      toast({
+        title: "Error",
+        description: "Invalid score. Please select a score between 1 and 15.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Clean up timers when hole changes
