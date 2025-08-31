@@ -1703,8 +1703,8 @@ export class DatabaseStorage implements IStorage {
       
       // Award points based on current standing if round is in progress
       if (teamData && teamData.holesCompleted > 0 && teamData.holesCompleted < 18) {
-        // Handle ties during live play as well
-        const pointsMap = [10, 9, 8, 7, 6, 5, 4, 3];
+        // Handle ties during live play as well - Round 1 points cut in half
+        const pointsMap = currentRound === 1 ? [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5] : [10, 9, 8, 7, 6, 5, 4, 3];
         const teamScore = teamData.netStrokes;
         
         // Find all teams with the same score (tied teams)
@@ -1815,8 +1815,8 @@ export class DatabaseStorage implements IStorage {
       teamsInPlay.sort((a, b) => a.teamScore - b.teamScore);
     }
     
-    // Handle ties by splitting points evenly
-    const pointsMap = [10, 9, 8, 7, 6, 5, 4, 3];
+    // Handle ties by splitting points evenly - Round 1 points cut in half
+    const pointsMap = round === 1 ? [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5] : [10, 9, 8, 7, 6, 5, 4, 3];
     const teamScore = teamsInPlay.find(team => team.teamId === teamId)?.teamScore;
     
     if (teamScore === undefined) {
@@ -2323,15 +2323,15 @@ export class DatabaseStorage implements IStorage {
         }
       }
 
-      // Determine segment result: Win=2pts, Tie=1pt, Loss=0pts  
+      // Determine segment result: Win=4pts, Tie=2pt, Loss=0pts (doubled from original 2-1-0)  
       if (playerSegmentPoints > opponentSegmentPoints) {
-        segmentPoints = 2; // Win = 2 points
-        console.log(`   🏆 Player wins segment ${match.holeSegment} (${playerSegmentPoints} vs ${opponentSegmentPoints}) = 2 points`);
+        segmentPoints = 4; // Win = 4 points (doubled)
+        console.log(`   🏆 Player wins segment ${match.holeSegment} (${playerSegmentPoints} vs ${opponentSegmentPoints}) = 4 points`);
       } else if (playerSegmentPoints === opponentSegmentPoints) {
-        segmentPoints = 1; // Tie = 1 point  
-        console.log(`   🤝 Segment ${match.holeSegment} tied (${playerSegmentPoints} vs ${opponentSegmentPoints}) = 1 point`);
+        segmentPoints = 2; // Tie = 2 points (doubled)
+        console.log(`   🤝 Segment ${match.holeSegment} tied (${playerSegmentPoints} vs ${opponentSegmentPoints}) = 2 points`);
       } else {
-        segmentPoints = 0; // Loss = 0 points
+        segmentPoints = 0; // Loss = 0 points (unchanged)
         console.log(`   💔 Player loses segment ${match.holeSegment} (${playerSegmentPoints} vs ${opponentSegmentPoints}) = 0 points`);
       }
 

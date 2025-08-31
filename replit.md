@@ -3,6 +3,11 @@
 ## Overview
 The Gambler Cup 2025 is a golf tournament tracking application designed for an 8-team tournament. Its primary purpose is to provide a comprehensive, real-time tracking and social platform for participants, managing team information, scores, side bets, and photos. Key capabilities include real-time updates, offline functionality via PWA, and a responsive mobile-optimized design.
 
+**Scoring System:**
+- **Round 1 (Better Ball):** 5-4.5-4-3.5-3-2.5-2-1.5 placement points (half of original 10-9-8-7-6-5-4-3)
+- **Round 2 (Scramble):** 10-9-8-7-6-5-4-3 placement points (unchanged)
+- **Round 3 (Match Play):** 4 points per match win, 2 points per match tie, 0 points for loss (doubled from original 2-1-0)
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
