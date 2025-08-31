@@ -199,7 +199,12 @@ export default function Round3() {
 
   // Function to determine opponent based on current hole and user name
   const getCurrentOpponent = (currentHole: number, playerName: string) => {
-    if (!playerName || !user?.id) return null;
+    console.log('getCurrentOpponent called:', { currentHole, playerName, userId: user?.id, matchPlayMatchesLength: matchPlayMatches.length });
+    
+    if (!playerName || !user?.id) {
+      console.log('Returning null - missing playerName or userId');
+      return null;
+    }
     
     // Determine hole range
     let holeRange: string;
@@ -249,6 +254,17 @@ export default function Round3() {
 
   // Get current opponent info
   const currentOpponent = getCurrentOpponent(currentHole, `${user?.firstName} ${user?.lastName}`);
+  
+  // Debug logging
+  console.log('Round 3 Debug:', {
+    currentHole,
+    userId: user?.id,
+    matchPlayMatchesCount: matchPlayMatches.length,
+    allPlayersCount: allPlayers.length,
+    firstMatch: matchPlayMatches[0],
+    firstPlayer: allPlayers[0],
+    currentOpponent
+  });
 
   // Function to calculate stroke allocation based on matchup data
   const calculateStrokeAllocation = (playerName: string, opponentName: string, holeRange: string) => {
