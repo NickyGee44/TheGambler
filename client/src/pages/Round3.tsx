@@ -19,7 +19,7 @@ import ProfilePicture from "@/components/ProfilePicture";
 import ScoreIndicator from "@/components/ScoreIndicator";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
-import { ROUND3_MATCHUPS } from "./Round3Matchups";
+// Removed hardcoded matchups - now using dynamic database data
 
 
 interface HoleScore {
@@ -175,7 +175,7 @@ export default function Round3() {
   });
 
   // Fetch match play matches
-  const { data: matchPlayMatches = [] } = useQuery<MatchPlayMatch[]>({
+  const { data: matchPlayMatches = [] } = useQuery<any[]>({
     queryKey: ["/api/match-play/matches"],
     refetchInterval: 10000, // Refresh every 10 seconds
   });
@@ -199,33 +199,40 @@ export default function Round3() {
 
   // Function to determine opponent based on current hole and user name
   const getCurrentOpponent = (currentHole: number, playerName: string) => {
-    if (!playerName) return null;
+    if (!playerName || !user?.id) return null;
     
     // Determine hole range
     let holeRange: string;
     if (currentHole >= 1 && currentHole <= 6) {
-      holeRange = "1–6";
+      holeRange = "1-6";
     } else if (currentHole >= 7 && currentHole <= 12) {
-      holeRange = "7–12";
+      holeRange = "7-12";
     } else if (currentHole >= 13 && currentHole <= 18) {
-      holeRange = "13–18";
+      holeRange = "13-18";
     } else {
       return null;
     }
 
-    // Find the matchup for this player and hole range
-    const matchup = ROUND3_MATCHUPS.find(m => 
-      m.holes === holeRange && 
-      (m.player1 === playerName || m.player2 === playerName)
+    // Find the matchup for this player and hole range from database
+    const matchup = matchPlayMatches.find((m: any) => 
+      m.hole_segment === holeRange && 
+      (m.player1_id === user.id || m.player2_id === user.id)
     );
 
     if (!matchup) return null;
 
+    // Get opponent info from allPlayers data
+    const opponentId = matchup.player1_id === user.id ? matchup.player2_id : matchup.player1_id;
+    const opponent = allPlayers.find(p => p.userId === opponentId);
+    
+    if (!opponent) return null;
+
     return {
-      opponent: matchup.player1 === playerName ? matchup.player2 : matchup.player1,
+      opponent: opponent.name,
       holeRange: holeRange,
-      strokes: matchup.strokes,
-      foursome: matchup.foursome
+      strokes: `${matchup.strokes_given} stroke${matchup.strokes_given !== 1 ? 's' : ''}`,
+      foursome: 'N/A',
+      matchup: matchup
     };
   };
 
@@ -234,11 +241,19 @@ export default function Round3() {
 
   // Function to calculate stroke allocation based on matchup data
   const calculateStrokeAllocation = (playerName: string, opponentName: string, holeRange: string) => {
-    // Find the specific matchup in ROUND3_MATCHUPS to get exact stroke allocation
-    const matchup = ROUND3_MATCHUPS.find(m => 
-      m.holes === holeRange && 
-      ((m.player1 === playerName && m.player2 === opponentName) || 
-       (m.player1 === opponentName && m.player2 === playerName))
+    if (!user?.id) {
+      return {
+        strokeDifference: 0,
+        playerGetsStrokes: false,
+        strokesInRange: 0,
+        strokeHoles: []
+      };
+    }
+
+    // Find the specific matchup from database
+    const matchup = matchPlayMatches.find((m: any) => 
+      m.hole_segment === holeRange && 
+      (m.player1_id === user.id || m.player2_id === user.id)
     );
     
     console.log('Matchup lookup:', {
@@ -246,7 +261,8 @@ export default function Round3() {
       opponentName,
       holeRange,
       matchupFound: !!matchup,
-      matchupText: matchup?.strokes
+      strokesGiven: matchup?.strokes_given,
+      strokeRecipient: matchup?.stroke_recipient_id
     });
     
     if (!matchup) {
@@ -258,70 +274,25 @@ export default function Round3() {
       };
     }
     
-    // Parse the strokes text to determine who gets strokes and how many
-    const strokesText = matchup.strokes.toLowerCase();
-    let strokesGiven = 0;
-    let playerGetsStrokes = false;
-    
-    // Extract number of strokes from text
-    const strokeMatch = strokesText.match(/(\d+)\s*stroke/);
-    if (strokeMatch) {
-      strokesGiven = parseInt(strokeMatch[1]);
-    }
-    
-    // Get first names for comparison
-    const playerFirstName = playerName.toLowerCase().split(' ')[0];
-    const opponentFirstName = opponentName.toLowerCase().split(' ')[0];
-    
-    // Determine if current player gets strokes by parsing different patterns:
-    // "Nic gets 3 strokes from Will" - Nic gets strokes
-    // "Will gives Nic 3 strokes" - Nic gets strokes  
-    // "Nic gives Sye 1 stroke" - Sye gets strokes
-    // "Sye gets 1 stroke from Nic" - Sye gets strokes
-    // "Nick Cook gives Nick Grossi 1 stroke" - Nick Grossi gets strokes
-    // "Johnny gives Nick 2 strokes" - Nick gets strokes
-    
-    if (strokesText.includes('no strokes') || strokesGiven === 0) {
-      playerGetsStrokes = false;
-    } else if (strokesText.includes(`${playerFirstName} gets`)) {
-      playerGetsStrokes = true;
-    } else if (strokesText.includes(`gives ${playerFirstName}`)) {
-      // Handles both "X gives PlayerFirstName" and "Full Name gives PlayerFirstName"
-      playerGetsStrokes = true;
-    } else if (strokesText.includes(`${playerFirstName} gives`)) {
-      // Player gives strokes to opponent
-      playerGetsStrokes = false;
-    } else if (strokesText.includes(`${opponentFirstName} gets`) && strokesText.includes(`from ${playerFirstName}`)) {
-      // Opponent gets strokes from player  
-      playerGetsStrokes = false;
-    }
+    const strokesGiven = matchup.strokes_given || 0;
+    const playerGetsStrokes = matchup.stroke_recipient_id === user.id;
     
     console.log('Stroke parsing result:', {
-      strokesText,
-      playerFirstName,
-      opponentFirstName,
       strokesGiven,
-      playerGetsStrokes
+      playerGetsStrokes,
+      userId: user.id,
+      strokeRecipientId: matchup.stroke_recipient_id
     });
     
-    // Get the holes for the current range
-    const courseHoles = course.holes;
-    let rangeHoles: typeof courseHoles = [];
+    // Get stroke holes directly from database
+    const strokeHoles = playerGetsStrokes ? (matchup.stroke_holes || []) : [];
     
-    if (holeRange === "1–6") {
-      rangeHoles = courseHoles.slice(0, 6);
-    } else if (holeRange === "7–12") {
-      rangeHoles = courseHoles.slice(6, 12);
-    } else if (holeRange === "13–18") {
-      rangeHoles = courseHoles.slice(12, 18);
-    }
-    
-    // Sort holes by handicap rating (1 = hardest, 18 = easiest)
-    const sortedHoles = [...rangeHoles].sort((a, b) => a.handicap - b.handicap);
-    
-    // Get the holes where strokes are allocated (hardest holes first)
-    const strokeHoles = playerGetsStrokes ? 
-      sortedHoles.slice(0, strokesGiven).map(h => h.number) : [];
+    console.log('Stroke allocation result:', {
+      strokeDifference: strokesGiven,
+      playerGetsStrokes,
+      strokesInRange: strokesGiven,
+      strokeHoles
+    });
     
     return {
       strokeDifference: strokesGiven,
