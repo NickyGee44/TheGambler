@@ -223,9 +223,20 @@ export default function Round3() {
 
     // Get opponent info from allPlayers data
     const opponentId = matchup.player1_id === user.id ? matchup.player2_id : matchup.player1_id;
+    
+    console.log('Opponent lookup debug:', {
+      opponentId,
+      allPlayersCount: allPlayers.length,
+      allPlayersSample: allPlayers[0],
+      matchingPlayer: allPlayers.find(p => p.userId === opponentId)
+    });
+    
     const opponent = allPlayers.find(p => p.userId === opponentId);
     
-    if (!opponent) return null;
+    if (!opponent) {
+      console.log('No opponent found with userId:', opponentId);
+      return null;
+    }
 
     return {
       opponent: opponent.name,
@@ -478,12 +489,12 @@ export default function Round3() {
               <TabsContent value="play" className="mt-4">
                 {/* Debug: Show when no opponent found */}
                 {!currentOpponent && user && isRoundStarted && (
-                  <div className="mb-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-3">
-                    <div className="text-sm text-orange-700 dark:text-orange-300">
-                      <div className="font-medium mb-1">No match found for:</div>
+                  <div className="mb-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+                    <div className="text-sm text-blue-700 dark:text-blue-300">
+                      <div className="font-medium mb-1">Loading opponent data...</div>
                       <div>Player: {user.firstName} {user.lastName}</div>
                       <div>Current Hole: {currentHole}</div>
-                      <div>Expected to find in ROUND3_MATCHUPS</div>
+                      <div>Checking database matchups</div>
                     </div>
                   </div>
                 )}
