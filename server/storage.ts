@@ -871,10 +871,28 @@ export class DatabaseStorage implements IStorage {
       // Combine: teams with Round 2 scores first, then teams without
       const sortedTeams = [...teamsWithRound2Scores, ...teamsWithoutRound2Scores];
       
-      // Assign positions
-      sortedTeams.forEach((team, index) => {
-        team.position = index + 1;
-      });
+      // Assign positions with tie handling
+      let currentPosition = 1;
+      for (let i = 0; i < sortedTeams.length; i++) {
+        const currentTeam = sortedTeams[i];
+        
+        if (i > 0 && currentTeam.holesCompleted > 0) {
+          // Check if this team is tied with the previous team
+          const previousTeam = sortedTeams[i - 1];
+          if (previousTeam.holesCompleted > 0 && currentTeam.netStrokes === previousTeam.netStrokes) {
+            // Same position as previous team (tie)
+            currentTeam.position = previousTeam.position;
+          } else {
+            // New position
+            currentTeam.position = i + 1;
+            currentPosition = i + 1;
+          }
+        } else {
+          // First team or team without scores
+          currentTeam.position = currentPosition;
+          if (currentTeam.holesCompleted === 0) currentPosition++;
+        }
+      }
       
       return sortedTeams;
     } else if (round === 1) {
@@ -1611,6 +1629,8 @@ export class DatabaseStorage implements IStorage {
       const round2Points = await this.calculateTeamRoundPoints(team.id, 2);
       const round3Points = await this.calculateTeamRoundPoints(team.id, 3);
       
+      console.log(`📊 Team ${team.id} scores: R1=${round1Points}, R2=${round2Points}, R3=${round3Points}`);
+      
       // Calculate match play points for this team (for display purposes)
       const matchPlayPoints = await this.calculateTeamMatchPlayPoints(team.id);
       
@@ -1704,10 +1724,31 @@ export class DatabaseStorage implements IStorage {
       
       // Award points based on current standing if round is in progress
       if (teamData && teamData.holesCompleted > 0 && teamData.holesCompleted < 18) {
-        // Award temporary points based on current standing using new point structure
-        const pointsMap = [10, 8, 6, 5, 4, 3, 2, 1]; // Index 0 = 1st place, Index 1 = 2nd place, etc.
-        const pointsAwarded = teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 1;
-        return pointsAwarded;
+        // Handle ties during live play as well
+        const pointsMap = [10, 9, 8, 7, 6, 5, 4, 3];
+        const teamScore = teamData.netStrokes;
+        
+        // Find all teams with the same score (tied teams)
+        const tiedTeams = teamCurrentScores.filter(team => team.netStrokes === teamScore && team.holesCompleted > 0);
+        
+        if (tiedTeams.length === 1) {
+          // No tie, award normal points
+          return teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 3;
+        } else {
+          // Tie detected - calculate average points for tied positions
+          const firstTiedPosition = teamCurrentScores.filter(team => team.holesCompleted > 0).findIndex(team => team.netStrokes === teamScore) + 1;
+          const lastTiedPosition = firstTiedPosition + tiedTeams.length - 1;
+          
+          // Sum up all points for tied positions
+          let totalPoints = 0;
+          for (let pos = firstTiedPosition; pos <= lastTiedPosition; pos++) {
+            const points = pos <= pointsMap.length ? pointsMap[pos - 1] : 3;
+            totalPoints += points;
+          }
+          
+          // Return average points for tied teams
+          return totalPoints / tiedTeams.length;
+        }
       }
     }
     
@@ -1795,16 +1836,41 @@ export class DatabaseStorage implements IStorage {
       teamsInPlay.sort((a, b) => a.teamScore - b.teamScore);
     }
     
-    const teamPosition = teamsInPlay.findIndex(team => team.teamId === teamId) + 1;
+    // Handle ties by splitting points evenly
+    const pointsMap = [10, 9, 8, 7, 6, 5, 4, 3];
+    const teamScore = teamsInPlay.find(team => team.teamId === teamId)?.teamScore;
     
-    if (teamPosition === 0) {
+    if (teamScore === undefined) {
       // This team hasn't started yet
       return 0;
     }
     
-    // Award placement points: 10 for 1st down to 3 for last place
-    const pointsMap = [10, 9, 8, 7, 6, 5, 4, 3];
-    return teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 3;
+    // Find all teams with the same score (tied teams)
+    const tiedTeams = teamsInPlay.filter(team => team.teamScore === teamScore);
+    
+    if (tiedTeams.length === 1) {
+      // No tie, award normal points
+      const teamPosition = teamsInPlay.findIndex(team => team.teamId === teamId) + 1;
+      const points = teamPosition <= pointsMap.length ? pointsMap[teamPosition - 1] : 3;
+      return points;
+    } else {
+      // Tie detected - calculate average points for tied positions
+      const firstTiedPosition = teamsInPlay.findIndex(team => team.teamScore === teamScore) + 1;
+      const lastTiedPosition = firstTiedPosition + tiedTeams.length - 1;
+      
+      // Sum up all points for tied positions
+      let totalPoints = 0;
+      for (let pos = firstTiedPosition; pos <= lastTiedPosition; pos++) {
+        const points = pos <= pointsMap.length ? pointsMap[pos - 1] : 3;
+        totalPoints += points;
+      }
+      
+      const averagePoints = totalPoints / tiedTeams.length;
+      console.log(`🎯 TIE: Team ${teamId} tied with ${tiedTeams.length} teams at score ${teamScore}, getting ${averagePoints} points`);
+      
+      // Return average points for tied teams
+      return averagePoints;
+    }
   }
 
   private async calculateTeamStablefordPoints(teamId: number, round: number): Promise<number> {
