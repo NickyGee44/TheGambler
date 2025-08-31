@@ -436,15 +436,8 @@ export class DatabaseStorage implements IStorage {
           .from(matchPlayMatches)
           .where(or(eq(matchPlayMatches.player1Id, player1[0].id), eq(matchPlayMatches.player2Id, player1[0].id)));
 
-        let player1Points = 0;
-        for (const match of player1Matches) {
-          if (match.result && match.pointsAwarded) {
-            const points = match.pointsAwarded as any;
-            const playerPointsFromMatch = match.player1Id === player1[0].id ? (points.player1 || 0) : (points.player2 || 0);
-            player1Points += playerPointsFromMatch;
-            console.log(`   Match ${match.holeSegment}: +${playerPointsFromMatch} points (Total: ${player1Points})`);
-          }
-        }
+        // Use the same calculation logic as calculatePlayerMatchPlayPoints for consistency
+        const player1Points = await this.calculatePlayerMatchPlayPoints(player1[0].id);
         playerPoints.push(player1Points);
         console.log(`✅ ${team.player1Name} total: ${player1Points} points`);
       }
@@ -461,15 +454,8 @@ export class DatabaseStorage implements IStorage {
           .from(matchPlayMatches)
           .where(or(eq(matchPlayMatches.player1Id, player2[0].id), eq(matchPlayMatches.player2Id, player2[0].id)));
 
-        let player2Points = 0;
-        for (const match of player2Matches) {
-          if (match.result && match.pointsAwarded) {
-            const points = match.pointsAwarded as any;
-            const playerPointsFromMatch = match.player1Id === player2[0].id ? (points.player1 || 0) : (points.player2 || 0);
-            player2Points += playerPointsFromMatch;
-            console.log(`   Match ${match.holeSegment}: +${playerPointsFromMatch} points (Total: ${player2Points})`);
-          }
-        }
+        // Use the same calculation logic as calculatePlayerMatchPlayPoints for consistency  
+        const player2Points = await this.calculatePlayerMatchPlayPoints(player2[0].id);
         playerPoints.push(player2Points);
         console.log(`✅ ${team.player2Name} total: ${player2Points} points`);
       }
@@ -487,15 +473,8 @@ export class DatabaseStorage implements IStorage {
             .from(matchPlayMatches)
             .where(or(eq(matchPlayMatches.player1Id, player3[0].id), eq(matchPlayMatches.player2Id, player3[0].id)));
 
-          let player3Points = 0;
-          for (const match of player3Matches) {
-            if (match.result && match.pointsAwarded) {
-              const points = match.pointsAwarded as any;
-              const playerPointsFromMatch = match.player1Id === player3[0].id ? (points.player1 || 0) : (points.player2 || 0);
-              player3Points += playerPointsFromMatch;
-              console.log(`   Match ${match.holeSegment}: +${playerPointsFromMatch} points (Total: ${player3Points})`);
-            }
-          }
+          // Use the same calculation logic as calculatePlayerMatchPlayPoints for consistency
+          const player3Points = await this.calculatePlayerMatchPlayPoints(player3[0].id);
           playerPoints.push(player3Points);
           console.log(`✅ ${team.player3Name} total: ${player3Points} points`);
         }
@@ -2262,6 +2241,8 @@ export class DatabaseStorage implements IStorage {
       console.log(`❌ No Round 3 scores found for player ${playerId}`);
       return 0;
     }
+    
+    console.log(`✅ Found ${playerHoleScores.length} Round 3 scores for player ${playerId}`);
 
     // Get all matches for this player to find opponents
     const matches = await db.select()

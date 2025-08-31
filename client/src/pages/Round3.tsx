@@ -270,16 +270,6 @@ export default function Round3() {
   // Get current opponent info
   const currentOpponent = getCurrentOpponent(currentHole, `${user?.firstName} ${user?.lastName}`);
   
-  // Debug logging
-  console.log('Round 3 Debug:', {
-    currentHole,
-    userId: user?.id,
-    matchPlayMatchesCount: matchPlayMatches.length,
-    allPlayersCount: allPlayers.length,
-    firstMatch: matchPlayMatches[0],
-    firstPlayer: allPlayers[0],
-    currentOpponent
-  });
 
   // Function to calculate stroke allocation based on matchup data
   const calculateStrokeAllocation = (playerName: string, opponentName: string, holeRange: string) => {
@@ -523,17 +513,6 @@ export default function Round3() {
               </TabsList>
               
               <TabsContent value="play" className="mt-4">
-                {/* Debug: Show when no opponent found */}
-                {!currentOpponent && user && isRoundStarted && (
-                  <div className="mb-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
-                    <div className="text-sm text-blue-700 dark:text-blue-300">
-                      <div className="font-medium mb-1">Loading opponent data...</div>
-                      <div>Player: {user.firstName} {user.lastName}</div>
-                      <div>Current Hole: {currentHole}</div>
-                      <div>Checking database matchups</div>
-                    </div>
-                  </div>
-                )}
                 
                 <HoleView
                   hole={currentHoleData}
