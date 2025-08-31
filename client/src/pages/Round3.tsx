@@ -197,14 +197,47 @@ export default function Round3() {
     refetchInterval: 5000, // Refresh every 5 seconds during play
   });
 
+  // Hardcoded current matchups after shuffle (temporary solution)
+  const CURRENT_MATCHUPS = [
+    // Group 1: Kevin, Will, Connor, Christian
+    { holes: "1-6", player1: "Kevin Durco", player2: "Will Bibbings", strokes: "Kevin gets 1 stroke" },
+    { holes: "1-6", player1: "Connor Patterson", player2: "Christian Hauck", strokes: "No strokes" },
+    { holes: "7-12", player1: "Kevin Durco", player2: "Connor Patterson", strokes: "No strokes" },
+    { holes: "7-12", player1: "Will Bibbings", player2: "Christian Hauck", strokes: "No strokes" },
+    { holes: "13-18", player1: "Kevin Durco", player2: "Christian Hauck", strokes: "Christian gets 1 stroke" },
+    { holes: "13-18", player1: "Will Bibbings", player2: "Connor Patterson", strokes: "Will gets 1 stroke" },
+    
+    // Group 2: Nick Grossi, Spencer, Johnny, Nic Huxley
+    { holes: "1-6", player1: "Nick Grossi", player2: "Spencer Reid", strokes: "Nick gets 1 stroke" },
+    { holes: "1-6", player1: "Johnny Magnatta", player2: "Nic Huxley", strokes: "Johnny gets 1 stroke" },
+    { holes: "7-12", player1: "Nick Grossi", player2: "Johnny Magnatta", strokes: "Nick gets 1 stroke" },
+    { holes: "7-12", player1: "Spencer Reid", player2: "Nic Huxley", strokes: "No strokes" },
+    { holes: "13-18", player1: "Nick Grossi", player2: "Nic Huxley", strokes: "Nick gets 1 stroke" },
+    { holes: "13-18", player1: "Spencer Reid", player2: "Johnny Magnatta", strokes: "Johnny gets 1 stroke" },
+    
+    // Group 3: Erik, Nick Cook, James, Bailey
+    { holes: "1-6", player1: "Erik Boudreau", player2: "Nick Cook", strokes: "Erik gets 2 strokes" },
+    { holes: "1-6", player1: "James Ogilvie", player2: "Bailey Carlson", strokes: "No strokes" },
+    { holes: "7-12", player1: "Erik Boudreau", player2: "James Ogilvie", strokes: "Erik gets 2 strokes" },
+    { holes: "7-12", player1: "Nick Cook", player2: "Bailey Carlson", strokes: "Bailey gets 1 stroke" },
+    { holes: "13-18", player1: "Erik Boudreau", player2: "Bailey Carlson", strokes: "Erik gets 2 strokes" },
+    { holes: "13-18", player1: "Nick Cook", player2: "James Ogilvie", strokes: "No strokes" },
+    
+    // Group 4: Jeffrey, Jordan, Sye (3-person)
+    { holes: "1-6", player1: "Jeffrey Reiner", player2: "Jordan Kreller", strokes: "Jeffrey gets 1 stroke" },
+    { holes: "1-6", player1: "Jordan Kreller", player2: "Sye Ellard", strokes: "Jordan gets 3 strokes" },
+    { holes: "1-6", player1: "Sye Ellard", player2: "Jeffrey Reiner", strokes: "Sye gets 2 strokes" },
+    { holes: "7-12", player1: "Jeffrey Reiner", player2: "Sye Ellard", strokes: "Jeffrey gets 2 strokes" },
+    { holes: "7-12", player1: "Sye Ellard", player2: "Jordan Kreller", strokes: "Sye gets 3 strokes" },
+    { holes: "7-12", player1: "Jordan Kreller", player2: "Jeffrey Reiner", strokes: "Jordan gets 1 stroke" },
+    { holes: "13-18", player1: "Jeffrey Reiner", player2: "Jordan Kreller", strokes: "Jeffrey gets 1 stroke" },
+    { holes: "13-18", player1: "Jordan Kreller", player2: "Sye Ellard", strokes: "Jordan gets 3 strokes" },
+    { holes: "13-18", player1: "Sye Ellard", player2: "Jeffrey Reiner", strokes: "Sye gets 2 strokes" }
+  ];
+
   // Function to determine opponent based on current hole and user name
   const getCurrentOpponent = (currentHole: number, playerName: string) => {
-    console.log('getCurrentOpponent called:', { currentHole, playerName, userId: user?.id, matchPlayMatchesLength: matchPlayMatches.length });
-    
-    if (!playerName || !user?.id) {
-      console.log('Returning null - missing playerName or userId');
-      return null;
-    }
+    if (!playerName || !user?.id) return null;
     
     // Determine hole range
     let holeRange: string;
@@ -218,37 +251,19 @@ export default function Round3() {
       return null;
     }
 
-    // Find the matchup for this player and hole range from database
-    const matchup = matchPlayMatches.find((m: any) => 
-      m.hole_segment === holeRange && 
-      (m.player1_id === user.id || m.player2_id === user.id)
+    // Find the matchup for this player and hole range
+    const matchup = CURRENT_MATCHUPS.find(m => 
+      m.holes === holeRange && 
+      (m.player1 === playerName || m.player2 === playerName)
     );
 
     if (!matchup) return null;
 
-    // Get opponent info from allPlayers data
-    const opponentId = matchup.player1_id === user.id ? matchup.player2_id : matchup.player1_id;
-    
-    console.log('Opponent lookup debug:', {
-      opponentId,
-      allPlayersCount: allPlayers.length,
-      allPlayersSample: allPlayers[0],
-      matchingPlayer: allPlayers.find(p => p.userId === opponentId)
-    });
-    
-    const opponent = allPlayers.find(p => p.userId === opponentId);
-    
-    if (!opponent) {
-      console.log('No opponent found with userId:', opponentId);
-      return null;
-    }
-
     return {
-      opponent: opponent.name,
+      opponent: matchup.player1 === playerName ? matchup.player2 : matchup.player1,
       holeRange: holeRange,
-      strokes: `${matchup.strokes_given} stroke${matchup.strokes_given !== 1 ? 's' : ''}`,
-      foursome: 'N/A',
-      matchup: matchup
+      strokes: matchup.strokes,
+      foursome: 'N/A'
     };
   };
 
@@ -268,29 +283,12 @@ export default function Round3() {
 
   // Function to calculate stroke allocation based on matchup data
   const calculateStrokeAllocation = (playerName: string, opponentName: string, holeRange: string) => {
-    if (!user?.id) {
-      return {
-        strokeDifference: 0,
-        playerGetsStrokes: false,
-        strokesInRange: 0,
-        strokeHoles: []
-      };
-    }
-
-    // Find the specific matchup from database
-    const matchup = matchPlayMatches.find((m: any) => 
-      m.hole_segment === holeRange && 
-      (m.player1_id === user.id || m.player2_id === user.id)
+    // Find the specific matchup
+    const matchup = CURRENT_MATCHUPS.find(m => 
+      m.holes === holeRange && 
+      ((m.player1 === playerName && m.player2 === opponentName) || 
+       (m.player1 === opponentName && m.player2 === playerName))
     );
-    
-    console.log('Matchup lookup:', {
-      playerName,
-      opponentName,
-      holeRange,
-      matchupFound: !!matchup,
-      strokesGiven: matchup?.strokes_given,
-      strokeRecipient: matchup?.stroke_recipient_id
-    });
     
     if (!matchup) {
       return {
@@ -301,25 +299,47 @@ export default function Round3() {
       };
     }
     
-    const strokesGiven = matchup.strokes_given || 0;
-    const playerGetsStrokes = matchup.stroke_recipient_id === user.id;
+    // Parse the strokes text to determine who gets strokes and how many
+    const strokesText = matchup.strokes.toLowerCase();
+    let strokesGiven = 0;
+    let playerGetsStrokes = false;
     
-    console.log('Stroke parsing result:', {
-      strokesGiven,
-      playerGetsStrokes,
-      userId: user.id,
-      strokeRecipientId: matchup.stroke_recipient_id
-    });
+    // Extract number of strokes from text
+    const strokeMatch = strokesText.match(/(\d+)\s*stroke/);
+    if (strokeMatch) {
+      strokesGiven = parseInt(strokeMatch[1]);
+    }
     
-    // Get stroke holes directly from database
-    const strokeHoles = playerGetsStrokes ? (matchup.stroke_holes || []) : [];
+    // Get first names for comparison
+    const playerFirstName = playerName.toLowerCase().split(' ')[0];
     
-    console.log('Stroke allocation result:', {
-      strokeDifference: strokesGiven,
-      playerGetsStrokes,
-      strokesInRange: strokesGiven,
-      strokeHoles
-    });
+    // Determine if current player gets strokes
+    if (strokesText.includes('no strokes') || strokesGiven === 0) {
+      playerGetsStrokes = false;
+    } else if (strokesText.includes(`${playerFirstName} gets`)) {
+      playerGetsStrokes = true;
+    } else {
+      playerGetsStrokes = false;
+    }
+    
+    // Get the holes for the current range
+    const courseHoles = course.holes;
+    let rangeHoles: typeof courseHoles = [];
+    
+    if (holeRange === "1-6") {
+      rangeHoles = courseHoles.slice(0, 6);
+    } else if (holeRange === "7-12") {
+      rangeHoles = courseHoles.slice(6, 12);
+    } else if (holeRange === "13-18") {
+      rangeHoles = courseHoles.slice(12, 18);
+    }
+    
+    // Sort holes by handicap rating (1 = hardest, 18 = easiest)
+    const sortedHoles = [...rangeHoles].sort((a, b) => a.handicap - b.handicap);
+    
+    // Get the holes where strokes are allocated (hardest holes first)
+    const strokeHoles = playerGetsStrokes ? 
+      sortedHoles.slice(0, strokesGiven).map(h => h.number) : [];
     
     return {
       strokeDifference: strokesGiven,
