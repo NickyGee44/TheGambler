@@ -397,15 +397,11 @@ export default function Round3() {
     onSuccess: (data) => {
       console.log(`🎉 [MUTATION SUCCESS] Score saved successfully:`, data);
       
-      // Immediately invalidate hole scores to refresh UI
+      // Force immediate cache refresh - no delays
       queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
-      
-      // Delay other cache invalidations to prevent UI reversion during user interaction
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
-        queryClient.invalidateQueries({ queryKey: ["/api/match-play/matches"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/match-play/leaderboard"] });
-      }, 1000);
+      queryClient.invalidateQueries({ queryKey: [`/api/leaderboard/${round}`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/match-play/matches"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/match-play/leaderboard"] });
       
       toast({
         title: "Score saved",
