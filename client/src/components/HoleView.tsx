@@ -308,10 +308,7 @@ export default function HoleView({
     return isPlayer1 ? currentMatch.player2Name : currentMatch.player1Name;
   };
 
-  const updateScore = (strokes: number) => {
-    if (strokes < 1) return;
-    handleScoreClick(strokes);
-  };
+  // Remove this duplicate updateScore function - use onScoreUpdate prop directly
 
   const getScoreColor = (score: number, par: number) => {
     const diff = score - par;
