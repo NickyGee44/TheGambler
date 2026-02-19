@@ -4,3 +4,9 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+# Cookie files — never commit
+cookies*.txt
+*_cookies.txt
+nick_cookies.txt
+test_cookies.txt
+*.cookies
