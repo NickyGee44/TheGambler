@@ -58,13 +58,21 @@ async function initApp(): Promise<express.Express> {
 }
 
 export default async function handler(req: any, res: any) {
-  if (!initPromise) {
-    initPromise = initApp().catch((err) => {
-      console.error("App init failed:", err);
-      initPromise = null; // allow retry
-      throw err;
+  try {
+    if (!initPromise) {
+      initPromise = initApp().catch((err) => {
+        console.error("App init failed:", err);
+        initPromise = null; // allow retry on next request
+        throw err;
+      });
+    }
+    const app = await initPromise;
+    return app(req, res);
+  } catch (err: any) {
+    // Surface the real error instead of a generic 500
+    res.status(500).json({
+      error: err?.message || String(err),
+      stack: err?.stack?.split("\n").slice(0, 8),
     });
   }
-  const app = await initPromise;
-  return app(req, res);
 }
