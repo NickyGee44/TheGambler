@@ -6,6 +6,8 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
+// Static imports so @vercel/node bundler includes and compiles all server code
+import { registerRoutes } from "../server/routes";
 
 let appInstance: express.Express | null = null;
 let initPromise: Promise<express.Express> | null = null;
@@ -29,7 +31,6 @@ async function initApp(): Promise<express.Express> {
   app.use(express.urlencoded({ extended: false }));
 
   // Register all routes (includes session middleware setup via setupAuth)
-  const { registerRoutes } = await import("../server/routes");
   await registerRoutes(app);
 
   // Serve Vite-built frontend — check multiple possible paths
