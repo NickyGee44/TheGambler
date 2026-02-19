@@ -1,0 +1,172 @@
+Here is the full prompt you can copy-paste into Replit to build a web app for The Gambler Cup 2025, with all points, rules, scoring logic, and content for display and tracking. This is written as an instruction for Replit’s AI or a developer building the front end.
+
+⸻
+
+🟢 Replit Project Prompt: Gambler Cup 2025 Tracker
+
+Build a web app for The Gambler Cup 2025 — a golf tournament featuring 16 players, 8 fixed two-player teams, and 3 rounds of competitive and fun matches. The app should:
+
+⸻
+
+✅ 1. Page Structure
+
+Create the following pages/tabs/sections:
+	•	Home Page / Overview
+	•	Title: “🏆 Gambler Cup 2025”
+	•	Subtitle: “Welcome to the greatest golf event of the year”
+	•	Display total points leaderboard for each team
+	•	Display pairings with team names, player names, and handicaps
+	•	Show current round and date
+	•	Optional: Live “drinks consumed” tracker
+	•	Team Pairings
+	•	Table with:
+	•	Team #
+	•	Player 1: First + Last Name
+	•	Player 2: First + Last Name
+	•	Player 1 HCP
+	•	Player 2 HCP
+	•	Combined HCP
+	•	Sorted by team #
+	•	Round Pages (Round 1, Round 2, Round 3)
+	•	Each round gets a separate page with:
+	•	Match format description
+	•	Scoring method
+	•	Real-time or manually entered scores
+	•	Team leaderboard for that round
+	•	Highlight top 3 teams in gold, silver, bronze colors
+	•	Drinking rules and modifiers for that round
+	•	Display individual scores and team score where relevant
+	•	Side Bets
+	•	Simple table format
+	•	Columns: Round, Matchup (Name vs Name), Bet Description, Amount, Winner
+	•	Allow manual entry (no payment or processing)
+	•	Optional toggle to show/hide this page
+
+⸻
+
+🟡 2. Tournament Format + Rules
+
+There are 3 rounds. Each team has 2 players. Each round scores points toward the team’s total.
+
+⸻
+
+Round 1 – Best Ball (Net) – 10 Points Max
+	•	Each team records the best net score per hole between the 2 players.
+	•	At the end of the round, compare total team net scores.
+	•	Points awarded by placement:
+
+Place	Points
+1st	10
+2nd	8
+3rd	6
+4th	5
+5th	4
+6th	3
+7th	2
+8th	1
+
+
+
+Drinking Rule:
+	•	Any birdie or better: opposing team must finish their drink.
+
+⸻
+
+Round 2 – Scramble (Net) – 10 Points Max
+	•	Teams choose best shot each time; both hit from that spot.
+	•	Team handicap: 35% of lower HCP + 15% of higher HCP
+	•	Net team score ranked vs all others.
+	•	Same point structure as Round 1.
+
+Drinking Rule:
+	•	Each time your shot isn’t chosen, take a sip.
+
+⸻
+
+Round 3 – 6-Hole Match Play (Net) – 24 Points Max
+
+This round is worth DOUBLE POINTS and is individual-based but adds to team total.
+	•	Each player plays 3× six-hole net matches vs everyone in their foursome (1v1).
+	•	Scoring per player:
+	•	Win = 2 points
+	•	Tie = 1 point
+	•	Loss = 0 points
+	•	Max 6 points per player
+	•	Max 12 per team
+
+Drink Handicap Modifier:
+	•	All players begin with a net +18
+	•	For each drink consumed, subtract 1 stroke from net (max -6)
+
+Example Matchup Stroke Assignment Rule:
+	•	If Player A is 6 HCP, Player B is 12 → B gets 2 strokes across 6 holes
+	•	If >18 HCP difference, allow 2 strokes per hole max
+
+Drinking Rule:
+	•	Drinks consumed lower your starting net score
+	•	Bonus fun, but also makes drinking a strategic choice
+
+⸻
+
+🔴 3. Final Leaderboard Calculation
+	•	Team total =
+Round1_Points + Round2_Points + Round3_Player1 + Round3_Player2
+	•	Display final leaderboard with:
+	•	Team Rank
+	•	Team Members
+	•	Total Points
+	•	Highlight Winning Team in Gold
+
+⸻
+
+🧠 4. Players & Teams (Editable Table)
+
+Prepopulate or allow manual update of:
+
+Player Name	Handicap
+Nick Grossi	15
+Christian Hauck	5
+Connor Patterson	3
+Ben Braun	6
+Erik Boudreau	10
+Will Bibi	5
+Nick Cook	12
+Spencer Reid	16
+Jordan Kreller	6
+Jeff Reiner	9
+Bailey Carlson	16
+Jonathan Magnatta	11
+Nic Huxley	15
+Sye Ellard	18
+Austin Hassani	17
+Kevin Durco	3
+
+Teams should be pre-assigned or pulled from another table.
+
+⸻
+
+🧰 5. Tech Notes / Suggestions
+	•	Use React or Vue for dynamic score tracking
+	•	Use simple localStorage or JSON files (no backend required)
+	•	Toggle light/dark mode for phone visibility on-course
+	•	Optional: CSV export of all results for archiving
+	•	Optional: QR code generator for sharing
+
+⸻
+
+Let me know if you’d like a pre-built HTML/CSS/JS version or a Google Sheets-to-JSON converter to feed into this app.
+
+⸻
+
+Would you like me to generate:
+	•	The JSON schema for the tournament data?
+	•	A side-bet tracker entry modal?
+	•	Individual player scorecards by round?
+
+Follow-ups:
+
+Q1: Want to link to The Grint API or input scores manually?
+Q2: Want animations or celebration screen for the final leaderboard?
+Q3: Should Replit version be mobile-optimized?
+Q4: Want PDF/printable version for old-school recordkeeping?
+Q5: Should I help you write the HTML scaffolding for this prompt?

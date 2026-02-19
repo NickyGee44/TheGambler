@@ -1,0 +1,157 @@
+Here's the updated **prompt for Replit** that builds on your previous instructions and now incorporates the concept of **yearly tournaments**, the foundation for **multi-year tracking**, and eventually, **public expansion for others to create their own versions of "The Gambler".**
+
+---
+
+### 🧾 Updated Prompt to Replit: Support for Yearly Tournaments & Future Scalability
+
+---
+
+We are building a private app for our annual golf tournament, **The Gambler**, with the intent to scale the platform to public use later.
+
+The current version is for **The Gambler 2025**, and I want you to structure the code in a way that:
+
+---
+
+### 🔁 Multi-Year Tournament Support (Foundational Requirements)
+
+1. **Each tournament year** is its own object/entity:
+
+   * Store year: `2025`, `2024`, `2023`, etc.
+   * Each year has:
+
+     * Players (with names, handicaps, pairings)
+     * Courses played
+     * Round-by-round score and stat tracking
+     * Points earned per round
+     * Overall leaderboard
+     * **Winning team** info (with a "champion" flag)
+     * Optional side-bet results
+
+2. Allow admin (me) to:
+
+   * Set the current year (e.g., 2025)
+   * Input past champions (e.g., 2024 winners: Jordan + Spencer)
+   * Navigate to prior years’ tournaments from a dropdown or year selector
+
+3. All golfer stats must be scoped to a **specific year**, while still rolling up into an **all-time profile** for each golfer:
+
+   * Example:
+
+     ```json
+     "Jonathan Magnatta": {
+       "handicap": 11,
+       "years": {
+         "2025": { rounds, stats, team, rank },
+         "2024": { ... },
+       },
+       "all_time_stats": { total_points, average_score, GIR%, etc. }
+     }
+     ```
+
+---
+
+### 📈 Stats & Leaderboards
+
+* Every year should have its **own leaderboard**, stats page, and round pages.
+* The stats page should allow selecting a year (e.g. “View 2024 vs 2025”).
+
+---
+
+### 🏁 Tournament Creation Flow
+
+For each new tournament (e.g. 2026):
+
+* I should be able to:
+
+  * Duplicate the previous year’s structure
+  * Edit courses (e.g. Deerhurst, Muskoka Bay)
+  * Add/remove players or update handicaps
+  * Randomize or define pairings
+  * Set start date and rounds
+
+Eventually we will allow:
+
+* Public tournament creators to:
+
+  * Set up their own tournament
+  * Invite players
+  * Choose courses
+  * Run scoring + stats
+  * Host leaderboards & history
+
+But for now, **everything is private and only for our group**.
+
+---
+
+### 🧱 Suggested Data Models
+
+```json
+{
+  "tournaments": {
+    "2025": {
+      "name": "The Gambler 2025",
+      "courses": ["Deerhurst Highlands", "Muskoka Bay"],
+      "players": {
+        "Nick Grossi": { ... },
+        "Connor Patterson": { ... }
+      },
+      "pairings": {
+        "Team 1": ["Nick Grossi", "Connor Patterson"],
+        ...
+      },
+      "rounds": {
+        "1": { "course": "Deerhurst Highlands", "score_data": {...} },
+        "2": { ... },
+        "3": { ... }
+      },
+      "champions": ["Nick Grossi", "Connor Patterson"]
+    },
+    "2024": { ... }
+  },
+  "players": {
+    "Nick Grossi": {
+      "handicap": 15,
+      "history": {
+        "2025": { stats },
+        "2024": { stats }
+      },
+      "total_wins": 1,
+      "all_time_stats": {...}
+    }
+  }
+}
+```
+
+---
+
+### 🔒 MVP Backend/Storage
+
+For MVP, use:
+
+* Local JSON or Supabase/Postgres DB
+* Just keep the schema modular so we can plug in Firebase or MongoDB later
+
+---
+
+### ✅ UX Flow
+
+1. Home page shows:
+
+   * Current year logo + name
+   * “Leaderboard”, “Stats”, “Rounds”, “Previous Years”
+
+2. Stats and Score pages must:
+
+   * Show stats per round
+   * Allow navigating between holes and preserving data
+   * Auto-calculate totals and rankings
+
+3. In the future, allow admin creation of new years + templates.
+
+---
+
+Let me know once this structure is in place and I’ll guide UI upgrades, mobile-first views, and leaderboard UX polish.
+
+---
+
+Would you like a visual schema mock or file/folder structure to give to Replit next?

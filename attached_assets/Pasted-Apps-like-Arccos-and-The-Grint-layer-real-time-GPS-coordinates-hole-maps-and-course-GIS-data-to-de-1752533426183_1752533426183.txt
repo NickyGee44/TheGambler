@@ -1,0 +1,90 @@
+Apps like Arccos and The Grint layer real-time GPS coordinates, hole maps, and course GIS data to deliver accurate yardages and layouts. Here’s how to integrate something similar into your app for Deerhurst Highlands and Muskoka Bay, along with ideas to enhance it:
+
+⸻
+
+📍 1. Core Mapping Methods
+
+✅ Use Google Maps JavaScript API
+	•	Load satellite or terrain tiles
+	•	Overlay your own hole layout using polylines, circles, and markers
+	•	Use browser’s Geolocation API to track the player’s position
+	•	Compute distance to green/tee using built-in Maps geometry library
+	•	Pros: Rich imagery, familiar dev stack
+	•	Cons: Licensing costs $7/1,000 map loads  ￼ ￼ ￼ ￼
+
+⸻
+
+✅ Use OpenStreetMap + Overpass API + Leaflet/App Layer
+	•	Fetch course polygons (greens, tee boxes, hazards) via Overpass (OSM query)  ￼
+	•	Render using Leaflet or Mapbox GL JS
+	•	Draw hole layouts manually if not preexisting
+	•	Pros: Free, open license
+	•	Cons: Manual mapping may be needed
+
+⸻
+
+✅ Use Mapbox
+	•	Excellent map styling and performance  ￼ ￼ ￼
+	•	Supports custom vector layers for course data
+	•	Free up to 50k map loads/month
+
+⸻
+
+🧱 Implementation Steps
+	1.	Acquire or Map Course Data
+	•	Use Google Earth Pro to capture lat/long for each tee and green
+	•	Or export via OSM if mapped  ￼ ￼ ￼
+	2.	Store Course Layouts in JSON
+
+[
+  {
+    "hole": 1,
+    "tee": { "lat": ..., "lng": ... },
+    "green": { "lat": ..., "lng": ... },
+    "par": 4
+  }
+]
+
+
+	3.	Integrate Map & GPS
+	•	Load the course JSON
+	•	Draw markers/polylines on map
+	•	Use Geolocation API + Haversine or Maps geometry to calculate distance
+
+⸻
+
+🚀 Additional Feature Ideas
+	1.	Shot Tracking & Spray Map
+	•	Automatically log location of each shot
+	•	Visualize dispersion per club
+	2.	Elevation Adjusted Distances
+	•	Use open elevation APIs to apply “plays like” yardage adjustments
+	3.	Live “Drinks + Handicap Adjuster” UI
+	•	Integrate drink tracking into Round 3
+	•	Show current net yardage after drink adjustments
+	4.	Auto Hole Detection
+	•	Based on which tee you start and how far traveled, auto advance hole number
+	5.	Offline Support
+	•	Cache map tiles beforehand for Muskoka area
+	•	Allow usage even with weak cell coverage
+	6.	Side-Bets Integration
+	•	Show yards-to-hole stats to aid in betting decisions (e.g., closest to pin)
+
+⸻
+
+✅ Summary: Best Setup for Your App
+	•	Base Map: Mapbox GL JS (customizable, great performance)  ￼ ￼ ￼ ￼ ￼ ￼
+	•	Hole Data: Captured manually or via OSM + Overpass
+	•	User Location: Geolocation API + Maps geometry for yardage
+	•	Enhancements: Add elevation, shot tracking, drinks integration
+
+⸻
+
+👉 Next Steps:
+	•	Should I build sample JSON templates for both Deerhurst and Muskoka hole data?
+	•	Want starter code for Mapbox GL map with GPS + hole overlays?
+	•	Want guidance on manual mapping tools (Google Earth + Mapbox Studio)?
+	•	Want frontend sample to display yardage + drink-adjusted net distance?
+	•	Want offline tile caching strategy?
+
+Let me know which direction to prioritize!

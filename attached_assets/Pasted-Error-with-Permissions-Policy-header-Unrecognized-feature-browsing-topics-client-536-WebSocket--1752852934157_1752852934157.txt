@@ -1,0 +1,117 @@
+Error with Permissions-Policy header: Unrecognized feature: 'browsing-topics'.
+client:536 WebSocket connection to 'wss://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/?token=hyGvIsw5MEFS' failed: 
+setupWebSocket @ client:536
+(anonymous) @ client:531
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=hyGvIsw5MEFS' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+setupWebSocket @ client:536
+fallback @ client:509
+(anonymous) @ client:555
+main.tsx:10 SW: Service Worker registered
+a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/:1 <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">
+queryClient.ts:32 
+            
+            
+           GET https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/api/golf-relay/leaderboard 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=1fcbffa1:840
+run @ @tanstack_react-query.js?v=1fcbffa1:494
+start @ @tanstack_react-query.js?v=1fcbffa1:536
+fetch @ @tanstack_react-query.js?v=1fcbffa1:926
+executeFetch_fn @ @tanstack_react-query.js?v=1fcbffa1:2211
+onSubscribe @ @tanstack_react-query.js?v=1fcbffa1:1898
+subscribe @ @tanstack_react-query.js?v=1fcbffa1:24
+(anonymous) @ @tanstack_react-query.js?v=1fcbffa1:3022
+subscribeToStore @ chunk-WERSD76P.js?v=1fcbffa1:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=1fcbffa1:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=1fcbffa1:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=1fcbffa1:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=1fcbffa1:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=1fcbffa1:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=1fcbffa1:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=1fcbffa1:19447
+commitRootImpl @ chunk-WERSD76P.js?v=1fcbffa1:19416
+commitRoot @ chunk-WERSD76P.js?v=1fcbffa1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1fcbffa1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1fcbffa1:9119
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:18627
+queryClient.ts:32 
+            
+            
+           GET https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/api/golf-relay/matches 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=1fcbffa1:840
+run @ @tanstack_react-query.js?v=1fcbffa1:494
+start @ @tanstack_react-query.js?v=1fcbffa1:536
+fetch @ @tanstack_react-query.js?v=1fcbffa1:926
+executeFetch_fn @ @tanstack_react-query.js?v=1fcbffa1:2211
+onSubscribe @ @tanstack_react-query.js?v=1fcbffa1:1898
+subscribe @ @tanstack_react-query.js?v=1fcbffa1:24
+(anonymous) @ @tanstack_react-query.js?v=1fcbffa1:3022
+subscribeToStore @ chunk-WERSD76P.js?v=1fcbffa1:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=1fcbffa1:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=1fcbffa1:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=1fcbffa1:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=1fcbffa1:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=1fcbffa1:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=1fcbffa1:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=1fcbffa1:19447
+commitRootImpl @ chunk-WERSD76P.js?v=1fcbffa1:19416
+commitRoot @ chunk-WERSD76P.js?v=1fcbffa1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1fcbffa1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1fcbffa1:9119
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:18627
+queryClient.ts:32 
+            
+            
+           GET https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/api/golf-relay/leaderboard 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=1fcbffa1:840
+run @ @tanstack_react-query.js?v=1fcbffa1:494
+start @ @tanstack_react-query.js?v=1fcbffa1:536
+fetch @ @tanstack_react-query.js?v=1fcbffa1:926
+executeFetch_fn @ @tanstack_react-query.js?v=1fcbffa1:2211
+onSubscribe @ @tanstack_react-query.js?v=1fcbffa1:1898
+subscribe @ @tanstack_react-query.js?v=1fcbffa1:24
+(anonymous) @ @tanstack_react-query.js?v=1fcbffa1:3022
+subscribeToStore @ chunk-WERSD76P.js?v=1fcbffa1:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=1fcbffa1:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=1fcbffa1:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=1fcbffa1:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=1fcbffa1:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=1fcbffa1:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=1fcbffa1:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=1fcbffa1:19447
+commitRootImpl @ chunk-WERSD76P.js?v=1fcbffa1:19416
+commitRoot @ chunk-WERSD76P.js?v=1fcbffa1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1fcbffa1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1fcbffa1:9119
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:18627
+queryClient.ts:32 
+            
+            
+           GET https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/api/golf-relay/matches 500 (Internal Server Error)
+(anonymous) @ queryClient.ts:32
+fetchFn @ @tanstack_react-query.js?v=1fcbffa1:840
+run @ @tanstack_react-query.js?v=1fcbffa1:494
+start @ @tanstack_react-query.js?v=1fcbffa1:536
+fetch @ @tanstack_react-query.js?v=1fcbffa1:926
+executeFetch_fn @ @tanstack_react-query.js?v=1fcbffa1:2211
+onSubscribe @ @tanstack_react-query.js?v=1fcbffa1:1898
+subscribe @ @tanstack_react-query.js?v=1fcbffa1:24
+(anonymous) @ @tanstack_react-query.js?v=1fcbffa1:3022
+subscribeToStore @ chunk-WERSD76P.js?v=1fcbffa1:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=1fcbffa1:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=1fcbffa1:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=1fcbffa1:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=1fcbffa1:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=1fcbffa1:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=1fcbffa1:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=1fcbffa1:19447
+commitRootImpl @ chunk-WERSD76P.js?v=1fcbffa1:19416
+commitRoot @ chunk-WERSD76P.js?v=1fcbffa1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1fcbffa1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1fcbffa1:9119
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:18627

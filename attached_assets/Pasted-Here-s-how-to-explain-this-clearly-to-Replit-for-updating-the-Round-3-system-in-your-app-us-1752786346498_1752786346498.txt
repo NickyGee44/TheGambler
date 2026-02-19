@@ -1,0 +1,144 @@
+Here’s how to explain this clearly to **Replit** for updating the **Round 3 system** in your app, using precise language and focusing on usability, logic, and golf match fairness.
+
+---
+
+## 🛠️ Replit Implementation Instructions: **Round 3 - 6-Hole Match Play System**
+
+---
+
+### ✅ Summary of Round 3 Format
+
+Each foursome plays **3 separate 6-hole 1v1 matches**. Each player will play three 6-hole matches against the others in their foursome:
+
+* **Holes 1–6:** Player A vs Player B
+* **Holes 7–12:** Player A vs Player C
+* **Holes 13–18:** Player A vs Player D
+
+Every player plays **3 six-hole matches** total (18 holes total).
+
+Each **6-hole match** awards:
+
+* 🟩 **1 point** to the winner
+* 🟨 **0.5 points** each for a tie
+* 🟥 **0 points** for a loss
+
+**Double the points** in Round 3 (so each match is worth 2 points, not 1).
+→ So a 6-hole win gives **2 points**, tie = **1 each**, loss = **0**.
+
+---
+
+### 📍 Core Features to Build
+
+#### 1. **Live Match View in Round 3**
+
+Display a **dynamic scorecard** for each player that:
+
+* Shows their **current opponent** (depending on hole 1–6, 7–12, 13–18)
+* Tracks the **match status** (win, tie, loss)
+* Clearly displays **which holes are giving strokes** to the higher-handicap player
+* Highlights **who is currently up** (e.g., “Magnatta is 1 up through 4”)
+* Displays remaining holes left in the match
+
+✅ Show this dynamically per hole in the live scoring UI.
+
+---
+
+#### 2. **Handicap Stroke Allocation (Per Hole)**
+
+Use match play logic:
+
+* For each 1v1 match, compare player handicaps
+* If HCP difference = 2, lower HCP player **gives** higher HCP player **2 strokes**
+* These strokes are applied to the **hardest 2 holes** of the 6 in play
+
+📌 Use **hole handicap rating** (1–18) to identify which are the hardest holes among the 6.
+Example:
+
+> Johnny (HCP 11) vs Will Bibi (HCP 5) → Difference = 6
+> Johnny receives 6 strokes
+> In a 6-hole match, only 6 strokes max
+> Strokes applied to the 6 most difficult holes out of the 6-hole segment
+
+⚠️ Never apply more than **1 stroke per hole** unless the HCP difference is 18+.
+
+---
+
+#### 3. **Display of Stroke Holes**
+
+Clearly show **stroke allocation** in the live scoring card:
+
+* If a player gets a stroke on Hole 3, label that hole like:
+
+  * “Hole 3 – 🟡 Stroke for Johnny”
+* Or in table form:
+
+| Hole | Par | HCP | Johnny (11) | Will (5) | Stroke? |
+| ---- | --- | --- | ----------- | -------- | ------- |
+| 2    | 4   | 2   | 5           | 4        | ✅       |
+
+Bonus: Include a **“Match Notes” sidebar** showing:
+
+* Handicap difference
+* Strokes allocated
+* Which holes those strokes apply to
+
+---
+
+#### 4. **Point Scoring + Match Resolution**
+
+Each 6-hole match automatically:
+
+* Tracks net score or hole-by-hole winner (depending on match type)
+* Assigns **2 points** to the winner, **1 point** each for tie
+* Aggregates total **Round 3 Points**
+* Displays cumulative **team points** at the bottom
+
+Store match points **per player** and **add to their pairing’s total**
+
+---
+
+### 🗃️ Data Needed Per Match
+
+Store in backend or match object:
+
+* `match_id`
+* `player1_id`
+* `player2_id`
+* `holes`: 6-hole slice (1–6, 7–12, or 13–18)
+* `hcp_diff`
+* `strokes_allocated_to_player`
+* `stroke_holes`: list of hole numbers
+* `result`: \[Player 1 win, Player 2 win, Tie]
+* `points_awarded`: \[2, 0] or \[1, 1]
+
+---
+
+### 🔄 Example: How a Match Works
+
+**Players:** Will Bibi (HCP 5) vs Johnny Magnatta (HCP 11)
+**Hole Segment:** Holes 1–6
+**HCP Difference:** 6
+**Strokes Given:** 6 strokes to Johnny
+**Stroke Holes:** Holes 1, 2, 3, 4, 5, 6 (if all are hard enough)
+
+📊 Scoring:
+
+* Will: 24 (total strokes)
+* Johnny: 27 (gross), **21 (net after 6 strokes)**
+  → Johnny wins, earns **2 points**
+
+---
+
+### ✅ Replit Prompt
+
+> **Prompt for Replit:**
+> “Update Round 3 logic to use 6-hole 1v1 match play format for each foursome. Each player plays three separate 6-hole matches against the other players in their group. For each match:
+> – Apply match play or stroke play logic (admin can select), and determine winner based on net scores
+> – Allocate strokes fairly based on HCP difference, with a max of 1 stroke per hole, using the hardest holes in the 6-hole segment
+> – Display live scorecard showing the current opponent, match status, and holes where strokes are applied
+> – Award 2 points for win, 1 point for tie, 0 for loss. Aggregate points at end of Round 3
+> – Integrate into player and team score totals, and display who is leading each match live”
+
+---
+
+Would you like me to mock up a visual layout of the live Round 3 scoring system? Or prepare the DB schema for storing match segments and points?

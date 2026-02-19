@@ -1,0 +1,278 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(142, 76%, 36%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Golf theme colors */
+  --golf-green-50: hsl(152, 81%, 96%);
+  --golf-green-100: hsl(149, 80%, 90%);
+  --golf-green-200: hsl(146, 72%, 82%);
+  --golf-green-300: hsl(144, 66%, 75%);
+  --golf-green-400: hsl(142, 60%, 60%);
+  --golf-green-500: hsl(158, 64%, 52%);
+  --golf-green-600: hsl(142, 76%, 36%);
+  --golf-green-700: hsl(142, 72%, 29%);
+  --golf-green-800: hsl(142, 83%, 19%);
+  --golf-green-900: hsl(142, 89%, 12%);
+  
+  --golf-gold-50: hsl(48, 96%, 95%);
+  --golf-gold-100: hsl(48, 96%, 89%);
+  --golf-gold-200: hsl(47, 94%, 82%);
+  --golf-gold-300: hsl(46, 93%, 75%);
+  --golf-gold-400: hsl(45, 93%, 58%);
+  --golf-gold-500: hsl(37, 92%, 50%);
+  --golf-gold-600: hsl(32, 95%, 44%);
+  --golf-gold-700: hsl(28, 94%, 38%);
+  --golf-gold-800: hsl(24, 92%, 32%);
+  --golf-gold-900: hsl(15, 86%, 30%);
+  
+  --golf-sand-50: hsl(43, 47%, 95%);
+  --golf-sand-100: hsl(42, 46%, 89%);
+  --golf-sand-200: hsl(41, 45%, 78%);
+  --golf-sand-300: hsl(40, 44%, 67%);
+  --golf-sand-400: hsl(39, 43%, 56%);
+  --golf-sand-500: hsl(38, 42%, 45%);
+  --golf-sand-600: hsl(37, 41%, 34%);
+  
+  --golf-water-50: hsl(200, 100%, 96%);
+  --golf-water-100: hsl(199, 100%, 90%);
+  --golf-water-200: hsl(198, 100%, 82%);
+  --golf-water-300: hsl(197, 100%, 75%);
+  --golf-water-400: hsl(196, 100%, 60%);
+  --golf-water-500: hsl(195, 100%, 45%);
+  --golf-water-600: hsl(194, 100%, 35%);
+  --golf-water-700: hsl(193, 100%, 25%);
+  --golf-water-800: hsl(192, 100%, 15%);
+  --golf-water-900: hsl(191, 100%, 10%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(142, 76%, 36%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+  }
+  
+  html, body {
+    height: auto !important;
+    min-height: 100vh;
+  }
+  
+  /* Force dark mode theme */
+  html {
+    @apply dark;
+  }
+}
+
+@layer utilities {
+  .golf-card {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  /* Mobile scrolling fixes */
+  .mobile-scroll-fix {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    height: auto;
+    min-height: 0;
+  }
+  
+  .page-container {
+    position: relative;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .countdown-digit {
+    background: linear-gradient(135deg, var(--golf-green-600) 0%, var(--golf-green-500) 100%);
+  }
+  
+  .golf-green-50 {
+    background-color: var(--golf-green-50);
+  }
+  
+  .golf-green-100 {
+    background-color: var(--golf-green-100);
+  }
+  
+  .golf-green-500 {
+    background-color: var(--golf-green-500);
+  }
+  
+  .golf-green-600 {
+    background-color: var(--golf-green-600);
+  }
+  
+  .golf-green-700 {
+    background-color: var(--golf-green-700);
+  }
+  
+  .golf-green-800 {
+    background-color: var(--golf-green-800);
+  }
+  
+  .golf-green-900 {
+    background-color: var(--golf-green-900);
+  }
+  
+  .text-golf-green-600 {
+    color: var(--golf-green-600);
+  }
+  
+  .text-golf-green-400 {
+    color: var(--golf-green-500);
+  }
+  
+  .golf-gold-100 {
+    background-color: var(--golf-gold-100);
+  }
+  
+  .golf-gold-400 {
+    background-color: var(--golf-gold-400);
+  }
+  
+  .golf-gold-500 {
+    background-color: var(--golf-gold-500);
+  }
+  
+  .golf-gold-600 {
+    background-color: var(--golf-gold-600);
+  }
+  
+  .golf-gold-900 {
+    background-color: var(--golf-gold-900);
+  }
+  
+  .text-golf-gold-500 {
+    color: var(--golf-gold-500);
+  }
+  
+  .text-golf-gold-600 {
+    color: var(--golf-gold-600);
+  }
+  
+  .border-golf-green-600 {
+    border-color: var(--golf-green-600);
+  }
+  
+  .border-golf-gold-200 {
+    border-color: var(--golf-gold-400);
+  }
+  
+  .border-golf-gold-700 {
+    border-color: var(--golf-gold-900);
+  }
+  
+  .hover\:bg-golf-green-50:hover {
+    background-color: var(--golf-green-50);
+  }
+  
+  .hover\:bg-golf-green-700:hover {
+    background-color: var(--golf-green-700);
+  }
+  
+  .hover\:bg-golf-gold-600:hover {
+    background-color: var(--golf-gold-600);
+  }
+  
+  .from-golf-green-600 {
+    --tw-gradient-from: var(--golf-green-600);
+  }
+  
+  .to-golf-green-800 {
+    --tw-gradient-to: var(--golf-green-800);
+  }
+  
+  .from-golf-gold-50 {
+    --tw-gradient-from: var(--golf-gold-100);
+  }
+  
+  .to-golf-green-50 {
+    --tw-gradient-to: var(--golf-green-50);
+  }
+  
+  .from-golf-gold-900 {
+    --tw-gradient-from: var(--golf-gold-900);
+  }
+  
+  .to-golf-green-900 {
+    --tw-gradient-to: var(--golf-green-900);
+  }
+  
+  .bg-golf-green-50 {
+    background-color: var(--golf-green-50);
+  }
+  
+  .bg-golf-green-600 {
+    background-color: var(--golf-green-600);
+  }
+  
+  .bg-golf-gold-500 {
+    background-color: var(--golf-gold-500);
+  }
+  
+  .focus\:ring-golf-green-500:focus {
+    --tw-ring-color: var(--golf-green-500);
+  }
+}
+
+.sidebar-nav {
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  .sidebar-nav.closed {
+    transform: translateX(-100%);
+  }
+}

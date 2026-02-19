@@ -1,0 +1,170 @@
+Absolutely. Here's a full **specification for a "Boozelympics" tab** in your Gambler app—designed to be a **fun, competitive, drinking game side-event** using your existing team pairings and tournament structure.
+
+---
+
+### 🎯 **Boozelympics Tab Overview**
+
+| Feature            | Description                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
+| **Purpose**        | Side-event to complement the golf tournament with hilarious and competitive drinking games        |
+| **Team Format**    | Use existing 8 teams (pairings) from the Gambler 2025 tournament                                  |
+| **Scoring System** | Point-based for each mini-game (Gold/Silver/Bronze style or point tiering)                        |
+| **UI Design**      | One scrollable tab with collapsible sections for each game, leaderboard, rules, and event tracker |
+| **Access Point**   | Navigation tab called “🍻 Boozelympics” in the app menu                                           |
+
+---
+
+### 🧩 Boozelympics Components
+
+#### 🥇 **1. Games Roster**
+
+| Game                        | Description                                   | Players Needed | Time Est. | Supplies              |
+| --------------------------- | --------------------------------------------- | -------------- | --------- | --------------------- |
+| **Beer Pong**               | Standard 10-cup pong; teams rotate.           | 2 vs 2         | 10–15 min | Cups, ping pong balls |
+| **Beer Dice**               | Dice game on a table (throw & chug).          | 2 vs 2         | 10 min    | Dice, table           |
+| **Baseball Booze**          | 4 bases, cups on each. Like pong + flip cup.  | 4 per team     | 15 min    | Cups, table           |
+| **Spikeball**               | Competitive backyard game                     | 2 vs 2         | 10 min    | Spikeball kit         |
+| **Relay Challenge**         | Obstacle race w/ clubs, chugging, trick shots | 2/team         | 20 min    | Clubs, balls, cones   |
+| **Flippy Cup** *(optional)* | Speed round cup flip game                     | Full team      | 10 min    | Cups, table           |
+
+🧠 *Each game played once or twice across the weekend with scheduled time slots or impromptu matchups.*
+
+---
+
+#### 🧮 **2. Scoring System**
+
+Simple, fair, and lighthearted scoring:
+
+| Result              | Points                         |
+| ------------------- | ------------------------------ |
+| 🥇 Win              | +3 pts                         |
+| 🥈 Runner-Up        | +2 pts                         |
+| 🥉 3rd Place        | +1 pt                          |
+| Participation       | 0 pt                           |
+| Bonus: Style or MVP | +1 pt bonus (voted by group)\* |
+
+> Bonus points can be awarded at admin discretion or by group vote for the most chaotic, funniest, or stylish performance.
+
+---
+
+#### 📊 **3. Boozelympics Leaderboard**
+
+A live leaderboard sorted by **team**, pulling from total points across all games.
+
+| Team # | Players            | Total Points | Current Rank |
+| ------ | ------------------ | ------------ | ------------ |
+| 1      | Nick G / Connor    | 11           | 🥇 1st       |
+| 2      | Christian / Bailey | 9            | 🥈 2nd       |
+| 3      | ...                | ...          | ...          |
+
+✅ Also include a "View Match History" toggle to show detailed breakdown.
+
+---
+
+#### 🗂 **4. Match Log Per Game**
+
+For each mini-game, log:
+
+* Game name
+* Match participants
+* Result (Winner, 2nd, etc.)
+* Score (optional)
+* MVP (if awarded)
+* Bonus points (optional)
+
+Display collapsible cards for each game like:
+
+```text
+📌 Beer Pong
+🏆 Winner: Team 4 — Erik & Kevin
+🥈 Runner-Up: Team 2 — Bailey & Christian
+🎯 MVP: Kevin (style bonus)
+```
+
+---
+
+#### 🔧 **5. Admin Panel (optional)**
+
+If you want to manage from your device:
+
+* Add/Remove games
+* Adjust points manually
+* Trigger matchups
+* Mark players as DNS (Did Not Show)
+
+---
+
+#### 🧠 Optional Advanced Features
+
+If you want to go deeper later:
+
+* ✏️ **Live Match Entry Form** for each game
+* 🎥 Upload photos/videos for match recaps
+* 👑 “Most Lit Player” voting feature
+* 🏅 “Overall Boozelympian” award (most points across all games)
+* 📆 Scheduler integration to assign time slots for Boozelympics
+
+---
+
+### 📦 Backend Schema (Firebase / Supabase)
+
+* `boozelympics_games`: `{ id, name, description, supplies, type, is_active }`
+* `boozelympics_results`: `{ game_id, team_id, points, mvp_user_id, round }`
+* `boozelympics_leaderboard`: auto-calculated from `results` table
+* `boozelympics_votes`: optional table for style bonuses or MVPs
+
+---
+
+### 📱 Mobile Tab Layout
+
+```
+🍻 Boozelympics
+
+-------------------------
+| LEADERBOARD          |
+| Team # | Points | 🏅  |
+-------------------------
+
+[ ⬇️ BEER PONG ]
+Winner: Team X
+MVP: Player Y
+[ Log Match 🔘 ]
+
+[ ⬇️ BEER DICE ]
+...
+
+[ ➕ Add New Game ]
+```
+
+---
+
+### 🧠 Future Ready
+
+If you expand this:
+
+* Allow users to **create custom games**
+* Support **solo events** or **Ryder-style formats**
+* Export **Boozelympics history** like Golf stats
+* Add a **Boozelympics trophy** to player profile pages
+
+---
+
+### ✅ Next Step
+
+Let me know if you want this:
+
+* As a **Firebase collection schema**
+* As a **JSON structure for Replit import**
+* With full **frontend design (React layout, Tailwind styles)**
+
+---
+
+### 🔁 Follow-Up Prompts
+
+**Q1:** Should we log Boozelympics results to player profiles just like golf rounds?
+**Q2:** Want an admin form to dynamically add games, assign point values, or edit results?
+**Q3:** Should we generate randomized matchups for each game or let teams challenge each other?
+**Q4:** Do you want a “Boozelympian of the Year” award shown on profiles long term?
+**Q5:** Should I wireframe this layout or prep a Google Sheet version for planning?
+
+Let me know how far you want to take this—I’ll keep it as party-focused or deep as you like 🍻

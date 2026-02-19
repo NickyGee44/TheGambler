@@ -1,0 +1,115 @@
+Here is an updated **prompt for Replit** that incorporates your **long-term goal** of building a historical performance tracker and "Gambler performance card" for each golfer across **multiple years** of the tournament.
+
+---
+
+### 🧾 Prompt to Replit (copy-paste this for development):
+
+---
+
+I’m building a golf tournament tracking app called **The Gambler**, which runs every year. The core idea is to track and display **per-hole stats across 3 rounds** for each golfer, and accumulate these into a long-term **performance card** for every participant.
+
+---
+
+### 🧠 Core Requirements
+
+#### 1. Per-Hole Stat Tracking (as previously described)
+
+Each golfer can input the following stats **per hole**:
+
+* `score` (number)
+* `GIR` (green in regulation, boolean)
+* `FIR` (fairway in regulation, boolean)
+* `putts` (number)
+* `penalties` (number)
+* `drive_direction` (enum: left, center, right)
+* `sand_save` (boolean)
+* `up_and_down` (boolean; implied if GIR is false and putts = 1)
+
+These stats are entered hole-by-hole during **Round 1, 2, and 3**.
+
+Each hole’s data is saved locally and must persist between hole navigation:
+
+* `Next` and `Previous` buttons should load the correct hole’s saved data.
+* If no data exists for that hole, the default view should be empty.
+
+---
+
+#### 2. **Stats Page** (per Golfer, Aggregated)
+
+For each golfer, display their **total stats across all 3 rounds**, including:
+
+* Total score
+* Avg GIR %
+* Avg FIR %
+* Total putts
+* Total penalties
+* Drive direction breakdown (e.g. 45% left, 40% center, 15% right)
+* Sand save % (successful saves / sand entries)
+* Up and down % (successful saves when missing green)
+
+This allows us to compare golfers' **performance over the weekend**.
+
+---
+
+#### 3. **Player Profiles & History**
+
+Each golfer should have a **profile** that stores:
+
+* Name
+* Handicap (editable by admin or on player entry)
+* Pairing history (team partner each year)
+* Scores & stats **per round per year**
+* Accumulated stats across all historical tournaments
+
+Example data structure:
+
+```json
+{
+  "name": "Nick Grossi",
+  "handicap": 15,
+  "history": {
+    "2025": {
+      "rounds": {
+        "1": { "hole_stats": {...}, "totals": {...} },
+        "2": { ... },
+        "3": { ... }
+      },
+      "team": "Connor Patterson",
+      "final_points": 18,
+      "ranking": "3rd"
+    },
+    "2024": { ... },
+    ...
+  }
+}
+```
+
+---
+
+### 🔐 Optional Back-End Storage Options
+
+If needed, I’m open to using:
+
+* Supabase or Firebase (preferred)
+* LocalStorage (for MVP)
+* MongoDB Atlas
+* Flat file JSON store if backend isn't ready
+
+---
+
+### 🧱 Additional Notes
+
+* Eventually, the **"Stats" page** should be able to:
+
+  * Filter by year
+  * Compare players side-by-side
+  * View lifetime performance
+* Would like to implement a **"Gambler Scorecard"** page that shows their all-time rankings, past partners, and trends.
+
+---
+
+Let me know when the above is done, and I’ll guide the next version with full leaderboard charts, charts by round, and more advanced stat tracking.
+
+---
+
+Let me know if you want a database schema or React state outline for this next.

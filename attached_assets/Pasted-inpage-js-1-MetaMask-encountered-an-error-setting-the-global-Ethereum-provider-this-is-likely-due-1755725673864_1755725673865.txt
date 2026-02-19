@@ -1,0 +1,1397 @@
+inpage.js:1  MetaMask encountered an error setting the global Ethereum provider - this is likely due to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot set property ethereum of #<Window> which has only a getter
+    at a (inpage.js:1:49400)
+    at r.initializeProvider (inpage.js:1:49171)
+    at Object.<anonymous> (inpage.js:1:2312)
+    at Object.<anonymous> (inpage.js:1:6320)
+    at 2.../../shared/modules/provider-injection (inpage.js:1:6333)
+    at s (inpage.js:1:254)
+    at e (inpage.js:1:414)
+    at inpage.js:1:431
+a @ inpage.js:1
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+/~:1  The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+/~:1  The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+/~:1  The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+inpage.js:1  MetaMask encountered an error setting the global Ethereum provider - this is likely due to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot set property ethereum of #<Window> which has only a getter
+    at a (inpage.js:1:49400)
+    at r.initializeProvider (inpage.js:1:49171)
+    at Object.<anonymous> (inpage.js:1:2312)
+    at Object.<anonymous> (inpage.js:1:6320)
+    at 2.../../shared/modules/provider-injection (inpage.js:1:6333)
+    at s (inpage.js:1:254)
+    at e (inpage.js:1:414)
+    at inpage.js:1:431
+a @ inpage.js:1
+  MetaMask encountered an error setting the global Ethereum provider - this is likely due to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot set property ethereum of #<Window> which has only a getter
+    at a (inpage.js:1:49400)
+    at r.initializeProvider (inpage.js:1:49171)
+    at Object.<anonymous> (inpage.js:1:2312)
+    at Object.<anonymous> (inpage.js:1:6320)
+    at 2.../../shared/modules/provider-injection (inpage.js:1:6333)
+    at s (inpage.js:1:254)
+    at e (inpage.js:1:414)
+    at inpage.js:1:431
+a @ chrome-extension://n…scripts/inpage.js:1
+inpage.js:1  MetaMask encountered an error setting the global Ethereum provider - this is likely due to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot set property ethereum of #<Window> which has only a getter
+    at a (inpage.js:1:49400)
+    at r.initializeProvider (inpage.js:1:49171)
+    at Object.<anonymous> (inpage.js:1:2312)
+    at Object.<anonymous> (inpage.js:1:6320)
+    at 2.../../shared/modules/provider-injection (inpage.js:1:6333)
+    at s (inpage.js:1:254)
+    at e (inpage.js:1:414)
+    at inpage.js:1:431
+a @ inpage.js:1
+inpage.js:1  MetaMask encountered an error setting the global Ethereum provider - this is likely due to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot set property ethereum of #<Window> which has only a getter
+    at a (inpage.js:1:49400)
+    at r.initializeProvider (inpage.js:1:49171)
+    at Object.<anonymous> (inpage.js:1:2312)
+    at Object.<anonymous> (inpage.js:1:6320)
+    at 2.../../shared/modules/provider-injection (inpage.js:1:6333)
+    at s (inpage.js:1:254)
+    at e (inpage.js:1:414)
+    at inpage.js:1:431
+a @ inpage.js:1
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+sw_iframe.html:1  Uncaught (in promise) Object
+js.stripe.com/v3/m-o…_[version]=acacia:1  Uncaught (in promise) Object
+m.stripe.network/inn…_[version]=acacia:1  Uncaught (in promise) Object
+js.stripe.com/v3/con…ipeController7711:1  Uncaught (in promise) Object
+SorceryChain:1  Uncaught (in promise) Object
+inpage.js:1  MetaMask encountered an error setting the global Ethereum provider - this is likely due to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot set property ethereum of #<Window> which has only a getter
+    at a (inpage.js:1:49400)
+    at r.initializeProvider (inpage.js:1:49171)
+    at Object.<anonymous> (inpage.js:1:2312)
+    at Object.<anonymous> (inpage.js:1:6320)
+    at 2.../../shared/modules/provider-injection (inpage.js:1:6333)
+    at s (inpage.js:1:254)
+    at e (inpage.js:1:414)
+    at inpage.js:1:431
+a @ inpage.js:1
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+inpage.js:1  MetaMask encountered an error setting the global Ethereum provider - this is likely due to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot set property ethereum of #<Window> which has only a getter
+    at a (inpage.js:1:49400)
+    at r.initializeProvider (inpage.js:1:49171)
+    at Object.<anonymous> (inpage.js:1:2312)
+    at Object.<anonymous> (inpage.js:1:6320)
+    at 2.../../shared/modules/provider-injection (inpage.js:1:6333)
+    at s (inpage.js:1:254)
+    at e (inpage.js:1:414)
+    at inpage.js:1:431
+a @ inpage.js:1
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+inpage.js:1  MetaMask encountered an error setting the global Ethereum provider - this is likely due to another Ethereum wallet extension also setting the global Ethereum provider: TypeError: Cannot set property ethereum of #<Window> which has only a getter
+    at a (inpage.js:1:49400)
+    at r.initializeProvider (inpage.js:1:49171)
+    at Object.<anonymous> (inpage.js:1:2312)
+    at Object.<anonymous> (inpage.js:1:6320)
+    at 2.../../shared/modules/provider-injection (inpage.js:1:6333)
+    at s (inpage.js:1:254)
+    at e (inpage.js:1:414)
+    at inpage.js:1:431
+a @ inpage.js:1
+client:536  WebSocket connection to 'wss://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/?token=cTldF98f6Xc_' failed: 
+setupWebSocket @ client:536
+client:536  Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=cTldF98f6Xc_' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+chrome-extension://g…ion/content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at browser-polyfill.js:511:1
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (browser-polyfill.js:508:1)
+    at Object.apply (browser-polyfill.js:206:1)
+    at notifyActive (cdp-session.js:26:22)
+content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at content.js:2434:25
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (content.js:2431:14)
+    at Object.apply (content.js:2129:26)
+    at notifyActive (content.js:3186:32)
+(anonymous) @ content.js:2434
+wrappedSendMessage @ content.js:2431
+apply @ content.js:2129
+notifyActive @ content.js:3186
+content.js:2434  Uncaught (in promise) Error: Extension context invalidated.
+    at content.js:2434:25
+    at new Promise (<anonymous>)
+    at wrappedSendMessage (content.js:2431:14)
+    at Object.apply (content.js:2129:26)
+    at notifyActive (content.js:3186:32)
+(anonymous) @ content.js:2434
+wrappedSendMessage @ content.js:2431
+apply @ content.js:2129
+notifyActive @ content.js:3186
+setTimeout
+scheduleCheckActive @ content.js:3196
+notifyActive @ content.js:3192

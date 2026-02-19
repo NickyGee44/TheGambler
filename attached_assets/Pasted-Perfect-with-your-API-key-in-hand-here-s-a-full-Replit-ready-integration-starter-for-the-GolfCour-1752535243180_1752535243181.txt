@@ -1,0 +1,129 @@
+Perfect — with your API key in hand, here’s a full Replit-ready integration starter for the GolfCourseAPI + Google Maps combo that will:
+	•	🔍 Search for Deerhurst and Muskoka Bay courses
+	•	📍 Display them using Google Maps
+	•	📊 Give you a scaffold to overlay hole data, ratings, and future yardage features
+
+⸻
+
+✅ Step-by-Step Instructions for Replit Setup
+
+🔧 1. Create a new Replit project
+	•	Type: HTML, CSS, JavaScript
+	•	Title: Gambler-Golf-Course-Map
+
+⸻
+
+📄 2. Paste This Code into index.html
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gambler Golf Map</title>
+    <style>
+      #map { height: 100vh; width: 100vw; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <script src="script.js"></script>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap">
+    </script>
+  </body>
+</html>
+
+
+⸻
+
+📜 3. Paste This Code into script.js
+
+const GOLF_API_KEY = "ERJJTZFDF7ZIKRUE76RRDOKLXQ";
+
+const coursesToSearch = ["Deerhurst Highlands", "Muskoka Bay Club"];
+let map;
+
+async function fetchCourse(query) {
+  const res = await fetch(`https://api.golfcourseapi.com/v1/search?search_query=${encodeURIComponent(query)}`, {
+    headers: {
+      Authorization: `Key ${GOLF_API_KEY}`,
+    },
+  });
+  const data = await res.json();
+  return data.courses?.[0]?.id || null;
+}
+
+async function getCourseDetails(courseId) {
+  const res = await fetch(`https://api.golfcourseapi.com/v1/courses/${courseId}`, {
+    headers: {
+      Authorization: `Key ${GOLF_API_KEY}`,
+    },
+  });
+  return await res.json();
+}
+
+async function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 13,
+    center: { lat: 45.349, lng: -79.216 }, // Muskoka fallback center
+  });
+
+  for (const courseName of coursesToSearch) {
+    const id = await fetchCourse(courseName);
+    if (!id) {
+      console.warn(`No course found for ${courseName}`);
+      continue;
+    }
+
+    const courseData = await getCourseDetails(id);
+    const { latitude, longitude } = courseData.location;
+
+    new google.maps.Marker({
+      position: { lat: latitude, lng: longitude },
+      map,
+      title: `${courseData.club_name} - ${courseData.course_name}`,
+    });
+
+    // Optional: zoom into each marker one by one (or cluster if needed)
+  }
+}
+
+window.initMap = initMap;
+
+
+⸻
+
+🌐 4. Replace YOUR_GOOGLE_MAPS_API_KEY
+
+Create a Google Maps JS API key here
+
+⸻
+
+📈 Suggested Next Feature Additions
+
+Feature	How
+🟩 Hole Overlay	Store hole locations in your own DB or manually extract them from aerial imagery
+📏 Live GPS Yardage	Use navigator.geolocation to get user lat/lng and calculate distance
+🍺 Drink Penalty UI	Overlay drink count and adjust net strokes accordingly
+💰 Side Bet Ledger	Build out a tab with forms to log per-hole and per-round cash bets
+📱 Mobile Viewport + QR Scan	Let players scan QR to open live view on their phones
+
+
+⸻
+
+🔐 Optional: Store Hole Layouts
+
+GolfCourseAPI doesn’t return hole-level coordinates, so you’ll need to either:
+	•	Use Google Maps’ satellite mode and manually pin hole coordinates
+	•	Or let users pin tee/green boxes during their first game and save to Firebase or Supabase
+
+⸻
+
+Would you like help creating:
+	•	📦 A JSON schema for storing hole-by-hole layout?
+	•	✏️ A UI where players can customize hole paths (drag & drop)?
+	•	⚙️ Backend hooks to save scores, side bets, and strokes given per match?
+
+Let me know and I’ll build the next modules.

@@ -1,0 +1,266 @@
+Error with Permissions-Policy header: Unrecognized feature: 'browsing-topics'.
+client:536 WebSocket connection to 'wss://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/?token=ITpy-ZdGYiL7' failed: 
+setupWebSocket @ client:536
+(anonymous) @ client:531
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=ITpy-ZdGYiL7' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+setupWebSocket @ client:536
+fallback @ client:509
+(anonymous) @ client:555
+main.tsx:10 SW: Service Worker registered
+queryClient.ts:48 
+            
+            
+           GET https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/api/user 401 (Unauthorized)
+(anonymous) @ queryClient.ts:48
+fetchFn @ @tanstack_react-query.js?v=1fcbffa1:840
+run @ @tanstack_react-query.js?v=1fcbffa1:494
+start @ @tanstack_react-query.js?v=1fcbffa1:536
+fetch @ @tanstack_react-query.js?v=1fcbffa1:926
+executeFetch_fn @ @tanstack_react-query.js?v=1fcbffa1:2211
+onSubscribe @ @tanstack_react-query.js?v=1fcbffa1:1898
+subscribe @ @tanstack_react-query.js?v=1fcbffa1:24
+(anonymous) @ @tanstack_react-query.js?v=1fcbffa1:3022
+subscribeToStore @ chunk-WERSD76P.js?v=1fcbffa1:11984
+commitHookEffectListMount @ chunk-WERSD76P.js?v=1fcbffa1:16915
+commitPassiveMountOnFiber @ chunk-WERSD76P.js?v=1fcbffa1:18156
+commitPassiveMountEffects_complete @ chunk-WERSD76P.js?v=1fcbffa1:18129
+commitPassiveMountEffects_begin @ chunk-WERSD76P.js?v=1fcbffa1:18119
+commitPassiveMountEffects @ chunk-WERSD76P.js?v=1fcbffa1:18109
+flushPassiveEffectsImpl @ chunk-WERSD76P.js?v=1fcbffa1:19490
+flushPassiveEffects @ chunk-WERSD76P.js?v=1fcbffa1:19447
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1fcbffa1:18868
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1fcbffa1:9119
+commitRootImpl @ chunk-WERSD76P.js?v=1fcbffa1:19432
+commitRoot @ chunk-WERSD76P.js?v=1fcbffa1:19277
+finishConcurrentRender @ chunk-WERSD76P.js?v=1fcbffa1:18805
+performConcurrentWorkOnRoot @ chunk-WERSD76P.js?v=1fcbffa1:18718
+workLoop @ chunk-WERSD76P.js?v=1fcbffa1:197
+flushWork @ chunk-WERSD76P.js?v=1fcbffa1:176
+performWorkUntilDeadline @ chunk-WERSD76P.js?v=1fcbffa1:384
+a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/:1 <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">
+Home.tsx:15 Uncaught ReferenceError: useToast is not defined
+    at Home (Home.tsx:15:21)
+    at renderWithHooks (chunk-WERSD76P.js?v=1fcbffa1:11548:26)
+    at mountIndeterminateComponent (chunk-WERSD76P.js?v=1fcbffa1:14926:21)
+    at beginWork (chunk-WERSD76P.js?v=1fcbffa1:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-WERSD76P.js?v=1fcbffa1:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-WERSD76P.js?v=1fcbffa1:3699:24)
+    at invokeGuardedCallback (chunk-WERSD76P.js?v=1fcbffa1:3733:39)
+    at beginWork$1 (chunk-WERSD76P.js?v=1fcbffa1:19765:15)
+    at performUnitOfWork (chunk-WERSD76P.js?v=1fcbffa1:19198:20)
+    at workLoopSync (chunk-WERSD76P.js?v=1fcbffa1:19137:13)
+Home @ Home.tsx:15
+renderWithHooks @ chunk-WERSD76P.js?v=1fcbffa1:11548
+mountIndeterminateComponent @ chunk-WERSD76P.js?v=1fcbffa1:14926
+beginWork @ chunk-WERSD76P.js?v=1fcbffa1:15914
+callCallback2 @ chunk-WERSD76P.js?v=1fcbffa1:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=1fcbffa1:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=1fcbffa1:3733
+beginWork$1 @ chunk-WERSD76P.js?v=1fcbffa1:19765
+performUnitOfWork @ chunk-WERSD76P.js?v=1fcbffa1:19198
+workLoopSync @ chunk-WERSD76P.js?v=1fcbffa1:19137
+renderRootSync @ chunk-WERSD76P.js?v=1fcbffa1:19116
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1fcbffa1:18874
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1fcbffa1:9119
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=1fcbffa1:555
+flush @ @tanstack_react-query.js?v=1fcbffa1:569
+batch @ @tanstack_react-query.js?v=1fcbffa1:587
+dispatch_fn @ @tanstack_react-query.js?v=1fcbffa1:996
+setData @ @tanstack_react-query.js?v=1fcbffa1:696
+setQueryData @ @tanstack_react-query.js?v=1fcbffa1:1661
+onSuccess @ AuthPage.tsx:48
+execute @ @tanstack_react-query.js?v=1fcbffa1:1233
+await in execute
+mutate @ @tanstack_react-query.js?v=1fcbffa1:2630
+(anonymous) @ @tanstack_react-query.js?v=1fcbffa1:3295
+handleSubmit @ AuthPage.tsx:110
+callCallback2 @ chunk-WERSD76P.js?v=1fcbffa1:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=1fcbffa1:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=1fcbffa1:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-WERSD76P.js?v=1fcbffa1:3736
+executeDispatch @ chunk-WERSD76P.js?v=1fcbffa1:7014
+processDispatchQueueItemsInOrder @ chunk-WERSD76P.js?v=1fcbffa1:7034
+processDispatchQueue @ chunk-WERSD76P.js?v=1fcbffa1:7043
+dispatchEventsForPlugins @ chunk-WERSD76P.js?v=1fcbffa1:7051
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:7174
+batchedUpdates$1 @ chunk-WERSD76P.js?v=1fcbffa1:18913
+batchedUpdates @ chunk-WERSD76P.js?v=1fcbffa1:3579
+dispatchEventForPluginEventSystem @ chunk-WERSD76P.js?v=1fcbffa1:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-WERSD76P.js?v=1fcbffa1:5478
+dispatchEvent @ chunk-WERSD76P.js?v=1fcbffa1:5472
+dispatchDiscreteEvent @ chunk-WERSD76P.js?v=1fcbffa1:5449
+Home.tsx:15 Uncaught ReferenceError: useToast is not defined
+    at Home (Home.tsx:15:21)
+    at renderWithHooks (chunk-WERSD76P.js?v=1fcbffa1:11548:26)
+    at mountIndeterminateComponent (chunk-WERSD76P.js?v=1fcbffa1:14926:21)
+    at beginWork (chunk-WERSD76P.js?v=1fcbffa1:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-WERSD76P.js?v=1fcbffa1:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-WERSD76P.js?v=1fcbffa1:3699:24)
+    at invokeGuardedCallback (chunk-WERSD76P.js?v=1fcbffa1:3733:39)
+    at beginWork$1 (chunk-WERSD76P.js?v=1fcbffa1:19765:15)
+    at performUnitOfWork (chunk-WERSD76P.js?v=1fcbffa1:19198:20)
+    at workLoopSync (chunk-WERSD76P.js?v=1fcbffa1:19137:13)
+Home @ Home.tsx:15
+renderWithHooks @ chunk-WERSD76P.js?v=1fcbffa1:11548
+mountIndeterminateComponent @ chunk-WERSD76P.js?v=1fcbffa1:14926
+beginWork @ chunk-WERSD76P.js?v=1fcbffa1:15914
+callCallback2 @ chunk-WERSD76P.js?v=1fcbffa1:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=1fcbffa1:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=1fcbffa1:3733
+beginWork$1 @ chunk-WERSD76P.js?v=1fcbffa1:19765
+performUnitOfWork @ chunk-WERSD76P.js?v=1fcbffa1:19198
+workLoopSync @ chunk-WERSD76P.js?v=1fcbffa1:19137
+renderRootSync @ chunk-WERSD76P.js?v=1fcbffa1:19116
+recoverFromConcurrentError @ chunk-WERSD76P.js?v=1fcbffa1:18736
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1fcbffa1:18879
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1fcbffa1:9119
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=1fcbffa1:555
+flush @ @tanstack_react-query.js?v=1fcbffa1:569
+batch @ @tanstack_react-query.js?v=1fcbffa1:587
+dispatch_fn @ @tanstack_react-query.js?v=1fcbffa1:996
+setData @ @tanstack_react-query.js?v=1fcbffa1:696
+setQueryData @ @tanstack_react-query.js?v=1fcbffa1:1661
+onSuccess @ AuthPage.tsx:48
+execute @ @tanstack_react-query.js?v=1fcbffa1:1233
+await in execute
+mutate @ @tanstack_react-query.js?v=1fcbffa1:2630
+(anonymous) @ @tanstack_react-query.js?v=1fcbffa1:3295
+handleSubmit @ AuthPage.tsx:110
+callCallback2 @ chunk-WERSD76P.js?v=1fcbffa1:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=1fcbffa1:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=1fcbffa1:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-WERSD76P.js?v=1fcbffa1:3736
+executeDispatch @ chunk-WERSD76P.js?v=1fcbffa1:7014
+processDispatchQueueItemsInOrder @ chunk-WERSD76P.js?v=1fcbffa1:7034
+processDispatchQueue @ chunk-WERSD76P.js?v=1fcbffa1:7043
+dispatchEventsForPlugins @ chunk-WERSD76P.js?v=1fcbffa1:7051
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:7174
+batchedUpdates$1 @ chunk-WERSD76P.js?v=1fcbffa1:18913
+batchedUpdates @ chunk-WERSD76P.js?v=1fcbffa1:3579
+dispatchEventForPluginEventSystem @ chunk-WERSD76P.js?v=1fcbffa1:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-WERSD76P.js?v=1fcbffa1:5478
+dispatchEvent @ chunk-WERSD76P.js?v=1fcbffa1:5472
+dispatchDiscreteEvent @ chunk-WERSD76P.js?v=1fcbffa1:5449
+AuthPage.tsx:48 The above error occurred in the <Home> component:
+
+    at Home (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/pages/Home.tsx:25:35)
+    at Route (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=1fcbffa1:191:16)
+    at Switch (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=1fcbffa1:247:17)
+    at Router (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/App.tsx?v=DWtFkd2oVK5M5QHxCTghV:138:31)
+    at div
+    at main
+    at div
+    at Layout (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/components/Layout.tsx:22:34)
+    at Provider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=1fcbffa1:38:15)
+    at TooltipProvider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=1fcbffa1:368:5)
+    at ThemeProvider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/components/ThemeProvider.tsx:25:3)
+    at QueryClientProvider (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=1fcbffa1:2805:3)
+    at ErrorBoundary (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/App.tsx?v=DWtFkd2oVK5M5QHxCTghV:49:5)
+    at App (https://a9be6f4c-d63b-45f8-9ca9-4743a5018cae-00-18d6sxjjojr9v.spock.replit.dev/src/App.tsx?v=DWtFkd2oVK5M5QHxCTghV:317:3)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-WERSD76P.js?v=1fcbffa1:14032
+callback @ chunk-WERSD76P.js?v=1fcbffa1:14078
+callCallback @ chunk-WERSD76P.js?v=1fcbffa1:11248
+commitUpdateQueue @ chunk-WERSD76P.js?v=1fcbffa1:11265
+commitLayoutEffectOnFiber @ chunk-WERSD76P.js?v=1fcbffa1:17075
+commitLayoutMountEffects_complete @ chunk-WERSD76P.js?v=1fcbffa1:17980
+commitLayoutEffects_begin @ chunk-WERSD76P.js?v=1fcbffa1:17969
+commitLayoutEffects @ chunk-WERSD76P.js?v=1fcbffa1:17920
+commitRootImpl @ chunk-WERSD76P.js?v=1fcbffa1:19353
+commitRoot @ chunk-WERSD76P.js?v=1fcbffa1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1fcbffa1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1fcbffa1:9119
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=1fcbffa1:555
+flush @ @tanstack_react-query.js?v=1fcbffa1:569
+batch @ @tanstack_react-query.js?v=1fcbffa1:587
+dispatch_fn @ @tanstack_react-query.js?v=1fcbffa1:996
+setData @ @tanstack_react-query.js?v=1fcbffa1:696
+setQueryData @ @tanstack_react-query.js?v=1fcbffa1:1661
+onSuccess @ AuthPage.tsx:48
+execute @ @tanstack_react-query.js?v=1fcbffa1:1233
+await in execute
+mutate @ @tanstack_react-query.js?v=1fcbffa1:2630
+(anonymous) @ @tanstack_react-query.js?v=1fcbffa1:3295
+handleSubmit @ AuthPage.tsx:110
+callCallback2 @ chunk-WERSD76P.js?v=1fcbffa1:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=1fcbffa1:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=1fcbffa1:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-WERSD76P.js?v=1fcbffa1:3736
+executeDispatch @ chunk-WERSD76P.js?v=1fcbffa1:7014
+processDispatchQueueItemsInOrder @ chunk-WERSD76P.js?v=1fcbffa1:7034
+processDispatchQueue @ chunk-WERSD76P.js?v=1fcbffa1:7043
+dispatchEventsForPlugins @ chunk-WERSD76P.js?v=1fcbffa1:7051
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:7174
+batchedUpdates$1 @ chunk-WERSD76P.js?v=1fcbffa1:18913
+batchedUpdates @ chunk-WERSD76P.js?v=1fcbffa1:3579
+dispatchEventForPluginEventSystem @ chunk-WERSD76P.js?v=1fcbffa1:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-WERSD76P.js?v=1fcbffa1:5478
+dispatchEvent @ chunk-WERSD76P.js?v=1fcbffa1:5472
+dispatchDiscreteEvent @ chunk-WERSD76P.js?v=1fcbffa1:5449
+App.tsx:42 ErrorBoundary caught an error: ReferenceError: useToast is not defined
+    at Home (Home.tsx:15:21)
+    at renderWithHooks (chunk-WERSD76P.js?v=1fcbffa1:11548:26)
+    at mountIndeterminateComponent (chunk-WERSD76P.js?v=1fcbffa1:14926:21)
+    at beginWork (chunk-WERSD76P.js?v=1fcbffa1:15914:22)
+    at beginWork$1 (chunk-WERSD76P.js?v=1fcbffa1:19753:22)
+    at performUnitOfWork (chunk-WERSD76P.js?v=1fcbffa1:19198:20)
+    at workLoopSync (chunk-WERSD76P.js?v=1fcbffa1:19137:13)
+    at renderRootSync (chunk-WERSD76P.js?v=1fcbffa1:19116:15)
+    at recoverFromConcurrentError (chunk-WERSD76P.js?v=1fcbffa1:18736:28)
+    at performSyncWorkOnRoot (chunk-WERSD76P.js?v=1fcbffa1:18879:28) {componentStack: '\n    at Home (https://a9be6f4c-d63b-45f8-9ca9-4743…it.dev/src/App.tsx?v=DWtFkd2oVK5M5QHxCTghV:317:3)'}
+componentDidCatch @ App.tsx:42
+callback @ chunk-WERSD76P.js?v=1fcbffa1:14084
+callCallback @ chunk-WERSD76P.js?v=1fcbffa1:11248
+commitUpdateQueue @ chunk-WERSD76P.js?v=1fcbffa1:11265
+commitLayoutEffectOnFiber @ chunk-WERSD76P.js?v=1fcbffa1:17075
+commitLayoutMountEffects_complete @ chunk-WERSD76P.js?v=1fcbffa1:17980
+commitLayoutEffects_begin @ chunk-WERSD76P.js?v=1fcbffa1:17969
+commitLayoutEffects @ chunk-WERSD76P.js?v=1fcbffa1:17920
+commitRootImpl @ chunk-WERSD76P.js?v=1fcbffa1:19353
+commitRoot @ chunk-WERSD76P.js?v=1fcbffa1:19277
+performSyncWorkOnRoot @ chunk-WERSD76P.js?v=1fcbffa1:18895
+flushSyncCallbacks @ chunk-WERSD76P.js?v=1fcbffa1:9119
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=1fcbffa1:555
+flush @ @tanstack_react-query.js?v=1fcbffa1:569
+batch @ @tanstack_react-query.js?v=1fcbffa1:587
+dispatch_fn @ @tanstack_react-query.js?v=1fcbffa1:996
+setData @ @tanstack_react-query.js?v=1fcbffa1:696
+setQueryData @ @tanstack_react-query.js?v=1fcbffa1:1661
+onSuccess @ AuthPage.tsx:48
+execute @ @tanstack_react-query.js?v=1fcbffa1:1233
+await in execute
+mutate @ @tanstack_react-query.js?v=1fcbffa1:2630
+(anonymous) @ @tanstack_react-query.js?v=1fcbffa1:3295
+handleSubmit @ AuthPage.tsx:110
+callCallback2 @ chunk-WERSD76P.js?v=1fcbffa1:3674
+invokeGuardedCallbackDev @ chunk-WERSD76P.js?v=1fcbffa1:3699
+invokeGuardedCallback @ chunk-WERSD76P.js?v=1fcbffa1:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-WERSD76P.js?v=1fcbffa1:3736
+executeDispatch @ chunk-WERSD76P.js?v=1fcbffa1:7014
+processDispatchQueueItemsInOrder @ chunk-WERSD76P.js?v=1fcbffa1:7034
+processDispatchQueue @ chunk-WERSD76P.js?v=1fcbffa1:7043
+dispatchEventsForPlugins @ chunk-WERSD76P.js?v=1fcbffa1:7051
+(anonymous) @ chunk-WERSD76P.js?v=1fcbffa1:7174
+batchedUpdates$1 @ chunk-WERSD76P.js?v=1fcbffa1:18913
+batchedUpdates @ chunk-WERSD76P.js?v=1fcbffa1:3579
+dispatchEventForPluginEventSystem @ chunk-WERSD76P.js?v=1fcbffa1:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-WERSD76P.js?v=1fcbffa1:5478
+dispatchEvent @ chunk-WERSD76P.js?v=1fcbffa1:5472
+dispatchDiscreteEvent @ chunk-WERSD76P.js?v=1fcbffa1:5449
+App.tsx:45 Error details: {error: 'ReferenceError: useToast is not defined', stack: 'ReferenceError: useToast is not defined\n    at Hom….vite/deps/chunk-WERSD76P.js?v=1fcbffa1:18879:28)', componentStack: '\n    at Home (https://a9be6f4c-d63b-45f8-9ca9-4743…it.dev/src/App.tsx?v=DWtFkd2oVK5M5QHxCTghV:317:3)', timestamp: '2025-07-18T21:26:27.895Z', userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap…KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36'}
+injected.js:5 Caught error handling <hide-notification> message
+(anonymous) @ injected.js:5
+Promise.catch
+n @ injected.js:5
