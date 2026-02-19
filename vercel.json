@@ -2,7 +2,7 @@
   "version": 2,
   "buildCommand": "npm run build",
   "functions": {
-    "api/index.ts": {
+    "api/index.js": {
       "memory": 1024,
       "maxDuration": 30,
       "includeFiles": "dist/public/**"

@@ -10,3 +10,5 @@ cookies*.txt
 nick_cookies.txt
 test_cookies.txt
 *.cookies
+.vercel
+api/index.js
