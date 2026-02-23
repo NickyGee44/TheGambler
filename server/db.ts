@@ -3,7 +3,13 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "@shared/schema";
 
-neonConfig.webSocketConstructor = ws;
+// Only enable Neon WebSocket mode for actual Neon databases.
+// Supabase (and other PG hosts) use standard TCP connections —
+// the Neon WS proxy rewrites the hostname which breaks non-Neon hosts.
+const isNeonHost = process.env.DATABASE_URL?.includes('.neon.tech');
+if (isNeonHost) {
+  neonConfig.webSocketConstructor = ws;
+}
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
