@@ -15,6 +15,7 @@
 - ✅ **Vercel crash fixed** (/api/health 200)
 - ✅ **replitAuth → custom auth only** (skips if no REPL_ID env)
 - ✅ Supabase session store on Vercel cold starts
+- ✅ **Static files now served correctly** (vercel.json: outputDirectory + proper rewrites)
 - 🔄 **Spawned claude agent: Remove WS → TanStack Query polling + E2E login test + deploy**
 - ⏳ Google Maps API key to Vercel env (Nick)
 
