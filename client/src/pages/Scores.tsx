@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useWebSocket } from "@/hooks/useWebSocket";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { RefreshCw, Trophy, Medal, Award, Wifi, WifiOff, Target, Flag, Users } from "lucide-react";
@@ -89,31 +88,6 @@ export default function Scores() {
   const { data: round3HoleScores = [], isLoading: round3HoleScoresLoading } = useQuery({
     queryKey: ['/api/hole-scores', 3],
     refetchInterval: 10000,
-  });
-
-  // WebSocket for real-time updates
-  useWebSocket('/ws', {
-    onMessage: (data) => {
-      if (data.type === 'SCORE_UPDATE' || data.type === 'HOLE_SCORE_UPDATE' || data.type === 'HOLE_STATS_UPDATE') {
-        // Force refetch scores immediately
-        queryClient.invalidateQueries({ queryKey: ['/api/live-scores'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/scores'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/player-stats'] });
-        refetch(); // Force immediate refresh
-        
-        if (data.type === 'SCORE_UPDATE') {
-          toast({
-            title: "Score Updated",
-            description: `Team ${data.data.teamId} score has been updated`,
-          });
-        } else if (data.type === 'HOLE_SCORE_UPDATE') {
-          toast({
-            title: "Live Score Updated", 
-            description: `Current standings updated for Round ${data.data.round}`,
-          });
-        }
-      }
-    }
   });
 
 

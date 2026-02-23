@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useWebSocket } from "@/hooks/useWebSocket";
 import { Camera, Upload, Calendar, ImageIcon, X } from "lucide-react";
 import { Photo } from "@shared/schema";
 
@@ -21,20 +20,7 @@ export default function Photos() {
   
   const { data: photos = [], isLoading } = useQuery({
     queryKey: ['/api/photos'],
-    refetchInterval: 30000,
-  });
-
-  // WebSocket for real-time updates
-  useWebSocket('/ws', {
-    onMessage: (data) => {
-      if (data.type === 'PHOTO_UPLOADED') {
-        queryClient.invalidateQueries({ queryKey: ['/api/photos'] });
-        toast({
-          title: "Photo Uploaded",
-          description: "A new photo has been added to the gallery",
-        });
-      }
-    }
+    refetchInterval: 15000,
   });
 
   const uploadPhotoMutation = useMutation({

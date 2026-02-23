@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/hooks/useAuth";
 import { Plus, DollarSign, CheckCircle, XCircle, Clock, Bell, AlertTriangle, Users, Vote } from "lucide-react";
 import { SideBet } from "@shared/schema";
@@ -32,7 +31,7 @@ export default function SideBets() {
   
   const { data: sideBets = [], isLoading } = useQuery<SideBet[]>({
     queryKey: ['/api/sidebets'],
-    refetchInterval: 30000,
+    refetchInterval: 10000,
   });
 
   const { data: teams = [] } = useQuery<any[]>({
@@ -41,61 +40,6 @@ export default function SideBets() {
 
   const { data: registeredPlayers = [] } = useQuery<any[]>({
     queryKey: ['/api/registered-players'],
-  });
-
-  // WebSocket for real-time updates
-  useWebSocket('/ws', {
-    onMessage: (data) => {
-      if (data.type === 'SIDE_BET_CREATED' || data.type === 'SIDE_BET_UPDATE' || data.type === 'SIDE_BET_STATUS_UPDATE') {
-        queryClient.invalidateQueries({ queryKey: ['/api/sidebets'] });
-        
-        if (data.type === 'SIDE_BET_CREATED') {
-          const bet = data.data;
-          const currentUserName = user ? `${user.firstName} ${user.lastName}` : '';
-          
-          if (bet.opponentName === currentUserName) {
-            toast({
-              title: "🎯 New Challenge!",
-              description: `${bet.betterName} has challenged you to a $${bet.amount} bet!`,
-              variant: "default",
-            });
-          } else {
-            toast({
-              title: "New Side Bet Created",
-              description: `${bet.betterName} challenged ${bet.opponentName} for $${bet.amount}`,
-            });
-          }
-        } else if (data.type === 'SIDE_BET_STATUS_UPDATE') {
-          const bet = data.data;
-          const currentUserName = user ? `${user.firstName} ${user.lastName}` : '';
-          
-          if (bet.status === 'Declined') {
-            toast({
-              title: "🐱 PUSSY ALERT!",
-              description: `${bet.opponentName} has declined ${bet.betterName}'s challenge and is a PUSSY!`,
-              variant: "destructive",
-            });
-          } else if (bet.status === 'Accepted') {
-            if (bet.betterName === currentUserName) {
-              toast({
-                title: "Challenge Accepted!",
-                description: `${bet.opponentName} has accepted your $${bet.amount} challenge!`,
-              });
-            } else {
-              toast({
-                title: "Challenge Accepted",
-                description: `${bet.opponentName} accepted ${bet.betterName}'s $${bet.amount} challenge!`,
-              });
-            }
-          }
-        } else {
-          toast({
-            title: "Side Bet Updated",
-            description: "Side bet result updated",
-          });
-        }
-      }
-    }
   });
 
   const createSideBetMutation = useMutation({

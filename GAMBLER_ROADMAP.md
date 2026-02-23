@@ -1,37 +1,38 @@
-# TheGambler — Improvement Roadmap (Updated 2026-02-22)
+# TheGambler — Improvement Roadmap (Updated 2026-02-23)
 
 **App:** Golf tournament tracker for the annual Gambler Cup
-**Live:** https://the-gambler-five.vercel.app (API crashing 500, fixing today)
+**Live:** https://the-gambler-five.vercel.app (API /health 200 ✅, custom auth ready)
 **DB:** Supabase (migrated from Neon/Replit, Feb 19 2026)
 **Stack:** React 18 + TypeScript + Vite | Express + Drizzle ORM | PostgreSQL
 
 ---
 
-## Status (Feb 22 2026)
+## Status (Feb 23 2026)
 
 - ✅ DB migrated to Supabase
 - ✅ Vercel env vars set (DATABASE_URL, SESSION_SECRET, REPLIT_DOMAINS, REPL_ID)
-- ✅ API routes fixed with vercel.json + pre-compiled JS (recent commits)
-- 🔄 **Spawned claude agent to fix Vercel crash (replitAuth decoupling, WS→polling, E2E login test)**
-- ⏳ Custom auth login verification pending
-- ⚠️ WebSockets → TanStack Query polling (Vercel serverless)
+- ✅ API routes fixed with vercel.json + pre-compiled JS
+- ✅ **Vercel crash fixed** (/api/health 200)
+- ✅ **replitAuth → custom auth only** (skips if no REPL_ID env)
+- ✅ Supabase session store on Vercel cold starts
+- 🔄 **Spawned claude agent: Remove WS → TanStack Query polling + E2E login test + deploy**
 - ⏳ Google Maps API key to Vercel env (Nick)
 
 ## Recent Git (top 10)
+fa359aa chore: 2026-02-22 daily roadmap update
 01402cc debug: minimal handler to verify @vercel/node works
-2beb885 debug: surface real init error in response body
 ...
 
 ## Priority Queue
 
-### 🔴 P0 — Get it live ✅ (mostly)
+### 🔴 P0 — Get it live ✅
 1. ✅ vercel.json routing
-2. 🔄 Refactor replitAuth.ts → custom auth only (no Replit crash)
-3. 🔄 Verify Supabase session store on Vercel cold starts
-4. 🔄 **E2E login test on Vercel**
+2. ✅ Refactor replitAuth.ts → custom auth only (no Replit crash)
+3. ✅ Verify Supabase session store on Vercel cold starts
+4. 🔄 **E2E login test on Vercel** (agent)
 
-### 🟠 P1 — Reliability
-5. 🔄 WS → TanStack Query polling
+### 🟠 P1 — Reliability 🔄
+5. 🔄 **WS → TanStack Query polling** (agent)
 6. Add error boundaries (client has)
 7. Google Maps API key (Nick)
 
@@ -49,4 +50,4 @@
 - Ready for 2026 tournament
 
 ---
-_Last updated: 2026-02-22 Daily cron by Nova_
+_Last updated: 2026-02-23 Daily cron by Nova_

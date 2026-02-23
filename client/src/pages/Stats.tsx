@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useWebSocket } from "@/hooks/useWebSocket";
-import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -62,20 +60,9 @@ export default function Stats() {
   const [selectedTab, setSelectedTab] = useState("overview");
 
   // Real-time player statistics
-  const { data: playerStats = [], isLoading, refetch: refetchStats } = useQuery({
+  const { data: playerStats = [], isLoading } = useQuery({
     queryKey: ["/api/player-stats"],
     refetchInterval: 5000, // Refetch every 5 seconds
-  });
-
-  // WebSocket for real-time updates
-  useWebSocket('/ws', {
-    onMessage: (data) => {
-      if (data.type === 'HOLE_SCORE_UPDATE' || data.type === 'HOLE_STATS_UPDATE') {
-        // Invalidate player statistics to trigger refresh
-        queryClient.invalidateQueries({ queryKey: ["/api/player-stats"] });
-        refetchStats(); // Force immediate refresh
-      }
-    }
   });
 
   if (isLoading) {

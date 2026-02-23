@@ -17,7 +17,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import ProfilePicture from "@/components/ProfilePicture";
 import ScoreIndicator from "@/components/ScoreIndicator";
-import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
 // Removed hardcoded matchups - now using dynamic database data
 
@@ -138,23 +137,6 @@ export default function Round3() {
   const [showRoundComplete, setShowRoundComplete] = useState(false);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("play");
-
-  // WebSocket connection for real-time updates
-  useWebSocket("/ws", {
-    onMessage: (data) => {
-      if (data.type === "BIRDIE_NOTIFICATION") {
-        // Dispatch custom event for birdie notification
-        const event = new CustomEvent("birdie-notification", {
-          detail: data.data,
-        });
-        window.dispatchEvent(event);
-      } else if (data.type === "MATCH_PLAY_CREATED" || data.type === "MATCH_PLAY_RESULT") {
-        // Refresh match play data when updates occur
-        queryClient.invalidateQueries({ queryKey: ["/api/match-play/matches"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/match-play/leaderboard"] });
-      }
-    },
-  });
 
   // Fetch user's hole scores for round 3
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({

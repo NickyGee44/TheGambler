@@ -15,7 +15,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import ProfilePicture from "@/components/ProfilePicture";
 import ScoreIndicator from "@/components/ScoreIndicator";
-import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
 
 interface HoleScore {
@@ -125,34 +124,12 @@ export default function Round2() {
   const [showRoundComplete, setShowRoundComplete] = useState(false);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
 
-  // WebSocket connection for real-time updates
-  useWebSocket("/ws", {
-    onMessage: (data) => {
-      if (data.type === "BIRDIE_NOTIFICATION") {
-        // Dispatch custom event for birdie notification
-        const event = new CustomEvent("birdie-notification", {
-          detail: data.data,
-        });
-        window.dispatchEvent(event);
-      } else if (data.type === "TEAM_HOLE_SCORE_UPDATE" || data.type === "HOLE_SCORE_UPDATE") {
-        // Force immediate refresh of all Round 2 data AND leaderboards when scores update
-        queryClient.invalidateQueries({ queryKey: [`/api/hole-scores/${round}`] });
-        queryClient.invalidateQueries({ queryKey: [`/api/team-scramble/${round}`] });
-        queryClient.invalidateQueries({ queryKey: [`/api/team-hole-scores/${round}`] });
-        
-        // Invalidate all leaderboard caches too
-        queryClient.invalidateQueries({ queryKey: ['/api/live-scores'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/scores'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/leaderboard'] });
-      }
-    },
-  });
-
   // Fetch individual hole scores for round 2 (scramble saves individual scores)
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({
     queryKey: [`/api/hole-scores/${round}`],
     enabled: !!user,
     staleTime: 0, // Always refetch for fresh data
+    refetchInterval: 5000,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
   });

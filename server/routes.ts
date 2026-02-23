@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { WebSocketServer, WebSocket } from "ws";
+// WebSocket removed — Vercel serverless doesn't support persistent connections
 import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
@@ -657,34 +657,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // WebSocket server for real-time updates
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
-
-  // Broadcast function
+  // No-op broadcast — replaced by client-side polling (TanStack Query refetchInterval)
   const broadcast = (message: any) => {
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(message));
-      }
-    });
+    // Intentionally empty: clients poll for updates
   };
-
-  wss.on('connection', (ws) => {
-    console.log('Client connected');
-    
-    ws.on('message', (message) => {
-      try {
-        const data = JSON.parse(message.toString());
-        console.log('Received:', data);
-      } catch (error) {
-        console.error('Invalid JSON:', error);
-      }
-    });
-
-    ws.on('close', () => {
-      console.log('Client disconnected');
-    });
-  });
 
   // Config route
   app.get('/api/config', (req, res) => {

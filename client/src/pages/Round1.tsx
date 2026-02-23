@@ -15,7 +15,6 @@ import { Play, Flag, Trophy, Users, MapPin, CheckCircle, Star } from "lucide-rea
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import ProfilePicture from "@/components/ProfilePicture";
 import ScoreIndicator from "@/components/ScoreIndicator";
-import { useWebSocket } from "@/hooks/useWebSocket";
 import { useLocation } from "wouter";
 import IndividualScoresTable from "@/components/IndividualScoresTable";
 
@@ -91,19 +90,6 @@ export default function Round1() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardTab, setLeaderboardTab] = useState("team");
   const [showRoundComplete, setShowRoundComplete] = useState(false);
-
-  // WebSocket connection for real-time updates
-  useWebSocket("/ws", {
-    onMessage: (data) => {
-      if (data.type === "BIRDIE_NOTIFICATION") {
-        // Dispatch custom event for birdie notification
-        const event = new CustomEvent("birdie-notification", {
-          detail: data.data,
-        });
-        window.dispatchEvent(event);
-      }
-    },
-  });
 
   // Fetch user's hole scores for round 1
   const { data: holeScores = [], isLoading } = useQuery<HoleScore[]>({
