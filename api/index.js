@@ -4728,6 +4728,19 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.get("/api/db-test", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW() as now, current_database() as db");
+    res.json({ ok: true, result: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      error: error?.message,
+      code: error?.code,
+      stack: error?.stack?.split("\n").slice(0, 5)
+    });
+  }
+});
 var initialized = false;
 var initError = null;
 var initPromise = null;

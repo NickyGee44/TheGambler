@@ -1,5 +1,6 @@
 import express from "express";
 import { registerRoutes } from "./routes";
+import { pool } from "./db";
 
 const app = express();
 
@@ -16,6 +17,21 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// DB diagnostic endpoint (before registerRoutes so it's always available)
+app.get("/api/db-test", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW() as now, current_database() as db");
+    res.json({ ok: true, result: result.rows[0] });
+  } catch (error: any) {
+    res.status(500).json({
+      ok: false,
+      error: error?.message,
+      code: error?.code,
+      stack: error?.stack?.split("\n").slice(0, 5),
+    });
+  }
+});
 
 let initialized = false;
 let initError: Error | null = null;
