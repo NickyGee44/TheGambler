@@ -1,415 +1,191 @@
-import { useState, useEffect } from "react";
+import { ReactNode, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
+import { BarChart3, Bird, TrendingDown, Target, Flag, User } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Target, 
-  Trophy, 
-  Flag, 
-  Users, 
-  TrendingUp, 
-  TrendingDown,
-  Award,
-  BarChart3,
-  PieChart,
-  User,
-  ExternalLink
-} from "lucide-react";
-import ProfilePicture from "@/components/ProfilePicture";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
+import ProfilePicture from "@/components/ProfilePicture";
 
-// Mock statistics data structure
+interface PlayerRoundStats {
+  round: number;
+  birdies?: number;
+  eagles?: number;
+  fairwayHits: number;
+  fairwayAttempts: number;
+  greenHits: number;
+  greenAttempts: number;
+  putts: number;
+  penalties: number;
+}
+
 interface PlayerStats {
   userId: number;
   firstName: string;
   lastName: string;
-  totalRounds: number;
   totalHoles: number;
-  averageScore: string;
   fairwayPercentage: string;
-  greenPercentage: string;
   averagePutts: string;
   totalPenalties: number;
-  totalSandSaves: number;
-  totalUpAndDowns: number;
-  totalDuffs: number;
   birdies: number;
   eagles: number;
-  pars: number;
-  bogeys: number;
-  doubleBogeys: number;
-  rounds: {
-    round: number;
-    score: number;
-    fairwayHits: number;
-    fairwayAttempts: number;
-    greenHits: number;
-    greenAttempts: number;
-    putts: number;
-    penalties: number;
-    sandSaves: number;
-    upAndDowns: number;
-    duffs: number;
-  }[];
+  rounds: PlayerRoundStats[];
 }
 
 export default function Stats() {
-  const [selectedTab, setSelectedTab] = useState("overview");
-
-  // Real-time player statistics
-  const { data: playerStats = [], isLoading } = useQuery({
+  const [tab, setTab] = useState("leaderboards");
+  const { data: playerStats = [], isLoading } = useQuery<PlayerStats[]>({
     queryKey: ["/api/player-stats"],
-    refetchInterval: 5000, // Refetch every 5 seconds
+    refetchInterval: 5000,
   });
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center text-white">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-golf-green-400 mx-auto mb-4"></div>
-            <p>Loading tournament statistics...</p>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 flex items-center justify-center text-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gambler-green mx-auto mb-4"></div>
+          <div>Loading tournament statistics...</div>
         </div>
       </div>
     );
   }
 
-  if (!playerStats || playerStats.length === 0) {
+  if (playerStats.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center text-white">
-            <BarChart3 className="w-16 h-16 mx-auto mb-4 text-golf-green-400" />
-            <h2 className="text-2xl font-bold mb-2">No Statistics Available</h2>
-            <p className="text-gray-300">Tournament statistics will appear here once players start recording scores and stats during live rounds.</p>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 flex items-center justify-center text-white">
+        <div className="text-center">
+          <BarChart3 className="w-12 h-12 mx-auto mb-3 text-gambler-green" />
+          <div className="text-xl font-bold">No stats recorded yet</div>
         </div>
       </div>
     );
   }
 
-  // Calculate tournament-wide statistics
-  const totalHoles = playerStats.reduce((sum: number, player: any) => sum + player.totalHoles, 0);
-  const totalRounds = playerStats.reduce((sum: number, player: any) => sum + player.totalRounds, 0);
-  const averageFairwayPercentage = totalHoles > 0 ? (
-    playerStats.reduce((sum: number, player: any) => sum + (parseFloat(player.fairwayPercentage) || 0), 0) / playerStats.length
-  ).toFixed(1) : 0;
-  const averageGreenPercentage = totalHoles > 0 ? (
-    playerStats.reduce((sum: number, player: any) => sum + (parseFloat(player.greenPercentage) || 0), 0) / playerStats.length
-  ).toFixed(1) : 0;
+  const withDerived = playerStats.map((player) => {
+    const puttingAverage = player.totalHoles > 0 ? Number(player.averagePutts) : 0;
+    const fairwayAccuracy = Number(player.fairwayPercentage || "0");
+    const birdiesEaglesTotal = (player.birdies || 0) + (player.eagles || 0);
+    return { ...player, puttingAverage, fairwayAccuracy, birdiesEaglesTotal };
+  });
 
+  const birdieEagleLeaders = [...withDerived].sort((a, b) => b.birdiesEaglesTotal - a.birdiesEaglesTotal);
+  const puttingLeaders = [...withDerived].sort((a, b) => a.puttingAverage - b.puttingAverage);
+  const fairwayLeaders = [...withDerived].sort((a, b) => b.fairwayAccuracy - a.fairwayAccuracy);
+  const penaltyLeaders = [...withDerived].sort((a, b) => b.totalPenalties - a.totalPenalties);
 
-
-  // Remove duplicate loading check
-
-  const getLeaderboardData = (statKey: keyof PlayerStats, title: string, isPercentage = false, inverse = false) => {
-    if (!playerStats) return [];
-    
-    const sorted = [...playerStats].sort((a, b) => {
-      const aVal = Number(a[statKey]);
-      const bVal = Number(b[statKey]);
-      return inverse ? aVal - bVal : bVal - aVal;
-    });
-
-    return {
-      title,
-      data: sorted.map((player, index) => ({
-        rank: index + 1,
-        player,
-        value: Number(player[statKey]),
-        isPercentage
-      }))
-    };
-  };
-
-  const leaderboards = [
-    getLeaderboardData('fairwayPercentage', 'Fairway Accuracy', true),
-    getLeaderboardData('greenPercentage', 'Greens in Regulation', true),
-    getLeaderboardData('averagePutts', 'Putting Average', false, true),
-    getLeaderboardData('birdies', 'Most Birdies', false, false),
-    getLeaderboardData('totalPenalties', 'Penalty Strokes', false, false),
-    getLeaderboardData('totalSandSaves', 'Sand Saves', false, false),
-    getLeaderboardData('totalUpAndDowns', 'Up & Downs', false, false),
-    getLeaderboardData('totalPoints', 'Total Points', false, false)
-  ];
+  const LeaderboardCard = ({
+    title,
+    icon,
+    rows,
+    valueFormatter,
+    subtitleFormatter,
+  }: {
+    title: string;
+    icon: ReactNode;
+    rows: (PlayerStats & { birdiesEaglesTotal?: number; puttingAverage?: number; fairwayAccuracy?: number })[];
+    valueFormatter: (player: any) => string;
+    subtitleFormatter?: (player: any) => string;
+  }) => (
+    <Card className="bg-gambler-black border-gambler-border">
+      <CardHeader>
+        <CardTitle className="text-gambler-gold flex items-center gap-2 text-lg">
+          {icon}
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {rows.slice(0, 8).map((player, index) => (
+          <div key={player.userId} className="flex items-center justify-between bg-gambler-slate border border-gambler-border rounded px-3 py-2">
+            <div className="flex items-center gap-3">
+              <Badge className="bg-gray-700 text-white w-6 h-6 p-0 rounded-full flex items-center justify-center">{index + 1}</Badge>
+              <ProfilePicture firstName={player.firstName} lastName={player.lastName} size="sm" />
+              <div>
+                <div className="text-white text-sm font-medium">{player.firstName} {player.lastName}</div>
+                {subtitleFormatter && <div className="text-xs text-gray-400">{subtitleFormatter(player)}</div>}
+              </div>
+            </div>
+            <div className="text-gambler-green font-bold">{valueFormatter(player)}</div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <div className="max-w-6xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-golf-green-600 mb-2 flex items-center gap-2">
-          <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8" />
-          Tournament Statistics
+    <div className="max-w-6xl mx-auto px-3 py-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-black tracking-[0.14em] text-gambler-gold flex items-center gap-2">
+          <BarChart3 className="w-8 h-8" />
+          STATS
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
-          Comprehensive golf statistics and leaderboards for all players
-        </p>
       </div>
 
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4 sm:space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-          <TabsTrigger value="leaderboards" className="text-xs sm:text-sm">Leaderboards</TabsTrigger>
-          <TabsTrigger value="individual" className="text-xs sm:text-sm">Individual</TabsTrigger>
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList className="grid grid-cols-2 bg-gambler-slate border border-gambler-border">
+          <TabsTrigger value="leaderboards">Leaderboards</TabsTrigger>
+          <TabsTrigger value="players">Players</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4 sm:space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            <Card className="golf-card">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-golf-green-600" />
-                  Tournament Leaders
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Fairway Accuracy</span>
-                    <div className="flex items-center gap-2">
-                      {playerStats.length > 0 && (
-                        <>
-                          <ProfilePicture 
-                            firstName={playerStats.sort((a, b) => parseFloat(b.fairwayPercentage) - parseFloat(a.fairwayPercentage))[0]?.firstName || ""} 
-                            lastName={playerStats.sort((a, b) => parseFloat(b.fairwayPercentage) - parseFloat(a.fairwayPercentage))[0]?.lastName || ""} 
-                            size="sm" 
-                          />
-                          <span className="text-sm">{playerStats.sort((a, b) => parseFloat(b.fairwayPercentage) - parseFloat(a.fairwayPercentage))[0]?.fairwayPercentage || 0}%</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">GIR</span>
-                    <div className="flex items-center gap-2">
-                      {playerStats.length > 0 && (
-                        <>
-                          <ProfilePicture 
-                            firstName={playerStats.sort((a, b) => parseFloat(b.greenPercentage) - parseFloat(a.greenPercentage))[0]?.firstName || ""} 
-                            lastName={playerStats.sort((a, b) => parseFloat(b.greenPercentage) - parseFloat(a.greenPercentage))[0]?.lastName || ""} 
-                            size="sm" 
-                          />
-                          <span className="text-sm">{playerStats.sort((a, b) => parseFloat(b.greenPercentage) - parseFloat(a.greenPercentage))[0]?.greenPercentage || 0}%</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Putting</span>
-                    <div className="flex items-center gap-2">
-                      {playerStats.length > 0 && (
-                        <>
-                          <ProfilePicture 
-                            firstName={playerStats.sort((a, b) => parseFloat(a.averagePutts) - parseFloat(b.averagePutts))[0]?.firstName || ""} 
-                            lastName={playerStats.sort((a, b) => parseFloat(a.averagePutts) - parseFloat(b.averagePutts))[0]?.lastName || ""} 
-                            size="sm" 
-                          />
-                          <span className="text-sm">{playerStats.sort((a, b) => parseFloat(a.averagePutts) - parseFloat(b.averagePutts))[0]?.averagePutts || 0} avg</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="golf-card">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Target className="w-5 h-5 text-golf-green-600" />
-                  Accuracy Stats
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm">Avg Fairway %</span>
-                      <span className="text-sm font-medium">{averageFairwayPercentage}%</span>
-                    </div>
-                    <Progress value={parseFloat(averageFairwayPercentage.toString())} className="h-2" />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm">Avg GIR %</span>
-                      <span className="text-sm font-medium">{averageGreenPercentage}%</span>
-                    </div>
-                    <Progress value={parseFloat(averageGreenPercentage.toString())} className="h-2" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="golf-card">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Flag className="w-5 h-5 text-golf-green-600" />
-                  Scoring
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm">Total Birdies</span>
-                    <Badge variant="default">{playerStats.reduce((sum, p) => sum + p.birdies, 0)}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Total Eagles</span>
-                    <Badge variant="secondary">{playerStats.reduce((sum, p) => sum + p.eagles, 0)}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Total Pars</span>
-                    <Badge variant="outline">{playerStats.reduce((sum, p) => sum + p.pars, 0)}</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="golf-card">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <TrendingDown className="w-5 h-5 text-red-500" />
-                  Trouble Shots
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm">Total Duffs</span>
-                    <Badge variant="destructive">{playerStats.reduce((sum: number, p: any) => sum + (p.totalDuffs || 0), 0)}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Penalty Strokes</span>
-                    <Badge variant="destructive">{playerStats.reduce((sum: number, p: any) => sum + (p.totalPenalties || 0), 0)}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Sand Saves</span>
-                    <Badge variant="default">{playerStats.reduce((sum: number, p: any) => sum + (p.totalSandSaves || 0), 0)}</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="leaderboards" className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <LeaderboardCard
+            title="Birdies / Eagles Leaderboard"
+            icon={<Bird className="w-5 h-5 text-gambler-green" />}
+            rows={birdieEagleLeaders}
+            valueFormatter={(p) => `${p.birdiesEaglesTotal}`}
+            subtitleFormatter={(p) => `Birdies ${p.birdies} • Eagles ${p.eagles} • ${p.rounds?.map((r: PlayerRoundStats) => `R${r.round} ${r.birdies || 0}/${r.eagles || 0}`).join(" | ") || "No round split"}`}
+          />
+          <LeaderboardCard
+            title="Putting Average (Putts / Hole)"
+            icon={<Target className="w-5 h-5 text-gambler-green" />}
+            rows={puttingLeaders}
+            valueFormatter={(p) => `${p.puttingAverage.toFixed(2)}`}
+          />
+          <LeaderboardCard
+            title="Fairway Accuracy"
+            icon={<Flag className="w-5 h-5 text-gambler-green" />}
+            rows={fairwayLeaders}
+            valueFormatter={(p) => `${p.fairwayAccuracy.toFixed(1)}%`}
+            subtitleFormatter={(p) => {
+              const hits = p.rounds.reduce((sum: number, r: PlayerRoundStats) => sum + (r.fairwayHits || 0), 0);
+              const attempts = p.rounds.reduce((sum: number, r: PlayerRoundStats) => sum + (r.fairwayAttempts || 0), 0);
+              return `${hits}/${attempts || 0}`;
+            }}
+          />
+          <LeaderboardCard
+            title="Penalty Leaders"
+            icon={<TrendingDown className="w-5 h-5 text-red-500" />}
+            rows={penaltyLeaders}
+            valueFormatter={(p) => `${p.totalPenalties}`}
+          />
         </TabsContent>
 
-        <TabsContent value="leaderboards" className="space-y-4 sm:space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            {leaderboards.map((leaderboard, index) => (
-              <Card key={index} className="golf-card">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Award className="w-5 h-5 text-golf-green-600" />
-                    {leaderboard.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {leaderboard.data.slice(0, 5).map((entry) => (
-                      <div key={entry.player.userId} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                            entry.rank === 1 ? 'bg-yellow-500' : 
-                            entry.rank === 2 ? 'bg-gray-400' :
-                            entry.rank === 3 ? 'bg-amber-600' : 
-                            'bg-golf-green-600'
-                          }`}>
-                            {entry.rank}
-                          </div>
-                          <ProfilePicture 
-                            firstName={entry.player.firstName} 
-                            lastName={entry.player.lastName} 
-                            size="sm"
-                          />
-                          <span className="font-medium text-sm">
-                            {entry.player.firstName} {entry.player.lastName}
-                          </span>
-                        </div>
-                        <Badge variant={entry.rank <= 3 ? "default" : "outline"}>
-                          {entry.isPercentage ? `${entry.value.toFixed(1)}%` : entry.value.toFixed(1)}
-                        </Badge>
-                      </div>
-                    ))}
+        <TabsContent value="players" className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {withDerived.map((player) => (
+            <Card key={player.userId} className="bg-gambler-black border-gambler-border">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-3">
+                  <ProfilePicture firstName={player.firstName} lastName={player.lastName} size="lg" />
+                  <div>
+                    <div>{player.firstName} {player.lastName}</div>
+                    <div className="text-sm text-gray-400 font-normal">{player.totalHoles} holes</div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="individual" className="space-y-4 sm:space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            {playerStats?.map((player) => (
-              <Card key={player.userId} className="golf-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <ProfilePicture 
-                      firstName={player.firstName} 
-                      lastName={player.lastName} 
-                      size="lg"
-                    />
-                    <div>
-                      <div className="font-bold">{player.firstName} {player.lastName}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {player.totalRounds} rounds • {player.totalHoles} holes
-                      </div>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm">Avg Score</span>
-                        <span className="font-medium">{player.averageScore}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm">Fairway %</span>
-                        <span className="font-medium">{player.fairwayPercentage}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm">GIR %</span>
-                        <span className="font-medium">{player.greenPercentage}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm">Avg Putts</span>
-                        <span className="font-medium">{player.averagePutts}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm">Birdies</span>
-                        <Badge variant="default">{player.birdies}</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm">Eagles</span>
-                        <Badge variant="secondary">{player.eagles}</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm">Duffs</span>
-                        <Badge variant="destructive">{player.totalDuffs}</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm">Penalties</span>
-                        <Badge variant="destructive">{player.totalPenalties}</Badge>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <Link href={`/player/${player.userId}`}>
-                      <Button className="w-full" variant="outline">
-                        <User className="w-4 h-4 mr-2" />
-                        View Profile
-                        <ExternalLink className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex justify-between text-gray-200"><span>Birdies + Eagles</span><span>{player.birdiesEaglesTotal}</span></div>
+                <div className="flex justify-between text-gray-200"><span>Putting Avg</span><span>{player.puttingAverage.toFixed(2)}</span></div>
+                <div className="flex justify-between text-gray-200"><span>Fairway Accuracy</span><span>{player.fairwayAccuracy.toFixed(1)}%</span></div>
+                <div className="flex justify-between text-gray-200"><span>Penalties</span><span>{player.totalPenalties}</span></div>
+                <Link href={`/player/${player.userId}`}>
+                  <Button variant="outline" className="w-full border-gambler-border text-white hover:bg-gambler-slate mt-3">
+                    <User className="w-4 h-4 mr-2" />
+                    View Profile
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
         </TabsContent>
       </Tabs>
     </div>

@@ -1076,41 +1076,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Shot tracking routes
-  app.post("/api/shots", requireAuth, async (req: any, res) => {
-    try {
-      const shot = await storage.createShot({
-        userId: req.user.id,
-        tournamentYear: Number(req.body.tournamentYear ?? req.query?.year ?? new Date().getFullYear()),
-        round: Number(req.body.round),
-        hole: Number(req.body.hole),
-        shotNumber: Number(req.body.shotNumber),
-        lat: req.body.lat ? String(req.body.lat) : null,
-        lng: req.body.lng ? String(req.body.lng) : null,
-        accuracyMeters: req.body.accuracyMeters ? String(req.body.accuracyMeters) : null,
-        detectedBy: req.body.detectedBy ?? "manual",
-      });
-      res.json(shot);
-    } catch (error) {
-      console.error("Failed to log shot:", error);
-      res.status(500).json({ error: "Failed to log shot" });
-    }
-  });
-
-  app.get("/api/shots", requireAuth, async (req: any, res) => {
-    try {
-      const year = Number(req.query.year ?? new Date().getFullYear());
-      const round = Number(req.query.round ?? 1);
-      const shots = await storage.getShotsForUserRound(req.user.id, year, round);
-      res.json(shots);
-    } catch (error) {
-      console.error("Failed to fetch shots:", error);
-      res.status(500).json({ error: "Failed to fetch shots" });
-    }
-  });
-
-
-
   // Golf Course API endpoints
   app.get('/api/golf-course/search', async (req, res) => {
     try {

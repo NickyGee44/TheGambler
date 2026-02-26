@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { EnhancedGolfGPS } from "./EnhancedGolfGPS";
 import { FullScreenGPS } from "./FullScreenGPS";
+import RoundSummary from "./RoundSummary";
 
 
 interface HoleViewProps {
@@ -74,6 +75,7 @@ export default function HoleView({
   round,
   currentScore,
   onScoreUpdate,
+  onScoreUpdatedSuccess,
   onPreviousHole,
   onNextHole,
   isFirstHole,
@@ -94,10 +96,12 @@ export default function HoleView({
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'scoring' | 'map'>('scoring');
   const [showFullScreenGPS, setShowFullScreenGPS] = useState(false);
+  const [showRoundSummary, setShowRoundSummary] = useState(false);
   
   // Golf statistics state
   const [fairwayInRegulation, setFairwayInRegulation] = useState<boolean | null>(null);
   const [greenInRegulation, setGreenInRegulation] = useState<boolean | null>(null);
+  const [driveDirection, setDriveDirection] = useState<string | null>(null);
 
   const [putts, setPutts] = useState<number>(0);
   const [penalties, setPenalties] = useState<number>(0);
@@ -107,6 +111,7 @@ export default function HoleView({
   // Auto-save timer refs
   const scoreTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const statsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingScoreSaveRef = useRef<number | null>(null);
   const [isSavingScore, setIsSavingScore] = useState(false);
   const [isSavingStats, setIsSavingStats] = useState(false);
 
@@ -176,6 +181,7 @@ export default function HoleView({
       const stats = {
         fairwayInRegulation: fairwayInRegulation,
         greenInRegulation: greenInRegulation,
+        driveDirection,
         putts,
         penalties,
         sandSaves,
@@ -202,6 +208,7 @@ export default function HoleView({
     // Validate strokes again before sending to API
     if (strokes >= 1 && strokes <= 15) {
       console.log(`✅ [HOLE ${hole.number}] Sending valid score to API:`, strokes);
+      pendingScoreSaveRef.current = strokes;
       onScoreUpdate(strokes);
     } else {
       console.error(`❌ [HOLE ${hole.number}] Invalid strokes for API:`, strokes);
@@ -232,17 +239,34 @@ export default function HoleView({
   
   // Auto-save stats when they change (but not on initial load)
   useEffect(() => {
+    const pendingScore = pendingScoreSaveRef.current;
+    if (pendingScore === null) return;
+    if (currentScore !== pendingScore) return;
+
+    pendingScoreSaveRef.current = null;
+    if (onScoreUpdatedSuccess) {
+      onScoreUpdatedSuccess(hole.number, pendingScore);
+    }
+    if (hole.number === 18) {
+      setShowRoundSummary(true);
+    }
+  }, [currentScore, hole.number, onScoreUpdatedSuccess]);
+
+  useEffect(() => {
     if (!isInitialLoad) {
       scheduleStatsSave();
     }
-  }, [fairwayInRegulation, greenInRegulation, putts, penalties, sandSaves, upAndDowns, isInitialLoad]);
+  }, [fairwayInRegulation, greenInRegulation, driveDirection, putts, penalties, sandSaves, upAndDowns, isInitialLoad]);
 
   // Load statistics and score for current hole
   useEffect(() => {
     setIsInitialLoad(true);
     
     // Find the hole score for the current hole
-    const currentHoleScore = holeScores.find(score => score.hole === hole.number);
+    const currentHoleScore = holeScores.find(score => (
+      score.hole === hole.number &&
+      (!userId || score.userId === userId || typeof score.userId === "undefined")
+    ));
     
     console.log('Loading hole', hole.number, 'found score:', currentHoleScore);
     console.log('All hole scores:', holeScores);
@@ -252,6 +276,7 @@ export default function HoleView({
       console.log('Loading stats for hole', hole.number, ':', {
         fairway: currentHoleScore.fairwayInRegulation,
         green: currentHoleScore.greenInRegulation,
+        driveDirection: currentHoleScore.driveDirection,
         putts: currentHoleScore.putts,
         penalties: currentHoleScore.penalties,
         sandSaves: currentHoleScore.sandSaves,
@@ -260,6 +285,7 @@ export default function HoleView({
       
       setFairwayInRegulation(currentHoleScore.fairwayInRegulation);
       setGreenInRegulation(currentHoleScore.greenInRegulation);
+      setDriveDirection(currentHoleScore.driveDirection || null);
 
       setPutts(currentHoleScore.putts || 0);
       setPenalties(currentHoleScore.penalties || 0);
@@ -275,6 +301,7 @@ export default function HoleView({
       console.log('No existing stats for hole', hole.number, '- resetting to defaults');
       setFairwayInRegulation(null);
       setGreenInRegulation(null);
+      setDriveDirection(null);
 
       setPutts(0);
       setPenalties(0);
@@ -287,7 +314,7 @@ export default function HoleView({
     
     // Set initial load to false after a brief delay to allow state to settle
     setTimeout(() => setIsInitialLoad(false), 200);
-  }, [hole.number, holeScores, currentScore, userScore]);
+  }, [hole.number, holeScores, currentScore, userId, userScore]);
   
   // Get course data for GPS
   const courseData = getCourseForRound(round);
@@ -347,6 +374,9 @@ export default function HoleView({
   const effectiveHandicap = isScrambleMode ? teamHandicap : playerHandicap;
   const receivesStroke = getStrokeOnHole(effectiveHandicap, hole.handicap);
   const netScore = getNetScore(displayScore, effectiveHandicap, hole.handicap);
+  const roundHoleScores = userId
+    ? holeScores.filter((score) => score.userId === userId || typeof score.userId === "undefined")
+    : holeScores;
 
   return (
     <div key={`hole-${hole.number}-${round}-v4-no-save-button`} className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -619,7 +649,7 @@ export default function HoleView({
             {/* Quick Stats Grid - Hidden for Round 2 Scramble */}
             {round !== 2 && (
               <div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
               {/* Fairway & Green */}
               <Card className="bg-gray-800 border border-gray-700">
                 <CardContent className="p-4">
@@ -669,9 +699,42 @@ export default function HoleView({
                   </div>
                 </CardContent>
               </Card>
+                </div>
+
+              {/* Drive Direction */}
+              {hole.par !== 3 && (
+                <Card className="mt-4 bg-gray-800 border border-gray-700">
+                  <CardContent className="p-4">
+                    <div className="text-sm text-gray-300 mb-2 text-center">Drive Direction</div>
+                    <div className="grid grid-cols-6 gap-1">
+                      {[
+                        { value: "left", label: "Left" },
+                        { value: "right", label: "Right" },
+                        { value: "long", label: "Long" },
+                        { value: "short", label: "Short" },
+                        { value: "duff", label: "Duff" },
+                        { value: "hit", label: "Hit ✓" },
+                      ].map((option) => (
+                        <Button
+                          key={option.value}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setDriveDirection(option.value)}
+                          className={driveDirection === option.value
+                            ? "bg-gambler-green hover:bg-gambler-green/90 text-black border-gambler-green text-xs px-2 py-1 h-8"
+                            : "bg-gray-700 hover:bg-gray-600 text-white border-gray-600 text-xs px-2 py-1 h-8"
+                          }
+                        >
+                          {option.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Putts & Penalties */}
-              <Card className="bg-gray-800 border border-gray-700">
+              <Card className="mt-4 bg-gray-800 border border-gray-700">
                 <CardContent className="p-4">
                   <div className="text-center space-y-3">
                     <div>
@@ -727,7 +790,6 @@ export default function HoleView({
                   </div>
                 </CardContent>
               </Card>
-            </div>
 
             
 
@@ -882,6 +944,14 @@ export default function HoleView({
           }}
         />
       )}
+
+      <RoundSummary
+        round={round}
+        holeScores={roundHoleScores}
+        isOpen={showRoundSummary}
+        onClose={() => setShowRoundSummary(false)}
+        playerName={playerName}
+      />
     </div>
   );
 }

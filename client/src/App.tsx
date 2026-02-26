@@ -21,7 +21,6 @@ import Round3Matchups from "@/pages/Round3Matchups";
 import TournamentMatchups from "@/pages/TournamentMatchups";
 import Registration from "@/pages/Registration";
 import Voting from "@/pages/Voting";
-import ShotTracker from "@/pages/ShotTracker";
 import TrashTalk from "@/pages/TrashTalk";
 
 import AuthPage from "@/pages/AuthPage";
@@ -176,7 +175,6 @@ function Router() {
             <Route path="/trashtalk" component={TrashTalk} />
             <Route path="/registration" component={Registration} />
             <Route path="/voting" component={Voting} />
-            <Route path="/shot-tracker" component={ShotTracker} />
             <Route path="/boozelympics" component={Boozelympics} />
             <Route path="/rules" component={Rules} />
     

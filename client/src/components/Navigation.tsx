@@ -18,7 +18,6 @@ import {
   MessageSquare,
   Calendar,
   Vote,
-  Crosshair,
   ClipboardCheck,
 } from "lucide-react";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -44,7 +43,6 @@ export default function Navigation() {
     { href: "/rules", label: "Rules", icon: BookOpen },
     { href: "/stats", label: "Stats", icon: BarChart3 },
     { href: "/registration", label: "Registration", icon: ClipboardCheck },
-    { href: "/shot-tracker", label: "Shot Tracker", icon: Crosshair },
     ...(isAdmin
       ? [{ href: "/tournament-management", label: "Tournament Management", icon: Settings }]
       : []),

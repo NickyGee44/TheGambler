@@ -1457,6 +1457,11 @@ export class DatabaseStorage implements IStorage {
           holes: 0,
           totalStrokes: 0,
           points: 0,
+          birdies: 0,
+          eagles: 0,
+          pars: 0,
+          bogeys: 0,
+          doubleBogeys: 0,
           fairwayHits: 0,
           fairwayAttempts: 0,
           greenHits: 0,
@@ -1472,6 +1477,11 @@ export class DatabaseStorage implements IStorage {
       roundStats.holes += 1;
       roundStats.totalStrokes += holeScore.strokes;
       roundStats.points += holeScore.points;
+      if (scoreDiff <= -2) roundStats.eagles += 1;
+      else if (scoreDiff === -1) roundStats.birdies += 1;
+      else if (scoreDiff === 0) roundStats.pars += 1;
+      else if (scoreDiff === 1) roundStats.bogeys += 1;
+      else roundStats.doubleBogeys += 1;
       
       if (holeScore.fairwayInRegulation !== null) {
         roundStats.fairwayAttempts += 1;

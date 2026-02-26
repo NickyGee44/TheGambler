@@ -137,12 +137,14 @@ var init_tournamentConfig = __esm({
   "shared/tournamentConfig.ts"() {
     "use strict";
     TOURNAMENT_CONFIG = {
-      name: "The Gambler Cup 2025",
-      year: 2025,
+      name: "The Gambler Cup 2026",
+      year: 2026,
       dates: {
-        start: "2025-08-29",
-        end: "2025-08-31",
-        display: "August 29-31, 2025"
+        start: "2026-08-28",
+        // TBD — placeholder, update when confirmed
+        end: "2026-08-30",
+        // TBD — placeholder
+        display: "August 2026 \u2014 Date TBD"
       },
       courses: {
         round1: {
@@ -163,25 +165,25 @@ var init_tournamentConfig = __esm({
       },
       schedule: {
         round1: {
-          date: "Friday Aug 29",
-          time: "1:10 PM first tee",
+          date: "Friday Aug 28",
+          time: "TBD",
           course: "Deerhurst Golf Course",
-          startDateTime: "2025-08-29T13:10:00-04:00"
-          // 1:10 PM EDT
+          startDateTime: "2026-08-28T13:10:00-04:00"
+          // TBD
         },
         round2: {
-          date: "Saturday Aug 30",
-          time: "11:20 AM first tee",
+          date: "Saturday Aug 29",
+          time: "TBD",
           course: "Deerhurst Golf Course",
-          startDateTime: "2025-08-30T11:20:00-04:00"
-          // 11:20 AM EDT
+          startDateTime: "2026-08-29T11:20:00-04:00"
+          // TBD
         },
         round3: {
-          date: "Sunday Aug 31",
-          time: "11:30 AM first tee",
+          date: "Sunday Aug 30",
+          time: "TBD",
           course: "Muskoka Bay Golf Club",
-          startDateTime: "2025-08-31T11:30:00-04:00"
-          // 11:30 AM EDT
+          startDateTime: "2026-08-30T11:30:00-04:00"
+          // TBD
         }
       },
       teams: {
@@ -405,7 +407,7 @@ var matchPlayMatches = pgTable("match_play_matches", {
 });
 var matchPlayGroups = pgTable("match_play_groups", {
   id: serial("id").primaryKey(),
-  groupNumber: integer("group_number").notNull().unique(),
+  groupNumber: integer("group_number").notNull(),
   player1Id: integer("player1_id").notNull().references(() => users.id),
   player2Id: integer("player2_id").notNull().references(() => users.id),
   player3Id: integer("player3_id").notNull().references(() => users.id),
@@ -438,13 +440,13 @@ var holeScores = pgTable("hole_scores", {
   // Golf statistics
   fairwayInRegulation: boolean("fairway_in_regulation"),
   // null for par 3s
-  greenInRegulation: boolean("green_in_regulation").notNull().default(false),
+  greenInRegulation: boolean("green_in_regulation").default(false),
   driveDirection: varchar("drive_direction", { length: 10 }),
   // 'left', 'right', 'long', 'short', 'duff', 'hit'
-  putts: integer("putts").notNull().default(0),
-  penalties: integer("penalties").notNull().default(0),
-  sandSaves: integer("sand_saves").notNull().default(0),
-  upAndDowns: integer("up_and_downs").notNull().default(0),
+  putts: integer("putts").default(0),
+  penalties: integer("penalties").default(0),
+  sandSaves: integer("sand_saves").default(0),
+  upAndDowns: integer("up_and_downs").default(0),
   tournamentYear: integer("tournament_year").default(2025),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
@@ -1609,6 +1611,11 @@ var DatabaseStorage = class {
           holes: 0,
           totalStrokes: 0,
           points: 0,
+          birdies: 0,
+          eagles: 0,
+          pars: 0,
+          bogeys: 0,
+          doubleBogeys: 0,
           fairwayHits: 0,
           fairwayAttempts: 0,
           greenHits: 0,
@@ -1623,6 +1630,11 @@ var DatabaseStorage = class {
       roundStats.holes += 1;
       roundStats.totalStrokes += holeScore.strokes;
       roundStats.points += holeScore.points;
+      if (scoreDiff <= -2) roundStats.eagles += 1;
+      else if (scoreDiff === -1) roundStats.birdies += 1;
+      else if (scoreDiff === 0) roundStats.pars += 1;
+      else if (scoreDiff === 1) roundStats.bogeys += 1;
+      else roundStats.doubleBogeys += 1;
       if (holeScore.fairwayInRegulation !== null) {
         roundStats.fairwayAttempts += 1;
         if (holeScore.fairwayInRegulation) {
@@ -3737,9 +3749,9 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to create CTP checkout" });
     }
   });
-  app2.post("/api/bets", requireAuth, requireRegistration, async (req, res) => {
+  app2.post("/api/bets", requireAuth, async (req, res) => {
     try {
-      const year = req.registrationYear;
+      const year = Number(req.body.tournamentYear ?? req.query?.year ?? (/* @__PURE__ */ new Date()).getFullYear());
       const amountCents = Number(req.body.amountCents);
       if (!amountCents || amountCents < 500 || amountCents > 5e4) {
         return res.status(400).json({ error: "Amount must be between $5 and $500 CAD" });
@@ -3776,9 +3788,9 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to create bet" });
     }
   });
-  app2.get("/api/bets", requireAuth, requireRegistration, async (req, res) => {
+  app2.get("/api/bets", requireAuth, async (req, res) => {
     try {
-      const year = Number(req.query.year ?? req.registrationYear ?? (/* @__PURE__ */ new Date()).getFullYear());
+      const year = Number(req.query.year ?? (/* @__PURE__ */ new Date()).getFullYear());
       const bets2 = await storage.getBetsByYear(year);
       res.json(bets2);
     } catch (error) {
@@ -3786,9 +3798,9 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch bets" });
     }
   });
-  app2.post("/api/bets/:id/accept", requireAuth, requireRegistration, async (req, res) => {
+  app2.post("/api/bets/:id/accept", requireAuth, async (req, res) => {
     try {
-      const year = req.registrationYear;
+      const year = Number(req.body.tournamentYear ?? req.query?.year ?? (/* @__PURE__ */ new Date()).getFullYear());
       const betId = Number(req.params.id);
       const allBets = await storage.getBetsByYear(year);
       const existingBet = allBets.find((bet) => bet.id === betId);
@@ -3837,14 +3849,14 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to cancel bet" });
     }
   });
-  app2.post("/api/guest-applications", requireAuth, requireRegistration, async (req, res) => {
+  app2.post("/api/guest-applications", requireAuth, async (req, res) => {
     try {
       const created = await storage.createGuestApplication({
         applicantUserId: req.user.id,
         guestName: req.body.guestName,
         guestRelationship: req.body.guestRelationship ?? null,
         reason: req.body.reason ?? null,
-        tournamentYear: req.registrationYear,
+        tournamentYear: Number(req.body.tournamentYear ?? req.query?.year ?? (/* @__PURE__ */ new Date()).getFullYear()),
         status: "pending"
       });
       res.json(created);
@@ -3853,9 +3865,9 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to create guest application" });
     }
   });
-  app2.get("/api/guest-applications", requireAuth, requireRegistration, async (req, res) => {
+  app2.get("/api/guest-applications", requireAuth, async (req, res) => {
     try {
-      const year = Number(req.query.year ?? req.registrationYear);
+      const year = Number(req.query.year ?? (/* @__PURE__ */ new Date()).getFullYear());
       const applications = await storage.getGuestApplicationsByYear(year);
       res.json(applications);
     } catch (error) {
@@ -3863,7 +3875,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch guest applications" });
     }
   });
-  app2.post("/api/guest-applications/:id/vote", requireAuth, requireRegistration, async (req, res) => {
+  app2.post("/api/guest-applications/:id/vote", requireAuth, async (req, res) => {
     try {
       const applicationId = Number(req.params.id);
       const vote = String(req.body.vote);
@@ -3908,9 +3920,9 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to create tournament vote" });
     }
   });
-  app2.get("/api/tournament-votes", requireAuth, requireRegistration, async (req, res) => {
+  app2.get("/api/tournament-votes", requireAuth, async (req, res) => {
     try {
-      const year = Number(req.query.year ?? req.registrationYear);
+      const year = Number(req.query.year ?? (/* @__PURE__ */ new Date()).getFullYear());
       const votes = await storage.getTournamentVotesByYear(year);
       res.json(votes);
     } catch (error) {
@@ -3918,7 +3930,7 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: "Failed to fetch tournament votes" });
     }
   });
-  app2.post("/api/tournament-votes/:id/vote", requireAuth, requireRegistration, async (req, res) => {
+  app2.post("/api/tournament-votes/:id/vote", requireAuth, async (req, res) => {
     try {
       const voteId = Number(req.params.id);
       const optionId = Number(req.body.optionId);
@@ -3952,36 +3964,6 @@ async function registerRoutes(app2) {
     } catch (error) {
       console.error("Failed to set tournament vote winner:", error);
       res.status(500).json({ error: "Failed to set tournament vote winner" });
-    }
-  });
-  app2.post("/api/shots", requireAuth, requireRegistration, async (req, res) => {
-    try {
-      const shot = await storage.createShot({
-        userId: req.user.id,
-        tournamentYear: req.registrationYear,
-        round: Number(req.body.round),
-        hole: Number(req.body.hole),
-        shotNumber: Number(req.body.shotNumber),
-        lat: req.body.lat ? String(req.body.lat) : null,
-        lng: req.body.lng ? String(req.body.lng) : null,
-        accuracyMeters: req.body.accuracyMeters ? String(req.body.accuracyMeters) : null,
-        detectedBy: req.body.detectedBy ?? "manual"
-      });
-      res.json(shot);
-    } catch (error) {
-      console.error("Failed to log shot:", error);
-      res.status(500).json({ error: "Failed to log shot" });
-    }
-  });
-  app2.get("/api/shots", requireAuth, requireRegistration, async (req, res) => {
-    try {
-      const year = Number(req.query.year ?? req.registrationYear);
-      const round = Number(req.query.round ?? 1);
-      const shots2 = await storage.getShotsForUserRound(req.user.id, year, round);
-      res.json(shots2);
-    } catch (error) {
-      console.error("Failed to fetch shots:", error);
-      res.status(500).json({ error: "Failed to fetch shots" });
     }
   });
   app2.get("/api/golf-course/search", async (req, res) => {
