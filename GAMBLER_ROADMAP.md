@@ -1,54 +1,67 @@
-# TheGambler — Improvement Roadmap (Updated 2026-02-23)
+# TheGambler — Improvement Roadmap (Updated 2026-02-26)
 
 **App:** Golf tournament tracker for the annual Gambler Cup
-**Live:** https://the-gambler-five.vercel.app (API /health 200 ✅, custom auth ready)
+**Live:** https://the-gambler-five.vercel.app (API /health 200 ✅)
 **DB:** Supabase (migrated from Neon/Replit, Feb 19 2026)
 **Stack:** React 18 + TypeScript + Vite | Express + Drizzle ORM | PostgreSQL
 
 ---
 
-## Status (Feb 23 2026)
+## Status (Feb 26 2026)
 
 - ✅ DB migrated to Supabase
-- ✅ Vercel env vars set (DATABASE_URL, SESSION_SECRET, REPLIT_DOMAINS, REPL_ID)
-- ✅ API routes fixed with vercel.json + pre-compiled JS
-- ✅ **Vercel crash fixed** (/api/health 200)
-- ✅ **replitAuth → custom auth only** (skips if no REPL_ID env)
-- ✅ Supabase session store on Vercel cold starts
-- ✅ **Static files now served correctly** (vercel.json: outputDirectory + proper rewrites)
-- 🔄 **Spawned claude agent: Remove WS → TanStack Query polling + E2E login test + deploy**
-- ⏳ Google Maps API key to Vercel env (Nick)
-
-## Recent Git (top 10)
-fa359aa chore: 2026-02-22 daily roadmap update
-01402cc debug: minimal handler to verify @vercel/node works
-...
+- ✅ Vercel deployment fully working (health 200)
+- ✅ Custom auth (session-based, replitAuth fallback)
+- ✅ WebSocket → TanStack Query polling (Vercel compatible)
+- ✅ All 7 teams + 15 players + 3 rounds of real 2025 data in DB
+- ✅ APIs working: /api/teams, /api/scores, /api/leaderboard/:round, /api/player-stats, /api/matchups, /api/chat/messages
+- 🔄 **Feb 26: Spawned agent — Post-tournament Home page UX fix (broken countdown → final results)**
 
 ## Priority Queue
 
-### 🔴 P0 — Get it live ✅
-1. ✅ vercel.json routing
-2. ✅ Refactor replitAuth.ts → custom auth only (no Replit crash)
-3. ✅ Verify Supabase session store on Vercel cold starts
-4. 🔄 **E2E login test on Vercel** (agent)
+### 🔴 P0 — Critical Bug Fixes
+1. ✅ Vercel deployment
+2. ✅ Auth refactor (replitAuth → custom)
+3. 🔄 **Home page broken countdown** (tournament was Aug 2025, countdown shows past date — agent fixing now)
 
-### 🟠 P1 — Reliability 🔄
-5. 🔄 **WS → TanStack Query polling** (agent)
-6. Add error boundaries (client has)
-7. Google Maps API key (Nick)
+### 🟠 P1 — UX Polish
+4. Individual Stats page — many players missing R2/R3 fairway/GIR/putt data (was not tracked live)
+5. Mobile score entry flow review
+6. Tournament Complete celebration page (post-fix polish)
+7. Google Maps API key → Vercel env (Nick action needed)
 
-### 🟡 P2 — UX
-8. Mobile score entry
-9. Offline PWA
-10. Photo upload
+### 🟡 P2 — 2026 Prep
+8. Update `shared/tournamentConfig.ts` to 2026 dates (Nick needs to confirm dates/courses)
+9. Multi-year support (archive 2025, start fresh for 2026)
+10. Player registration flow for 2026
 
 ### 🟢 P3 — Features
-11. Multi-year support
-...
-
-## Data
-- 15 players, 7 teams
-- Ready for 2026 tournament
+11. Offline PWA support
+12. Photo upload (multer route exists but needs Vercel S3/cloud storage)
+13. Push notifications for birdie alerts
+14. Admin dashboard improvements
 
 ---
-_Last updated: 2026-02-23 Daily cron by Nova_
+
+## Data State (2025 Tournament — COMPLETE)
+- **Champion Team:** Spencer Reid & Jeffrey Reiner (Team 5) — 30.25 pts
+- **Runner-up:** Johnny Magnatta & Jordan Kreller (Team 6) — 29.5 pts
+- **Individual Leader R1:** Nick Grossi — 37 stableford pts
+- 15 players, all 3 rounds scored
+- Chat messages from Aug 2025 preserved
+
+---
+
+## Flags for Nick
+- 🚩 **Tournament dates for 2026** — need confirmation to update config (currently pointing to Aug 2025)
+- 🚩 **Google Maps API key** — GPS features need this in Vercel env vars
+- 🚩 **Photo storage** — multer upload route exists but Vercel serverless can't write local disk; need S3/Cloudflare R2 for photos to work
+
+---
+
+## Daily Log
+- **Feb 22:** Vercel crash fix — WS → polling, replitAuth → custom auth
+- **Feb 23:** Deployment stabilization, Supabase session store
+- **Feb 26:** Home page post-tournament UX — replace broken countdown with final standings/results
+
+_Last updated: 2026-02-26 Daily cron by Nova_
