@@ -97,7 +97,7 @@ export default function TournamentManagement() {
         endDate: new Date(tournamentData.endDate),
         isActive: false
       };
-      return await apiRequest('/api/tournaments', 'POST', payload);
+      return await apiRequest('POST', '/api/tournaments', payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
@@ -120,7 +120,7 @@ export default function TournamentManagement() {
   // Activate tournament mutation
   const activateTournamentMutation = useMutation({
     mutationFn: async (year: number) => {
-      return await apiRequest(`/api/tournaments/${year}/activate`, 'POST');
+      return await apiRequest('POST', `/api/tournaments/${year}/activate`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
@@ -142,7 +142,7 @@ export default function TournamentManagement() {
   // Update tournament mutation
   const updateTournamentMutation = useMutation({
     mutationFn: async ({ year, updateData }: { year: number; updateData: Partial<Tournament> }) => {
-      return await apiRequest(`/api/tournaments/${year}`, 'PUT', updateData);
+      return await apiRequest('PUT', `/api/tournaments/${year}`, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tournaments'] });
