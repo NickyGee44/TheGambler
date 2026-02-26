@@ -216,7 +216,7 @@ export default function Boozelympics() {
           <Beer className="h-8 w-8 text-amber-500" />
           <div>
             <h1 className="text-3xl font-bold text-foreground">🍻 Boozelympics</h1>
-            <p className="text-muted-foreground">Competitive drinking games for the Gambler Cup 2025</p>
+            <p className="text-muted-foreground">Competitive drinking games for the Gambler Cup 2026</p>
           </div>
         </div>
         {isAdmin && games.length === 0 && (

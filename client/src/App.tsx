@@ -22,9 +22,9 @@ import Round3 from "@/pages/Round3";
 import Round3Matchups from "@/pages/Round3Matchups";
 import TournamentMatchups from "@/pages/TournamentMatchups";
 import Registration from "@/pages/Registration";
-import BettingMarketplace from "@/pages/BettingMarketplace";
 import Voting from "@/pages/Voting";
 import ShotTracker from "@/pages/ShotTracker";
+import TrashTalk from "@/pages/TrashTalk";
 
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/not-found";
@@ -165,8 +165,8 @@ function Router() {
             <Route path="/player/:userId" component={PlayerProfile} />
             <Route path="/tournament-management" component={TournamentManagement} />
             <Route path="/sidebets" component={SideBets} />
+            <Route path="/trashtalk" component={TrashTalk} />
             <Route path="/registration" component={Registration} />
-            <Route path="/betting" component={BettingMarketplace} />
             <Route path="/voting" component={Voting} />
             <Route path="/shot-tracker" component={ShotTracker} />
             <Route path="/boozelympics" component={Boozelympics} />
@@ -174,7 +174,6 @@ function Router() {
     
             <Route path="/photos" component={Photos} />
             <Route path="/matchups" component={TournamentMatchups} />
-            <Route path="/tournament-matchups" component={TournamentMatchups} />
             <Route path="/round3-matchups" component={Round3Matchups} />
 
           </>
@@ -232,7 +231,7 @@ function App() {
     document.head.appendChild(appleTouchIcon);
 
     // Set title
-    document.title = 'The Gambler Cup 2025';
+    document.title = 'The Gambler Cup 2026';
   }, []);
 
   return (

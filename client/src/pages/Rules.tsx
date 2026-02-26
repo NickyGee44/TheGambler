@@ -8,7 +8,7 @@ export default function Rules() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">
-            🏆 The Gambler Cup 2025
+            🏆 The Gambler Cup 2026
           </h1>
           <p className="text-xl text-muted-foreground mb-4">
             Tournament Rules & Scoring System

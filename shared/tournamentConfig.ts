@@ -1,13 +1,14 @@
 // Tournament Configuration - Centralized place for tournament details
 // TODO: Move to database for full dynamic configuration
 
+// 2025 completed. Update dates below once 2026 is confirmed.
 export const TOURNAMENT_CONFIG = {
-  name: "The Gambler Cup 2025",
-  year: 2025,
+  name: "The Gambler Cup 2026",
+  year: 2026,
   dates: {
-    start: "2025-08-29",
-    end: "2025-08-31",
-    display: "August 29-31, 2025"
+    start: "2026-08-28", // TBD — placeholder, update when confirmed
+    end: "2026-08-30",   // TBD — placeholder
+    display: "August 2026 — Date TBD"
   },
   courses: {
     round1: {
@@ -28,22 +29,22 @@ export const TOURNAMENT_CONFIG = {
   },
   schedule: {
     round1: {
-      date: "Friday Aug 29",
-      time: "1:10 PM first tee",
+      date: "Friday Aug 28",
+      time: "TBD",
       course: "Deerhurst Golf Course",
-      startDateTime: "2025-08-29T13:10:00-04:00" // 1:10 PM EDT
+      startDateTime: "2026-08-28T13:10:00-04:00" // TBD
     },
     round2: {
-      date: "Saturday Aug 30", 
-      time: "11:20 AM first tee",
+      date: "Saturday Aug 29",
+      time: "TBD",
       course: "Deerhurst Golf Course",
-      startDateTime: "2025-08-30T11:20:00-04:00" // 11:20 AM EDT
+      startDateTime: "2026-08-29T11:20:00-04:00" // TBD
     },
     round3: {
-      date: "Sunday Aug 31",
-      time: "11:30 AM first tee", 
+      date: "Sunday Aug 30",
+      time: "TBD",
       course: "Muskoka Bay Golf Club",
-      startDateTime: "2025-08-31T11:30:00-04:00" // 11:30 AM EDT
+      startDateTime: "2026-08-30T11:30:00-04:00" // TBD
     }
   },
   teams: {

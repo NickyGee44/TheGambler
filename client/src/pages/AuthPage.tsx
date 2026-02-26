@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trophy, MapPin, Calendar, Users } from "lucide-react";
+import { TOURNAMENT_CONFIG } from "@shared/tournamentConfig";
 
 export default function AuthPage() {
   const { user } = useAuth();
@@ -141,7 +142,7 @@ export default function AuthPage() {
               />
             </div>
             <h1 className="text-5xl font-bold text-white mb-4">
-              The Gambler Cup 2025
+              {TOURNAMENT_CONFIG.name}
             </h1>
             <p className="text-xl text-green-100 mb-8">
               Join the ultimate golf tournament experience
@@ -157,18 +158,18 @@ export default function AuthPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Calendar className="h-5 w-5 text-green-300" />
-                  <span>August 29-31, 2025</span>
+                  <span>{TOURNAMENT_CONFIG.dates.display}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <MapPin className="h-5 w-5 text-green-300" />
                   <div>
-                    <p>Days 1-2: Deerhurst Golf Course, Muskoka</p>
-                    <p>Final Day: Muskoka Bay Golf Club</p>
+                    <p>Days 1-2: {TOURNAMENT_CONFIG.courses.round1.displayName}</p>
+                    <p>Final Day: {TOURNAMENT_CONFIG.courses.round3.displayName}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Users className="h-5 w-5 text-green-300" />
-                  <span>8 Teams • 16 Players</span>
+                  <span>{TOURNAMENT_CONFIG.teams.count} Teams • {TOURNAMENT_CONFIG.teams.totalPlayers} Players</span>
                 </div>
               </CardContent>
             </Card>

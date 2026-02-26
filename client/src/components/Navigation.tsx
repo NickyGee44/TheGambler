@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, X, Home, Users, Trophy, Coins, BookOpen, Camera, Target, Award, Moon, Sun, LogOut, BarChart3, Settings, Beer, MessageSquare, Calendar, ClipboardCheck, Vote, Crosshair } from "lucide-react";
+import { Menu, X, Home, Users, Trophy, Coins, BookOpen, Camera, Target, Moon, Sun, LogOut, BarChart3, Settings, Beer, MessageSquare, Calendar, Vote, Crosshair } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -38,11 +38,11 @@ export default function Navigation() {
     { href: "/scores", label: "Scores", icon: Trophy },
     { href: "/stats", label: "Statistics", icon: BarChart3 },
     { href: "/sidebets", label: "Side Bets", icon: Coins },
-    { href: "/registration", label: "Registration", icon: ClipboardCheck },
-    { href: "/betting", label: "Betting", icon: Coins },
+    { href: "/trashtalk", label: "Trash Talk", icon: MessageSquare },
+    { href: "/boozelympics", label: "Boozelympics", icon: Beer },
     { href: "/voting", label: "Voting", icon: Vote },
     { href: "/shot-tracker", label: "Shot Tracker", icon: Crosshair },
-    { href: "/boozelympics", label: "Boozelympics", icon: Beer },
+    { href: "/registration", label: "Registration", icon: Trophy },
     { href: "/rules", label: "Rules", icon: BookOpen },
     { href: "/photos", label: "Photos", icon: Camera },
     ...(isAdmin ? [{ href: "/tournament-management", label: "Tournament Management", icon: Settings }] : []),
@@ -74,7 +74,7 @@ export default function Navigation() {
             />
             <div>
               <h1 className="text-xl font-bold text-golf-green-600">The Gambler Cup</h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">2025 Championship</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">2026 Championship</p>
             </div>
           </div>
         </div>

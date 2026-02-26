@@ -279,15 +279,15 @@ export default function Stats() {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm">Total Duffs</span>
-                    <Badge variant="destructive">7</Badge>
+                    <Badge variant="destructive">{playerStats.reduce((sum: number, p: any) => sum + (p.totalDuffs || 0), 0)}</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm">Penalty Strokes</span>
-                    <Badge variant="destructive">20</Badge>
+                    <Badge variant="destructive">{playerStats.reduce((sum: number, p: any) => sum + (p.totalPenalties || 0), 0)}</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm">Sand Saves</span>
-                    <Badge variant="default">8</Badge>
+                    <Badge variant="default">{playerStats.reduce((sum: number, p: any) => sum + (p.totalSandSaves || 0), 0)}</Badge>
                   </div>
                 </div>
               </CardContent>
