@@ -241,39 +241,55 @@ import multer from "multer";
 // shared/schema.ts
 var schema_exports = {};
 __export(schema_exports, {
+  bets: () => bets,
   boozelympicsGames: () => boozelympicsGames,
   boozelympicsMatches: () => boozelympicsMatches,
   chatMessages: () => chatMessages,
   golfRelayMatches: () => golfRelayMatches,
+  guestApplicationVotes: () => guestApplicationVotes,
+  guestApplications: () => guestApplications,
   holeScores: () => holeScores,
+  insertBetSchema: () => insertBetSchema,
   insertBoozelympicsGameSchema: () => insertBoozelympicsGameSchema,
   insertBoozelympicsMatchSchema: () => insertBoozelympicsMatchSchema,
   insertChatMessageSchema: () => insertChatMessageSchema,
   insertGolfRelayMatchSchema: () => insertGolfRelayMatchSchema,
+  insertGuestApplicationSchema: () => insertGuestApplicationSchema,
+  insertGuestApplicationVoteSchema: () => insertGuestApplicationVoteSchema,
   insertHoleScoreSchema: () => insertHoleScoreSchema,
   insertMatchPlayGroupSchema: () => insertMatchPlayGroupSchema,
   insertMatchPlayMatchSchema: () => insertMatchPlayMatchSchema,
   insertMatchupSchema: () => insertMatchupSchema,
   insertPhotoSchema: () => insertPhotoSchema,
   insertPlayerTournamentHistorySchema: () => insertPlayerTournamentHistorySchema,
+  insertPlayerVoteSchema: () => insertPlayerVoteSchema,
+  insertRegistrationSchema: () => insertRegistrationSchema,
   insertScoreSchema: () => insertScoreSchema,
+  insertShotSchema: () => insertShotSchema,
   insertSideBetSchema: () => insertSideBetSchema,
   insertTeamSchema: () => insertTeamSchema,
   insertTournamentSchema: () => insertTournamentSchema,
+  insertTournamentVoteSchema: () => insertTournamentVoteSchema,
   insertUserSchema: () => insertUserSchema,
+  insertVoteOptionSchema: () => insertVoteOptionSchema,
   matchPlayGroups: () => matchPlayGroups,
   matchPlayMatches: () => matchPlayMatches,
   matchups: () => matchups,
   photos: () => photos,
   playerTournamentHistory: () => playerTournamentHistory,
+  playerVotes: () => playerVotes,
+  registrations: () => registrations,
   scores: () => scores,
   sessions: () => sessions,
+  shots: () => shots,
   sideBets: () => sideBets,
   teams: () => teams,
+  tournamentVotes: () => tournamentVotes,
   tournaments: () => tournaments,
-  users: () => users
+  users: () => users,
+  voteOptions: () => voteOptions
 });
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb, index, numeric, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 var sessions = pgTable(
   "sessions",
@@ -464,6 +480,106 @@ var playerTournamentHistory = pgTable("player_tournament_history", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
+var registrations = pgTable("registrations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  tournamentYear: integer("tournament_year").notNull(),
+  registeredAt: timestamp("registered_at").defaultNow(),
+  entryPaid: boolean("entry_paid").default(false),
+  entryPaymentIntentId: text("entry_payment_intent_id"),
+  entryAmountCents: integer("entry_amount_cents").default(15e3),
+  ctpRound1Paid: boolean("ctp_round1_paid").default(false),
+  ctpRound2Paid: boolean("ctp_round2_paid").default(false),
+  ctpRound3Paid: boolean("ctp_round3_paid").default(false),
+  ctpPaymentIntentIds: jsonb("ctp_payment_intent_ids").default("{}"),
+  createdAt: timestamp("created_at").defaultNow()
+}, (table) => ({
+  uniqueUserTournament: uniqueIndex("registrations_user_year_unique").on(table.userId, table.tournamentYear)
+}));
+var bets = pgTable("bets", {
+  id: serial("id").primaryKey(),
+  creatorId: integer("creator_id").notNull().references(() => users.id),
+  opponentId: integer("opponent_id").references(() => users.id),
+  tournamentYear: integer("tournament_year").notNull(),
+  description: text("description").notNull(),
+  amountCents: integer("amount_cents").notNull(),
+  type: text("type").default("custom"),
+  round: integer("round"),
+  hole: integer("hole"),
+  status: text("status").default("open"),
+  creatorPaymentIntentId: text("creator_payment_intent_id"),
+  opponentPaymentIntentId: text("opponent_payment_intent_id"),
+  winnerId: integer("winner_id").references(() => users.id),
+  settledAt: timestamp("settled_at"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+var shots = pgTable("shots", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  tournamentYear: integer("tournament_year").notNull(),
+  round: integer("round").notNull(),
+  hole: integer("hole").notNull(),
+  shotNumber: integer("shot_number").notNull(),
+  lat: numeric("lat", { precision: 10, scale: 8 }),
+  lng: numeric("lng", { precision: 11, scale: 8 }),
+  accuracyMeters: numeric("accuracy_meters", { precision: 6, scale: 2 }),
+  detectedBy: text("detected_by").default("motion"),
+  timestamp: timestamp("timestamp").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow()
+});
+var tournamentVotes = pgTable("tournament_votes", {
+  id: serial("id").primaryKey(),
+  tournamentYear: integer("tournament_year").notNull(),
+  category: text("category").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: text("status").default("open"),
+  deadline: timestamp("deadline"),
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  winningOptionId: integer("winning_option_id"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+var voteOptions = pgTable("vote_options", {
+  id: serial("id").primaryKey(),
+  voteId: integer("vote_id").notNull().references(() => tournamentVotes.id),
+  optionText: text("option_text").notNull(),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  voteCount: integer("vote_count").default(0),
+  createdAt: timestamp("created_at").defaultNow()
+});
+var playerVotes = pgTable("player_votes", {
+  id: serial("id").primaryKey(),
+  voteId: integer("vote_id").notNull().references(() => tournamentVotes.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  optionId: integer("option_id").notNull().references(() => voteOptions.id),
+  votedAt: timestamp("voted_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow()
+}, (table) => ({
+  uniqueVoteUser: uniqueIndex("player_votes_vote_user_unique").on(table.voteId, table.userId)
+}));
+var guestApplications = pgTable("guest_applications", {
+  id: serial("id").primaryKey(),
+  applicantUserId: integer("applicant_user_id").notNull().references(() => users.id),
+  guestName: text("guest_name").notNull(),
+  guestRelationship: text("guest_relationship"),
+  reason: text("reason"),
+  status: text("status").default("pending"),
+  tournamentYear: integer("tournament_year").notNull(),
+  votesYes: integer("votes_yes").default(0),
+  votesNo: integer("votes_no").default(0),
+  createdAt: timestamp("created_at").defaultNow()
+});
+var guestApplicationVotes = pgTable("guest_application_votes", {
+  id: serial("id").primaryKey(),
+  applicationId: integer("application_id").notNull().references(() => guestApplications.id),
+  voterUserId: integer("voter_user_id").notNull().references(() => users.id),
+  vote: text("vote").notNull(),
+  votedAt: timestamp("voted_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow()
+}, (table) => ({
+  uniqueApplicationVoter: uniqueIndex("guest_application_votes_application_voter_unique").on(table.applicationId, table.voterUserId)
+}));
 var insertTeamSchema = createInsertSchema(teams).omit({
   id: true,
   createdAt: true
@@ -508,6 +624,38 @@ var insertPlayerTournamentHistorySchema = createInsertSchema(playerTournamentHis
   id: true,
   createdAt: true,
   updatedAt: true
+});
+var insertRegistrationSchema = createInsertSchema(registrations).omit({
+  id: true,
+  createdAt: true
+});
+var insertBetSchema = createInsertSchema(bets).omit({
+  id: true,
+  createdAt: true
+});
+var insertShotSchema = createInsertSchema(shots).omit({
+  id: true,
+  createdAt: true
+});
+var insertTournamentVoteSchema = createInsertSchema(tournamentVotes).omit({
+  id: true,
+  createdAt: true
+});
+var insertVoteOptionSchema = createInsertSchema(voteOptions).omit({
+  id: true,
+  createdAt: true
+});
+var insertPlayerVoteSchema = createInsertSchema(playerVotes).omit({
+  id: true,
+  createdAt: true
+});
+var insertGuestApplicationSchema = createInsertSchema(guestApplications).omit({
+  id: true,
+  createdAt: true
+});
+var insertGuestApplicationVoteSchema = createInsertSchema(guestApplicationVotes).omit({
+  id: true,
+  createdAt: true
 });
 var chatMessages = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
@@ -2147,8 +2295,8 @@ var DatabaseStorage = class {
   }
   async getSideBets() {
     await this.autoDeclineExpiredBets();
-    const bets = await db.select().from(sideBets).orderBy(asc(sideBets.round), asc(sideBets.createdAt));
-    return bets;
+    const bets2 = await db.select().from(sideBets).orderBy(asc(sideBets.round), asc(sideBets.createdAt));
+    return bets2;
   }
   async autoDeclineExpiredBets() {
     const { getBetDeadline: getBetDeadline2 } = await Promise.resolve().then(() => (init_tournamentConfig(), tournamentConfig_exports));
@@ -2406,38 +2554,6 @@ var DatabaseStorage = class {
     }).where(eq(matchPlayMatches.id, matchId)).returning();
     return updatedMatch;
   }
-  async getMatchPlayLeaderboard() {
-    try {
-      const allUsers = await db.select().from(users);
-      const playerData = [];
-      for (const user of allUsers) {
-        const matchPlayPoints = await this.calculatePlayerMatchPlayPoints(user.id);
-        const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
-        let userTeam = null;
-        if (playerInfo) {
-          userTeam = await this.getTeam(playerInfo.teamId);
-        }
-        const matchesPlayed = matchPlayPoints > 0 ? 3 : 0;
-        const estimatedWins = Math.floor(matchPlayPoints / 6);
-        const estimatedTies = Math.max(0, Math.floor(matchPlayPoints % 6 / 3));
-        playerData.push({
-          playerId: user.id,
-          playerName: `${user.firstName} ${user.lastName}`,
-          totalPoints: matchPlayPoints,
-          matchesPlayed,
-          matchesWon: estimatedWins,
-          matchesTied: estimatedTies,
-          matchesLost: Math.max(0, matchesPlayed - estimatedWins - estimatedTies),
-          team: userTeam,
-          user
-        });
-      }
-      return playerData.sort((a, b) => b.totalPoints - a.totalPoints);
-    } catch (error) {
-      console.error("Error fetching match play leaderboard:", error);
-      return [];
-    }
-  }
   async getCurrentMatchForPlayer(playerId, currentHole) {
     let holeSegment;
     if (currentHole >= 1 && currentHole <= 6) {
@@ -2570,6 +2686,141 @@ var DatabaseStorage = class {
       if (!b.bestTime) return -1;
       return a.bestTime - b.bestTime;
     });
+  }
+  async getRegistration(userId, tournamentYear) {
+    const [registration] = await db.select().from(registrations).where(and(eq(registrations.userId, userId), eq(registrations.tournamentYear, tournamentYear)));
+    return registration ?? null;
+  }
+  async upsertRegistration(registration) {
+    const existing = await this.getRegistration(registration.userId, registration.tournamentYear);
+    if (existing) {
+      const [updated] = await db.update(registrations).set({
+        ...registration,
+        registeredAt: registration.registeredAt ?? /* @__PURE__ */ new Date()
+      }).where(eq(registrations.id, existing.id)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(registrations).values(registration).returning();
+    return created;
+  }
+  async getRegistrationsByYear(tournamentYear) {
+    return await db.select().from(registrations).where(eq(registrations.tournamentYear, tournamentYear)).orderBy(asc(registrations.createdAt));
+  }
+  async markCtpPaid(userId, tournamentYear, round, paymentIntentId) {
+    const existing = await this.getRegistration(userId, tournamentYear);
+    const baseRegistration = existing ?? await this.upsertRegistration({
+      userId,
+      tournamentYear,
+      entryPaid: false
+    });
+    const updates = {
+      ctpPaymentIntentIds: {
+        ...baseRegistration.ctpPaymentIntentIds ?? {},
+        [`round${round}`]: paymentIntentId
+      }
+    };
+    if (round === 1) updates.ctpRound1Paid = true;
+    if (round === 2) updates.ctpRound2Paid = true;
+    if (round === 3) updates.ctpRound3Paid = true;
+    const [updated] = await db.update(registrations).set(updates).where(eq(registrations.id, baseRegistration.id)).returning();
+    return updated;
+  }
+  async createBet(bet) {
+    const [created] = await db.insert(bets).values(bet).returning();
+    return created;
+  }
+  async getBetsByYear(tournamentYear) {
+    return await db.select().from(bets).where(eq(bets.tournamentYear, tournamentYear)).orderBy(asc(bets.createdAt));
+  }
+  async acceptBet(betId, opponentId, opponentPaymentIntentId) {
+    const [updated] = await db.update(bets).set({
+      opponentId,
+      opponentPaymentIntentId,
+      status: "matched"
+    }).where(eq(bets.id, betId)).returning();
+    return updated;
+  }
+  async settleBet(betId, winnerId) {
+    const [updated] = await db.update(bets).set({
+      winnerId,
+      status: "settled",
+      settledAt: /* @__PURE__ */ new Date()
+    }).where(eq(bets.id, betId)).returning();
+    return updated;
+  }
+  async cancelBet(betId) {
+    const [updated] = await db.update(bets).set({ status: "cancelled" }).where(eq(bets.id, betId)).returning();
+    return updated;
+  }
+  async createShot(shot) {
+    const [created] = await db.insert(shots).values(shot).returning();
+    return created;
+  }
+  async getShotsForUserRound(userId, tournamentYear, round) {
+    return await db.select().from(shots).where(and(eq(shots.userId, userId), eq(shots.tournamentYear, tournamentYear), eq(shots.round, round))).orderBy(asc(shots.timestamp));
+  }
+  async createTournamentVote(vote, options) {
+    const [createdVote] = await db.insert(tournamentVotes).values(vote).returning();
+    const createdOptions = options.length ? await db.insert(voteOptions).values(options.map((option) => ({ ...option, voteId: createdVote.id }))).returning() : [];
+    return { vote: createdVote, options: createdOptions };
+  }
+  async getTournamentVotesByYear(tournamentYear) {
+    const votes = await db.select().from(tournamentVotes).where(eq(tournamentVotes.tournamentYear, tournamentYear)).orderBy(asc(tournamentVotes.createdAt));
+    const results = [];
+    for (const vote of votes) {
+      const options = await db.select().from(voteOptions).where(eq(voteOptions.voteId, vote.id)).orderBy(asc(voteOptions.id));
+      results.push({ ...vote, options });
+    }
+    return results;
+  }
+  async castTournamentVote(playerVoteData) {
+    const existing = await db.select().from(playerVotes).where(and(eq(playerVotes.voteId, playerVoteData.voteId), eq(playerVotes.userId, playerVoteData.userId)));
+    if (existing.length > 0) {
+      const [updated] = await db.update(playerVotes).set({
+        optionId: playerVoteData.optionId,
+        votedAt: /* @__PURE__ */ new Date()
+      }).where(eq(playerVotes.id, existing[0].id)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(playerVotes).values(playerVoteData).returning();
+    return created;
+  }
+  async closeTournamentVote(voteId) {
+    const [updated] = await db.update(tournamentVotes).set({ status: "closed" }).where(eq(tournamentVotes.id, voteId)).returning();
+    return updated;
+  }
+  async setTournamentVoteWinner(voteId, winningOptionId) {
+    const [updated] = await db.update(tournamentVotes).set({ winningOptionId }).where(eq(tournamentVotes.id, voteId)).returning();
+    return updated;
+  }
+  async createGuestApplication(application) {
+    const [created] = await db.insert(guestApplications).values(application).returning();
+    return created;
+  }
+  async getGuestApplicationsByYear(tournamentYear) {
+    const applications = await db.select().from(guestApplications).where(eq(guestApplications.tournamentYear, tournamentYear)).orderBy(asc(guestApplications.createdAt));
+    const results = [];
+    for (const application of applications) {
+      const votes = await db.select().from(guestApplicationVotes).where(eq(guestApplicationVotes.applicationId, application.id)).orderBy(asc(guestApplicationVotes.createdAt));
+      results.push({ ...application, votes });
+    }
+    return results;
+  }
+  async voteGuestApplication(vote) {
+    const existing = await db.select().from(guestApplicationVotes).where(and(eq(guestApplicationVotes.applicationId, vote.applicationId), eq(guestApplicationVotes.voterUserId, vote.voterUserId)));
+    let storedVote;
+    if (existing.length > 0) {
+      const [updated] = await db.update(guestApplicationVotes).set({ vote: vote.vote, votedAt: /* @__PURE__ */ new Date() }).where(eq(guestApplicationVotes.id, existing[0].id)).returning();
+      storedVote = updated;
+    } else {
+      const [created] = await db.insert(guestApplicationVotes).values(vote).returning();
+      storedVote = created;
+    }
+    const votes = await db.select().from(guestApplicationVotes).where(eq(guestApplicationVotes.applicationId, vote.applicationId));
+    const votesYes = votes.filter((value) => value.vote === "yes").length;
+    const votesNo = votes.filter((value) => value.vote === "no").length;
+    await db.update(guestApplications).set({ votesYes, votesNo }).where(eq(guestApplications.id, vote.applicationId));
+    return storedVote;
   }
   // Team Hole Scores (for scramble format)
   async getTeamHoleScores(teamId, round) {
@@ -2752,6 +3003,70 @@ async function setupAuth(app2) {
 
 // server/routes.ts
 import { z } from "zod";
+
+// server/stripe.ts
+import crypto from "crypto";
+var STRIPE_API_BASE = "https://api.stripe.com/v1";
+function getStripeSecretKey() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("STRIPE_SECRET_KEY is required");
+  }
+  return process.env.STRIPE_SECRET_KEY;
+}
+async function createCheckoutSession(params) {
+  const secretKey = getStripeSecretKey();
+  const form = new URLSearchParams();
+  form.append("mode", "payment");
+  form.append("success_url", params.successUrl);
+  form.append("cancel_url", params.cancelUrl);
+  form.append("line_items[0][price_data][currency]", params.currency ?? "cad");
+  form.append("line_items[0][price_data][product_data][name]", params.description);
+  form.append("line_items[0][price_data][unit_amount]", String(params.amountCents));
+  form.append("line_items[0][quantity]", "1");
+  if (params.metadata) {
+    for (const [key, value] of Object.entries(params.metadata)) {
+      form.append(`metadata[${key}]`, value);
+      form.append(`payment_intent_data[metadata][${key}]`, value);
+    }
+  }
+  const response = await fetch(`${STRIPE_API_BASE}/checkout/sessions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${secretKey}`,
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: form
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.error?.message || "Failed to create Stripe checkout session");
+  }
+  return {
+    id: data.id,
+    url: data.url ?? null,
+    payment_intent: data.payment_intent ?? null,
+    metadata: data.metadata ?? null
+  };
+}
+function verifyStripeWebhookSignature(rawBody, signatureHeader) {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) {
+    throw new Error("STRIPE_WEBHOOK_SECRET is required");
+  }
+  const parts = signatureHeader.split(",");
+  const timestampPart = parts.find((part) => part.startsWith("t="));
+  const signaturePart = parts.find((part) => part.startsWith("v1="));
+  if (!timestampPart || !signaturePart) {
+    return false;
+  }
+  const timestamp2 = timestampPart.slice(2);
+  const signature = signaturePart.slice(3);
+  const signedPayload = `${timestamp2}.${rawBody.toString("utf8")}`;
+  const expectedSignature = crypto.createHmac("sha256", secret).update(signedPayload).digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
+}
+
+// server/routes.ts
 async function requireAuth(req, res, next) {
   if (req.session?.user) {
     try {
@@ -2768,6 +3083,26 @@ async function requireAuth(req, res, next) {
     return next();
   }
   return res.status(401).json({ error: "Authentication required" });
+}
+async function requireRegistration(req, res, next) {
+  const year = Number(req.body?.tournamentYear ?? req.query?.year ?? (/* @__PURE__ */ new Date()).getFullYear());
+  const registration = await storage.getRegistration(req.user.id, year);
+  if (!registration?.entryPaid) {
+    return res.status(403).json({ error: "Registration required" });
+  }
+  req.registrationYear = year;
+  return next();
+}
+async function requireAdmin(req, res, next) {
+  const user = await storage.getUser(req.user.id);
+  if (!user) {
+    return res.status(401).json({ error: "User not found" });
+  }
+  const fullName = `${user.firstName} ${user.lastName}`;
+  if (!["Nick Grossi", "Connor Patterson"].includes(fullName)) {
+    return res.status(403).json({ error: "Admin access required" });
+  }
+  return next();
 }
 async function generateRound3MatchupsOnce(storage2) {
   const presetGroupings = [
@@ -3281,6 +3616,373 @@ async function registerRoutes(app2) {
     res.json({
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || ""
     });
+  });
+  app2.post("/api/webhooks/stripe", async (req, res) => {
+    try {
+      const signature = req.headers["stripe-signature"];
+      if (!signature || typeof signature !== "string") {
+        return res.status(400).json({ error: "Missing stripe-signature header" });
+      }
+      const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body));
+      const isValid = verifyStripeWebhookSignature(rawBody, signature);
+      if (!isValid) {
+        return res.status(400).json({ error: "Invalid Stripe signature" });
+      }
+      const event = JSON.parse(rawBody.toString("utf8"));
+      const eventType = event?.type;
+      const eventData = event?.data?.object;
+      const metadata = eventData?.metadata ?? {};
+      if (eventType === "checkout.session.completed" || eventType === "payment_intent.succeeded") {
+        const userId = Number(metadata.userId);
+        const year = Number(metadata.year);
+        if (userId && year) {
+          if (metadata.type === "entry_fee") {
+            await storage.upsertRegistration({
+              userId,
+              tournamentYear: year,
+              entryPaid: true,
+              entryPaymentIntentId: eventData.payment_intent ?? metadata.paymentIntentId ?? null,
+              entryAmountCents: Number(metadata.amountCents ?? 15e3)
+            });
+          }
+          if (metadata.type === "ctp_fee") {
+            const round = Number(metadata.round);
+            if ([1, 2, 3].includes(round)) {
+              await storage.markCtpPaid(userId, year, round, eventData.payment_intent ?? metadata.paymentIntentId ?? "");
+            }
+          }
+        }
+      }
+      return res.json({ received: true });
+    } catch (error) {
+      console.error("Stripe webhook error:", error);
+      return res.status(500).json({ error: "Webhook processing failed" });
+    }
+  });
+  app2.get("/api/registrations/:year/me", requireAuth, async (req, res) => {
+    try {
+      const year = Number(req.params.year);
+      const registration = await storage.getRegistration(req.user.id, year);
+      res.json(registration);
+    } catch (error) {
+      console.error("Failed to fetch registration:", error);
+      res.status(500).json({ error: "Failed to fetch registration" });
+    }
+  });
+  app2.get("/api/registrations/:year", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const year = Number(req.params.year);
+      const registrations2 = await storage.getRegistrationsByYear(year);
+      res.json(registrations2);
+    } catch (error) {
+      console.error("Failed to fetch registrations:", error);
+      res.status(500).json({ error: "Failed to fetch registrations" });
+    }
+  });
+  app2.post("/api/registrations/entry-checkout", requireAuth, async (req, res) => {
+    try {
+      const year = Number(req.body.year ?? (/* @__PURE__ */ new Date()).getFullYear());
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      const session2 = await createCheckoutSession({
+        amountCents: 15e3,
+        currency: "cad",
+        successUrl: `${baseUrl}/registration?status=success&year=${year}`,
+        cancelUrl: `${baseUrl}/registration?status=cancelled&year=${year}`,
+        description: `The Gambler ${year} Entry Fee`,
+        metadata: {
+          type: "entry_fee",
+          userId: String(req.user.id),
+          year: String(year),
+          amountCents: "15000"
+        }
+      });
+      await storage.upsertRegistration({
+        userId: req.user.id,
+        tournamentYear: year,
+        entryPaid: false,
+        entryPaymentIntentId: session2.payment_intent ?? void 0,
+        entryAmountCents: 15e3
+      });
+      res.json({ checkoutUrl: session2.url, sessionId: session2.id });
+    } catch (error) {
+      console.error("Failed to create entry checkout:", error);
+      res.status(500).json({ error: "Failed to create entry checkout" });
+    }
+  });
+  app2.post("/api/registrations/ctp-checkout", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const round = Number(req.body.round);
+      if (![1, 2, 3].includes(round)) {
+        return res.status(400).json({ error: "Round must be 1, 2, or 3" });
+      }
+      const year = req.registrationYear;
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      const session2 = await createCheckoutSession({
+        amountCents: 3e3,
+        currency: "cad",
+        successUrl: `${baseUrl}/registration?status=ctp-success&round=${round}&year=${year}`,
+        cancelUrl: `${baseUrl}/registration?status=ctp-cancelled&round=${round}&year=${year}`,
+        description: `CTP Round ${round}`,
+        metadata: {
+          type: "ctp_fee",
+          userId: String(req.user.id),
+          year: String(year),
+          round: String(round),
+          amountCents: "3000"
+        }
+      });
+      res.json({ checkoutUrl: session2.url, sessionId: session2.id });
+    } catch (error) {
+      console.error("Failed to create CTP checkout:", error);
+      res.status(500).json({ error: "Failed to create CTP checkout" });
+    }
+  });
+  app2.post("/api/bets", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const year = req.registrationYear;
+      const amountCents = Number(req.body.amountCents);
+      if (!amountCents || amountCents < 500 || amountCents > 5e4) {
+        return res.status(400).json({ error: "Amount must be between $5 and $500 CAD" });
+      }
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      const session2 = await createCheckoutSession({
+        amountCents,
+        currency: "cad",
+        successUrl: `${baseUrl}/betting?status=create-success`,
+        cancelUrl: `${baseUrl}/betting?status=create-cancelled`,
+        description: `Bet Escrow - ${req.body.description ?? "Custom Bet"}`,
+        metadata: {
+          type: "bet_create",
+          userId: String(req.user.id),
+          year: String(year),
+          amountCents: String(amountCents)
+        }
+      });
+      const createdBet = await storage.createBet({
+        creatorId: req.user.id,
+        opponentId: req.body.opponentId ?? null,
+        tournamentYear: year,
+        description: req.body.description,
+        amountCents,
+        type: req.body.type ?? "custom",
+        round: req.body.round ?? null,
+        hole: req.body.hole ?? null,
+        status: "open",
+        creatorPaymentIntentId: session2.payment_intent ?? void 0
+      });
+      res.json({ bet: createdBet, checkoutUrl: session2.url, sessionId: session2.id });
+    } catch (error) {
+      console.error("Failed to create bet:", error);
+      res.status(500).json({ error: "Failed to create bet" });
+    }
+  });
+  app2.get("/api/bets", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const year = Number(req.query.year ?? req.registrationYear ?? (/* @__PURE__ */ new Date()).getFullYear());
+      const bets2 = await storage.getBetsByYear(year);
+      res.json(bets2);
+    } catch (error) {
+      console.error("Failed to fetch bets:", error);
+      res.status(500).json({ error: "Failed to fetch bets" });
+    }
+  });
+  app2.post("/api/bets/:id/accept", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const year = req.registrationYear;
+      const betId = Number(req.params.id);
+      const allBets = await storage.getBetsByYear(year);
+      const existingBet = allBets.find((bet) => bet.id === betId);
+      if (!existingBet) {
+        return res.status(404).json({ error: "Bet not found" });
+      }
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      const session2 = await createCheckoutSession({
+        amountCents: existingBet.amountCents,
+        currency: "cad",
+        successUrl: `${baseUrl}/betting?status=accept-success`,
+        cancelUrl: `${baseUrl}/betting?status=accept-cancelled`,
+        description: `Bet Accept - #${existingBet.id}`,
+        metadata: {
+          type: "bet_accept",
+          userId: String(req.user.id),
+          betId: String(existingBet.id),
+          year: String(year)
+        }
+      });
+      const updated = await storage.acceptBet(existingBet.id, req.user.id, session2.payment_intent ?? "");
+      res.json({ bet: updated, checkoutUrl: session2.url, sessionId: session2.id });
+    } catch (error) {
+      console.error("Failed to accept bet:", error);
+      res.status(500).json({ error: "Failed to accept bet" });
+    }
+  });
+  app2.post("/api/bets/:id/settle", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const betId = Number(req.params.id);
+      const winnerId = Number(req.body.winnerId);
+      const updated = await storage.settleBet(betId, winnerId);
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to settle bet:", error);
+      res.status(500).json({ error: "Failed to settle bet" });
+    }
+  });
+  app2.post("/api/bets/:id/cancel", requireAuth, async (req, res) => {
+    try {
+      const betId = Number(req.params.id);
+      const updated = await storage.cancelBet(betId);
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to cancel bet:", error);
+      res.status(500).json({ error: "Failed to cancel bet" });
+    }
+  });
+  app2.post("/api/guest-applications", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const created = await storage.createGuestApplication({
+        applicantUserId: req.user.id,
+        guestName: req.body.guestName,
+        guestRelationship: req.body.guestRelationship ?? null,
+        reason: req.body.reason ?? null,
+        tournamentYear: req.registrationYear,
+        status: "pending"
+      });
+      res.json(created);
+    } catch (error) {
+      console.error("Failed to create guest application:", error);
+      res.status(500).json({ error: "Failed to create guest application" });
+    }
+  });
+  app2.get("/api/guest-applications", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const year = Number(req.query.year ?? req.registrationYear);
+      const applications = await storage.getGuestApplicationsByYear(year);
+      res.json(applications);
+    } catch (error) {
+      console.error("Failed to fetch guest applications:", error);
+      res.status(500).json({ error: "Failed to fetch guest applications" });
+    }
+  });
+  app2.post("/api/guest-applications/:id/vote", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const applicationId = Number(req.params.id);
+      const vote = String(req.body.vote);
+      if (!["yes", "no"].includes(vote)) {
+        return res.status(400).json({ error: "Vote must be yes or no" });
+      }
+      const createdVote = await storage.voteGuestApplication({
+        applicationId,
+        voterUserId: req.user.id,
+        vote
+      });
+      res.json(createdVote);
+    } catch (error) {
+      console.error("Failed to vote guest application:", error);
+      res.status(500).json({ error: "Failed to vote guest application" });
+    }
+  });
+  app2.post("/api/tournament-votes", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const year = Number(req.body.tournamentYear ?? (/* @__PURE__ */ new Date()).getFullYear());
+      const options = Array.isArray(req.body.options) ? req.body.options : [];
+      if (options.length < 2 || options.length > 5) {
+        return res.status(400).json({ error: "Vote requires 2 to 5 options" });
+      }
+      const created = await storage.createTournamentVote({
+        tournamentYear: year,
+        category: req.body.category ?? "custom",
+        title: req.body.title,
+        description: req.body.description ?? null,
+        status: "open",
+        deadline: req.body.deadline ? new Date(req.body.deadline) : null,
+        createdBy: req.user.id
+      }, options.map((option) => ({
+        voteId: 0,
+        optionText: option.optionText,
+        description: option.description ?? null,
+        imageUrl: option.imageUrl ?? null
+      })));
+      res.json(created);
+    } catch (error) {
+      console.error("Failed to create tournament vote:", error);
+      res.status(500).json({ error: "Failed to create tournament vote" });
+    }
+  });
+  app2.get("/api/tournament-votes", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const year = Number(req.query.year ?? req.registrationYear);
+      const votes = await storage.getTournamentVotesByYear(year);
+      res.json(votes);
+    } catch (error) {
+      console.error("Failed to fetch tournament votes:", error);
+      res.status(500).json({ error: "Failed to fetch tournament votes" });
+    }
+  });
+  app2.post("/api/tournament-votes/:id/vote", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const voteId = Number(req.params.id);
+      const optionId = Number(req.body.optionId);
+      const createdVote = await storage.castTournamentVote({
+        voteId,
+        userId: req.user.id,
+        optionId
+      });
+      res.json(createdVote);
+    } catch (error) {
+      console.error("Failed to cast tournament vote:", error);
+      res.status(500).json({ error: "Failed to cast tournament vote" });
+    }
+  });
+  app2.post("/api/tournament-votes/:id/close", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const voteId = Number(req.params.id);
+      const updated = await storage.closeTournamentVote(voteId);
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to close tournament vote:", error);
+      res.status(500).json({ error: "Failed to close tournament vote" });
+    }
+  });
+  app2.post("/api/tournament-votes/:id/winner", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const voteId = Number(req.params.id);
+      const winningOptionId = Number(req.body.winningOptionId);
+      const updated = await storage.setTournamentVoteWinner(voteId, winningOptionId);
+      res.json(updated);
+    } catch (error) {
+      console.error("Failed to set tournament vote winner:", error);
+      res.status(500).json({ error: "Failed to set tournament vote winner" });
+    }
+  });
+  app2.post("/api/shots", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const shot = await storage.createShot({
+        userId: req.user.id,
+        tournamentYear: req.registrationYear,
+        round: Number(req.body.round),
+        hole: Number(req.body.hole),
+        shotNumber: Number(req.body.shotNumber),
+        lat: req.body.lat ? String(req.body.lat) : null,
+        lng: req.body.lng ? String(req.body.lng) : null,
+        accuracyMeters: req.body.accuracyMeters ? String(req.body.accuracyMeters) : null,
+        detectedBy: req.body.detectedBy ?? "manual"
+      });
+      res.json(shot);
+    } catch (error) {
+      console.error("Failed to log shot:", error);
+      res.status(500).json({ error: "Failed to log shot" });
+    }
+  });
+  app2.get("/api/shots", requireAuth, requireRegistration, async (req, res) => {
+    try {
+      const year = Number(req.query.year ?? req.registrationYear);
+      const round = Number(req.query.round ?? 1);
+      const shots2 = await storage.getShotsForUserRound(req.user.id, year, round);
+      res.json(shots2);
+    } catch (error) {
+      console.error("Failed to fetch shots:", error);
+      res.status(500).json({ error: "Failed to fetch shots" });
+    }
   });
   app2.get("/api/golf-course/search", async (req, res) => {
     try {

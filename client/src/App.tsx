@@ -21,6 +21,10 @@ import Round2 from "@/pages/Round2";
 import Round3 from "@/pages/Round3";
 import Round3Matchups from "@/pages/Round3Matchups";
 import TournamentMatchups from "@/pages/TournamentMatchups";
+import Registration from "@/pages/Registration";
+import BettingMarketplace from "@/pages/BettingMarketplace";
+import Voting from "@/pages/Voting";
+import ShotTracker from "@/pages/ShotTracker";
 
 import AuthPage from "@/pages/AuthPage";
 import NotFound from "@/pages/not-found";
@@ -161,6 +165,10 @@ function Router() {
             <Route path="/player/:userId" component={PlayerProfile} />
             <Route path="/tournament-management" component={TournamentManagement} />
             <Route path="/sidebets" component={SideBets} />
+            <Route path="/registration" component={Registration} />
+            <Route path="/betting" component={BettingMarketplace} />
+            <Route path="/voting" component={Voting} />
+            <Route path="/shot-tracker" component={ShotTracker} />
             <Route path="/boozelympics" component={Boozelympics} />
             <Route path="/rules" component={Rules} />
     

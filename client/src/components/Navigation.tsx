@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, X, Home, Users, Trophy, Coins, BookOpen, Camera, Target, Award, Moon, Sun, LogOut, BarChart3, Settings, Beer, MessageSquare, Calendar } from "lucide-react";
+import { Menu, X, Home, Users, Trophy, Coins, BookOpen, Camera, Target, Award, Moon, Sun, LogOut, BarChart3, Settings, Beer, MessageSquare, Calendar, ClipboardCheck, Vote, Crosshair } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import ProfilePicture from "@/components/ProfilePicture";
@@ -38,6 +38,10 @@ export default function Navigation() {
     { href: "/scores", label: "Scores", icon: Trophy },
     { href: "/stats", label: "Statistics", icon: BarChart3 },
     { href: "/sidebets", label: "Side Bets", icon: Coins },
+    { href: "/registration", label: "Registration", icon: ClipboardCheck },
+    { href: "/betting", label: "Betting", icon: Coins },
+    { href: "/voting", label: "Voting", icon: Vote },
+    { href: "/shot-tracker", label: "Shot Tracker", icon: Crosshair },
     { href: "/boozelympics", label: "Boozelympics", icon: Beer },
     { href: "/rules", label: "Rules", icon: BookOpen },
     { href: "/photos", label: "Photos", icon: Camera },

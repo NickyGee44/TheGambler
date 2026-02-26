@@ -13,6 +13,14 @@ import {
   boozelympicsGames,
   boozelympicsMatches,
   golfRelayMatches,
+  registrations,
+  bets,
+  shots,
+  tournamentVotes,
+  voteOptions,
+  playerVotes,
+  guestApplications,
+  guestApplicationVotes,
 
   chatMessages,
   type User,
@@ -31,6 +39,14 @@ import {
   type BoozelympicsGame,
   type BoozelympicsMatch,
   type GolfRelayMatch,
+  type Registration,
+  type Bet,
+  type Shot,
+  type TournamentVote,
+  type VoteOption,
+  type PlayerVote,
+  type GuestApplication,
+  type GuestApplicationVote,
 
   type InsertTeam,
   type InsertScore,
@@ -45,6 +61,14 @@ import {
   type InsertBoozelympicsGame,
   type InsertBoozelympicsMatch,
   type InsertGolfRelayMatch,
+  type InsertRegistration,
+  type InsertBet,
+  type InsertShot,
+  type InsertTournamentVote,
+  type InsertVoteOption,
+  type InsertPlayerVote,
+  type InsertGuestApplication,
+  type InsertGuestApplicationVote,
 
   type ChatMessage,
   type InsertChatMessage,
@@ -155,7 +179,35 @@ export interface IStorage {
   getGolfRelayMatches(): Promise<GolfRelayMatch[]>;
   createGolfRelayMatch(match: InsertGolfRelayMatch): Promise<GolfRelayMatch>;
   getGolfRelayLeaderboard(): Promise<any[]>;
-  
+ 
+  // Registration and payments
+  getRegistration(userId: number, tournamentYear: number): Promise<Registration | null>;
+  upsertRegistration(registration: InsertRegistration): Promise<Registration>;
+  getRegistrationsByYear(tournamentYear: number): Promise<Registration[]>;
+  markCtpPaid(userId: number, tournamentYear: number, round: 1 | 2 | 3, paymentIntentId: string): Promise<Registration>;
+
+  // Betting marketplace
+  createBet(bet: InsertBet): Promise<Bet>;
+  getBetsByYear(tournamentYear: number): Promise<Bet[]>;
+  acceptBet(betId: number, opponentId: number, opponentPaymentIntentId: string): Promise<Bet>;
+  settleBet(betId: number, winnerId: number): Promise<Bet>;
+  cancelBet(betId: number): Promise<Bet>;
+
+  // Shot tracking
+  createShot(shot: InsertShot): Promise<Shot>;
+  getShotsForUserRound(userId: number, tournamentYear: number, round: number): Promise<Shot[]>;
+
+  // Tournament voting
+  createTournamentVote(vote: InsertTournamentVote, options: InsertVoteOption[]): Promise<{ vote: TournamentVote; options: VoteOption[] }>;
+  getTournamentVotesByYear(tournamentYear: number): Promise<Array<TournamentVote & { options: VoteOption[] }>>;
+  castTournamentVote(playerVoteData: InsertPlayerVote): Promise<PlayerVote>;
+  closeTournamentVote(voteId: number): Promise<TournamentVote>;
+  setTournamentVoteWinner(voteId: number, winningOptionId: number): Promise<TournamentVote>;
+
+  // Guest applications
+  createGuestApplication(application: InsertGuestApplication): Promise<GuestApplication>;
+  getGuestApplicationsByYear(tournamentYear: number): Promise<Array<GuestApplication & { votes: GuestApplicationVote[] }>>;
+  voteGuestApplication(vote: InsertGuestApplicationVote): Promise<GuestApplicationVote>;
 
 }
 
@@ -2785,49 +2837,6 @@ export class DatabaseStorage implements IStorage {
     return updatedMatch;
   }
 
-  async getMatchPlayLeaderboard(): Promise<any[]> {
-    try {
-      // Get all users to calculate match play points for each
-      const allUsers = await db.select().from(users);
-      const playerData: any[] = [];
-      
-      for (const user of allUsers) {
-        // Calculate actual match play points from Round 3 hole scores
-        const matchPlayPoints = await this.calculatePlayerMatchPlayPoints(user.id);
-        
-        // Get team information using findPlayerByName method
-        const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
-        let userTeam = null;
-        if (playerInfo) {
-          userTeam = await this.getTeam(playerInfo.teamId);
-        }
-        
-        // For now, we'll use simplified match statistics since we don't track individual match wins/losses
-        // The match play points come from the actual hole-by-hole scoring system
-        const matchesPlayed = matchPlayPoints > 0 ? 3 : 0; // Players typically play 3 segments
-        const estimatedWins = Math.floor(matchPlayPoints / 6); // Rough estimate based on segment bonus points
-        const estimatedTies = Math.max(0, Math.floor((matchPlayPoints % 6) / 3));
-        
-        playerData.push({
-          playerId: user.id,
-          playerName: `${user.firstName} ${user.lastName}`,
-          totalPoints: matchPlayPoints,
-          matchesPlayed: matchesPlayed,
-          matchesWon: estimatedWins,
-          matchesTied: estimatedTies,
-          matchesLost: Math.max(0, matchesPlayed - estimatedWins - estimatedTies),
-          team: userTeam,
-          user: user
-        });
-      }
-      
-      // Sort by total points descending
-      return playerData.sort((a, b) => b.totalPoints - a.totalPoints);
-    } catch (error) {
-      console.error('Error fetching match play leaderboard:', error);
-      return [];
-    }
-  }
 
   async getCurrentMatchForPlayer(playerId: number, currentHole: number): Promise<MatchPlayMatch | null> {
     // Determine which hole segment the current hole belongs to
@@ -2987,6 +2996,257 @@ export class DatabaseStorage implements IStorage {
       if (!b.bestTime) return -1;
       return a.bestTime - b.bestTime;
     });
+  }
+
+  async getRegistration(userId: number, tournamentYear: number): Promise<Registration | null> {
+    const [registration] = await db
+      .select()
+      .from(registrations)
+      .where(and(eq(registrations.userId, userId), eq(registrations.tournamentYear, tournamentYear)));
+    return registration ?? null;
+  }
+
+  async upsertRegistration(registration: InsertRegistration): Promise<Registration> {
+    const existing = await this.getRegistration(registration.userId, registration.tournamentYear);
+    if (existing) {
+      const [updated] = await db
+        .update(registrations)
+        .set({
+          ...registration,
+          registeredAt: registration.registeredAt ?? new Date(),
+        })
+        .where(eq(registrations.id, existing.id))
+        .returning();
+      return updated;
+    }
+
+    const [created] = await db.insert(registrations).values(registration).returning();
+    return created;
+  }
+
+  async getRegistrationsByYear(tournamentYear: number): Promise<Registration[]> {
+    return await db
+      .select()
+      .from(registrations)
+      .where(eq(registrations.tournamentYear, tournamentYear))
+      .orderBy(asc(registrations.createdAt));
+  }
+
+  async markCtpPaid(userId: number, tournamentYear: number, round: 1 | 2 | 3, paymentIntentId: string): Promise<Registration> {
+    const existing = await this.getRegistration(userId, tournamentYear);
+    const baseRegistration = existing ?? await this.upsertRegistration({
+      userId,
+      tournamentYear,
+      entryPaid: false,
+    });
+
+    const updates: Partial<Registration> = {
+      ctpPaymentIntentIds: {
+        ...(baseRegistration.ctpPaymentIntentIds as Record<string, string> | null ?? {}),
+        [`round${round}`]: paymentIntentId,
+      },
+    };
+
+    if (round === 1) updates.ctpRound1Paid = true;
+    if (round === 2) updates.ctpRound2Paid = true;
+    if (round === 3) updates.ctpRound3Paid = true;
+
+    const [updated] = await db
+      .update(registrations)
+      .set(updates)
+      .where(eq(registrations.id, baseRegistration.id))
+      .returning();
+
+    return updated;
+  }
+
+  async createBet(bet: InsertBet): Promise<Bet> {
+    const [created] = await db.insert(bets).values(bet).returning();
+    return created;
+  }
+
+  async getBetsByYear(tournamentYear: number): Promise<Bet[]> {
+    return await db
+      .select()
+      .from(bets)
+      .where(eq(bets.tournamentYear, tournamentYear))
+      .orderBy(asc(bets.createdAt));
+  }
+
+  async acceptBet(betId: number, opponentId: number, opponentPaymentIntentId: string): Promise<Bet> {
+    const [updated] = await db
+      .update(bets)
+      .set({
+        opponentId,
+        opponentPaymentIntentId,
+        status: "matched",
+      })
+      .where(eq(bets.id, betId))
+      .returning();
+    return updated;
+  }
+
+  async settleBet(betId: number, winnerId: number): Promise<Bet> {
+    const [updated] = await db
+      .update(bets)
+      .set({
+        winnerId,
+        status: "settled",
+        settledAt: new Date(),
+      })
+      .where(eq(bets.id, betId))
+      .returning();
+    return updated;
+  }
+
+  async cancelBet(betId: number): Promise<Bet> {
+    const [updated] = await db
+      .update(bets)
+      .set({ status: "cancelled" })
+      .where(eq(bets.id, betId))
+      .returning();
+    return updated;
+  }
+
+  async createShot(shot: InsertShot): Promise<Shot> {
+    const [created] = await db.insert(shots).values(shot).returning();
+    return created;
+  }
+
+  async getShotsForUserRound(userId: number, tournamentYear: number, round: number): Promise<Shot[]> {
+    return await db
+      .select()
+      .from(shots)
+      .where(and(eq(shots.userId, userId), eq(shots.tournamentYear, tournamentYear), eq(shots.round, round)))
+      .orderBy(asc(shots.timestamp));
+  }
+
+  async createTournamentVote(vote: InsertTournamentVote, options: InsertVoteOption[]): Promise<{ vote: TournamentVote; options: VoteOption[]; }> {
+    const [createdVote] = await db.insert(tournamentVotes).values(vote).returning();
+    const createdOptions = options.length
+      ? await db.insert(voteOptions).values(options.map((option) => ({ ...option, voteId: createdVote.id }))).returning()
+      : [];
+    return { vote: createdVote, options: createdOptions };
+  }
+
+  async getTournamentVotesByYear(tournamentYear: number): Promise<Array<TournamentVote & { options: VoteOption[]; }>> {
+    const votes = await db
+      .select()
+      .from(tournamentVotes)
+      .where(eq(tournamentVotes.tournamentYear, tournamentYear))
+      .orderBy(asc(tournamentVotes.createdAt));
+
+    const results: Array<TournamentVote & { options: VoteOption[] }> = [];
+    for (const vote of votes) {
+      const options = await db
+        .select()
+        .from(voteOptions)
+        .where(eq(voteOptions.voteId, vote.id))
+        .orderBy(asc(voteOptions.id));
+      results.push({ ...vote, options });
+    }
+
+    return results;
+  }
+
+  async castTournamentVote(playerVoteData: InsertPlayerVote): Promise<PlayerVote> {
+    const existing = await db
+      .select()
+      .from(playerVotes)
+      .where(and(eq(playerVotes.voteId, playerVoteData.voteId), eq(playerVotes.userId, playerVoteData.userId)));
+
+    if (existing.length > 0) {
+      const [updated] = await db
+        .update(playerVotes)
+        .set({
+          optionId: playerVoteData.optionId,
+          votedAt: new Date(),
+        })
+        .where(eq(playerVotes.id, existing[0].id))
+        .returning();
+      return updated;
+    }
+
+    const [created] = await db.insert(playerVotes).values(playerVoteData).returning();
+    return created;
+  }
+
+  async closeTournamentVote(voteId: number): Promise<TournamentVote> {
+    const [updated] = await db
+      .update(tournamentVotes)
+      .set({ status: "closed" })
+      .where(eq(tournamentVotes.id, voteId))
+      .returning();
+    return updated;
+  }
+
+  async setTournamentVoteWinner(voteId: number, winningOptionId: number): Promise<TournamentVote> {
+    const [updated] = await db
+      .update(tournamentVotes)
+      .set({ winningOptionId })
+      .where(eq(tournamentVotes.id, voteId))
+      .returning();
+    return updated;
+  }
+
+  async createGuestApplication(application: InsertGuestApplication): Promise<GuestApplication> {
+    const [created] = await db.insert(guestApplications).values(application).returning();
+    return created;
+  }
+
+  async getGuestApplicationsByYear(tournamentYear: number): Promise<Array<GuestApplication & { votes: GuestApplicationVote[]; }>> {
+    const applications = await db
+      .select()
+      .from(guestApplications)
+      .where(eq(guestApplications.tournamentYear, tournamentYear))
+      .orderBy(asc(guestApplications.createdAt));
+
+    const results: Array<GuestApplication & { votes: GuestApplicationVote[] }> = [];
+    for (const application of applications) {
+      const votes = await db
+        .select()
+        .from(guestApplicationVotes)
+        .where(eq(guestApplicationVotes.applicationId, application.id))
+        .orderBy(asc(guestApplicationVotes.createdAt));
+      results.push({ ...application, votes });
+    }
+
+    return results;
+  }
+
+  async voteGuestApplication(vote: InsertGuestApplicationVote): Promise<GuestApplicationVote> {
+    const existing = await db
+      .select()
+      .from(guestApplicationVotes)
+      .where(and(eq(guestApplicationVotes.applicationId, vote.applicationId), eq(guestApplicationVotes.voterUserId, vote.voterUserId)));
+
+    let storedVote: GuestApplicationVote;
+    if (existing.length > 0) {
+      const [updated] = await db
+        .update(guestApplicationVotes)
+        .set({ vote: vote.vote, votedAt: new Date() })
+        .where(eq(guestApplicationVotes.id, existing[0].id))
+        .returning();
+      storedVote = updated;
+    } else {
+      const [created] = await db.insert(guestApplicationVotes).values(vote).returning();
+      storedVote = created;
+    }
+
+    const votes = await db
+      .select()
+      .from(guestApplicationVotes)
+      .where(eq(guestApplicationVotes.applicationId, vote.applicationId));
+
+    const votesYes = votes.filter((value) => value.vote === "yes").length;
+    const votesNo = votes.filter((value) => value.vote === "no").length;
+
+    await db
+      .update(guestApplications)
+      .set({ votesYes, votesNo })
+      .where(eq(guestApplications.id, vote.applicationId));
+
+    return storedVote;
   }
 
   // Team Hole Scores (for scramble format)

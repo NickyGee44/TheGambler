@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb, index, numeric } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb, index, numeric, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -107,7 +107,7 @@ export const matchPlayMatches = pgTable("match_play_matches", {
 // Round 3 Groups (foursomes) for match play
 export const matchPlayGroups = pgTable("match_play_groups", {
   id: serial("id").primaryKey(),
-  groupNumber: integer("group_number").notNull().unique(),
+  groupNumber: integer("group_number").notNull(),
   player1Id: integer("player1_id").notNull().references(() => users.id),
   player2Id: integer("player2_id").notNull().references(() => users.id),
   player3Id: integer("player3_id").notNull().references(() => users.id),
@@ -137,12 +137,12 @@ export const holeScores = pgTable("hole_scores", {
   points: integer("points").notNull().default(0), // Stableford points
   // Golf statistics
   fairwayInRegulation: boolean("fairway_in_regulation"), // null for par 3s
-  greenInRegulation: boolean("green_in_regulation").notNull().default(false),
+  greenInRegulation: boolean("green_in_regulation").default(false),
   driveDirection: varchar("drive_direction", { length: 10 }), // 'left', 'right', 'long', 'short', 'duff', 'hit'
-  putts: integer("putts").notNull().default(0),
-  penalties: integer("penalties").notNull().default(0),
-  sandSaves: integer("sand_saves").notNull().default(0),
-  upAndDowns: integer("up_and_downs").notNull().default(0),
+  putts: integer("putts").default(0),
+  penalties: integer("penalties").default(0),
+  sandSaves: integer("sand_saves").default(0),
+  upAndDowns: integer("up_and_downs").default(0),
   tournamentYear: integer("tournament_year").default(2025),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -179,6 +179,114 @@ export const playerTournamentHistory = pgTable("player_tournament_history", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const registrations = pgTable("registrations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  tournamentYear: integer("tournament_year").notNull(),
+  registeredAt: timestamp("registered_at").defaultNow(),
+  entryPaid: boolean("entry_paid").default(false),
+  entryPaymentIntentId: text("entry_payment_intent_id"),
+  entryAmountCents: integer("entry_amount_cents").default(15000),
+  ctpRound1Paid: boolean("ctp_round1_paid").default(false),
+  ctpRound2Paid: boolean("ctp_round2_paid").default(false),
+  ctpRound3Paid: boolean("ctp_round3_paid").default(false),
+  ctpPaymentIntentIds: jsonb("ctp_payment_intent_ids").default('{}'),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  uniqueUserTournament: uniqueIndex("registrations_user_year_unique").on(table.userId, table.tournamentYear),
+}));
+
+export const bets = pgTable("bets", {
+  id: serial("id").primaryKey(),
+  creatorId: integer("creator_id").notNull().references(() => users.id),
+  opponentId: integer("opponent_id").references(() => users.id),
+  tournamentYear: integer("tournament_year").notNull(),
+  description: text("description").notNull(),
+  amountCents: integer("amount_cents").notNull(),
+  type: text("type").default("custom"),
+  round: integer("round"),
+  hole: integer("hole"),
+  status: text("status").default("open"),
+  creatorPaymentIntentId: text("creator_payment_intent_id"),
+  opponentPaymentIntentId: text("opponent_payment_intent_id"),
+  winnerId: integer("winner_id").references(() => users.id),
+  settledAt: timestamp("settled_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const shots = pgTable("shots", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  tournamentYear: integer("tournament_year").notNull(),
+  round: integer("round").notNull(),
+  hole: integer("hole").notNull(),
+  shotNumber: integer("shot_number").notNull(),
+  lat: numeric("lat", { precision: 10, scale: 8 }),
+  lng: numeric("lng", { precision: 11, scale: 8 }),
+  accuracyMeters: numeric("accuracy_meters", { precision: 6, scale: 2 }),
+  detectedBy: text("detected_by").default("motion"),
+  timestamp: timestamp("timestamp").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const tournamentVotes = pgTable("tournament_votes", {
+  id: serial("id").primaryKey(),
+  tournamentYear: integer("tournament_year").notNull(),
+  category: text("category").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: text("status").default("open"),
+  deadline: timestamp("deadline"),
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  winningOptionId: integer("winning_option_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const voteOptions = pgTable("vote_options", {
+  id: serial("id").primaryKey(),
+  voteId: integer("vote_id").notNull().references(() => tournamentVotes.id),
+  optionText: text("option_text").notNull(),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  voteCount: integer("vote_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const playerVotes = pgTable("player_votes", {
+  id: serial("id").primaryKey(),
+  voteId: integer("vote_id").notNull().references(() => tournamentVotes.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  optionId: integer("option_id").notNull().references(() => voteOptions.id),
+  votedAt: timestamp("voted_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  uniqueVoteUser: uniqueIndex("player_votes_vote_user_unique").on(table.voteId, table.userId),
+}));
+
+export const guestApplications = pgTable("guest_applications", {
+  id: serial("id").primaryKey(),
+  applicantUserId: integer("applicant_user_id").notNull().references(() => users.id),
+  guestName: text("guest_name").notNull(),
+  guestRelationship: text("guest_relationship"),
+  reason: text("reason"),
+  status: text("status").default("pending"),
+  tournamentYear: integer("tournament_year").notNull(),
+  votesYes: integer("votes_yes").default(0),
+  votesNo: integer("votes_no").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const guestApplicationVotes = pgTable("guest_application_votes", {
+  id: serial("id").primaryKey(),
+  applicationId: integer("application_id").notNull().references(() => guestApplications.id),
+  voterUserId: integer("voter_user_id").notNull().references(() => users.id),
+  vote: text("vote").notNull(),
+  votedAt: timestamp("voted_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  uniqueApplicationVoter: uniqueIndex("guest_application_votes_application_voter_unique").on(table.applicationId, table.voterUserId),
+}));
 
 export const insertTeamSchema = createInsertSchema(teams).omit({
   id: true,
@@ -235,6 +343,46 @@ export const insertPlayerTournamentHistorySchema = createInsertSchema(playerTour
   updatedAt: true,
 });
 
+export const insertRegistrationSchema = createInsertSchema(registrations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertBetSchema = createInsertSchema(bets).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertShotSchema = createInsertSchema(shots).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertTournamentVoteSchema = createInsertSchema(tournamentVotes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertVoteOptionSchema = createInsertSchema(voteOptions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPlayerVoteSchema = createInsertSchema(playerVotes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertGuestApplicationSchema = createInsertSchema(guestApplications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertGuestApplicationVoteSchema = createInsertSchema(guestApplicationVotes).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Team = typeof teams.$inferSelect;
@@ -255,6 +403,22 @@ export type Tournament = typeof tournaments.$inferSelect;
 export type InsertTournament = z.infer<typeof insertTournamentSchema>;
 export type PlayerTournamentHistory = typeof playerTournamentHistory.$inferSelect;
 export type InsertPlayerTournamentHistory = z.infer<typeof insertPlayerTournamentHistorySchema>;
+export type Registration = typeof registrations.$inferSelect;
+export type InsertRegistration = z.infer<typeof insertRegistrationSchema>;
+export type Bet = typeof bets.$inferSelect;
+export type InsertBet = z.infer<typeof insertBetSchema>;
+export type Shot = typeof shots.$inferSelect;
+export type InsertShot = z.infer<typeof insertShotSchema>;
+export type TournamentVote = typeof tournamentVotes.$inferSelect;
+export type InsertTournamentVote = z.infer<typeof insertTournamentVoteSchema>;
+export type VoteOption = typeof voteOptions.$inferSelect;
+export type InsertVoteOption = z.infer<typeof insertVoteOptionSchema>;
+export type PlayerVote = typeof playerVotes.$inferSelect;
+export type InsertPlayerVote = z.infer<typeof insertPlayerVoteSchema>;
+export type GuestApplication = typeof guestApplications.$inferSelect;
+export type InsertGuestApplication = z.infer<typeof insertGuestApplicationSchema>;
+export type GuestApplicationVote = typeof guestApplicationVotes.$inferSelect;
+export type InsertGuestApplicationVote = z.infer<typeof insertGuestApplicationVoteSchema>;
 
 
 
