@@ -836,9 +836,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Betting marketplace routes
-  app.post("/api/bets", requireAuth, requireRegistration, async (req: any, res) => {
+  app.post("/api/bets", requireAuth, async (req: any, res) => {
     try {
-      const year = req.registrationYear;
+      const year = Number(req.body.tournamentYear ?? req.query?.year ?? new Date().getFullYear());
       const amountCents = Number(req.body.amountCents);
       if (!amountCents || amountCents < 500 || amountCents > 50000) {
         return res.status(400).json({ error: "Amount must be between $5 and $500 CAD" });
@@ -879,9 +879,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/bets", requireAuth, requireRegistration, async (req: any, res) => {
+  app.get("/api/bets", requireAuth, async (req: any, res) => {
     try {
-      const year = Number(req.query.year ?? req.registrationYear ?? new Date().getFullYear());
+      const year = Number(req.query.year ?? new Date().getFullYear());
       const bets = await storage.getBetsByYear(year);
       res.json(bets);
     } catch (error) {
@@ -890,9 +890,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/bets/:id/accept", requireAuth, requireRegistration, async (req: any, res) => {
+  app.post("/api/bets/:id/accept", requireAuth, async (req: any, res) => {
     try {
-      const year = req.registrationYear;
+      const year = Number(req.body.tournamentYear ?? req.query?.year ?? new Date().getFullYear());
       const betId = Number(req.params.id);
       const allBets = await storage.getBetsByYear(year);
       const existingBet = allBets.find((bet) => bet.id === betId);
@@ -947,14 +947,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Guest applications routes
-  app.post("/api/guest-applications", requireAuth, requireRegistration, async (req: any, res) => {
+  app.post("/api/guest-applications", requireAuth, async (req: any, res) => {
     try {
       const created = await storage.createGuestApplication({
         applicantUserId: req.user.id,
         guestName: req.body.guestName,
         guestRelationship: req.body.guestRelationship ?? null,
         reason: req.body.reason ?? null,
-        tournamentYear: req.registrationYear,
+        tournamentYear: Number(req.body.tournamentYear ?? req.query?.year ?? new Date().getFullYear()),
         status: "pending",
       });
       res.json(created);
@@ -964,9 +964,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/guest-applications", requireAuth, requireRegistration, async (req: any, res) => {
+  app.get("/api/guest-applications", requireAuth, async (req: any, res) => {
     try {
-      const year = Number(req.query.year ?? req.registrationYear);
+      const year = Number(req.query.year ?? new Date().getFullYear());
       const applications = await storage.getGuestApplicationsByYear(year);
       res.json(applications);
     } catch (error) {
@@ -975,7 +975,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/guest-applications/:id/vote", requireAuth, requireRegistration, async (req: any, res) => {
+  app.post("/api/guest-applications/:id/vote", requireAuth, async (req: any, res) => {
     try {
       const applicationId = Number(req.params.id);
       const vote = String(req.body.vote);
@@ -1026,9 +1026,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/tournament-votes", requireAuth, requireRegistration, async (req: any, res) => {
+  app.get("/api/tournament-votes", requireAuth, async (req: any, res) => {
     try {
-      const year = Number(req.query.year ?? req.registrationYear);
+      const year = Number(req.query.year ?? new Date().getFullYear());
       const votes = await storage.getTournamentVotesByYear(year);
       res.json(votes);
     } catch (error) {
@@ -1037,7 +1037,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/tournament-votes/:id/vote", requireAuth, requireRegistration, async (req: any, res) => {
+  app.post("/api/tournament-votes/:id/vote", requireAuth, async (req: any, res) => {
     try {
       const voteId = Number(req.params.id);
       const optionId = Number(req.body.optionId);
@@ -1077,11 +1077,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Shot tracking routes
-  app.post("/api/shots", requireAuth, requireRegistration, async (req: any, res) => {
+  app.post("/api/shots", requireAuth, async (req: any, res) => {
     try {
       const shot = await storage.createShot({
         userId: req.user.id,
-        tournamentYear: req.registrationYear,
+        tournamentYear: Number(req.body.tournamentYear ?? req.query?.year ?? new Date().getFullYear()),
         round: Number(req.body.round),
         hole: Number(req.body.hole),
         shotNumber: Number(req.body.shotNumber),
@@ -1097,9 +1097,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/shots", requireAuth, requireRegistration, async (req: any, res) => {
+  app.get("/api/shots", requireAuth, async (req: any, res) => {
     try {
-      const year = Number(req.query.year ?? req.registrationYear);
+      const year = Number(req.query.year ?? new Date().getFullYear());
       const round = Number(req.query.round ?? 1);
       const shots = await storage.getShotsForUserRound(req.user.id, year, round);
       res.json(shots);

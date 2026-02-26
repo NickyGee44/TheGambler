@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -16,9 +16,7 @@ import Boozelympics from "@/pages/Boozelympics";
 import SideBets from "@/pages/SideBets";
 import Rules from "@/pages/Rules";
 import Photos from "@/pages/Photos";
-import Round1 from "@/pages/Round1";
-import Round2 from "@/pages/Round2";
-import Round3 from "@/pages/Round3";
+import Scoring from "@/pages/Scoring";
 import Round3Matchups from "@/pages/Round3Matchups";
 import TournamentMatchups from "@/pages/TournamentMatchups";
 import Registration from "@/pages/Registration";
@@ -96,6 +94,16 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   }
 }
 
+function RedirectToScoring({ tab }: { tab: "1" | "2" | "3" }) {
+  const [, navigate] = useLocation();
+
+  useEffect(() => {
+    navigate(`/scoring?tab=${tab}`);
+  }, [navigate, tab]);
+
+  return null;
+}
+
 function Router() {
   const { user, isLoading } = useAuth();
   const [showUpdateNotification, setShowUpdateNotification] = useState(false);
@@ -155,10 +163,10 @@ function Router() {
           <>
             <Route path="/" component={Home} />
             <Route path="/teams" component={Teams} />
-            <Route path="/round1" component={Round1} />
-
-            <Route path="/round2" component={Round2} />
-            <Route path="/round3" component={Round3} />
+            <Route path="/round1">{() => <RedirectToScoring tab="1" />}</Route>
+            <Route path="/round2">{() => <RedirectToScoring tab="2" />}</Route>
+            <Route path="/round3">{() => <RedirectToScoring tab="3" />}</Route>
+            <Route path="/scoring" component={Scoring} />
 
             <Route path="/scores" component={Scores} />
             <Route path="/stats" component={Stats} />
@@ -215,7 +223,7 @@ function App() {
     // Add theme color meta tag
     const themeColorMeta = document.createElement('meta');
     themeColorMeta.name = 'theme-color';
-    themeColorMeta.content = '#059669';
+    themeColorMeta.content = '#0A0A0A';
     document.head.appendChild(themeColorMeta);
 
     // Add viewport meta tag for PWA

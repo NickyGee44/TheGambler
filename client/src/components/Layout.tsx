@@ -25,7 +25,7 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white transition-colors duration-300" style={{position: 'relative', height: 'auto'}}>
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300" style={{position: 'relative', height: 'auto'}}>
 
 
       {/* Offline Indicator */}

@@ -308,6 +308,12 @@ export default function SideBets() {
     }
   };
 
+  const getBetCardClasses = (bet: SideBet) => {
+    if (bet.result === "Won") return "bg-gambler-slate border border-gambler-green";
+    if (bet.result === "Lost") return "bg-gambler-slate border border-red-500";
+    return "bg-gambler-slate border border-amber-500";
+  };
+
   const getBetsByRound = (round: number) => {
     return sideBets.filter((bet: SideBet) => 
       bet.round === round && 
@@ -329,17 +335,17 @@ export default function SideBets() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8 min-h-screen bg-background">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-golf-green-600 mb-2">Side Bets</h2>
-          <p className="text-gray-600 dark:text-gray-400">Track your wagers and challenges</p>
+          <h2 className="text-3xl font-black tracking-[0.16em] text-gambler-gold mb-2">🎰 THE BOOK</h2>
+          <p className="text-muted-foreground">Side bets open until 1 hour before each round</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="mt-4 sm:mt-0 bg-golf-gold-500 hover:bg-golf-gold-600 text-white">
+            <Button className="mt-4 sm:mt-0 bg-gradient-to-r from-[#FFD700] to-[#FFB300] hover:from-[#ffe266] hover:to-[#ffc247] text-gambler-black font-extrabold tracking-wide uppercase">
               <Plus className="w-4 h-4 mr-2" />
-              Place New Bet
+              PLACE A BET
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -571,9 +577,9 @@ export default function SideBets() {
 
       <div className="space-y-8">
         {[1, 2, 3].map((round) => (
-          <Card key={round} className="shadow-lg">
+          <Card key={round} className="shadow-lg bg-gambler-black border border-gambler-border">
             <CardHeader>
-              <CardTitle className="text-xl text-golf-green-600">
+              <CardTitle className="text-xl text-gambler-gold">
                 {roundTitles[round as keyof typeof roundTitles]}
               </CardTitle>
             </CardHeader>
@@ -585,10 +591,10 @@ export default function SideBets() {
                   </p>
                 ) : (
                   getBetsByRound(round).map((bet: SideBet) => (
-                    <div key={bet.id} className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg border border-gray-200 dark:border-slate-600">
+                    <div key={bet.id} className={`${getBetCardClasses(bet)} p-4 rounded-sm`}>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex-1">
-                          <div className="font-medium text-golf-green-600">
+                          <div className="font-medium text-gambler-green">
                             {bet.isTeamBet ? (
                               <div className="space-y-2">
                                 <div className="flex items-center gap-3">
@@ -652,12 +658,12 @@ export default function SideBets() {
                               </div>
                             )}
                           </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          <div className="text-sm text-muted-foreground mt-1">
                             {bet.condition}
                           </div>
                         </div>
                         <div className="flex items-center space-x-3 mt-2 sm:mt-0">
-                          <span className="font-semibold text-golf-gold-500">
+                          <span className="font-semibold text-gambler-gold">
                             ${bet.amount}
                           </span>
                           <div className="flex items-center space-x-2">

@@ -107,6 +107,11 @@ export default {
           800: 'var(--golf-water-800)',
           900: 'var(--golf-water-900)',
         },
+        "gambler-black": "#0A0A0A",
+        "gambler-green": "#00C853",
+        "gambler-gold": "#FFD700",
+        "gambler-slate": "#1C1C1E",
+        "gambler-border": "#3A3A3C",
       },
       keyframes: {
         "accordion-down": {
