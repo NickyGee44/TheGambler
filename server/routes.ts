@@ -1312,119 +1312,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Custom registration endpoint
-  app.post('/api/register', async (req, res) => {
-    try {
-      const { playerName, password } = req.body;
-      
-      if (!playerName || !password) {
-        return res.status(400).json({ error: 'Player name and password are required' });
-      }
-
-      // Parse player name to get first and last name
-      const nameParts = playerName.trim().split(' ');
-      const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(' ');
-      
-      // Check if user already exists
-      const existingUser = await storage.getUserByName(firstName, lastName);
-      if (existingUser) {
-        return res.status(400).json({ error: 'User already exists' });
-      }
-
-      // Create new user with simple password (for tournament convenience)
-      const newUser = await storage.createUser({
-        firstName,
-        lastName,
-        password: 'abc123', // Simple password for tournament
-        handicap: 20
-      });
-
-      // Create session data
-      req.session.user = {
-        id: newUser.id,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName
-      };
-
-      res.json({
-        id: newUser.id,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        message: 'Registration successful'
-      });
-    } catch (error) {
-      console.error('Registration error:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
-  // Get current user endpoint
-  app.get('/api/user', async (req, res) => {
-    try {
-      // Check for custom session auth first
-      if (req.session?.user) {
-        const user = await storage.getUser(req.session.user.id);
-        if (user) {
-          return res.json({
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName
-          });
-        }
-      }
-      
-      // Fallback to Replit Auth
-      if (req.isAuthenticated && req.isAuthenticated()) {
-        // Handle Replit Auth user
-        const user = req.user as any;
-        if (user?.claims?.sub) {
-          return res.json({
-            id: user.claims.sub,
-            firstName: user.claims.given_name || 'User',
-            lastName: user.claims.family_name || ''
-          });
-        }
-      }
-      
-      // No authenticated user found
-      res.status(401).json({ error: 'Not authenticated' });
-    } catch (error) {
-      console.error('Get user error:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
-  // Logout endpoint
-  app.post('/api/logout', (req, res) => {
-    if (req.session?.user) {
-      // Custom auth logout
-      req.session.destroy((err) => {
-        if (err) {
-          console.error('Session destroy error:', err);
-          return res.status(500).json({ error: 'Logout failed' });
-        }
-        res.json({ message: 'Logged out successfully' });
-      });
-    } else if (req.logout) {
-      // Replit Auth logout
-      req.logout(() => {
-        res.json({ message: 'Logged out successfully' });
-      });
-    } else {
-      res.json({ message: 'No active session' });
-    }
-  });
-
-  // Teams endpoints
-  app.get('/api/teams', async (req, res) => {
-    try {
-      const teams = await storage.getTeams();
-      res.json(teams);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch teams' });
-    }
-  });
 
   // Get team by player name
   app.get('/api/team/by-player/:playerName', async (req, res) => {
@@ -1529,7 +1416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/sidebets', async (req, res) => {
+  app.post('/api/sidebets', requireAuth, async (req: any, res) => {
     try {
       const validated = insertSideBetSchema.parse(req.body);
       const sideBet = await storage.createSideBet(validated);
@@ -1551,7 +1438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/sidebets/:id', async (req, res) => {
+  app.patch('/api/sidebets/:id', requireAuth, async (req: any, res) => {
     try {
       const { id } = req.params;
       const { result } = req.body;
@@ -1570,7 +1457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/sidebets/:id/status', async (req, res) => {
+  app.patch('/api/sidebets/:id/status', requireAuth, async (req: any, res) => {
     try {
       const { id } = req.params;
       const { status } = req.body;
@@ -1696,28 +1583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/photos', async (req, res) => {
-    try {
-      const validated = insertPhotoSchema.parse(req.body);
-      const photo = await storage.createPhoto(validated);
-      
-      // Broadcast new photo to all clients
-      broadcast({
-        type: 'PHOTO_UPLOADED',
-        data: photo
-      });
-
-      res.json(photo);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ error: error.errors });
-      } else {
-        res.status(500).json({ error: 'Failed to upload photo' });
-      }
-    }
-  });
-
-  // Photo upload endpoint with file handling
+  // Photo upload endpoint with file handling (POST /api/photos removed - use /api/photos/upload with auth)
   app.post('/api/photos/upload', requireAuth, upload.single('photo'), async (req: any, res) => {
     try {
       if (!req.file) {
@@ -1814,7 +1680,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/matchups', async (req, res) => {
+  app.post('/api/matchups', requireAuth, async (req: any, res) => {
     try {
       const matchup = await storage.createMatchup(req.body);
       res.status(201).json(matchup);
