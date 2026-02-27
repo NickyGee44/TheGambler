@@ -62,6 +62,10 @@ export default function Stats() {
     );
   }
 
+  // Helpers: check if a player has shot-tracking data
+  const hasFairwayData = (player: PlayerStats) => player.rounds?.some((r) => r.fairwayAttempts > 0);
+  const hasPuttData = (player: PlayerStats) => player.rounds?.some((r) => r.putts > 0);
+
   const withDerived = playerStats.map((player) => {
     const puttingAverage = player.totalHoles > 0 ? Number(player.averagePutts) : 0;
     const fairwayAccuracy = Number(player.fairwayPercentage || "0");
@@ -70,8 +74,9 @@ export default function Stats() {
   });
 
   const birdieEagleLeaders = [...withDerived].sort((a, b) => b.birdiesEaglesTotal - a.birdiesEaglesTotal);
-  const puttingLeaders = [...withDerived].sort((a, b) => a.puttingAverage - b.puttingAverage);
-  const fairwayLeaders = [...withDerived].sort((a, b) => b.fairwayAccuracy - a.fairwayAccuracy);
+  // Only include players with tracking data in fairway and putting leaderboards
+  const puttingLeaders = [...withDerived].filter((p) => hasPuttData(p)).sort((a, b) => a.puttingAverage - b.puttingAverage);
+  const fairwayLeaders = [...withDerived].filter((p) => hasFairwayData(p)).sort((a, b) => b.fairwayAccuracy - a.fairwayAccuracy);
   const penaltyLeaders = [...withDerived].sort((a, b) => b.totalPenalties - a.totalPenalties);
 
   const LeaderboardCard = ({
@@ -95,19 +100,23 @@ export default function Stats() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {rows.slice(0, 8).map((player, index) => (
-          <div key={player.userId} className="flex items-center justify-between bg-gambler-slate border border-gambler-border rounded px-3 py-2">
-            <div className="flex items-center gap-3">
-              <Badge className="bg-gray-700 text-white w-6 h-6 p-0 rounded-full flex items-center justify-center">{index + 1}</Badge>
-              <ProfilePicture firstName={player.firstName} lastName={player.lastName} size="sm" />
-              <div>
-                <div className="text-white text-sm font-medium">{player.firstName} {player.lastName}</div>
-                {subtitleFormatter && <div className="text-xs text-gray-400">{subtitleFormatter(player)}</div>}
+        {rows.length === 0 ? (
+          <div className="text-sm text-gray-400 text-center py-2">No tracking data available</div>
+        ) : (
+          rows.slice(0, 8).map((player, index) => (
+            <div key={player.userId} className="flex items-center justify-between bg-gambler-slate border border-gambler-border rounded px-3 py-2">
+              <div className="flex items-center gap-3">
+                <Badge className="bg-gray-700 text-white w-6 h-6 p-0 rounded-full flex items-center justify-center">{index + 1}</Badge>
+                <ProfilePicture firstName={player.firstName} lastName={player.lastName} size="sm" />
+                <div>
+                  <div className="text-white text-sm font-medium">{player.firstName} {player.lastName}</div>
+                  {subtitleFormatter && <div className="text-xs text-gray-400">{subtitleFormatter(player)}</div>}
+                </div>
               </div>
+              <div className="text-gambler-green font-bold">{valueFormatter(player)}</div>
             </div>
-            <div className="text-gambler-green font-bold">{valueFormatter(player)}</div>
-          </div>
-        ))}
+          ))
+        )}
       </CardContent>
     </Card>
   );
@@ -174,8 +183,8 @@ export default function Stats() {
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between text-gray-200"><span>Birdies + Eagles</span><span>{player.birdiesEaglesTotal}</span></div>
-                <div className="flex justify-between text-gray-200"><span>Putting Avg</span><span>{player.puttingAverage.toFixed(2)}</span></div>
-                <div className="flex justify-between text-gray-200"><span>Fairway Accuracy</span><span>{player.fairwayAccuracy.toFixed(1)}%</span></div>
+                <div className="flex justify-between text-gray-200"><span>Putting Avg</span><span>{hasPuttData(player) ? player.puttingAverage.toFixed(2) : "N/A"}</span></div>
+                <div className="flex justify-between text-gray-200"><span>Fairway Accuracy</span><span>{hasFairwayData(player) ? `${player.fairwayAccuracy.toFixed(1)}%` : "N/A"}</span></div>
                 <div className="flex justify-between text-gray-200"><span>Penalties</span><span>{player.totalPenalties}</span></div>
                 <Link href={`/player/${player.userId}`}>
                   <Button variant="outline" className="w-full border-gambler-border text-white hover:bg-gambler-slate mt-3">

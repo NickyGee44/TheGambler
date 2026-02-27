@@ -37,7 +37,9 @@ interface PlayerHistoricalStats {
   averagePutts: string;
   totalPenalties: number;
   fairwayPercentage: string;
+  fairwayAttempts: number;
   greenPercentage: string;
+  greenAttempts: number;
   sandSaves: number;
   upAndDowns: number;
   tournamentHistory: TournamentHistory[];
@@ -65,7 +67,9 @@ interface YearlyStats {
   totalPutts: number;
   averagePutts: string;
   fairwayPercentage: string;
+  fairwayAttempts: number;
   greenPercentage: string;
+  greenAttempts: number;
   tournamentData: TournamentHistory | null;
 }
 
@@ -251,9 +255,9 @@ export default function PlayerProfile() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-golf-green-400">
-                    {playerStats.fairwayPercentage}%
+                    {playerStats.fairwayAttempts > 0 ? `${playerStats.fairwayPercentage}%` : "N/A"}
                   </div>
-                  <Progress value={parseFloat(playerStats.fairwayPercentage)} className="mt-2" />
+                  <Progress value={playerStats.fairwayAttempts > 0 ? parseFloat(playerStats.fairwayPercentage) : 0} className="mt-2" />
                 </CardContent>
               </Card>
 
@@ -266,9 +270,9 @@ export default function PlayerProfile() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-golf-green-400">
-                    {playerStats.greenPercentage}%
+                    {playerStats.greenAttempts > 0 ? `${playerStats.greenPercentage}%` : "N/A"}
                   </div>
-                  <Progress value={parseFloat(playerStats.greenPercentage)} className="mt-2" />
+                  <Progress value={playerStats.greenAttempts > 0 ? parseFloat(playerStats.greenPercentage) : 0} className="mt-2" />
                 </CardContent>
               </Card>
 
@@ -281,7 +285,7 @@ export default function PlayerProfile() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-golf-green-400">
-                    {playerStats.averagePutts}
+                    {playerStats.fairwayAttempts > 0 ? playerStats.averagePutts : "N/A"}
                   </div>
                   <p className="text-sm text-gray-300">per hole</p>
                 </CardContent>
@@ -400,7 +404,7 @@ export default function PlayerProfile() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-golf-green-400">
-                        {yearlyStats.fairwayPercentage}%
+                        {yearlyStats.fairwayAttempts > 0 ? `${yearlyStats.fairwayPercentage}%` : "N/A"}
                       </div>
                     </CardContent>
                   </Card>
@@ -411,7 +415,7 @@ export default function PlayerProfile() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-golf-green-400">
-                        {yearlyStats.greenPercentage}%
+                        {yearlyStats.greenAttempts > 0 ? `${yearlyStats.greenPercentage}%` : "N/A"}
                       </div>
                     </CardContent>
                   </Card>
@@ -422,7 +426,7 @@ export default function PlayerProfile() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-golf-green-400">
-                        {yearlyStats.averagePutts}
+                        {yearlyStats.fairwayAttempts > 0 ? yearlyStats.averagePutts : "N/A"}
                       </div>
                     </CardContent>
                   </Card>

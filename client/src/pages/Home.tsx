@@ -24,7 +24,7 @@ export default function Home() {
   });
 
   const { data: leaderboard } = useQuery<any[]>({
-    queryKey: ["/api/leaderboard/1"],
+    queryKey: ["/api/leaderboard/3"],
     enabled: tournamentOver,
   });
 
@@ -144,7 +144,7 @@ export default function Home() {
           <Tabs defaultValue="team" className="space-y-4">
             <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto bg-gambler-slate border border-gambler-border">
               <TabsTrigger value="team">Final Results</TabsTrigger>
-              <TabsTrigger value="individual">Individual</TabsTrigger>
+              <TabsTrigger value="individual">Final Individual Standings</TabsTrigger>
             </TabsList>
 
             <TabsContent value="team">

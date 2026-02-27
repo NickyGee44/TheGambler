@@ -359,7 +359,9 @@ export class DatabaseStorage implements IStorage {
     const totalPutts = allHoleScores.reduce((sum, score) => sum + score.putts, 0);
     const totalPenalties = allHoleScores.reduce((sum, score) => sum + score.penalties, 0);
     const fairwaysHit = allHoleScores.filter(score => score.fairwayInRegulation === true).length;
+    const fairwayAttempts = allHoleScores.filter(score => score.fairwayInRegulation !== null).length;
     const greensHit = allHoleScores.filter(score => score.greenInRegulation === true).length;
+    const greenAttempts = allHoleScores.filter(score => score.greenInRegulation !== null).length;
     const sandSaves = allHoleScores.reduce((sum, score) => sum + score.sandSaves, 0);
     const upAndDowns = allHoleScores.reduce((sum, score) => sum + score.upAndDowns, 0);
 
@@ -374,8 +376,10 @@ export class DatabaseStorage implements IStorage {
       totalPutts,
       averagePutts: totalHoles > 0 ? (totalPutts / totalHoles).toFixed(2) : 0,
       totalPenalties,
-      fairwayPercentage: totalHoles > 0 ? ((fairwaysHit / totalHoles) * 100).toFixed(1) : 0,
-      greenPercentage: totalHoles > 0 ? ((greensHit / totalHoles) * 100).toFixed(1) : 0,
+      fairwayAttempts,
+      greenAttempts,
+      fairwayPercentage: fairwayAttempts > 0 ? ((fairwaysHit / fairwayAttempts) * 100).toFixed(1) : "0.0",
+      greenPercentage: greenAttempts > 0 ? ((greensHit / greenAttempts) * 100).toFixed(1) : "0.0",
       sandSaves,
       upAndDowns,
       tournamentHistory,
@@ -400,7 +404,9 @@ export class DatabaseStorage implements IStorage {
     const totalStrokes = yearlyHoleScores.reduce((sum, score) => sum + score.strokes, 0);
     const totalPutts = yearlyHoleScores.reduce((sum, score) => sum + score.putts, 0);
     const fairwaysHit = yearlyHoleScores.filter(score => score.fairwayInRegulation === true).length;
+    const fairwayAttempts = yearlyHoleScores.filter(score => score.fairwayInRegulation !== null).length;
     const greensHit = yearlyHoleScores.filter(score => score.greenInRegulation === true).length;
+    const greenAttempts = yearlyHoleScores.filter(score => score.greenInRegulation !== null).length;
 
     return {
       year,
@@ -409,8 +415,10 @@ export class DatabaseStorage implements IStorage {
       averageScore: totalHoles > 0 ? (totalStrokes / totalHoles).toFixed(2) : 0,
       totalPutts,
       averagePutts: totalHoles > 0 ? (totalPutts / totalHoles).toFixed(2) : 0,
-      fairwayPercentage: totalHoles > 0 ? ((fairwaysHit / totalHoles) * 100).toFixed(1) : 0,
-      greenPercentage: totalHoles > 0 ? ((greensHit / totalHoles) * 100).toFixed(1) : 0,
+      fairwayAttempts,
+      greenAttempts,
+      fairwayPercentage: fairwayAttempts > 0 ? ((fairwaysHit / fairwayAttempts) * 100).toFixed(1) : "0.0",
+      greenPercentage: greenAttempts > 0 ? ((greensHit / greenAttempts) * 100).toFixed(1) : "0.0",
       tournamentData: yearlyHistory[0] || null
     };
   }
