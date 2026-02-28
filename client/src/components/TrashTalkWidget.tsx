@@ -41,7 +41,7 @@ export default function TrashTalkWidget() {
   // Fetch chat messages
   const { data: messages = [], isLoading } = useQuery<ChatMessage[]>({
     queryKey: ['/api/chat/messages'],
-    refetchInterval: 5000, // Refresh every 5 seconds
+    refetchInterval: 10000, // Refresh every 10 seconds
     enabled: isAuthenticated,
   });
 
@@ -87,31 +87,7 @@ export default function TrashTalkWidget() {
     }
   }, [messages, isExpanded]);
 
-  // Handle WebSocket messages
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    const handleWebSocketMessage = (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'CHAT_MESSAGE') {
-          queryClient.invalidateQueries({ queryKey: ['/api/chat/messages'] });
-        }
-      } catch (error) {
-        // Ignore non-JSON messages
-      }
-    };
-
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    const ws = new WebSocket(wsUrl);
-    
-    ws.onmessage = handleWebSocketMessage;
-    
-    return () => {
-      ws.close();
-    };
-  }, [queryClient, isAuthenticated]);
+  // Vercel serverless has no persistent WebSocket support; polling handles updates.
 
   const handleSendMessage = () => {
     if (!newMessage.trim() || !isAuthenticated) return;

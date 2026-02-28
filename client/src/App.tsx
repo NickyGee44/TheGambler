@@ -212,32 +212,7 @@ function Router() {
 
 function App() {
   useEffect(() => {
-    // Add manifest link
-    const link = document.createElement('link');
-    link.rel = 'manifest';
-    link.href = '/manifest.json';
-    document.head.appendChild(link);
-
-    // Add theme color meta tag
-    const themeColorMeta = document.createElement('meta');
-    themeColorMeta.name = 'theme-color';
-    themeColorMeta.content = '#0A0A0A';
-    document.head.appendChild(themeColorMeta);
-
-    // Add viewport meta tag for PWA
-    const viewportMeta = document.createElement('meta');
-    viewportMeta.name = 'viewport';
-    viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-    document.head.appendChild(viewportMeta);
-
-    // Add apple-touch-icon
-    const appleTouchIcon = document.createElement('link');
-    appleTouchIcon.rel = 'apple-touch-icon';
-    appleTouchIcon.href = '/icons/icon-192x192.png';
-    document.head.appendChild(appleTouchIcon);
-
-    // Set title
-    document.title = 'The Gambler Cup 2026';
+    document.title = 'The Gambler 2026';
   }, []);
 
   return (

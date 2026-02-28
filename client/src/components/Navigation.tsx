@@ -48,6 +48,14 @@ export default function Navigation() {
       : []),
   ];
 
+  const bottomTabs = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/scoring", label: "Scoring", icon: Target },
+    { href: "/scores", label: "Leaderboard", icon: Trophy },
+    { href: "/sidebets", label: "Bets", icon: Coins },
+    { href: "/rules", label: "More", icon: BookOpen },
+  ];
+
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
@@ -125,6 +133,33 @@ export default function Navigation() {
       {isOpen && (
         <div className="fixed inset-0 bg-black/70 z-[55] lg:hidden" onClick={() => setIsOpen(false)} />
       )}
+
+      <nav className="fixed bottom-0 left-0 right-0 z-[65] border-t border-gambler-border bg-gambler-black/95 backdrop-blur-sm lg:hidden">
+        <ul className="grid grid-cols-5">
+          {bottomTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = location === tab.href;
+            return (
+              <li key={tab.href}>
+                <Link
+                  href={tab.href}
+                  className={`relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] ${
+                    isActive ? "text-gambler-green" : "text-muted-foreground"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{tab.label}</span>
+                  <span
+                    className={`absolute bottom-1 h-1 w-8 rounded-full transition-all ${
+                      isActive ? "bg-gambler-green shadow-[0_0_10px_#00C853] animate-pulse" : "bg-transparent"
+                    }`}
+                  />
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
     </>
   );
 }

@@ -63,6 +63,7 @@ export default function TournamentManagement() {
     selectedTeam: "",
     selectedPlayers: []
   });
+  const [inviteCodeInput, setInviteCodeInput] = useState("");
 
   // Check if user has admin privileges
   const isAdmin = user && ['Nick Grossi', 'Connor Patterson'].includes(`${user.firstName} ${user.lastName}`);
@@ -75,6 +76,10 @@ export default function TournamentManagement() {
   // Fetch active tournament
   const { data: activeTournament } = useQuery<Tournament>({
     queryKey: ['/api/tournaments/active'],
+  });
+
+  const { data: inviteCodeData } = useQuery<{ inviteCode: string }>({
+    queryKey: ["/api/admin/invite-code"],
   });
 
   // Fetch teams and players for champion selection
@@ -158,6 +163,27 @@ export default function TournamentManagement() {
         variant: "destructive",
       });
     }
+  });
+
+  const updateInviteCodeMutation = useMutation({
+    mutationFn: async (nextCode: string) => {
+      return apiRequest("PUT", "/api/admin/invite-code", { inviteCode: nextCode });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/invite-code"] });
+      setInviteCodeInput("");
+      toast({
+        title: "Success",
+        description: "Invite code updated",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update invite code",
+        variant: "destructive",
+      });
+    },
   });
 
   const resetForm = () => {
@@ -327,6 +353,32 @@ export default function TournamentManagement() {
             </CardContent>
           </Card>
         )}
+
+        <Card className="bg-gray-800/50 border-gray-700 mb-8">
+          <CardHeader>
+            <CardTitle className="text-white">Invite Code</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="text-sm text-gray-300">
+              Current code: <span className="font-semibold text-golf-green-400">{inviteCodeData?.inviteCode ?? "Loading..."}</span>
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={inviteCodeInput}
+                onChange={(e) => setInviteCodeInput(e.target.value)}
+                placeholder="Set new invite code"
+                className="bg-gray-900/50 border-gray-600 text-white"
+              />
+              <Button
+                onClick={() => updateInviteCodeMutation.mutate(inviteCodeInput.trim())}
+                disabled={!inviteCodeInput.trim() || updateInviteCodeMutation.isPending}
+                className="bg-golf-green-400 hover:bg-golf-green-500 text-black"
+              >
+                Save Code
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Tournament List */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

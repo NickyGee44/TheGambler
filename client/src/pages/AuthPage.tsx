@@ -62,7 +62,7 @@ export default function AuthPage() {
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (credentials: { playerName: string; password: string }) => {
+    mutationFn: async (credentials: { playerName: string; password: string; inviteCode: string }) => {
       const res = await apiRequest("POST", "/api/register", credentials);
       return await res.json();
     },
@@ -98,6 +98,7 @@ export default function AuthPage() {
   const [formData, setFormData] = useState({
     playerName: "",
     password: "",
+    inviteCode: "",
   });
 
   // Redirect if already logged in
@@ -278,13 +279,26 @@ export default function AuthPage() {
                           required
                         />
                       </div>
+                      <div>
+                        <Label htmlFor="inviteCode">Invite Code</Label>
+                        <Input
+                          id="inviteCode"
+                          name="inviteCode"
+                          type="text"
+                          value={formData.inviteCode}
+                          onChange={handleInputChange}
+                          placeholder="Enter invite code"
+                          required
+                        />
+                      </div>
                       <Button 
                         type="submit" 
                         className="w-full bg-golf-green-600 hover:bg-golf-green-700"
-                        disabled={registerMutation.isPending || !formData.playerName}
+                        disabled={registerMutation.isPending || !formData.playerName || !formData.inviteCode}
                       >
                         {registerMutation.isPending ? "Creating account..." : "Create Account"}
                       </Button>
+                      <p className="text-xs text-muted-foreground">Admins (Nick Grossi, Connor Patterson) can register without invite code.</p>
                     </form>
                   </TabsContent>
                 </Tabs>

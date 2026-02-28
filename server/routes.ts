@@ -493,6 +493,8 @@ async function generateRound1Matchups(storage: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  let inviteCode = process.env.INVITE_CODE || "gambler2026";
+
   // Health check endpoints for different deployment systems
   app.get('/health', (req, res) => {
     res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
@@ -565,7 +567,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Custom registration endpoint
   app.post('/api/register', async (req, res) => {
     try {
-      const { playerName, password } = req.body;
+      const { playerName, password, inviteCode: submittedInviteCode } = req.body;
       
       if (!playerName || !password) {
         return res.status(400).json({ error: 'Player name and password are required' });
@@ -575,11 +577,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const nameParts = playerName.trim().split(' ');
       const firstName = nameParts[0];
       const lastName = nameParts.slice(1).join(' ');
+      const fullName = `${firstName} ${lastName}`.trim();
+      const isAdminRegistrant = ["Nick Grossi", "Connor Patterson"].includes(fullName);
       
       // Check if user already exists
       const existingUser = await storage.getUserByName(firstName, lastName);
       if (existingUser) {
         return res.status(400).json({ error: 'User already exists' });
+      }
+
+      if (!isAdminRegistrant && submittedInviteCode !== inviteCode) {
+        return res.status(403).json({ error: 'Invalid invite code' });
       }
 
       // Create new user with simple password (for tournament convenience)
@@ -694,6 +702,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || ""
     });
+  });
+
+  app.get('/api/admin/invite-code', requireAuth, requireAdmin, async (_req: any, res) => {
+    res.json({ inviteCode });
+  });
+
+  app.put('/api/admin/invite-code', requireAuth, requireAdmin, async (req: any, res) => {
+    const nextCode = String(req.body?.inviteCode || "").trim();
+    if (!nextCode) {
+      return res.status(400).json({ error: "Invite code is required" });
+    }
+    inviteCode = nextCode;
+    res.json({ inviteCode });
   });
 
   // Stripe webhook

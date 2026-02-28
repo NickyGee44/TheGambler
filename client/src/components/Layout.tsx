@@ -40,7 +40,7 @@ export default function Layout({ children }: LayoutProps) {
 
       {user && <Navigation />}
       
-      <main className={user ? "lg:ml-64 page-container" : "page-container"}>
+      <main className={user ? "lg:ml-64 page-container pb-20 lg:pb-0" : "page-container"}>
         <div className="w-full mobile-scroll-fix">
           {children}
         </div>

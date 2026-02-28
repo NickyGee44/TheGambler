@@ -76,7 +76,7 @@ import {
 import { db, pool } from "./db";
 import { eq, and, asc, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
-import { deerhurstCourse } from "@shared/courseData";
+import { deerhurstCourse, getCourseForRound } from "@shared/courseData";
 import memoize from "memoizee";
 
 // Interface for storage operations
@@ -585,14 +585,13 @@ export class DatabaseStorage implements IStorage {
       console.log('✅ Existing scores found:', existingScore ? 1 : 0);
 
       // Calculate net score and points (Stableford scoring with proper handicap)
-      const par = 4; // Default par, can be customized per hole
+      const course = getCourseForRound(round);
+      const holeData = course.holes.find((h) => h.number === hole);
+      const par = holeData?.par ?? 4;
       console.log('🏌️ Calculating handicap for hole...');
-      const handicap = await this.calculateHoleHandicap(userId, hole);
+      const handicap = await this.calculateHoleHandicap(userId, hole, round);
       const netScore = strokes - handicap;
-      let points = 0;
-      
-      // No Stableford points - using pure net stroke play
-      points = 0;
+      const points = Math.max(0, 2 + (par - netScore));
 
       console.log('✅ Calculated scores:', { par, handicap, netScore, points });
 
@@ -687,11 +686,13 @@ export class DatabaseStorage implements IStorage {
       const playerInfo = await this.findPlayerByName(user.firstName, user.lastName);
       if (!playerInfo) throw new Error('Player not found in any team');
 
-      const par = 4; // Default par
+      const course = getCourseForRound(round);
+      const holeData = course.holes.find((h) => h.number === hole);
+      const par = holeData?.par ?? 4;
       const handicap = 0; // Simplified
       const strokes = 0; // Default strokes if not set
       const netScore = strokes - handicap;
-      const points = 0; // Default points
+      const points = Math.max(0, 2 + (par - netScore));
 
       const [newScore] = await db
         .insert(holeScores)
@@ -736,7 +737,7 @@ export class DatabaseStorage implements IStorage {
   async getIndividualLeaderboard(round: number): Promise<any[]> {
     // Get all users and their individual performance for this round
     const allUsers = await this.getAllUsers();
-    const individualData = [];
+    const individualData: any[] = [];
     
     for (const user of allUsers) {
       // Get player's team info
@@ -758,6 +759,7 @@ export class DatabaseStorage implements IStorage {
       const holesCompleted = playerHoleScores.length;
       const totalStrokes = playerHoleScores.reduce((sum, score) => sum + score.strokes, 0);
       const netStrokes = playerHoleScores.reduce((sum, score) => sum + score.netScore, 0);
+      const latestSavedHole = playerHoleScores.reduce((max, score) => Math.max(max, score.hole), 0);
       
       individualData.push({
         user: {
@@ -774,7 +776,8 @@ export class DatabaseStorage implements IStorage {
         stablefordPoints: totalPoints, // Same as totalPoints for individual
         netStrokes: netStrokes,
         grossStrokes: totalStrokes,
-        holesCompleted: holesCompleted
+        holesCompleted: holesCompleted,
+        currentHole: Math.min(18, latestSavedHole + 1),
       });
     }
     
@@ -794,7 +797,7 @@ export class DatabaseStorage implements IStorage {
     return individualData;
   }
 
-  async calculateHoleHandicap(userId: number, hole: number): Promise<number> {
+  async calculateHoleHandicap(userId: number, hole: number, round: number): Promise<number> {
     // Get the user's course handicap directly from users table (single source of truth)
     const user = await this.getUser(userId);
     if (!user) return 0;
@@ -802,11 +805,9 @@ export class DatabaseStorage implements IStorage {
     // Use handicap directly from users table
     const playerHandicap = user.handicap || 0;
     
-    // Import the actual course data to get correct handicap rankings
-    const { muskokaBayCourse } = await import('../shared/courseData');
-    
-    // Find the handicap index for this specific hole from course data
-    const holeData = muskokaBayCourse.holes.find(h => h.number === hole);
+    // Find the handicap index for this specific hole from current round course data
+    const course = getCourseForRound(round);
+    const holeData = course.holes.find(h => h.number === hole);
     const strokeIndex = holeData ? holeData.handicap : 18;
     
     // Player gets a stroke if their handicap >= stroke index
@@ -827,7 +828,7 @@ export class DatabaseStorage implements IStorage {
       const par = holeData ? holeData.par : 4;
       
       // Calculate correct handicap strokes for this player on this hole
-      const handicapStrokes = await this.calculateHoleHandicap(score.userId, score.hole);
+      const handicapStrokes = await this.calculateHoleHandicap(score.userId, score.hole, score.round);
       
       // Calculate correct net score
       const netScore = score.strokes - handicapStrokes;
@@ -1711,7 +1712,7 @@ export class DatabaseStorage implements IStorage {
     return calculatedScores;
   }
 
-  async getLiveScores(): Promise<(Score & { team: Team; currentRoundPoints: number; currentRoundStanding: number; })[]> {
+  async getLiveScores(): Promise<(Score & { team: Team; currentRoundPoints: number; currentRoundStanding: number; currentHole: number; })[]> {
     // First get the calculated scores
     const calculatedScores = await this.getCalculatedScores();
     
@@ -1719,11 +1720,13 @@ export class DatabaseStorage implements IStorage {
     const liveScores = await Promise.all(calculatedScores.map(async (score) => {
       const currentRoundPoints = await this.getCurrentRoundPoints(score.teamId);
       const currentRoundStanding = await this.getCurrentRoundStanding(score.teamId);
+      const currentHole = await this.getTeamCurrentHole(score.teamId);
       
       return {
         ...score,
         currentRoundPoints,
         currentRoundStanding,
+        currentHole,
       };
     }));
     
@@ -1827,6 +1830,18 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(holeScores.teamId, teamId), eq(holeScores.round, round)));
     
     return uniqueHoles.length;
+  }
+
+  async getTeamCurrentHole(teamId: number): Promise<number> {
+    const latestHole = await db
+      .select({ round: holeScores.round, hole: holeScores.hole })
+      .from(holeScores)
+      .where(eq(holeScores.teamId, teamId))
+      .orderBy(sql`${holeScores.round} DESC, ${holeScores.hole} DESC`)
+      .limit(1);
+
+    if (!latestHole.length) return 1;
+    return Math.min(18, (latestHole[0].hole ?? 0) + 1);
   }
 
   private async calculateTeamRoundPoints(teamId: number, round: number): Promise<number> {
