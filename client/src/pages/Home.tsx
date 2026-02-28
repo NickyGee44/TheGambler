@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trophy, Beer, Medal, Users, CalendarDays } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { TOURNAMENT_CONFIG, getTournamentStartDate } from "@shared/tournamentConfig";
+import confetti from "canvas-confetti";
 
 const isTournamentOver = () => new Date() > getTournamentStartDate();
 
@@ -52,6 +53,20 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [tournamentOver]);
 
+  useEffect(() => {
+    if (!tournamentOver) return;
+    const timeout = setTimeout(() => {
+      confetti({
+        spread: 70,
+        startVelocity: 45,
+        particleCount: 120,
+        origin: { y: 0.6 },
+        colors: ["#C9A84C", "#2D6A4F", "#ffffff"],
+      });
+    }, 600);
+    return () => clearTimeout(timeout);
+  }, []);
+
   const champion = scores?.[0];
   const topIndividuals = leaderboard?.slice(0, 3) ?? [];
   const registeredPlayers = useMemo(() => {
@@ -70,16 +85,35 @@ export default function Home() {
 
         <div className="relative z-10 text-center px-4 py-16">
           <h1 className="text-5xl md:text-8xl font-black tracking-[0.24em] text-gambler-gold">THE GAMBLER</h1>
-          <p className="text-3xl md:text-5xl font-black text-gambler-green mt-3">2026</p>
-          <p className="text-base md:text-xl text-foreground mt-5">Where Bogeys Buy Beers and Birdies Win Cash</p>
+          <p className="text-3xl md:text-5xl font-black text-gambler-green mt-3">
+            {tournamentOver ? "SEASON COMPLETE" : "2026"}
+          </p>
+          <p className="text-base md:text-xl text-foreground mt-5">
+            {tournamentOver
+              ? "2025 Gambler Cup — Spencer Reid & Jeffrey Reiner take the title"
+              : "Where Bogeys Buy Beers and Birdies Win Cash"}
+          </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/scores" className="px-5 py-3 bg-gambler-green text-gambler-black font-extrabold tracking-wide uppercase rounded-sm">
-              View Leaderboard
-            </Link>
-            <Link href="/sidebets" className="px-5 py-3 border border-gambler-gold text-gambler-gold font-extrabold tracking-wide uppercase rounded-sm hover:bg-gambler-gold hover:text-gambler-black transition-colors">
-              Place a Bet
-            </Link>
+            {tournamentOver ? (
+              <>
+                <Link href="/scores" className="px-5 py-3 bg-gambler-green text-gambler-black font-extrabold tracking-wide uppercase rounded-sm">
+                  View Final Results
+                </Link>
+                <Link href="/stats" className="px-5 py-3 border border-gambler-gold text-gambler-gold font-extrabold tracking-wide uppercase rounded-sm hover:bg-gambler-gold hover:text-gambler-black transition-colors">
+                  Player Stats
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/scores" className="px-5 py-3 bg-gambler-green text-gambler-black font-extrabold tracking-wide uppercase rounded-sm">
+                  View Leaderboard
+                </Link>
+                <Link href="/sidebets" className="px-5 py-3 border border-gambler-gold text-gambler-gold font-extrabold tracking-wide uppercase rounded-sm hover:bg-gambler-gold hover:text-gambler-black transition-colors">
+                  Place a Bet
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -87,12 +121,16 @@ export default function Home() {
       <section className="bg-gambler-slate border-b border-gambler-border">
         <div className="max-w-6xl mx-auto px-4 py-8">
           {tournamentOver ? (
-            <div className="text-center rounded-md border border-gambler-gold bg-gambler-black p-6">
+            <div className="text-center rounded-md border border-gambler-gold bg-gambler-black p-6 shadow-[0_0_24px_rgba(201,168,76,0.35)]">
+              <Trophy className="w-8 h-8 text-gambler-gold mx-auto mb-2" />
               <h2 className="text-3xl md:text-4xl font-black tracking-[0.16em] text-gambler-gold">2025 CHAMPIONS</h2>
               {champion && (
-                <p className="text-foreground mt-3 font-medium">
-                  Team {champion.team.teamNumber}: {champion.team.player1Name} & {champion.team.player2Name}
-                </p>
+                <>
+                  <p className="text-foreground mt-3 font-medium">
+                    Team {champion.team.teamNumber}: {champion.team.player1Name} & {champion.team.player2Name}
+                  </p>
+                  <p className="text-gambler-gold mt-1 font-bold">{champion.totalPoints} pts</p>
+                </>
               )}
             </div>
           ) : (
