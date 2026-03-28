@@ -11,3 +11,5 @@ nick_cookies.txt
 test_cookies.txt
 *.cookies
 .vercel
+.env*.local
+.env.vercel
